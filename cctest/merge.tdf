@@ -1,0 +1,79 @@
+signed[w] merge(param unsigned[6] w, input signed[w] a, input signed[w] b) 
+  {
+        signed[w] tmpA;
+	signed[w] tmpB;
+	state start(a,b):	
+	  {
+	    tmpA=a;
+	    tmpB=b;
+	    if (a<b)
+	      {
+		merge=tmpA;
+		goto replaceA;
+	      }
+	    else
+	      {
+		merge=tmpB;
+		goto replaceB;
+	      }
+	  }
+	state start(a,eos(b)):	
+	  {
+	    merge=a;
+	    goto onlyA;
+	  }
+	state start(eos(a),b):	
+	  {
+	    merge=a;
+	    goto onlyB;
+	  }
+	state replaceA(a):
+	  {
+	    tmpA=a;
+	    if (a<b)
+	      {
+		merge=tmpA;
+		goto replaceA;
+	      }
+	    else
+	      {
+		merge=tmpB;
+		goto replaceB;
+	      }
+	  }
+	state replaceA(eos(a)):	
+	  {
+	    merge=tmpB;
+	    goto onlyB;
+	  }
+	state replaceB(b):
+	  {
+	    tmpB=b;
+	    if (a<b)
+	      {
+		merge=tmpA;
+		goto replaceA;
+	      }
+	    else
+	      {
+		merge=tmpB;
+		goto replaceB;
+	      }
+	  }
+	state replaceB(eos(b)):	
+	  {
+	    merge=tmpA;
+	    goto onlyA;
+	  }
+	state onlyA(a):
+	  {
+	    merge=a;
+	    goto onlyA;
+	  }
+	state onlyB(b):
+	  {
+	    merge=b; 
+	    goto onlyB;
+	  }
+  }
+

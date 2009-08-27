@@ -1,0 +1,26 @@
+unsigned[w+1] myadd1a(param unsigned[5] w, 
+                  input unsigned[w] a, input unsigned[w] b)
+{
+  state only(a,b):
+    myadd1a=a+b;
+}
+
+unsigned[widthof(cat(va,vb))] cat1a(param unsigned [4] a, 
+	                            input unsigned [a] va,
+                                    param unsigned [4] b,  
+                                    input unsigned [b] vb)
+
+{
+   state only(va,vb):
+      cat1a=cat(va,vb);
+}	
+
+unsigned[(n<<1)+1] cat7(param unsigned [4] n, input unsigned [n] a,
+                     input unsigned [n] b, input unsigned [n] d,
+                     input unsigned [n] c)
+{
+      cat7=myadd1a((2*n+1),cat1a(n,a,n,b),c);
+}	
+
+
+

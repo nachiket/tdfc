@@ -1,0 +1,15 @@
+#define TODC 0
+#define TOAC 1
+#define TOAC2 2
+#define PLAIN 3
+#define PICSTART 5
+#define MV 6
+#define INTRA 4
+#define PATTERN 7
+#define TODCINP 8
+
+#define MOTION_FORWARD 17
+#define MOTION_BACKWARD 18
+#define MOTION_BOTH 19
+
+

@@ -1,0 +1,29 @@
+xor_cca(param unsigned[6] n, input unsigned[n] a, input unsigned[n] b, 
+	output unsigned[n] o1, output unsigned[n] o2)
+
+{
+	state only(a,b): { o1=a^b; o2=~(a^b);}
+}
+
+xor_wrap(param unsigned[6] n, input unsigned[n] a, input unsigned[n] b, 
+	output unsigned[n] o1, output unsigned[n] o2)
+
+{
+	xor_cca(n,a,b,o1,o2);
+}
+
+comp_cycle_a(param unsigned[6]n, 
+             input unsigned[n] in1,
+             input unsigned[n] in2,
+             output unsigned[n] out1,
+             output unsigned[n] out2)
+{
+
+	unsigned[n] tmp1;
+	unsigned[n] tmp2;
+	// note cyclic wiring...
+        //    tmp1 not defined until second xor_wrap but used in first
+	xor_wrap(n,in1,tmp1,out1,tmp2);
+	xor_wrap(n,in2,tmp2,tmp1,out2);
+}
+

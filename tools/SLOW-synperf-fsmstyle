@@ -1,0 +1,11 @@
+#!/bin/csh
+# - Distill synthesis results from Synplify 7 .srr file -- FSM STYLE
+# - $fsmstyle
+
+	  perl -e							\
+	    'while (<>) {						\
+	       if (/^Adding property syn_encoding.*value "([^"]+)"/i)	\
+		 { $fsmstyle = $1; }                                    \
+	     }								\
+	     print "$fsmstyle\n" '					\
+	     $*

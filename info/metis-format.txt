@@ -1,0 +1,54 @@
+Extended Metis file format with multiple edge weights.
+
+The following text is adapted from the Metis 4 manual, p.15:
+
+----------------
+
+The first line contains either two (n, m), three (n, m, fmt),
+four (n, m, fmt, ncon), or five (n, m, fmt, ncon, nwt) integers.
+...
+The fourth integer (ncon) is used to specify the number
+of weights associated with each vertex of the graph.
+The fifth integer (necon) is used to specify the number
+of weights associated with each edge of the graph.
+The first weight for an edge will be minimized during
+graph partitioning, and all other weights for an edge
+will be treated as cut constraints.
+
+...
+
+The remaining n lines store information about the actual
+structure of the graph.  In particular, the i^{th} line
+(excluding comment lines) contains information that is relevant
+to the i^{th} vertex.  Depending on the value of the fmt and ncon
+parameters, the information stored at each line is somewhat different.
+In the most general form (when fmt = 11, ncon > 1, and necon > 1)
+ each line will have the following structure:
+
+w_1, w_2, ..., w_{ncon}, v_1, e_1^1, e_1^2, ... e_1^{necon},
+                         v_2, e_2^1, e_2^2, ... e_2^{necon},
+                         ...,
+                         v_k, e_k^1, e_k^2, ... e_k^{necon},
+
+where w_1, w_2, ..., w_{ncon} are the ncon vertex weights
+associated with this vertex;  v_1, v_2, v_k are the vertices
+adjacent to this vertex;  and e_1^*, e_2^*, ..., e_k^*
+are the weights of the edges leading to adjacent vertices
+(* ranges from 1 to necon for multiple edge weights). ...
+Note that the vertices are numbered starting from 1
+(not from 0 as is often done in C).  Vertex-weights and
+edge-weights must be non-negative and may be zero.
+
+----------------
+
+We use the extended metis format for TDF page partitioning,
+with option "-ppmetis".
+  * A graph represents a TDF behavioral operator's state flow graph,
+      after dismantling access to shared streams/regs,
+      and after pre-clustering states that access the same stream/reg
+      --> each vertex is a cluster of states
+      --> each edge is induced from state flow or register data flow
+  * header        = n m 11 1 2    (1 node weight, 2 edge weights).
+  * vertex        = cluster of TDF states
+  * vertex weight = area (4-LUTs)
+  * edge weights  = state transition count, data bit width

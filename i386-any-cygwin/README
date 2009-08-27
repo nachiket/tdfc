@@ -1,0 +1,5 @@
+This is the build directory for tdfc target i386-any-cygwin.
+Do the following.  You must be using Gnu make.
+
+ln -s ../Makefile
+make

@@ -1,0 +1,25 @@
+// - tests beta-renaming of call formals by actuals
+
+unsigned[n1] myOp1 (param unsigned[6] n1, input unsigned[n1] i1)
+{
+  state only(i1) :
+    myOp1 = myOp2(n1,i1);
+}
+
+unsigned[n2] myOp2 (param unsigned[6] n2, input unsigned[n2] i2)
+{
+  state only(i2) :
+    myOp2 = myOp3(n2+2,i2+2);
+}
+
+unsigned[n3] myOp3 (param unsigned[6] n3, input unsigned[n3] i3)
+{
+  state only(i3) :
+    myOp3 = myOp4(n3*3,i3*3);
+}
+
+unsigned[n4] myOp4 (param unsigned[6] n4, input unsigned[n4] i4)
+{
+  state only(i4) :
+    myOp4 = n4*i4*4;
+}

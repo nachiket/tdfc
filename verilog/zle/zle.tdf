@@ -1,0 +1,24 @@
+// - Zero run-length encoder, no EOS cases
+
+#define ZERO_MASK 16
+#define MAX_ZEROS 15
+
+zle (input unsigned[3] i, output unsigned[4] o)
+{
+  unsigned[4] cnt=0;
+
+  state start (i) :
+    if (i==0) { cnt=1; goto zeros; }
+    else      { o=i; }
+
+  state zeros (i) :
+    if (i==0) {
+      if (cnt==MAX_ZEROS) { o=ZERO_MASK|cnt; cnt=0; }
+      else                { cnt=cnt+1; }
+    }
+    else                  { o=ZERO_MASK|cnt; cnt=0; goto pending; }
+    
+  state pending () :
+    o=i;
+    goto start;    
+}

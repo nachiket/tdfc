@@ -1,0 +1,68 @@
+From eylon@eecs.berkeley.edu Mon Dec  6 16:59:37 2004
+Date: Mon, 6 Dec 2004 16:59:37 -0800 (PST)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: Andre' DeHon <andre@acm.org>
+Cc: John Wawrzynek <johnw@eecs.berkeley.edu>, Michael Wrighton <wrighton@cs.caltech.edu>
+Subject: Re: Pipelined streams status
+
+On Mon, 29 Nov 2004, Eylon Caspi wrote:
+
+> 	It occured to me that there should be a way
+> 	to borrow another compiler's retimer as a
+> 	late-stage HDL transform.
+>
+> 	TDF --(tdfc)------------------------> behavioral Verilog
+> 	    --(behavioral synthesis)--------> structural Verilog
+>           --(retime in another compiler)--> structural Verilog
+> 	    --(final pass in any compiler)--> EDIF
+>
+> 	Maybe this way, we can use Synplify behavioral synthesis
+> 	and Synopsis/XST retiming.  I will look into it in the
+> 	next few days.
+
+
+ 	I tried using Xilinx XST as suggested above,
+ 	but it did not help.  For one thing, the XST documentation
+ 	says that it will only retime registers that are inferred
+ 	(behavioral), not ones that are instantiated (structural).
+ 	So my idea of XST retiming structural Verilog from Synplify
+ 	is not supposed to work.  I do not know whether this is a
+ 	"feature" that can be turned off (no mention in the docs)
+ 	or a bona fide limitation of the software.  So I tried it.
+ 	Unfortunately, XST complains about instantiated modules
+ 	not having the "INIT" parameter used in the Synplify Verilog.
+ 	I am not sure why this is so, except perhaps that the Synplify
+ 	and XST module libraries are incompatible -- Synplify's has
+ 	"INIT", XST's does not.  e.g.:
+
+ERROR:HDLCompilers:200 - ../../page_fllm_d1_ScOrEtMp326.v line 45683 Target of d efparam 'G_18_0_axb_0_cZ.INIT' does not exist
+
+ 	I also tried doing complete behavioral synthesis in XST,
+ 	specifically for the MPEG forward DCT (fllm).  Unfortunately,
+ 	XST could not retime it to be faster than 50MHz, which is
+ 	no better than Synplify.  In fact, Synplify 7.1 worked on
+ 	one of two DCTs, whereas XST worked on neither.  I tried
+ 	some compiler directives/attributes, like "pipelined
+ 	multipliers," to no avail.
+
+ 	XST appears to be a dud.
+
+ 	BWRC supposedly has Synopsis Design Compiler,
+ 	whose FPGA edition might be useful for retiming.
+ 	However, I presently cannot log into my BWRC account
+ 	to try it or get documentation (synopsis.com does not
+ 	make manuals freely available online... I need the "site ID"
+ 	from the locally installed files).  I don't suppose you know
+ 	whether Design Compiler can retime structural netlists?
+
+ 	Aside from XST and Synopsis DC, I don't see much choice
+ 	besides waiting for Synplify version 8.  I guess I should
+ 	send Synplicity as many test cases as they can stomach.
+
+ 	Talk to you soon,
+ 	- Eylon.
+
+
+Eylon Caspi                     University of California, Berkeley
+eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>

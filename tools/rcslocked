@@ -1,0 +1,16 @@
+#!/usr/sww/bin/perl
+#
+#  finds and reports locked RCS files
+#
+#  Eylon Caspi 6/15/99
+
+$rcs_dirs = "RCS/*,v */RCS/*,v";
+
+open(RLOG,"rlog $rcs_dirs|") || die "could not launch RCS rlog";
+print "Locked files in ($rcs_dirs):\n\n";
+while (<RLOG>)
+{
+    if    (/^RCS file: (.*)$/)	{ $file=$1 }
+    elsif (/locked by:/)	{ print "$file\t$_" }
+}
+close(RLOG);

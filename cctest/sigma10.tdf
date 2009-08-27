@@ -1,0 +1,20 @@
+sigma10(input unsigned[8] in, output unsigned[12] out)
+{
+  unsigned[12] sum=0;
+  unsigned[4] cnt=0;
+  state start(in):
+    {
+      sum=sum+in;
+      cnt=cnt+1;
+      if (cnt==10)
+	goto finish;
+      else
+	goto start;
+    }
+  state finish():
+    {
+      out=sum;
+      done();
+    }
+
+}

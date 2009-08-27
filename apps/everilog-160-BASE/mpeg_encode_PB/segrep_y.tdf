@@ -1,0 +1,58 @@
+segrep_y(param unsigned[10] origRow, input unsigned[16] in, 
+       output unsigned[14] A, output unsigned[14] B, output unsigned[14] C,
+       output unsigned[14] D, output unsigned[14] E, output unsigned[14] F,
+       output unsigned[14] G, output unsigned[14] H, 
+       input boolean wr, output unsigned[14] rep) 
+
+{
+  
+
+  state only(in,wr): {
+
+    unsigned[14] tA, tB, tC, tD, tE, tF, tG, tH;
+
+    unsigned[10] rowCount; unsigned[8] rowMod;
+    unsigned[3] colMod; unsigned[5] colInd;
+
+
+    rowCount = in/origRow; rowMod = in%origRow;
+    colInd = rowCount>>3;
+    colMod = rowCount%8;
+
+    tA = ((colInd+((0<colMod) ? 1:0))*origRow+rowMod);
+    tB = ((colInd+((1<colMod) ? 1:0))*origRow+rowMod);
+    tC = ((colInd+((2<colMod) ? 1:0))*origRow+rowMod);
+    tD = ((colInd+((3<colMod) ? 1:0))*origRow+rowMod);
+    tE = ((colInd+((4<colMod) ? 1:0))*origRow+rowMod);
+    tF = ((colInd+((5<colMod) ? 1:0))*origRow+rowMod);
+    tG = ((colInd+((6<colMod) ? 1:0))*origRow+rowMod);
+    tH = ((colInd+((7<colMod) ? 1:0))*origRow+rowMod);
+
+    if (!wr) {
+      rep = in;
+    }
+
+#if 0
+    if (tA > 6336) {
+      printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+    }
+
+    printf("segrep_y: in = %lld\n",in);
+
+    printf("segrep_y: colInd = %lld, colMod = %lld, rowCount = %lld, rowMod = %lld\n", 
+	   colInd, colMod, rowCount, rowMod);
+
+#endif
+    A = tA; B = tB; C = tC; D = tD;
+    E = tE; F = tF; G = tG; H = tH;
+
+#if 0
+    printf("segrep_y: A = %lld, B = %lld, C = %lld, D = %lld\n", tA, tB, tC, tD);
+    //    printf("segrep_y: E = %lld, F = %lld, G = %lld, H = %lld\n", tE, tF, tG, tH);
+#endif
+
+  }
+
+
+}
+

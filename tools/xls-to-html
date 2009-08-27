@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+# Convert tab-delimited text to HTML table
+
+if ($#ARGV>=0) {		# $#ARGV = number of arguments minus one
+  @args = @ARGV;
+  shift(@args_copy);
+  $title = join(", ",@args);
+}
+else {
+  $title = "Untitled";
+}
+
+print "<html>\n";
+print "<head>\n";
+print "<title>${title}</title>\n";
+print "</head>\n";
+print "<body>\n";
+print "<table border=1 cellpadding=2>\n";
+
+while (<>) {
+    print "<tr>";
+    chomp;
+#   @cells = split(/\s*\t\s*/,$_);
+    @cells = split(/\t/,$_);
+    unshift(@cells,"");
+    $tablerow = join(" <td>",@cells);
+    print $tablerow;
+    print " </tr>\n";
+}
+
+print "</table>\n";
+print "</body>\n";
+print "</html>\n";

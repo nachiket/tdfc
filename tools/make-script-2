@@ -1,0 +1,17 @@
+# Remove all TDF sources except the post-partitioned code mix=1.out.tdf :
+mkdir TDF
+mv *.tdf TDF
+mv TDF/mix=1.out.tdf .
+
+# Compile post-partitioned TDF to C:
+make PARSERFLAGS="-epn -ecc" | & tee make.out
+
+# To create a Makefile for post-partitioned .cc files:
+#   (1) edit Makefile
+#   (2) replace:  SCORE_TDF_SRCS = $(shell ls *.tdf)
+#            by:  SCORE_CCTDF_SRCS = $(shell ls *.cc)
+#                 SCORE_TDF_SRCS   = $(SCORE_CCTDF_SRCS:.cc=.tdf)
+#         (this creates a list of fake corresponding .tdf files)
+#   (3) save as Makefile.inst
+
+# Continued in make-script-3

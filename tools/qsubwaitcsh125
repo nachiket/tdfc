@@ -1,0 +1,1 @@
+qsubwait -cwd -j y -q 'matrix1*,matrix2*,matrix5*' ~/bin/csh-eval2 $*

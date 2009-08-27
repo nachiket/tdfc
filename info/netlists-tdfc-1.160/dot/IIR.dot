@@ -1,0 +1,25 @@
+# Page DFG for iirTop_0
+# Emitted by ../../../tdfc version 1.159, Tue Jun 21 16:18:42 2005
+
+digraph iirTop_0 {
+  graph [label="iirTop_0"];
+  firFilt_17 [shape="box", style="filled", fillcolor="lightgrey"];
+  firFilt_16 [shape="box", style="filled", fillcolor="lightgrey"];
+  firFilt_15 [shape="box", style="filled", fillcolor="lightgrey"];
+  compStage_14 [shape="box", style="filled", fillcolor="lightgrey"];
+  feedbackStage_13 [shape="box", style="filled", fillcolor="lightgrey"];
+  firFilt_9 [shape="box", style="filled", fillcolor="lightgrey"];
+  compStage_8 [shape="box", style="filled", fillcolor="lightgrey"];
+  feedbackStage_7 [shape="box", style="filled", fillcolor="lightgrey"];
+  outStream [shape="diamond", style="filled", fillcolor="lightpink"];
+  firFilt_17 -> outStream;
+  firFilt_16 -> firFilt_17;
+  firFilt_15 -> firFilt_16;
+  compStage_14 -> firFilt_15;
+  feedbackStage_13 -> compStage_14;
+  firFilt_9 -> feedbackStage_13;
+  compStage_8 -> firFilt_9;
+  feedbackStage_7 -> compStage_8;
+  inStream [shape="diamond", style="filled", fillcolor="lightblue"];
+  inStream -> feedbackStage_7;
+}

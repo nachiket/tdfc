@@ -1,0 +1,31 @@
+segrw   	(param  unsigned[7]        dwidth,	// data width
+		 param  unsigned[7]        awidth,	// addr width
+		 param  unsigned[awidth+1] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth]   addr,
+		 output unsigned[dwidth]   dataR,
+		 input  unsigned[dwidth]   dataW,
+		 input  boolean            write) 	// r/w mode
+{
+  // - Static rate implementation
+  //     dataW is consumed on every firing, even for read
+
+  unsigned[awidth] addrreg;
+  unsigned[dwidth] datareg;
+  boolean          writereg;
+  unsigned[dwidth] contents_at_addrreg; 	// FAK
+
+  state start  (addr,dataW,write) :
+    addrreg=addr; datareg=dataW; writereg=write; goto steady;
+
+  state steady (addr,dataW,write) :
+    if (writereg) contents_at_addrreg=datareg;	// contents[addrreg]=datareg;
+    else          dataR=contents_at_addrreg;	// dataR=contents[addrreg];
+    addrreg=addr; datareg=dataW; writereg=write; goto steady;
+    goto steady;
+
+  state steady () :
+    if (writereg) contents_at_addrreg=datareg;	// contents[addrreg]=datareg;
+    else          dataR=contents_at_addrreg;	// dataR=contents[addrreg];
+    goto start;
+}

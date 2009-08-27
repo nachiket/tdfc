@@ -3,9 +3,13 @@
 ABOUT
 
     This document describes how to find, build, use, and maintain
-    tdfc, the SCORE TDF compiler, version 1.160, 9/1/05.
 
     Eylon Caspi, eylon@cs.berkeley.edu
+    tdfc, the SCORE TDF compiler, version 1.160, 9/1/05.
+
+
+    Nachiket Kapre, nachiket@cs.caltech.edu
+    tdfc, the SCORE TDF compiler with extensions for GraphMachine compilation, version 1.17, 8/27/2009.
 
 ------------------------------------------------------------------------------
 

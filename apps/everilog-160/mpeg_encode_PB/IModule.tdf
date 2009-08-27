@@ -1,0 +1,137 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000,2001 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.5 $
+// $Date: 2005/09/27 05:20:08 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+dctstream_copy(input signed[16] a, output signed[16] b, output signed[16] c)
+{
+  state one (a) : {
+    b = a; c = a;
+  }
+}
+
+
+in_copy(input unsigned[64] a, output unsigned[64] b, output unsigned[64] c)
+{
+  state one (a) : {
+    b = a; c = a;
+  }
+}
+
+
+IModule(param unsigned[16] segSize, 
+	param unsigned[8] iter, input unsigned[64] in, 
+	input unsigned[64] inWOc,
+	input unsigned[64] refY0, input unsigned[64] refC0, 
+	input unsigned[64] refY1, input unsigned[64] refC1, 
+	input unsigned[16] err0, input unsigned[16] err1,
+	input signed[6] mx0, input signed[6] my0,
+	input signed[6] mx1, input signed[6] my1,
+	output unsigned[8] hout,
+	//param unsigned[8][12] dcytab, param unsigned[8][12] dcctab,
+	param unsigned[112][12] aclvtab, param unsigned[17][9] mvtab,
+	param unsigned[8]     exfactor,
+	param unsigned[64][9] lQuantSteps,
+	param unsigned[64][9] pattVals)
+{
+  unsigned[64] in_1(1000), in_2(1000);
+
+  signed[9] tdctA,tdctB,tdctC,tdctD,tdctE,tdctF,tdctG,tdctH;
+  signed[16] outA,outB,outC,outD,outE,outF,outG,outH;
+  signed[9] bs0,bs1,bs2,bs3,bs4,bs5,bs6,bs7;
+
+  unsigned[3] bm;
+  unsigned[16] bts; unsigned[8] nbts;
+
+  signed[16] dctistream,dctstream, dctstream_1(1000), dctstream_2;
+  unsigned[8] plainlen; unsigned[16] plainout;
+  //  unsigned[6] segReadAddr, addrA, addrB;
+  //boolean writeA,writeB;
+  //signed[16] dataA, dataB; 
+  unsigned[4] toMux; 
+
+  unsigned[4] DCind; 
+  unsigned[7] ACind; unsigned[5] MVind; unsigned[6] pattInd;
+
+  unsigned[12] dcout, aclvout; 
+  unsigned[9] mvout,pVal;
+  unsigned[64] ref0,ref1;
+  unsigned[16] ierr;
+
+  boolean flush,skip; unsigned[2] asign; unsigned[5] mode;
+
+  // FIXME! need to write mode-estimation module->check
+  sumi(12672,inWOc,ierr);
+  modeModule(396,err0,err1,ierr,ref0,ref1,in_1,
+	     bs0,bs1,bs2,bs3,bs4,bs5,bs6,bs7, mode);
+  switchoff8s(refY0,refC0,ref0); switchoff8s(refY1,refC1,ref1); 
+
+  in_copy(in, in_1, in_2);
+
+  muxtoDCT(19008,mode,in_2,ref0,ref1,
+	   bs0,bs1,bs2,bs3,bs4,bs5,bs6,bs7,
+	   tdctA,tdctB,tdctC,tdctD,tdctE,tdctF,tdctG,tdctH);
+	   
+  // DCT frontend
+  ISub(segSize,tdctA,tdctB,tdctC,tdctD,tdctE,tdctF,tdctG,tdctH,
+       outA,outB,outC,outD,outE,outF,outG,outH,mode);
+  //write_seg(outA,outB,outC,outD,outE,outF,outG,outH,
+  //	    addrA,dataA,addrB,dataB,writeA,writeB,segReadAddr,iter*2376);
+  // transfers from DCT to segments
+
+  //segment_rw(16,6,64,segrwA,addrA,dctstream_0,dataA,writeA); 
+  //segment_rw(16,6,64,segrwB,addrB,dctstream_1,dataB,writeB);
+
+  // segments for holding transformed data
+  zigzag_(outA,outB,outC,outD,outE,outF,outG,outH,dctistream); 
+
+  //muxer(dctstream_0,dctstream_1,dctistream);
+//mquant(dctistream,mode,dctstream,8,       lQuantSteps);
+  mquant(dctistream,mode,dctstream,exfactor,lQuantSteps);
+  // Passthru(dctstream_,dctstream);
+  // takes care of everything from mb level on down
+  // FIXME! change MZLE to accept two motion vectors-> check
+  MZLE(dctstream_1,mode,mx0,my0,mx1,my1,DCind,ACind,MVind,asign,
+       plainlen,plainout,toMux,skip,iter);
+  pattDetect(segSize*8,dctstream_2,skip,pattInd);
+
+  dctstream_copy(dctstream, dctstream_1, dctstream_2);
+  
+  // the following segments can all be combined into one w/out extra ports
+  // none of them require parallel lookups
+
+  DCTab(DCind,dcout);
+  segment_r(12,7,112,aclvtab,ACind,aclvout); // Huffman table for AC lengths
+  segment_r(9,5,17,mvtab,MVind,mvout); // Huffman table for motion vectors
+  segment_r(9,6,64,pattVals,pattInd,pVal); // Huffman table for pattern detection
+  // make this guy responsible for picture level coding... 
+  // hopefully this won't make things inconvenient later
+
+  MixToHuff(toMux,pVal,plainlen,plainout,dcout,
+	    aclvout,mvout,asign,bts,nbts,flush);  
+
+  HuffMachine(bts,nbts,hout,flush);
+  //  Passthru(hout_,hout);
+
+}

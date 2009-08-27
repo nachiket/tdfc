@@ -1,0 +1,22 @@
+#define ZERO_MASK 0b10000000    /* 128, mask for run length codewords */
+#define MAX_ZEROS 0b01111111    /* 127, maximum allowable run length  */
+
+zle7 (input unsigned[7] i, output unsigned[8] o)
+{
+  unsigned[8] cnt=0;
+
+  state start (i) :
+    if (i==0)             { cnt=1; goto zeros; }
+    else                  { o=i; }
+
+  state zeros (i) :
+    if (i==0) {
+      if (cnt==MAX_ZEROS) { o=ZERO_MASK|cnt; cnt=0; }
+      else                { cnt=cnt+1; }
+    }
+    else                  { o=ZERO_MASK|cnt; cnt=0; goto pending; }
+
+  state pending () :
+    o=i;
+    goto start;
+}

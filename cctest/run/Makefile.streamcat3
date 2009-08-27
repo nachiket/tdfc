@@ -1,0 +1,71 @@
+COMPILED_DIR=..
+#SCORE_RUNTIME=/project/cs/brass/a/tools/brass/develop/SCORE/runtime
+#LEDA_INCLUDE_DIR = /project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8-linux-egcs-1.0/incl
+#LEDA_LIB_DIR = /project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8-linux-egcs-1.0
+SCORE_RUNTIME=/project/cs/brass/a/tools/brass/gold/SCORE/runtime
+LEDA_LIB_DIR =/project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8a-linux-egcs-1.1
+LEDA_INCLUDE_DIR = /project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8a-linux-egcs-1.1/incl
+CFLAGS =  -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) -I$(COMPILED_DIR)
+CXXFLAGS = -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) -I$(COMPILED_DIR)
+INSTANCE_HEADERS=$(SCORE_RUNTIME)/ScoreOperatorInstance.h \
+	$(SCORE_RUNTIME)/ScoreStream.h \
+	$(SCORE_RUNTIME)/ScorePage.h \
+	$(SCORE_RUNTIME)/ScoreSegment.h \
+	$(SCORE_RUNTIME)/ScoreSegmentReadOnly.h 
+INSTANCE_OBJECTS=$(SCORE_RUNTIME)/ScoreRuntime.a
+INSTANCE_LIBRARIES=-L$(LEDA_LIB_DIR) -lL -lG
+MASTER_HEADERS=$(SCORE_RUNTIME)/ScoreOperator.h \
+	$(SCORE_RUNTIME)/Score.h \
+	$(SCORE_RUNTIME)/ScoreOperatorElement.h \
+	$(SCORE_RUNTIME)/ScoreSegment.h
+SCHEDULER_HEADERS=$(SCORE_RUNTIME)/Score.h $(INSTANCE_HEADERS)
+SCHEDULER_SCORE_OBJECTS=$(SCORE_RUNTIME)/ScoreRuntime.a
+MAIN_OBJECTS=$(SCORE_RUNTIME)/ScoreRuntime.a
+MAIN_LIBRARIES=-L$(LEDA_LIB_DIR) -lL -lG -ldl -lpthread 
+SCHEDULER_LIBRARIES=-L$(LEDA_LIB_DIR) -lL -lG -ldl -lpthread
+
+all:	onefxor_main twofxor_main xor3_main merge0_main select2_main dct_main streamcat3_main
+
+
+onefxor_main.o:		onefxor_main.cc $(SCORE_RUNTIME)/ScoreStream.h 
+twofxor_main.o:		twofxor_main.cc $(SCORE_RUNTIME)/ScoreStream.h 
+xor3_main.o:		xor3_main.cc $(SCORE_RUNTIME)/ScoreStream.h 
+dct_main.o:		dct_main.cc $(SCORE_RUNTIME)/ScoreStream.h 
+streamcat3_main.o:	streamcat3_main.cc $(SCORE_RUNTIME)/ScoreStream.h 
+
+onefxor_main:	onefxor_main.o $(COMPILED_DIR)/xor.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o onefxor_main onefxor_main.o $(COMPILED_DIR)/xor.o \
+	$(MAIN_OBJECTS) \
+        $(MAIN_LIBRARIES)
+
+twofxor_main:	twofxor_main.o $(COMPILED_DIR)/xor.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o twofxor_main twofxor_main.o $(COMPILED_DIR)/xor.o \
+	$(MAIN_OBJECTS) \
+        $(MAIN_LIBRARIES)
+
+xor3_main:	xor3_main.o $(COMPILED_DIR)/xor3.o $(COMPILED_DIR)/xor.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o xor3_main xor3_main.o \
+	$(COMPILED_DIR)/xor3.o $(COMPILED_DIR)/xor.o \
+	$(MAIN_OBJECTS) \
+        $(MAIN_LIBRARIES)
+
+merge0_main:	merge0_main.o $(COMPILED_DIR)/merge.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o merge0_main merge0_main.o $(COMPILED_DIR)/merge.o \
+	$(MAIN_OBJECTS) \
+        $(MAIN_LIBRARIES)
+
+select2_main:	select2_main.o $(COMPILED_DIR)/select2.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o select2_main select2_main.o $(COMPILED_DIR)/select2.o \
+	$(MAIN_OBJECTS) \
+        $(MAIN_LIBRARIES)
+
+dct_main:	dct_main.o $(COMPILED_DIR)/faan_dct.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o dct_main dct_main.o $(COMPILED_DIR)/faan_dct.o \
+	$(MAIN_OBJECTS) \
+        $(MAIN_LIBRARIES)
+
+streamcat3_main:	streamcat3_main.o $(COMPILED_DIR)/streamcat3.o $(COMPILED_DIR)/streamcat.o $(MAIN_OBJECTS)
+	g++ $(CFLAGS) -o streamcat3_main $^ $(MAIN_LIBRARIES)
+
+clean:
+	rm *.o *.so onexor_main twoxor_main xor3_main merge0_main select2_main dct_main streamcat3_main

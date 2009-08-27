@@ -1,0 +1,72 @@
+// - Zero run-length encoder, no EOS cases, compiled "tdfc -xc"
+
+// operator zle
+
+zle (input unsigned[3] i, output unsigned[4] o)
+{
+  unsigned[4] cnt=0;
+
+  state start (i) :
+    {
+      if (i==0)
+        goto start_t;
+      else
+        goto start_e;
+    }
+
+  state start_t () :
+    {
+      cnt=1;
+      goto zeros;
+    }
+
+  state start_e () :
+    {
+      o=i;
+      goto start;
+    }
+
+  state zeros (i) :
+    {
+      if (i==0)
+        goto zeros_t;
+      else
+        goto zeros_e;
+    }
+
+  state zeros_t () :
+    {
+      if (cnt==15)
+        goto zeros_t_t;
+      else
+        goto zeros_t_e;
+    }
+
+  state zeros_t_t () :
+    {
+      o=16|cnt;
+      cnt=0;
+      goto zeros;
+    }
+
+  state zeros_t_e () :
+    {
+      cnt=cnt+1;
+      goto zeros;
+    }
+
+  state zeros_e () :
+    {
+      o=16|cnt;
+      cnt=0;
+      goto pending;
+    }
+
+  state pending () :
+    {
+      o=i;
+      goto start;
+    }
+
+}
+

@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file -- CLOCK SPEED (MHZ)
+# - $speed
+
+while (<>) {
+  if (/(clock|system) +(\d+(.\d+)?) +MHz +(\d+(.\d)?)/i)
+    { if ($speed==0 || $speed>$4) { $speed=$4; } }
+}
+print "$speed\n";

@@ -1,0 +1,44 @@
+op (input boolean i, output boolean o)
+{
+  boolean R;
+
+  state dup (i) :
+    o=i;
+    if (i) goto r; else goto w;
+
+  state r () :
+    o=R;
+    goto dup;
+
+  state w (i) :
+    R=i;
+    goto dup;
+}
+
+
+op2 (input boolean i, output boolean o)
+{
+  boolean R;
+
+  state only (i) : {
+    boolean L;
+    L=i;
+    R=!i;
+    o=L;
+    o=L;
+  }
+}
+
+
+op3 (input unsigned[8] i, output boolean o)
+{
+  unsigned[8] R8;
+  boolean     R1;
+
+  state S1 (i) :  o=(i[0]  ==1); goto S2;
+  state S2 (i) :  o=(i[0]@1==1); goto S3;
+  state S3 ()  :  R8=i;          goto S4;
+  state S4 ()  :  o=(R8[0]==1);  goto S5;
+  state S5 ()  :  R1=(i[0]==1);  goto S6;
+  state S6 ()  :  o=R1;          goto S1;
+}

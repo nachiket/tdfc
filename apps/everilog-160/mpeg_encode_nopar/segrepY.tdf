@@ -1,0 +1,63 @@
+#include "div.txt"
+
+segrepY(param unsigned[13] segSize, param unsigned[10] origRow, 
+        input unsigned[16] in, 
+	output unsigned[13] A, output unsigned[13] B, 
+	input boolean wr, output boolean wrA, output boolean wrB, output unsigned[16] rep) 
+
+{
+  
+  unsigned[1] phase = 0;
+  unsigned[13] tA, tB;
+
+  state only(in,wr): {
+
+    //unsigned[13] tA, tB;
+    //unsigned[1] phase=0;
+    unsigned[10] rowCount; unsigned[8] rowMod;
+    unsigned[3] colMod; unsigned[5] colInd;
+    unsigned[16] tin;
+
+    if (!wr) {
+      
+      tin = in;
+      #ifndef APPROX_DIV
+      rowCount = in/origRow;
+      rowMod   = in%origRow;
+      #else
+      rowCount = DIV(in,origRow);
+      rowMod   = in - rowCount*origRow;
+      #endif
+      colInd = rowCount>>4;
+      colMod = rowCount[3];
+      
+      tA = ((colInd+colMod)*origRow+rowMod);
+      tB = (colInd*origRow+rowMod);
+      //printf("segrepY: in %llu A %llu B %llu\n",tin,tA,tB); 
+      rep = in;
+      wrA = false; wrB = false;
+      
+      if (tA < segSize) {A = tA;} 
+      else {A = 0;}//possible when grabbing the last 8 rows of image
+      
+      B = tB; 
+      tA = 0; tB = 0;
+
+    } else { // quick hack because I don't wanna touch segRefManage
+      if (phase==0) {
+	phase=1;
+	A = tA; wrA = true;
+	//printf("segrepY: A %llu\n",tA);
+      } else {
+	phase=0;
+	B = tA; wrB = true;
+	tA = tA+1;
+	//printf("segrepY: B %llu\n",tA);
+      }      
+    }
+      
+  }
+
+
+}
+

@@ -1,0 +1,41 @@
+breakupY(param unsigned[10] rowSize, output unsigned[8] outA, output unsigned[8] outB,
+	 output unsigned[8] outC, output unsigned[8] outD, output unsigned[8] outE,
+	 output unsigned[8] outF, output unsigned[8] outG, output unsigned[8] outH,
+	 input unsigned[64] inWord1,input unsigned[64] inWord2)
+
+{
+
+  unsigned[10] index;
+
+  state first(inWord1): {
+
+    outA = inWord1[63:56]; outB = inWord1[55:48];
+    outC = inWord1[47:40]; outD = inWord1[39:32];
+    outE = inWord1[31:24]; outF = inWord1[23:16];
+    outG = inWord1[15:8]; outH = inWord1[7:0];
+    index = index+1;
+
+    if (index == rowSize) {
+      index = 0; goto second;
+    }
+
+  }
+
+  state second(inWord2): {
+
+    outA = inWord2[63:56]; outB = inWord2[55:48];
+    outC = inWord2[47:40]; outD = inWord2[39:32];
+    outE = inWord2[31:24]; outF = inWord2[23:16];
+    outG = inWord2[15:8]; outH = inWord2[7:0];
+    index = index+1;
+
+    if (index == rowSize) {
+      index = 0; goto first;
+    }
+
+  }
+
+
+
+}
+

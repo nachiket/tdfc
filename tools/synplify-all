@@ -1,0 +1,26 @@
+#!/bin/csh
+#
+# Synplify every behavioral module family (top, FSM, DP)
+#   in this directory, every implementation / revision thereof
+#
+# Usage:  synplify-all
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Synplify 7.1
+# Eylon Caspi, 5/8/03
+
+set toolpath = ${0:h}
+
+set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -print | perl -npe 's{.*/}{}; s{_fsm$}{}; s{_dp$}{};' | sort | uniq | egrep -v '^_page_'`
+
+foreach topmodule ($topmodules)
+  foreach revpath ($topmodule/rev*)
+    set rev = ${revpath:t}
+    $toolpath/synplify-impl $topmodule $rev
+  end
+end

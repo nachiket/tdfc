@@ -1,0 +1,85 @@
+zle(input unsigned[9] in, output unsigned[9] out) {
+    unsigned[8]     byte;
+    unsigned[32]    length;
+    boolean         finished;
+
+    state onetrue(): {
+        length = 0;
+        finished = false;
+
+        goto read;
+    }
+
+    state read(in): {
+        if (in == 300) {
+            if (length != 0) {
+                finished = true;
+                goto encodelength;
+            } else {
+                out = 256;
+                goto terminator;
+            }
+        } else {
+            byte = in;
+            if (byte == 0) {
+                length = length + 1;
+            } else if (length != 0) {
+                goto encodelength;
+            } else {
+                  goto encodebyte;
+            }
+        }
+    }
+
+    state encodelength(): {
+        length = length + 1;
+        goto doencodelength;
+    }
+
+    state doencodelength() : {
+        if (length == 1) {
+            if (finished) {
+                out = 256;
+                goto terminator;
+            } else {
+                length = 0;
+                goto encodebyte;
+            }
+        } else {
+            if ((length & 1) == 0) {
+                out = 0;
+            } else {
+                out = 255;
+            }
+            length = length >> 1;
+        }
+    }
+
+    state encodebyte() : {
+        if (byte == 254) {
+            out = 254;
+            goto foozle;
+        } else if (byte == 255) {
+            out = 254;
+            goto oink;
+        } else {
+            out = byte;
+            goto read;
+        }
+    }
+
+    state foozle(): {
+        out = 0;
+        goto read;
+    }
+
+    state oink(): {
+        out = 255;
+        goto read;
+    }
+
+    state terminator(): {
+        out = 300;
+        goto onetrue;
+    }
+}

@@ -1,0 +1,102 @@
+mtf(input  unsigned[9]  in,
+    output unsigned[32] addr,
+    input  unsigned[8]  datar,
+    output unsigned[8]  dataw,
+    output boolean      write,
+    output unsigned[9]  out) {
+
+    unsigned[8]  lastbyteseen;
+    unsigned[8]  byte;
+    unsigned[32] loc;
+    unsigned[8]  temp;
+    unsigned[8]  i;
+
+    state onetrue(): {
+        lastbyteseen = 0;
+        byte         = 0;
+        loc          = 0;
+        temp         = 0;
+        i            = 0;
+
+        goto initstack;
+    }
+
+    state initstack(): {
+        addr = i;
+        dataw = i;
+        write = true;
+
+        if (i == 255) {
+            goto readnextbyte;
+        } else {
+            i = i + 1;
+        }
+    }
+
+    // Read the next byte from the input stream
+    state readnextbyte(in): {
+        if (in == 300) {
+            out = 300;
+            goto onetrue;
+        } else {
+            byte = in;
+            if (byte == lastbyteseen) {
+                out = 0;                 // And do nothing to the stack
+            } else {
+                lastbyteseen = byte;     // Update the last byte seen
+
+                // Need to find where byte is in the stack.
+                // Then output that posn.
+                // And move byte to posn 0.
+
+                loc   = 0;     // Currently examining posn 0
+                addr  = loc;   // Ask to read what's in posn 0
+                write = false;
+                goto askforbytefromstack;
+            }
+        }
+    }
+
+    state askforbytefromstack(datar): {
+        temp = datar;       // This is the byte at posn loc
+        if (temp == byte) { // We got one!!!
+            out = loc;      // Output that location
+
+            // We want to move bytes [0, ..., loc - 1] to [1, ..., loc] and then set posn 0 to byte
+
+            addr = loc - 1;
+            write = false; // Ask for the byte from posn loc - 1
+
+            goto movebytesinstack;
+        } else {
+            loc = loc + 1; // Examine next position
+            addr = loc;    // Currently examining posn loc
+            write = false; // Ask to read
+        }
+    }
+
+    state movebytesinstack(datar): {
+        // Set posn loc to what is in datar
+        addr = loc;
+        write = true;
+        dataw = datar;
+
+        goto foozle;
+    }
+
+    state foozle(): {
+        if (loc == 1) {
+            // Write byte to posn 0
+            addr = 0;
+            write = true;
+            dataw = byte;
+            goto readnextbyte; // And we are done updating the stack
+        } else {
+            loc = loc - 1; // Move down
+
+            addr = loc - 1;
+            write = false; // Ask for the byte from posn loc - 1
+            goto movebytesinstack;
+        }
+    }
+}

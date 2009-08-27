@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>Strong connectivity</title>
+<meta name="Owner" value="eppstein">
+<meta name="Reply-To" value="eppstein@ics.uci.edu">
+</head>
+<body>
+<h1>ICS 161: Design and Analysis of Algorithms<br>
+Lecture notes for February 20, 1996</h1>
+
+
+<hr>
+<p></p>
+
+<h1>Strongly connected components</h1>
+
+<h2>Strong connectivity and equivalence relations</h2>
+
+In undirected graphs, two vertices are connected if they have a
+path connecting them. How should we define connected in a directed
+graph? 
+
+<blockquote>We say that a vertex a is <i>strongly connected</i> to
+b if there exist two paths, one from a to b and another from b to
+a.</blockquote>
+
+Note that we allow the two paths to share vertices or even to share
+edges. We will use a ~ b as shorthand for "a is strongly connected
+to b". We will allow very short paths, with one vertex and no
+edges, so that any vertex is strongly connected to itself. 
+
+<p><a name="rel">Recall that a <i>relation</i> is another word for
+a collection of pairs of objects (if you like, you can think of a
+relation as being a directed graph, but not the same one we're
+using to define connectivity). An <i>equivalence relation</i> a # b
+is a relation that satisfies three simple properties:</a></p>
+
+<ul>
+<li style="list-style: none"><a name="ref"></a></li>
+
+<li><b>Reflexive property</b>: For all a, a # a. Any vertex is
+strongly connected to itself, by definition. <a name="sym">
+</a></li>
+
+<li><b>Symmetric property</b>: If a # b, then b # a. For strong
+connectivity, this follows from the symmetry of the definition. The
+same two paths (one from a to b and another from b to a) that show
+that a ~ b, looked at in the other order (one from b to a and
+another from a to b) show that b ~ a. <a name="trans"></a></li>
+
+<li><b>Transitive property</b>: If a # b and b # c, then a # c.
+Let's expand this out for strong connectivity: if a ~ b and b ~ c,
+we have four paths: a-b, b-a, b-c, and c-b. Concatenating them in
+pairs a-b-c and c-b-a produces two paths connecting a-c and c-a, so
+a ~ c, showing that the transitive property holds for strong
+connectivity.</li>
+</ul>
+
+Since all three properties are true of strong connectivity, strong
+connectivity is an equivalence relation. 
+
+<p>Note that it was critical for our definition that we allowed the
+paths a-b and b-a to overlap. If we made a small change such as
+defining two vertices to be connected if they are part of a
+directed cycle, we wouldn't be able to concatenate the paths and
+show that the transitive property holds.</p>
+
+<h2>Equivalence classes and strongly connected components</h2>
+
+For any equivalence relation a # b, we can define <i>equivalence
+classes</i> by the formula 
+
+<pre>
+    [a] = { b | a # b }
+</pre>
+
+(in English, the equivalence class of a, which we call "[a]", is
+defined to be simply the set of things related to a). The
+equivalence classes for strong connectivity are called <i>strongly
+connected components</i>. 
+
+<p>These sets have the property that they partition the space of
+all vertices into disjoint subsets.</p>
+
+<p>(This is not hard to prove. First, any vertex a is a member of
+[a] by reflexivity, so the equivalence classes cover all of the
+input. And second, if b is in [a] then [a]=[b] (by symmetry and
+transitivity, any element of one is an element of the other) so any
+two different equivalence classes must be disjoint.)</p>
+
+<p>If we can find all the strongly connected components of a graph,
+it would be easy to test whether any two vertices are strongly
+connected: just see if they're in the same component.</p>
+
+<h2>Component graph and weak connectivity</h2>
+
+Strongly connected components also have a use in other graph
+algorithms: if you replace every strongly connected component by a
+single vertex, you get a smaller directed acyclic graph, known as
+the <i>component graph</i> or <i>condensation</i> (Baase ex. 4.42
+asks you to prove this fact.) 
+
+<p>For some graph problems, you can use this idea to get an
+algorithm that reduces the problem to subproblems on each
+component, plus one more subproblem on the component graph. Here's
+an example (this problem isn't in Baase, and I didn't get to this
+in my lecture, so I won't test you on it):</p>
+
+<p>Suppose we define two vertices a and b to be <i>weakly
+connected</i> (also known as <i>semiconnected</i>) if there's
+either a path from a to b or one from b to a (but not necessarily
+both). We say the graph is weakly connected if this is true for
+every pair of vertices. Then it's not hard to show that a graph is
+weakly connected if and only if its component graph is a path. So
+by computing the strongly connected components, we can also test
+weak connectivity.</p>
+
+<h2>Computing a single component</h2>
+
+From the definition above, it is easy to find a single strongly
+connected component [x]. Simply use BFS, DFS, or any other similar
+algorithm to find a set S of all vertices reachable from x by a
+path. Do the same thing in the graph formed by reversing all the
+edges of our original graph, to find a set T of all vertices that
+can reach x by a path. According to the definition above, [x] is
+just the intersection of S and T. 
+
+<p>So in O(m) time we can find a single component. Since there are
+O(n) components, we can find them all in time O(mn). But this
+slower than necessary. The point of today's lecture is to show how
+to solve the problem in linear time. (The solution we describe,
+based on depth first search, was invented by <a href= 
+"people.html#tarjan">Bob Tarjan</a> in 1972. Baase ex. 4.50
+outlines an alternative linear time algorithm.)</p>
+
+<h2>Depth first search again</h2>
+
+A tangent on pseudo-code: I haven't been writing the same
+pseudocode as in the book for the same reason I haven't been
+speaking the same sentences in the book. The ideas matter, the
+exact pseudocode doesn't. So if you're asking which should I
+memorize, the book or the lecture the answer is neither, you should
+get to understand them to the point where they seem like the same
+idea and remember that idea. With that in mind, here's pseudocode
+for DFS (directed graph version) that looks a little different from
+what we did last time. 
+
+<p>One complication (that I forgot to mention in lecture) is that
+we want to build a DFS tree that involves all the vertices of the
+graph. If we just start somewhere in the graph, not all vertices
+might be reachable, and the DFS will not get to them. One solution
+would be to restart the DFS every time this happens, but to make
+things a little simpler, I'm going to modify the graph by adding a
+new vertex connected by outward-going edges to everything else.
+This doesn't change the strongly connected components (except to
+add one new component for the one new vertex) but keeps the rest of
+the algorithm simpler.</p>
+
+<pre>
+    DFS(G)
+    {
+    make a new vertex x with edges x-&gt;v for all v
+    build directed tree T, initially a single vertex {x}
+    visit(x)
+    }
+
+    visit(p)
+    {
+    for each edge p-&gt;q
+        if q is not already in T
+        {
+        add p-&gt;q to T
+        visit(q)
+        }
+    }
+</pre>
+
+<a name="edges">This version of the pseudo-code makes it obvious
+that only certain edges can occur: if q is not already in T,
+p-&gt;q gets added, so if p-&gt;q does not end up in tree, q must
+be already in tree. There are three possible places q could be: an
+ancestor of p (in which case we call p-&gt;q a <i>back edge</i>), a
+descendant of p (in which case we call p-&gt;q a <i>forward
+edge</i>), or in a previous branch of the tree (in which case we
+call p-&gt;q a <i>cross edge</i>). The one case that's ruled out is
+that q can not be in a later branch of the tree.</a> 
+
+<h2>DFS trees and strongly connected components</h2>
+
+The key property, that relates DFS to strong connectivity, is that
+strongly connected components form subtrees of the DFS tree. (In
+other words, a component can not be in two separate parts of the
+tree.) 
+
+<p>Why?</p>
+
+<p>Note that if we have paths a-b and b-a, any two intermediate
+vertices of those paths would have to be also in the same component
+(since e.g. if we have a-c-b then we already have a path a-c and by
+concatenating c-b-a we also get a path c-a).</p>
+
+<p>So suppose one component ended up in two parts of the tree. Then
+it would have to have edges from one part to the other (the
+definition of strong connectivity tells us there must be paths, but
+the observation above about intermediate vertices being part of the
+same component tells us they would actually just be edges).</p>
+
+<p>The two parts couldn't be in side by side branches of the tree,
+because there would be no edges in one of the two directions. But
+on the other hand, if one part contains an ancestor x of a vertex y
+in the other part, we can use the argument above about intermediate
+vertices to show that the path in the tree from x to y is also in
+the same component, contradicting the assumption that x and y are
+in different parts of the tree. So it is not possible to have a
+component in two separate parts of the DFS tree, which is what we
+wanted to prove.</p>
+
+<h2>Heads of components</h2>
+
+Since the components of the graph are just subtrees of the DFS
+tree, to find components, we just have to break tree at certain
+edges, and the components will be formed by what's left of the
+tree. We'll say a vertex is a "head" of a component if it's the
+topmost (i.e. if we should break the edge coming into it). By the
+observations above, the problem has turned into one of determining
+whether a given vertex v is a head. 
+
+<p>To test this, look at the subtree of the DFS tree, rooted at v.
+Suppose this subtree does not have any back or cross edges going
+out of it. Then clearly, v must be the head of [v], since there are
+no paths from v to any vertex higher in the tree.</p>
+
+<p>Just as clearly, if there is a back edge u-w from this subtree
+to an ancestor of v, v is not a head. In this case, the edge u-w
+together with the paths in the DFS tree from w to v and from v to u
+form a cycle, which must all be part of the same component [v]. But
+w is higher in the tree than v, so v can not be the head of this
+component.</p>
+
+<p>The complicated case happens when the only edges going out of
+the subtree rooted at v are cross edges to other branches of the
+DFS tree. To make this complicated case a little easier, we'll set
+up our algorithm so that as soon as the DFS finishes visiting a
+vertex, if it is a head, we delete it and its component from the
+graph. We can show that if our algorithm does this, then whenever
+we see a cross edge out of the subtree from v, v is not a head.</p>
+
+<blockquote>Proof: This is where we use the fact that DFS trees
+have cross edges only to previously visited branches of the tree,
+not to later branches. Suppose we see a cross edge u-w. Let z be
+the head of [w], then z is visited no later than w. If z were in a
+separate branch of the tree, we'd have finished visiting it and
+deleted both it and w, contradicting the assumption that we're
+seeing edge u-w. So z is an ancestor of v, and putting edge u-w
+together with the paths w-z (by assumption that z is the head of
+[w]), z-v (since z is an ancestor of v) and v-u (since v is an
+ancestor of u) gives us a cycle, showing that v is in [z] and
+therefore v is not a head.</blockquote>
+
+Summarizing, we see that we can test whether a vertex is a head by
+looking for the existence of back or cross edges out of its
+subtree. 
+
+<h2>Strong connectivity algorithm</h2>
+
+Define the <i>DFS numbering</i> dfsnum(v) to be the number of
+vertices visited before v in the DFS. Then if there is a back or
+cross edge out of the subtree of v, it's to something visited
+before v and therefore with a smaller dfsnum. We use this by
+defining the <i>low value</i> low(v) to be the smallest dfsnum of a
+vertex reachable by a back or cross edge from the subtree of v. If
+there is no such edge, low(v)=dfsnum(v). Then rephrasing what we've
+seen so far, v is a head of a component exactly when
+low(v)=dfsnum(v). The advantage of using these definitions is that
+dfsnum(v) is trivial to calculate as we perform the DFS, and low(v)
+is easily computed by combining the low values from the children of
+v with the values coming from back or cross edges out of v itself. 
+
+<p>We use one more simple data structure, a stack L (represented as
+a list) which we use to identify the subtree rooted at a vertex. We
+simply push each new vertex onto L as we visit it; then when we
+have finished visiting a vertex, its subtree will be everything
+pushed after it onto L. If v is a head, and we've already deleted
+the other heads in that subtree, the remaining vertices left on L
+will be exactly the component [v].</p>
+
+<p>We are now ready to describe the actual algorithm. It simply
+performs a DFS, keeping track of the low and dfsnum values defined
+above, using them to identify heads of components, and when finding
+a head deleting the whole component from the graph, using L to find
+the vertices of the component.</p>
+
+<pre>
+    DFS(G)
+    {
+    make a new vertex x with edges x-&gt;v for all v
+    initialize a counter N to zero
+    initialize list L to empty
+    build directed tree T, initially a single vertex {x}
+    visit(x)
+    }
+
+    visit(p)
+    {
+    add p to L
+    dfsnum(p) = N
+    increment N
+    low(p) = dfsnum(p)
+    for each edge p-&gt;q
+        if q is not already in T
+        {
+        add p-&gt;q to T
+        visit(q)
+        low(p) = min(low(p), low(q))
+        } else low(p) = min(low(p), dfsnum(q))
+
+    if low(p)=dfsnum(p)
+    {
+        output "component:"
+        repeat
+        remove last element v from L
+        output v
+        remove v from G
+        until v=p
+    }
+    }
+</pre>
+
+We have already seen an explanation for why this algorithm works.
+It only remains to point out that it takes linear time -- the basic
+framework is just DFS, and the added manipulations of low, dfsnum,
+and L do not slow this down at all. So we can find strongly
+connected components in linear time. 
+
+<hr>
+<p><a href="/~eppstein/161/">ICS 161</a> -- <a href="/">Dept.
+Information &amp; Computer Science</a> -- <a href= 
+"http://www.uci.edu/">UC Irvine</a><br>
+<small>Last update: 
+12 Dec 2001, 13:19:20 PST</small></p>
+</body>
+</html>
+

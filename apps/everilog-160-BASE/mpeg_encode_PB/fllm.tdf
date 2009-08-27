@@ -1,0 +1,130 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.1 $
+// $Date: 2002/01/10 20:56:56 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// Forward Loeffler-Ligtenberg-Moschytz implementation of DCT
+// interesting to see how this would be split up into different
+// operators
+
+fllm(param unsigned[8] inWidth, param unsigned[8] outWidth,
+     input signed[inWidth] a0, input signed[inWidth] a1,
+     input signed[inWidth] a2, input signed[inWidth] a3,
+     input signed[inWidth] a4, input signed[inWidth] a5,
+     input signed[inWidth] a6, input signed[inWidth] a7,
+//     output signed[inWidth+3] b0, output signed[inWidth+7] b1,
+//     output signed[inWidth+6] b2, output signed[inWidth+6] b3,
+//     output signed[inWidth+3] b4, output signed[inWidth+6] b5,
+//     output signed[inWidth+6] b6, output signed[inWidth+7] b7
+     output signed[outWidth] b0, output signed[outWidth] b1,
+     output signed[outWidth] b2, output signed[outWidth] b3,
+     output signed[outWidth] b4, output signed[outWidth] b5,
+     output signed[outWidth] b6, output signed[outWidth] b7)
+     
+{
+
+  signed[16] FIX0293631336 = 2446;  signed[16] FIX0390180644 = 3196;
+  signed[16] FIX0541196100 = 4433;  signed[16] FIX0899976223 = 7373;
+  signed[16] FIX1175875602 = 9633;  signed[16] FIX1501321110 = 12299;   
+  signed[16] FIX1847759065 = 15137;   
+  signed[16] FIX1961570560 = 16069;      
+  signed[16] FIX2053119869 = 16819;      
+  signed[16] FIX2562915447 = 20995;      
+  signed[16] FIX3072711026 = 25172;      
+  signed[16] FIX0765366865 = 6270;
+
+  state start(a0,a1,a2,a3,a4,a5,a6,a7):
+    {	  
+
+        signed[inWidth+1] tmp0; signed[inWidth+1] tmp1;
+        signed[inWidth+1] tmp2; signed[inWidth+1] tmp3;
+        signed[inWidth+1] tmp4; signed[inWidth+1] tmp5;
+        signed[inWidth+1] tmp6; signed[inWidth+1] tmp7;
+        signed[inWidth+2] tmp10; signed[inWidth+2] tmp11;
+        signed[inWidth+2] tmp12; signed[inWidth+2] tmp13;
+        signed[inWidth+2] tmp23; signed[inWidth+2] tmp21;
+        signed[inWidth+2] tmp22; signed[inWidth+2] tmp24;
+
+        signed[inWidth+3] tmp30; signed[inWidth+3] tmp31;
+        signed[inWidth+4] tmp32; signed[inWidth+5] tmp33;
+        signed[inWidth+20] z1; signed[inWidth+20] z5; 
+        signed[inWidth+20] z3; signed[inWidth+20] z4;
+
+	signed[inWidth+20] _tmp13; signed[inWidth+20] _tmp12;
+
+        signed[inWidth+20] tmp34;      signed[inWidth+20] tmp36;
+        signed[inWidth+20] tmp35;      signed[inWidth+20] tmp37;
+        signed[inWidth+20] tmp41;      signed[inWidth+20] tmp43;
+        signed[inWidth+20] tmp42;      signed[inWidth+20] tmp44;      
+
+        tmp0 = a0 + a7; tmp7 = a0 - a7;
+        tmp1 = a1 + a6; tmp6 = a1 - a6;
+        tmp2 = a2 + a5; tmp5 = a2 - a5;
+        tmp3 = a3 + a4; tmp4 = a3 - a4;
+
+        tmp10 = tmp0 + tmp3;    tmp13 = tmp0 - tmp3;
+        tmp11 = tmp1 + tmp2;    tmp12 = tmp1 - tmp2;
+// represent z1 thru z4 at middle of routine
+        tmp21 = tmp4 + tmp7;    tmp22 = tmp5 + tmp6;
+        tmp23 = tmp4 + tmp6;    tmp24 = tmp5 + tmp7;
+
+        b0 = tmp10 + tmp11;     b4 = tmp10 - tmp11;
+        tmp30 = tmp12+tmp13; // to become z1
+	tmp31 = tmp23+tmp24; // to become z5
+        z1 = tmp30*FIX0541196100;
+	_tmp13 = tmp13*FIX0765366865;
+	_tmp12 = -tmp12*FIX1847759065;
+	z5 = tmp31*FIX1175875602;
+
+        b2 = (_tmp13+z1+4096)>>13; b6 = (_tmp12+z1+4096)>>13;
+
+	tmp34 =  tmp4*FIX0293631336;
+	tmp35 =  tmp5*FIX2053119869;
+	tmp36 =  tmp6*FIX3072711026;
+	tmp37 =  tmp7*FIX1501321110;
+// represent z1 thru z4 at end of routine
+	tmp41 = -tmp21*FIX0899976223;
+	tmp42 = -tmp22*FIX2562915447;
+	tmp43 = -tmp23*FIX1961570560;
+	tmp44 = -tmp24*FIX0390180644;
+	
+	z3 = tmp43+z5;
+	z4 = tmp44+z5;
+
+	b7 = (tmp34+tmp41+z3+4096)>>13;
+	b5 = (tmp35+tmp42+z4+4096)>>13;
+	b3 = (tmp36+tmp42+z3+4096)>>13;
+	b1 = (tmp37+tmp41+z4+4096)>>13;
+
+        stay;
+
+    }
+
+}
+
+
+
+
+

@@ -1,0 +1,47 @@
+#!/bin/csh
+#
+# Synplify the given "-pp1" page module families (top/page, noin, dpq, op, fsm, dp)
+#   in this directory, every implementation / revision thereof
+# Separately compile the page composition, behavioral op, but NOT queues
+#
+# Usage:  synplify-pp1-family family ...
+#
+# Assume separate project directories for top/page, noin, dpq, queue modules,
+#            each project directory named after its module
+#   - top (i.e. page)     is named "<topmodule>"
+#   - input queue         is named "<topmodule>_qin"
+#   - output/local queue  is named "<topmodule>_q"
+#   - output/local q + dp is named "<topmodule>_dpq"
+#   - ops w/o input queue is named "<topmodule>_noin"
+#
+# Note, tdfc -pp1 names top module "_page_<basemodule>"
+#
+# Synplify 7.1
+# Eylon Caspi, 10/16/03
+
+set toolpath = ${0:h}
+
+if ($#argv<1) then
+  echo Usage:  synplify-pages-family family ...
+  exit
+endif
+
+set topmodules = ($argv[*])
+
+foreach topmodule ($topmodules)
+  # - page composition:
+# foreach revpath ($topmodule/rev*)
+  foreach revpath ($topmodule/rev_4__200mhz)
+    set rev = ${revpath:t}
+    $toolpath/synplify-pages+dpq-impl $topmodule $rev omit_queues
+  end
+  # - operator in page:
+  set  basemodule = ${topmodule:s/_page_//}
+  if ($basemodule != $topmodule) then
+#   foreach revpath ($basemodule/rev*)
+    foreach revpath ($basemodule/rev_4__200mhz)
+      set rev = ${revpath:t}
+      $toolpath/synplify-impl $basemodule $rev
+    end
+  endif
+end

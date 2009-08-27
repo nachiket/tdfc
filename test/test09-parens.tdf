@@ -1,0 +1,7 @@
+boolean myOp (input boolean x)
+{
+  state a(x):		myOp=x@(1+1);
+  state b(x):		myOp=x@(1);
+  state c(x#(2)):	myOp=x;
+  state d(x#(2+2)):	myOp=x;
+}

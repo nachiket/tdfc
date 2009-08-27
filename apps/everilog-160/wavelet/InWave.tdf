@@ -1,0 +1,71 @@
+#ifndef _INWAVE
+#define _INWAVE
+
+InWave(param unsigned[10] rowLen, param unsigned[10] colLen,
+	param unsigned[8] inWidth, input signed[inWidth] inA,
+	output signed[inWidth] outA, output signed[inWidth] sbuf,
+	output signed[inWidth] dbuf) 
+
+{
+
+  unsigned[20] count = 0;
+  unsigned[20] index = 0;
+
+  state vstart(inA): {
+    sbuf = inA;
+    index = index+1;
+    if (index == rowLen) {
+      index = 0;
+      goto vinit1;
+    }
+  }
+
+  state vinit1(inA): {
+    dbuf = inA;
+    index = index+1;
+    if (index == rowLen) {
+      index = 0;
+      count = count+1;
+      goto vmiddle00;
+    }
+  }
+
+  state vmiddle00(inA): {
+    outA = inA;
+    sbuf = inA;
+    index = index+1;
+    if (index == rowLen) {
+      index = 0;
+      goto vmiddle01;
+    }
+  }
+
+  state vmiddle01(inA): {
+    dbuf = inA;
+    index = index+1;
+    if (index == rowLen) {
+      count = count+1;
+      if (count == colLen/2) {
+	index = 0;
+	goto vstart;
+      } else {
+	index = 0;
+	goto vmiddle10;
+      }
+    }
+  }
+
+  state vmiddle10(inA): { // same as vmiddle00, but keeping seperate 
+    outA = inA;
+    sbuf = inA;
+    index = index+1;
+    if (index == rowLen) {
+      index = 0;
+      goto vmiddle01;
+    }
+  }
+    
+
+}
+
+#endif

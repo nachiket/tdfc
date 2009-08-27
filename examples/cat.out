@@ -1,0 +1,10 @@
+warning: preprocess cat.tdf...
+// operator concatenate
+
+concatenate (input unsigned[1] a, input unsigned[1] b, input unsigned[1] c, output unsigned[3] out)
+{
+  state always () :
+    out=cat(a,b,c);
+}
+
+warning: Exiting...

@@ -1,0 +1,38 @@
+#define   APPROX_DIV
+#include "div.txt"
+
+divtest () {
+  unsigned[16] log_0  = LOG2(0);
+  unsigned[16] log_1  = LOG2(1);
+  unsigned[16] log_2  = LOG2(2);
+  unsigned[16] log_3  = LOG2(3);
+  unsigned[16] log_4  = LOG2(4);
+  unsigned[16] log_5  = LOG2(5);
+  unsigned[16] log_6  = LOG2(6);
+  unsigned[16] log_7  = LOG2(7);
+  unsigned[16] log_8  = LOG2(8);
+  unsigned[16] log_9  = LOG2(9);
+  unsigned[16] log_30 = LOG2(30);
+  unsigned[16] log_31 = LOG2(31);
+  unsigned[16] log_32 = LOG2(32);
+  unsigned[16] log_33 = LOG2(33);
+
+  unsigned[16] pow_0 = POWEROF2(0);
+  unsigned[16] pow_1 = POWEROF2(1);
+  unsigned[16] pow_2 = POWEROF2(2);
+  unsigned[16] pow_3 = POWEROF2(3);
+
+  unsigned[16] log_pow_0 = LOG2(POWEROF2(0));
+  unsigned[16] log_pow_1 = LOG2(POWEROF2(1));
+  unsigned[16] log_pow_2 = LOG2(POWEROF2(2));
+  unsigned[16] log_pow_3 = LOG2(POWEROF2(3));
+
+  unsigned[16] pow_log_0 = POWEROF2(LOG2(0));
+  unsigned[16] pow_log_1 = POWEROF2(LOG2(1));
+  unsigned[16] pow_log_2 = POWEROF2(LOG2(2));
+  unsigned[16] pow_log_3 = POWEROF2(LOG2(3));
+  unsigned[16] pow_log_4 = POWEROF2(LOG2(4));
+  unsigned[16] pow_log_8 = POWEROF2(LOG2(8));
+
+  state only () : {}
+}

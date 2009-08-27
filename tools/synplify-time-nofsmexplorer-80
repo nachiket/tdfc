@@ -1,0 +1,17 @@
+# - Extract Synplify completion time from ``.srr'' file
+# - Synplify 8.0
+# - Eylon Caspi, 4/26/05
+
+	perl -e 'while (<>) {						#\
+		   if (/^FSM Explorer successful/i)			#\
+		     { $explorer=1 }					#\
+		   if (/^####/i)					#\
+		     { $explorer=0 }					#\
+		   if (/^Process took.* ((\d+)d\:)?((\d+)h\:)?((\d+)m\:)?((\d+)s) +cputime/i) #\
+		     { $time=(((($2)*24+$4)*60+$6)*60+$8);		#\
+		       if (! $explorer) { $cumutime+=$time } }		#\
+		 }							#\
+		 print "$cumutime\n";'					#\
+		 $*
+
+#		 $< > $@

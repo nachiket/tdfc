@@ -1,0 +1,3 @@
+/usr/bin/time ./TDFC-APPS         | & tee TDFC-APPS.OUT
+/usr/bin/time ./XILINX-DIRS-APPS  | & tee XILINX-DIRS-APPS.OUT
+/usr/bin/time ./BUILD2-APPS -j 50 | & tee BUILD2-APPS.OUT

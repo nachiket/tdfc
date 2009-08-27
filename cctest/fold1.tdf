@@ -1,0 +1,171 @@
+fold1(input unsigned[8] in,
+      output unsigned[10] out1,
+      output signed[10] out2)
+{
+
+ state s0(in):
+  {
+   out1=in;
+   out2=in;
+   goto s2;
+  }
+ state s2(in):
+  {
+   out1=(in+1);
+   out2=(in+1);
+   goto s3;
+  }
+ state s3(in):
+  {
+   out1=in+0;
+   out2=in;
+   goto s4;
+  }
+ state s4(in):
+  {
+   out1=in*0;
+   out2=0;
+   goto s5;
+  }
+ state s5(in):
+  {
+   out1=in*1;
+   out2=in;
+   goto s6;
+  }
+ state s6(in):
+  {
+   out1=0+in;
+   out2=in;
+   goto s7;
+  }
+ state s7(in):
+  {
+   out1=0*in;
+   out2=0;
+   goto s8;
+  }
+ state s8(in):
+  {
+   out1=1*in;
+   out2=in;
+   goto s9;
+  }
+ state s9(in):
+  {
+   out1=in/1;
+   out2=in;
+   goto s10;
+  }
+ state s10(in):
+  {
+   out1=in/2;
+   out2=in>>1;
+   goto s11;
+  }
+ state s11(in):
+  {
+   out1=in/3;
+   out2=in/3;
+   goto s12;
+  }
+ state s12(in):
+  {
+   out1=in/4;
+   out2=in>>2;
+   goto s13;
+  }
+ state s13(in):
+  {
+   out1=in/8;
+   out2=in>>3;
+   goto s14;
+  }
+ state s14(in):
+  {
+   out1=in%2;
+   out2=in[0];
+   goto s15;
+  }
+ state s15(in):
+  {
+   out1=in%3;
+   out2=in%3;
+   goto s16;
+  }
+ state s16(in):
+  {
+   out1=in%4;
+   out2=in[1:0];
+   goto s17;
+  }
+ state s17(in):
+  {
+   out1=in%8;
+   out2=in[3:0];
+   goto s18;
+  }
+ state s18(in):
+  {
+   out1=in-0;
+   out2=in;
+   goto s19;
+  }
+ state s19(in):
+  {
+   out1=0-in;
+   out2=-in;
+   goto s20;
+  }
+ state s20(in):
+  {
+   out1=1-in;
+   out2=1-in;
+   goto s21;
+  }
+ state s21(in):
+  {
+   out1=in&0;
+   out2=0;
+   goto s22;
+  }
+ state s22(in):
+  {
+   out1=in&511;
+   out2=in;
+   goto s23;
+  }
+ state s23(in):
+  {
+   out1=in|0;
+   out2=in;
+   goto s24;
+  }
+ state s24(in):
+  {
+   out1=in|255;
+   out2=255;
+   goto s25;
+  }
+ state s25(in):
+  {
+   out1=in^0;
+   out2=in;
+   goto s26;
+  }
+ state s26(in):
+  {
+   out1=0^in;
+   out2=in;
+   goto s27;
+  }
+ state s27(in):
+  {
+   out1=255^in;
+   out2=~in;
+   goto last;
+  }
+ state last():
+   done();	
+
+}

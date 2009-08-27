@@ -1,0 +1,12 @@
+behavop (input boolean i, output boolean o)
+{
+  state only (i):  o=i;
+}
+
+
+composeop (input boolean i, output boolean o,
+           param unsigned[8] dh, param unsigned[8] sh)
+{
+  unsigned[8] mystream(dh|(sh<<16));
+  behavop(i,o);
+}

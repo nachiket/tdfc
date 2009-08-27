@@ -1,0 +1,151 @@
+#!/usr/bin/perl
+#
+# qsubwait
+#   - Run a job on the grid,
+#       wait for it to terminate,
+#       print its output (files) to stdout + stderr,
+#       move or delete its output files.
+#   - Usage:  qsubwait <qsub_options>
+#   - Eylon Caspi, 10/13/04 3/3/05 3/24/05 4/27/05 5/27/05
+
+################################################################
+
+$QSUB_TRIES	= 3 ;			# - number of times to try "qsub"
+$QSTAT_TRIES	= 3 ;			# - number of times to try empty "qstat"
+$SLEEP_INTERVAL	= 10 ;			# - seconds to wait between "qstat"
+$USER		= $ENV{"USER"} ;	# - user for "qstat -u"
+$DIR            = "/scratch/icfast/$USER" ;
+$TMP		= <$DIR/grid/jobs> ;	# - location of qsub output files
+$DONE		= <$DIR/grid/done> ;	# - location of done output files
+					#     ("" to delete files when done)
+
+					# - $TMP, $DONE must be visible
+					#     on remote machines
+
+################################################################
+
+# - Determine user name  (user for "qstat -u")
+if (! $USER) {
+    die "$0:  cannot determine user name\n" ;
+}
+
+# - Create output directories  (must be visible on remote machine)
+if (1) {
+    mkdir($TMP) ;
+    if (! -d $TMP) {
+        die "$0:  cannot access temporary directory $TMP\n" ;
+    }
+}
+if ($DONE ne "") {
+    mkdir($DONE) ;
+    if (! -d $DONE) {
+        die "$0:  cannot access temporary directory $DONE\n" ;
+    }
+}
+
+# - Run "qsub"
+$qsub_try = 1 ;
+while ($jobid eq "") {
+    $host = `hostname -s` ;
+    chomp($host) ;
+    $seconds = time() ;
+    $o = "$TMP/qsubwait-$host-$seconds-$$-o"  ;
+    $e = "$TMP/qsubwait-$host-$seconds-$$-e"  ;
+    $argvstr = join(" ",@ARGV) ;
+    $cmd = "qsub -o $o -e $e $argvstr" ;
+    # warn "$0:  launching $cmd\n" ;
+    if (! open(QSUB, "$cmd 2>&1 |") ) {
+	$warning = "$0:  cannot launch qsub" ;
+	next ;
+    }
+    while (<QSUB>) {
+	# warn "$0:  qsub returned: $_" ;
+	print ;
+	if (/Your job (\d+)/i)  { $jobid = $1 }
+    }
+    close(QSUB) ;
+    if ($jobid eq "") {
+	$warning = "$0:  could not get job id from qsub" ;
+	next ;
+    }
+}
+continue {
+    if ($jobid eq "") {
+	$warning = $warning . ", try $qsub_try" ;
+	if ($qsub_try < $QSUB_TRIES) {
+	    $warning = $warning . ", retry in $SLEEP_INTERVAL seconds" ;
+	    warn "$warning\n" ;
+	    sleep($SLEEP_INTERVAL) ;
+	    $qsub_try++ ;
+	}
+	else {
+	    $warning = $warning . ", failing" ;
+	    die "$warning\n" ;
+	}
+    }
+}
+# warn "$0:  job id $jobid\n";
+
+# - Wait for job to complete
+$qstat_try = 1 ;
+$jobdone = 0 ;
+while (! $jobdone) {
+    sleep($SLEEP_INTERVAL) ;
+    # warn "$0:  polling job $jobid\n" ;
+    open(QSTAT, "qstat -u $USER 2>&1 |") || die "$0:  cannot launch qstat, job $jobid\n" ;
+    $nolines  = 1 ;
+    $badlines = 0 ;
+    $foundjob = 0 ;
+    while (<QSTAT>) {
+	# warn "$0:  qstat returned: $_" ;
+	$nolines = 0 ;
+	if (! /(^job-id|^----|$USER)/i)
+	    { warn "$0:  qstat error, job $jobid, $_" ; $badlines = 1 ; last }
+	if (/^\s*$jobid/)
+	    {                                           $foundjob = 1 ; last }
+    }
+    close(QSTAT) ;
+    if ($nolines) {
+	# - Sometimes "qstat -u" returns nothing even though user has jobs
+	$warning = "$0:  qstat empty, try $qstat_try" ;
+	if ($qstat_try < $QSTAT_TRIES) {
+	    $warning = $warning . ", retry in $SLEEP_INTERVAL seconds" ;
+	    $qstat_try++ ;
+	}
+	else {
+	    $warning = $warning . ", accepting" ;
+	    $jobdone = 1 ;
+	}
+	warn "$warning, job $jobid\n" ;
+    }
+    else {
+	$jobdone = (! $badlines) && (! $foundjob) ;
+    }
+}
+# warn "$0:  job $jobid is done\n" ;
+
+print "Your job $jobid has completed, output follows.\n" ;
+
+# - Output + move/delete job's stdout
+if (-f $o) {
+    open(O,$o) || die "$0:  cannot read stdout file $o, job $jobid\n" ;
+    while (<O>)  { print(STDOUT $_) }
+    close(O) ;
+    if ($DONE ne "") { system("mv $o \"$DONE\"") ; }
+    else             { unlink($o) ;                }
+}
+else {
+    warn "$0:  cannot read stdout file $o, job $jobid\n" ;
+}
+
+# - Output + move/delete job's stderr
+if (-f $e) {
+    open(E,$e) || die "$0:  cannot read stderr file $e, job $jobid\n" ;
+    while (<E>)  { print(STDERR $_) }
+    close(E) ;
+    if ($DONE ne "") { system("mv $e \"$DONE\"") ; }
+    else             { unlink($e) ;                }
+}
+else {
+    warn "$0:  cannot read stderr file $e, job $jobid\n" ;
+}

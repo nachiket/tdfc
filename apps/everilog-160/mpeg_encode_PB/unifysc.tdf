@@ -1,0 +1,72 @@
+#include "div.txt"
+
+#if 0
+unifysc(param unsigned[10] rowSize, 
+       input unsigned[14] addro, input unsigned[8] inA, input unsigned[8] inB,
+       input unsigned[8] inC, input unsigned[8] inD, input unsigned[8] inE,
+       input unsigned[8] inF, input unsigned[8] inG, input unsigned[8] inH,
+       output unsigned[8] A, output unsigned[8] B, output unsigned[8] C,
+       output unsigned[8] D, output unsigned[8] E, output unsigned[8] F,
+       output unsigned[8] G, output unsigned[8] H)
+#else
+unifysc(param unsigned[10] rowSize, 
+	input unsigned[14] addro,input unsigned[64] inA,input unsigned[64] inB,
+	output unsigned[64] A)
+#endif
+
+{
+
+  state put(addro,inA,inB): {
+    
+    unsigned[3] idx;
+
+    // idx = ((addro/rowSize)%8);
+    idx =  DIV(addro,rowSize)%8;
+
+    if (idx==0) {
+//    outWord = (inA<<56)+(inB<<48)+(inC<<40)+(inD<<32)+
+//  	(inE<<24)+(inF<<16)+(inG<<8)+inH;
+      A = inA; B = inB; C = inC; D = inD;
+      E = inE; F = inF; G = inG; H = inH;
+    } else if (idx==1) {
+//        outWord = (inB<<56)+(inC<<48)+(inD<<40)+(inE<<32)+
+//          (inF<<24)+(inG<<16)+(inH<<8)+inA;
+      A = inB; B = inC; C = inD; D = inE;
+      E = inF; F = inG; G = inH; H = inA;
+    } else if (idx==2) {
+//        outWord = (inC<<56)+(inD<<48)+(inE<<40)+(inF<<32)+
+//          (inG<<24)+(inH<<16)+(inA<<8)+inB;
+      A = inC; B = inD; C = inE; D = inF; 
+      E = inG; F = inH; G = inA; H = inB; 
+    } else if (idx==3) {
+//        outWord = (inD<<56)+(inE<<48)+(inF<<40)+(inG<<32)+
+//          (inH<<24)+(inA<<16)+(inB<<8)+inC;
+      A = inD; B = inE; C = inF; D = inG; 
+      E = inH; F = inA; G = inB; H = inC; 
+    } else if (idx==4) {
+//        outWord = (inE<<56)+(inF<<48)+(inG<<40)+(inH<<32)+
+//          (inA<<24)+(inB<<16)+(inC<<8)+inD;
+      A = inE; B = inF; C = inG; D = inH; 
+      E = inA; F = inB; G = inC; H = inD; 
+    } else if (idx==5) {
+//        outWord = (inF<<56)+(inG<<48)+(inH<<40)+(inA<<32)+
+//          (inB<<24)+(inC<<16)+(inD<<8)+inE;
+      A = inF; B = inG; C = inH; D = inA; 
+      E = inB; F = inC; G = inD; H = inE; 
+    } else if (idx==6) {
+//        outWord = (inG<<56)+(inH<<48)+(inA<<40)+(inB<<32)+
+//          (inC<<24)+(inD<<16)+(inE<<8)+inF;
+      A = inG; B = inH; C = inA; D = inB; 
+      E = inC; F = inD; G = inE; H = inF; 
+    } else if (idx==7) {
+//        outWord = (inH<<56)+(inA<<48)+(inB<<40)+(inC<<32)+
+//          (inD<<24)+(inE<<16)+(inF<<8)+inG;
+      A = inH; B = inA; C = inB; D = inC; 
+      E = inD; F = inE; G = inF; H = inG; 
+    }
+
+
+  }
+
+
+}

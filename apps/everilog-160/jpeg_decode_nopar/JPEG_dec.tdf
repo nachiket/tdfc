@@ -1,0 +1,117 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.5 $
+// $Date: 2004/08/07 00:48:52 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+JPEG_dec(output signed[9] outA, output signed[9] outB, output signed[9] outC,
+	 output signed[9] outD, output signed[9] outE, output signed[9] outF,
+         output signed[9] outG, output signed[9] outH,
+	 input unsigned[8] Huffin)
+  // param signed[64][16] segrwTabA,
+  //	 param signed[64][16] segrwTabB) 
+{
+
+  signed[16] inA; signed[16] inB; signed[16] inC; signed[16] inD;
+  signed[16] inE; signed[16] inF; signed[16] inG; signed[16] inH;
+  //signed[16] dataA; signed[16] dataB;
+
+  signed[16] dctstream; 
+  //signed[16] dctstream_0; signed[16] dctstream_1;
+  signed[16] dctistream; unsigned[16] pT; unsigned[8] rLen; unsigned[8] rAdv;
+  unsigned[8] hout;
+  //boolean seg_writeA; boolean seg_writeB;
+
+  //unsigned[6] segWriteAddr; 
+  //unsigned[6] seg_addrA; unsigned[6] seg_addrB;
+  //signed[16] seg_data;
+  unsigned[8] ftabind; unsigned[8] ftabval;
+
+  unsigned[125][64] ftab  = 
+      {0x09,0x0a,0x16,0x17,0x18,0x19,0x1a,
+       0x25,0x26,0x27,0x28,0x29,0x2a,
+       0x34,0x35,0x36,0x37,0x38,0x39,0x3a,
+       0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,
+       0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,
+       0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,
+       0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,
+       0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,
+       0x92,0x93,0x94,0x95,0x96,0x97,0x98,0x99,0x9a,
+       0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0xa8,0xa9,0xaa,
+       0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,
+       0xc2,0xc3,0xc4,0xc5,0xc6,0xc7,0xc8,0xc9,0xca,
+       0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,
+       0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,
+       0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa};
+
+#if 0
+
+  unsigned[64][64] qs = {0x08,0x06,0x06,0x07,0x06,0x05,0x08,0x07,
+			 0x07,0x07,0x09,0x09,0x08,0x0a,0x0c,0x14,
+			 0x0d,0x0c,0x0b,0x0b,0x0c,0x19,0x12,0x13,
+			 0x0f,0x14,0x1d,0x1a,0x1f,0x1e,0x1d,0x1a,
+			 0x1c,0x1c,0x20,0x24,0x2e,0x27,0x20,0x22,
+			 0x2c,0x23,0x1c,0x1c,0x28,0x37,0x29,0x2c,
+			 0x30,0x31,0x34,0x34,0x34,0x1f,0x27,0x39,
+			 0x3d,0x38,0x32,0x3c,0x2e,0x33,0x34,0x32};
+
+#endif
+
+  // needs an extra bit of descaling
+  unsigned[64][64] qs = {16,17,17,18,23,13,19,25,
+			 25,16,18,29,27,33,24,31,
+			 36,37,34,31,19,27,39,50,
+			 41,52,63,28,17,45,60,61,
+			 66,57,48,20,33,55,59,68,
+			 81,49,21,20,51,86,64,56,
+			 35,32,56,64,56,20,22,48,
+			 52,31,22,35,20,15,16,8};
+
+  boolean seg_write;
+
+  // DelZero(Huffin,hout);
+  // DCT frontend
+  IDSub(inA,inB,inC,inD,inE,inF,inG,inH,
+        outA,outB,outC,outD,outE,outF,outG,outH);
+  //distrib(dataA,dataB,inA,inB,inC,inD,inE,inF,inG,inH);
+  //read_seg(seg_addrA,seg_addrB,seg_writeA,seg_writeB,segWriteAddr);
+  // transfers from DCT to segments
+
+  ///segment_rw(16,8,64,segrwTabA,seg_addrA,dataA,dctstream_0,seg_writeA);
+  //segment_rw(16,8,64,segrwTabB,seg_addrB,dataB,dctstream_1,seg_writeB); 
+
+  //zigzag(8,segWriteAddr,4097); 
+  izigzag(inA,inB,inC,inD,inE,inF,inG,inH,dctstream);
+  //demuxer(dctstream_0,dctstream_1,dctstream);
+  jdquant(dctistream,dctstream,8,qs);
+
+  //DecJPEGHuff(8,Huffin,dctistream,ftabind,ftabval);
+  DecHuff(8,Huffin,rLen,rAdv,pT);
+  DecSym(pT,rAdv,rLen,dctistream,ftabind,ftabval);
+  ftabmod(ftab,ftabind,ftabval);
+
+}
+
+
+

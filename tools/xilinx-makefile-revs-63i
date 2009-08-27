@@ -1,0 +1,45 @@
+# Makefile to build all Xilinx revisions in this directory
+#
+# - Invoke inside Xilinx module directory  ``.../proj-xilinx/<module>/''
+#
+# - Xilinx ISE 6.1i / 6.3i
+# - Eylon Caspi, 3/1/05
+
+################################################################
+
+# - Uncomment the following line to precede every xilinx command by $PREFIX
+# PREFIX = echo
+# PREFIX = qsubwaitcsh
+
+################################################################
+
+XILREVS = $(wildcard rev_*)
+XILPERIODPARS    = $(patsubst %,%/PERIOD_PAR,${XILREVS})
+XILROUTEFRACPARS = $(patsubst %,%/ROUTEFRAC_PAR,${XILREVS})
+
+.PHONY:	${XILREVS}
+
+all:	${XILREVS}
+
+${XILREVS}:	%:	%/PERIOD_PAR
+
+${XILPERIODPARS}:
+	cd ${@D} && rm -f DOIT && echo './make 2>&1 | tee -a make.OUT' > DOIT && ${PREFIX} sh DOIT
+
+
+################################################################
+
+XILREVS_CLEAN       = $(patsubst %,%_CLEAN,${XILREVS})
+XILREVS_REALLYCLEAN = $(patsubst %,%_REALLYCLEAN,${XILREVS})
+
+.PHONY:	${XILREVS_CLEAN} ${XILREVS_REALLYCLEAN} clean reallyclean
+
+clean:	${XILREVS_CLEAN}
+
+reallyclean:	${XILREVS_REALLYCLEAN}
+
+${XILREVS_CLEAN}:
+	cd $(patsubst %_CLEAN,%,$@)       && ./make clean       && rm -f DOIT
+
+${XILREVS_REALLYCLEAN}:
+	cd $(patsubst %_REALLYCLEAN,%,$@) && ./make reallyclean && rm -f DOIT

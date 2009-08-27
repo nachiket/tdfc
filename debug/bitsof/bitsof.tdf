@@ -1,0 +1,25 @@
+// does Laura's IR code handle bitsof() ?
+// in particular, will it show a register data-flow from a-->b ?
+// NO.
+// no data-flow for o=bitsof(r), o=cat(r)
+// ok data-flow for o=r+1,       o=r
+// ok data-flow for o=bitsof(r) if i,r,o are all make unsigned
+//   (presumably because const-folding strips bitsof(r) to leave just r)
+//   (does not work for o=cat(r+1) or o=cat(r)
+
+foo (input signed[8] i, output unsigned[8] o)
+{
+  signed[8] r;
+
+  state a (i) :
+    r=i;
+    goto b;
+
+  state b (i) :
+    o=bitsof(r);
+    // o=cat(r+1);
+    // o=cat(r);
+    // o=r+1;
+    // o=r;
+    goto a;
+}

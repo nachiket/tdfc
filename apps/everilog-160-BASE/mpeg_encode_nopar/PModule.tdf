@@ -1,0 +1,55 @@
+// PModule.tdfm
+// compositional operator for P-pictures
+
+// Copyright (c) 1999 The Regents of the University of California.
+// All rights reserved.
+// Permission to use, copy, modify, and distribute this software and its
+// documentation for any purpose, without fee, and without written agreement is
+// hereby granted, provided that the above copyright notice and the following
+// two paragraphs appear in all copies of this software.
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+// OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF
+// CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+// ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+// #include "motion.tdf"
+// #include "sumi.tdf"
+// #include "pmode.tdf"
+// #include "prepeat2.tdf"
+// #include "motTrunc.tdf"
+
+PModule(input unsigned[64] instr, input unsigned[64] snstr,
+	output signed[6] xVout, output signed[6] yVout, 
+	output unsigned[5] mOut, param unsigned[6] sRange)
+
+{
+
+  unsigned[16] pMaxErr;
+
+  unsigned[16] intrasum;
+  unsigned[64] repInp;
+  unsigned[64] fgroup; unsigned[64] intragroup;
+
+  unsigned[14] refAddrG; unsigned[14] refAddrH;
+
+  signed[6] xVint; signed[6] yVint;
+
+  boolean outRef; unsigned[3] find;
+
+  repeatTar(instr,repInp);
+  prepeat2(repInp, fgroup, intragroup);
+
+  motion(sRange,pMaxErr,xVint,yVint, fgroup, snstr);
+
+  motTrunc(xVint,yVint,xVout,yVout);
+
+  sumi(intragroup,intrasum,15);
+  pmode(pMaxErr,intrasum,mOut);
+
+
+}

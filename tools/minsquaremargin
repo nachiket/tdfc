@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+#
+# Given $n, $xsize, $ysize (which may be infinite), and $margin,
+# - Find the smallest pseudo-square box containing at least $n
+#   that fits inside box ($xsize * $ysize) sans boundary $margin
+#   [ i.e. inside ($xsize-2*$margin) * ($ysize-2*$margin) ],
+#   or else that fits inside ($xsize * $ysize) ignoring margin request.
+# - If succeed, print interior coordinates of box:  "xmin ymin xmax ymax"
+# - If fail,    print ""      to stdout and error msg to stderr
+#
+# See "minsquare" for definition of "smallest psuedo-square box"
+#
+# Eylon Caspi, 2/24/05
+
+
+$toolpathslash = ($0 =~ m{(.*/)}) ? $1 : "";
+
+
+########  Subroutines  ########
+
+sub usage {
+  my $name = $0;
+  $name =~ s{.*/}{};
+  $namespaces =  $name;
+  $namespaces =~ s/./ /g;
+  die "$name:  find minimum pseudo-square box surrounding n units,\n" .
+       $namespaces . "   print as coordinates ``X0 Y0 X1 Y1''\n" .
+      "Usage:  $name [-xy xsize ysize] [-m margin] n\n" .
+      "        xsize  = max size in x dimension  (>0)\n" .
+      "        ysize  = max size in y dimension  (>0)\n" .
+      "        margin = boundary margin to avoid, soft\n" .
+      "        n      = number of units to fit\n";
+}
+
+sub fail {
+  my $prod = $xsize * $ysize;
+  die "Cannot fit $n into ($xsize x $ysize = $prod)\n";
+}
+
+sub succeed {
+  $x0=shift(@_);
+  $y0=shift(@_);
+  $x1=shift(@_);
+  $y1=shift(@_);
+  print "$x0 $y0 $x1 $y1\n";
+  exit;
+}
+
+
+########  Cmd line  ########
+
+$xsize=-1;	# - max size in x dimension  (-1 = infinite)
+$ysize=-1;	# - max size in y dimension, (-1 = infinite)
+$margin=0;	# - boundary margin to avoid, soft
+$n=-1;		# - number of units to fit
+
+if ($#ARGV<0) { usage(); }
+
+while ($#ARGV >= 0) {
+  $arg = shift(@ARGV);
+  if    ($arg eq "-xy") { $xsize =shift(@ARGV); $ysize=shift(@ARGV); }
+  elsif ($arg eq "-m")  { $margin=shift(@ARGV); }
+  elsif ($arg =~ /^-/)  { usage(); }
+  else                  { $n=$arg; }
+}
+
+if ($xsize==0 || $ysize==0 || $margin<0 || $n<0) { usage(); }
+
+# print "xsize=$xsize ysize=$ysize margin=$margin n=$n\n";
+
+
+#########  Compute Box  ########
+
+$origmargin = $margin;
+
+while ($margin>0) {
+  $mxsize = ($xsize>=0) ? ($xsize-2*$margin) : $xsize;
+  $mysize = ($ysize>=0) ? ($ysize-2*$margin) : $ysize;
+  $xystr  = ($xsize>=0) ? "-xy $mxsize $mysize" : "";
+  open(MINSQUARE,"${toolpathslash}minsquare ".$xystr." $n 2>/dev/null |");
+  if ($minsquare = <MINSQUARE>) {
+    $minsquare =~ /(\d+) (\d+)/;
+    # print "Succeed with margin $margin\n";
+    succeed($margin,$margin,$1+$margin-1,$2+$margin-1);
+  }
+  if ($margin==$origmargin) { warn("Reducing margin\n"); }
+  $margin--;
+}
+
+{
+  # - no margin, or fall thru after failing with margin
+  $xystr  = ($xsize>=0) ? "-xy $xsize $ysize" : "";
+  open(MINSQUARE,"${toolpathslash}minsquare ".$xystr." $n 2>/dev/null |");
+  if ($minsquare = <MINSQUARE>) {
+    $minsquare =~ /(\d+) (\d+)/;
+    # print "Succeed without margin\n";
+    succeed(0,0,$1-1,$2-1);
+  }
+}
+
+fail();

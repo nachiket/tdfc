@@ -1,0 +1,75 @@
+----------------------------------------------------------------------------
+                        Virtex II   II Pro      Virtex 4    Spartan 3
+                        XC2V -6     XC2VP -7    XC4LX -11   XC3S -5
+                        (150nm)     (130nm)     (90nm)      (90nm)
+----------------------------------------------------------------------------
+IIR                     160 MHz     185 MHz     174 MHz     132 MHz
+jpeg_decode_nopar       122 MHz     138 MHz     160 MHz     104 MHz
+jpeg_encode_nopar       127 MHz     147 MHz     120 MHz      94 MHz
+mpeg_encode_nopar       105 MHz     117 MHz     110 MHz      75 MHz
+mpeg_encode_PB          100 MHz     107 MHz     115 MHz      70 MHz
+wavelet                  92 MHz     128 MHz     126 MHz      73 MHz
+wavelet_decode          115 MHz     141 MHz     136 MHz      86 MHz
+----------------------------------------------------------------------------
+
+
+
+
+From eylon@eecs.berkeley.edu Thu Feb 10 11:16:46 2005
+Date: Thu, 10 Feb 2005 11:16:46 -0800 (PST)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: John Wawrzynek <johnw@eecs.berkeley.edu>, Andre' DeHon <andre@acm.org>
+Subject: SCORE Apps on V2 V2Pro V4 S3
+
+John and Andre',
+
+As per your suggestion, I tried mapping the SCORE apps to some
+more recent Xilinx architectures.  The Virtex II, II Pro, 4, and
+Spartan 3 are similar enough that retargetting requires merely
+changing Synplify options.  LUT counts are nearly identical.
+Each of the 7 apps can fit into each architecture, with the
+following caveats:
+
+(1) I did not try PAR yet,
+       - mpeg_encode_PB may be too large, after PAR,
+           for the largest Spartan 3.
+       - the definition ``page = smallest square area'' will need
+           change, since aspect ratios are no longer square (V4: 3x1),
+           and some chips have holes for custom resources (V4: powerpc).
+
+(2) Each arch. has a different amount of BlockRAM,
+       which we are not modelling yet
+
+Below are the clock rates for the 7 apps with streams pipelined
+to depth 3 for logic pipelining.  Interestingly, Virtex 4 is
+NO FASTER than Virtex II Pro, on 6 of 7 apps, despite being a
+newer technology (90nm vs. 130nm).  This may be due to software,
+since 8.0 is the first Synplify version to support Virtex 4.
+Also, Spartan 3 is in 90nm but is not designed for speed,
+so it is actually slower than Virtex II.  Consequently, if we
+want to run numbers for an architecture newer than Virtex II,
+I suggest focusing on Virtex II Pro for now.  The 90nm
+architectures are not showing a speed advantage and may
+make _us_ look bad.
+
+
+----------------------------------------------------------------------------
+ 			Virtex II   II Pro	Virtex 4    Spartan 3
+ 			XC2V -6     XC2VP -7	XC4LX -11   XC3S -5
+                  	(150nm)     (130nm)	(90nm)      (90nm)
+----------------------------------------------------------------------------
+IIR             	160 MHz     185 MHz	174 MHz     132 MHz
+jpeg_decode_nopar	122 MHz     138 MHz	160 MHz     104 MHz
+jpeg_encode_nopar	127 MHz     147 MHz	120 MHz      94 MHz
+mpeg_encode_nopar	105 MHz     117 MHz	110 MHz      75 MHz
+mpeg_encode_PB  	100 MHz            	115 MHz	     70 MHz
+wavelet          	 92 MHz     128 MHz	126 MHz      73 MHz
+wavelet_decode  	115 MHz     141 MHz	136 MHz      86 MHz
+----------------------------------------------------------------------------
+
+
+(The missing entry is still running).
+
+Take care,
+- Eylon.
+

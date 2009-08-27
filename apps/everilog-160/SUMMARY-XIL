@@ -1,0 +1,23 @@
+#!/bin/csh
+#
+# concatenate every xilinx result file:  */proj-xilinx/*.xls
+# with each line preceded by <app>
+
+# proj = "proj" for synplify, "proj-xilinx" for xilinx
+set proj = "proj-xilinx"
+set xls  = "xilinx-pp1+dpq-summary3.xls"
+
+set nonomatch
+
+echo "Application	TDF Name	Component	Module	Revision	SYN Clock (MHz)	SYN LUT-FFs	SYN %Route	SYN Time (secs)	SYN Time No-FSM-Explorer (secs)	MAXCOMPACT Clock (MHz)	MAXCOMPACT LUT-FFs	MAXCOMPACT %Route	MAP Clock (MHz)	MAP LUT-FFs	MAP %Route	MAP Expansions	PAR Clock (MHz)	PAR LUT-FFs	PAR %Route	PAR Expansions	P Time (secs)	R Time (secs)	PAR Time (secs)	PAR Time Max (secs)	PAR Time Cumu (secs)	PAR/SYN Period	PAR/SYN LUT-FFs	PAR/SYN %Route	"
+
+foreach dir (.)
+  foreach app (`cat APPS`)
+#   set      xls_file = ($app/$proj/*.xls)
+    set      xls_file = ($app/$proj/$xls)
+    if ( -f $xls_file ) then
+#     echo   xls_file = $xls_file
+      perl -ne 'if ($i++ >= 4) { print "'$app'\t$_" }'  $xls_file
+    endif
+  end
+end

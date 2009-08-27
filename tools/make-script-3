@@ -1,0 +1,2 @@
+# Compile post-partitioned .cc files:
+make -j 2 -f Makefile.inst | & tee -a make.out

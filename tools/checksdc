@@ -1,0 +1,52 @@
+#!/bin/csh
+#
+# checksdc
+# - Compare .sdc files (Synplify FSM Explorer results)
+#     in all subdirectories to a reference .sdc file
+# - This is intended to verify whether non-top modules received
+#     a copy of the top (reference) module's FSM Explorer results
+# - Eylon Caspi, 11/22/04
+
+#### - Defaults
+
+set rev=(rev_4__200mhz)
+
+#### - Command line options
+
+if ( ( $#argv < 1 ) || ( $#argv > 2 ) ) then
+  echo 'Usage:  checksdc <referencemodule> [<rev>]'
+  echo '        <referencemodule> = module against whose .sdc to compare'
+  echo '        <rev>             = implementation name  (default: rev_4__200mhz)'
+  echo 'Run this inside a Synplify proj directory'
+  exit
+endif
+
+if ($#argv >= 1) then
+  set refmod=($argv[1])
+endif
+
+if ($#argv >= 2) then
+  set rev=($argv[2])
+endif
+
+# echo refmod = ${refmod}
+# echo rev    = ${rev}
+
+#### - The work
+
+set refsdc=(${refmod}/${rev}/${refmod}_fsm.sdc)
+if (! -f ${refsdc}) then
+  echo No reference file ${refsdc}
+  exit
+endif
+
+foreach x (*/${rev})
+  if (-f ${x}/dummy.edf) then		# - skip dirs w/o dummy.edf
+    set sdc=${x}/${x:h}_fsm.sdc
+    if (-f ${sdc}) then
+      diff -q ${refsdc} ${sdc}
+    else
+      echo No file ${sdc}
+    endif
+  endif
+end

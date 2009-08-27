@@ -1,0 +1,12 @@
+#!/bin/csh
+# - Distill synthesis results from Synplify 7 .srr file -- CLOCK PERIOD (NS)
+# - $period
+
+	  perl -e							\
+	    'while (<>) {						\
+	       if (/(clock|system) +(\d+(.\d+)?) +MHz +(\d+(.\d)?)/i)	\
+	         { if ($speed==0 || $speed>$4) { $speed=$4; } }		\
+	     }								\
+	     $period = ($speed==0) ? "" : (1000./$speed);		\
+	     print "$period\n" '					\
+	     $*

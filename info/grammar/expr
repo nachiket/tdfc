@@ -1,0 +1,22 @@
+operator expressions:
+---------------------
+
+boolean logic:		logOp		|| && ^^
+comparison:		cmpOp		== != < > <= >=
+unary boolean logic:	ulogOp		!
+bitwise logic:		blogOp		| & ^
+shift:			shOp		<< >>
+arith. add:		addOp		+ -
+unary:			uOp		- ~
+arith. prod:		prodOp		* / %
+parens:					()
+
+logExpr:	cmpExpr	 logOp	cmpExpr
+cmpExpr:	blogExpr cmpOp	blogExpr	| ulogExpr
+ulogExpr:		 ulogOp	ulogExpr	| ulogOp logExpr | ( logExpr )
+blogExpr:	blogExpr blogOp	shExpr		| shExpr
+shExpr:		shExpr	 shOp	addExpr		| addExpr
+addExpr:	addExpr	 addOp	uopExpr		| uopExpr
+uopExpr:		 uOp	uopExpr		| prodExpr
+prodExpr:	prodExpr prodOp	valExpr		| valExpr
+valExpr:	id | num | ( blogExpr )

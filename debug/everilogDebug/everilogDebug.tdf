@@ -1,0 +1,82 @@
+// - Zero run-length encoder, no EOS cases
+// - Extended with nonesense for -everilog debugging
+
+#define ZERO_MASK 8
+#define MAX_ZEROS 7
+
+everilogDebug (input unsigned[3] i, output unsigned[4] o)
+{
+  unsigned[4] x=1;	// - dummy
+//unsigned[4] y=x<<2;	// - dummy
+  unsigned[4] cnt=0;
+  signed[3] ii;		// - dummy
+
+  state start (i) :
+    if (ii==x) { goto hist; }	// -dummy
+    if (i==0) { cnt=1; goto zeros; }
+    else      { o=i; }
+    cnt = 7;			// - dummy
+
+  state start (eos(i)) : o=0;
+
+  state zeros (i) :
+    if (i@1==0) {
+      unsigned[4] local, local2=1, local3=1<<x;		// - dummy
+      if (cnt==MAX_ZEROS) { o=ZERO_MASK|cnt; cnt=0; }
+      else                { cnt=cnt+1; }
+    }
+    else                  { o=ZERO_MASK|cnt; cnt=0; goto pending; }
+    
+  state pending () :
+    o=i;
+    goto start;    
+
+  state hist () :
+    o=i@1;
+    goto start;    
+
+  state cast () : {			// - dummy
+    unsigned[2]  u2;
+    unsigned[3]  u3;
+    unsigned[4]  u4;
+    unsigned[5]  u5;
+    unsigned[6]  u6;
+      signed[2]  s2;
+      signed[3]  s3;
+      signed[4]  s4;
+      signed[5]  s5;
+      signed[6]  s6;
+      signed[2] ss2;
+      signed[3] ss3;
+      signed[4] ss4;
+      signed[5] ss5;
+      signed[6] ss6;
+    unsigned[4] bs4;
+    unsigned[4] us4;
+    unsigned[widthof(cnt)] c4;
+
+     u2 = (unsigned[2])cnt;
+     u3 = (unsigned[3])cnt;
+     u4 = (unsigned[4])cnt;
+     u5 = (unsigned[5])cnt;
+     u6 = (unsigned[6])cnt;
+//   s2 = (  signed[2])cnt;	// - TDF illegal
+//   s3 = (  signed[3])cnt;	// - TDF illegal
+//   s4 = (  signed[4])cnt;	// - TDF illegal
+     s5 = (  signed[5])cnt;
+     s6 = (  signed[6])cnt;
+    ss2 = (  signed[2])s4;
+    ss3 = (  signed[3])s4;
+    ss4 = (  signed[4])s4;
+    ss5 = (  signed[5])s4;
+    ss6 = (  signed[6])s4;
+    bs4 = (unsigned[4])bitsof(s4);
+//  us4 = (unsigned[4])s4;	// - TDF illegal
+     c4 = (unsigned[widthof(cnt)-1])cnt;
+
+     s4 = (s4>= u4) ? 1 : 2;
+     s4 = (s4>=-u4) ? 3 : 4;
+
+    goto start;
+  }
+}

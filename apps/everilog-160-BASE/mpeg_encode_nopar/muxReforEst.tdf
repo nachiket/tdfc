@@ -1,0 +1,37 @@
+// now only for estimation
+muxReforEst(param unsigned[24] iter,
+	    input unsigned[64] a, input unsigned[64] b, output unsigned[64] C)
+
+{
+
+  unsigned[16] index=0;
+
+  state first(a): {
+
+
+    C = a;
+
+    index = index+1;
+    if (index == iter) {
+      index = 0;
+      goto second;
+    }
+
+  } 
+
+  state second(b): {
+
+    C = b;
+
+    index = index+1;
+    if (index == iter) {
+      index = 0;
+      goto first;
+    }
+
+
+  }
+
+
+
+}

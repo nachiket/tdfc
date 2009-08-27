@@ -1,0 +1,12 @@
+#-- Synplicity, Inc.
+#-- Version 7.1
+#-- Project file proj/_page_bl_d1_ScOrEtMp49_dpq/_page_bl_d1_ScOrEtMp49_dpq.prd
+#-- Emitted by ../../../tdfc version 1.160, Mon Aug 24 17:52:44 2009
+#
+### Watch Implementation type ###
+#
+watch_impl -active
+#
+### Watch Implementation properties ###
+#
+watch_prop -clear

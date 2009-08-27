@@ -1,0 +1,32 @@
+name JPEG_dec
+name illm_d1_ScOrEtMp101	totDF 934	totmuxes_area 0	totDF+muxes_area 934	tot extr_area 934	tot_unextracted 0
+name tpose_d1_ScOrEtMp102	totDF 255	totmuxes_area 896	totDF+muxes_area 1151	tot extr_area 1151	tot_unextracted 0
+name illm_d1_ScOrEtMp103	totDF 934	totmuxes_area 0	totDF+muxes_area 934	tot extr_area 934	tot_unextracted 0
+name bl_d1_ScOrEtMp104		totDF 80	totmuxes_area 72	totDF+muxes_area 152	tot extr_area 152	tot_unextracted 0
+name distrib_d1_ScOrEtMp105	totDF 100	totmuxes_area 144	totDF+muxes_area 244	tot extr_area 152	tot_unextracted 92
+name read_seg_d1_ScOrEtMp106	totDF 54	totmuxes_area 33	totDF+muxes_area 87	tot extr_area 14	tot_unextracted 73
+name zigzag_d1_ScOrEtMp107	totDF 141	totmuxes_area 76	totDF+muxes_area 217	tot extr_area 34	tot_unextracted 183
+name demuxer_d1_ScOrEtMp108	totDF 20	totmuxes_area 40	totDF+muxes_area 60	tot extr_area 48	tot_unextracted 12
+name jdquant_noinline_d1_ScOrEt	totDF 156	totmuxes_area 137	totDF+muxes_area 293	tot extr_area 200	tot_unextracted 93
+name DecJPEGHuff_d1_ScOrEtMp113	totDF 2236	totmuxes_area 522	totDF+muxes_area 2758	tot extr_area 185	tot_unextracted 2573
+name ftabmod_noinline_d1_ScOrEt	totDF 0		totmuxes_area 168	totDF+muxes_area 168	tot extr_area 40	tot_unextracted 128
+name total			tot_area 6998	extr_area 3844	total unex 3154
+
+name JPEG_mod
+name fllm_d1_ScOrEtMp86 	totDF 560       totmuxes_area 0 totDF+muxes_area 560    tot extr_area 560       tot_unextracted 0
+name tpose_d1_ScOrEtMp87        totDF 255       totmuxes_area 896       totDF+muxes_area 1151   tot extr_area 1151      tot_unextracted 0
+name fllm_d1_ScOrEtMp88 	totDF 903       totmuxes_area 0 totDF+muxes_area 903    tot extr_area 903       tot_unextracted 0
+name write_seg_d1_ScOrEtMp89    totDF 84        totmuxes_area 272       totDF+muxes_area 356    tot extr_area 238       tot_unextracted 118
+name zigzag_d1_ScOrEtMp90       totDF 141       totmuxes_area 76        totDF+muxes_area 217    tot extr_area 36        tot_unextracted 181
+name muxer_d1_ScOrEtMp91        totDF 24        totmuxes_area 24        totDF+muxes_area 48     tot extr_area 20        tot_unextracted 28
+name jquant_noinline_d1_ScOrEtM	totDF 294       totmuxes_area 177       totDF+muxes_area 471    tot extr_area 322       tot_unextracted 149
+name JZLE_d1_ScOrEtMp96 	totDF 552       totmuxes_area 455       totDF+muxes_area 1007   tot extr_area 280       tot_unextracted 727
+name repeater_d1_ScOrEtMp97     totDF 0 	totmuxes_area 0 	totDF+muxes_area 0      tot extr_area 0 	tot_unextracted 0
+name MixToHuff_d1_ScOrEtMp98    totDF 12        totmuxes_area 72        totDF+muxes_area 84     tot extr_area 84        tot_unextracted 0
+name HuffMachine_d1_ScOrEtMp99  totDF 964       totmuxes_area 296       totDF+muxes_area 1260   tot extr_area 906       tot_unextracted 354
+name CheckZero_d1_ScOrEtMp100   totDF 8 	totmuxes_area 8 	totDF+muxes_area 16     tot extr_area 16        tot_unextracted 0
+name total      		tot_area 6073   extr_area 4516  total unex 1557
+
+
+
+

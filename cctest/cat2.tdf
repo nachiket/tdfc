@@ -1,0 +1,10 @@
+unsigned[cat(a,b,c,d)] cat2(param unsigned [2] a, input unsigned [a] va,
+                     param unsigned [2] b, input unsigned [b] vb,
+                     param unsigned [1] c, input unsigned [c] vc,
+                     param unsigned [1] d, input unsigned [d] vd)
+{
+   state only(va,vb,vc,vd):
+	cat2=va+vb+vc+vd; // just testing parameter, yes this 
+                          //  doesn't match size described
+
+}	

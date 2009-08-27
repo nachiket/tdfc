@@ -1,0 +1,48 @@
+--- Summary for ./Q1 / rev_1__speed
+clock              500.0 MHz     405.6 MHz     2.000         2.466         -0.466     inferred
+Total  LUTs: 7 (1%)
+
+--- Summary for ./Q1 / rev_2__area
+clock              1.0 MHz       392.6 MHz     1000.000      2.547         997.453     inferred
+Total  LUTs: 2 (0%)
+
+--- Summary for ./Q1 / rev_3__no_optim
+clock              1.0 MHz       392.6 MHz     1000.000      2.547         997.453     inferred
+Total  LUTs: 2 (0%)
+
+--- Summary for ./Q2x2 / rev_1__speed
+clock              500.0 MHz     381.7 MHz     2.000         2.620         -0.620     inferred
+Total  LUTs: 48 (9%)
+
+--- Summary for ./Q2x2 / rev_2__area
+clock              1.0 MHz       392.6 MHz     1000.000      2.547         997.453     inferred
+Total  LUTs: 26 (5%)
+
+--- Summary for ./Q2x2 / rev_3__no_optim
+clock              1.0 MHz       392.6 MHz     1000.000      2.547         997.453     inferred
+Total  LUTs: 26 (5%)
+
+--- Summary for ./Q2 / rev_1__speed
+clock              500.0 MHz     381.7 MHz     2.000         2.620         -0.620     inferred
+Total  LUTs: 24 (4%)
+
+--- Summary for ./Q2 / rev_2__area
+clock              1.0 MHz       354.0 MHz     1000.000      2.825         997.175     inferred
+Total  LUTs: 13 (2%)
+
+--- Summary for ./Q2 / rev_3__no_optim
+clock              1.0 MHz       354.0 MHz     1000.000      2.825         997.175     inferred
+Total  LUTs: 13 (2%)
+
+--- Summary for ./Q1x2 / rev_1__speed
+clock              500.0 MHz     405.6 MHz     2.000         2.466         -0.466     inferred
+Total  LUTs: 14 (2%)
+
+--- Summary for ./Q1x2 / rev_2__area
+clock              1.0 MHz       406.0 MHz     1000.000      2.463         997.537     inferred
+Total  LUTs: 4 (0%)
+
+--- Summary for ./Q1x2 / rev_3__no_optim
+clock              1.0 MHz       406.0 MHz     1000.000      2.463         997.537     inferred
+Total  LUTs: 4 (0%)
+

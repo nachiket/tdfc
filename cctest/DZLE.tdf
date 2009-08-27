@@ -1,0 +1,33 @@
+// Dynamic output edited from Andre/Eylon's code
+// Needs special code to handle EOS
+
+DZLE(param unsigned[8] ZERO_MARK,output unsigned[5] a, input unsigned[8] in)
+{
+
+    unsigned[7] cnt=0; 
+
+    state start(in): {
+	if (in >= ZERO_MARK) {
+	  a = 0;
+	  cnt = in - ZERO_MARK;
+	  goto zero;
+	} else {
+	    a = in;
+	    goto start;
+	}
+      }
+    state zero(): {
+      if (cnt == 0) {
+	  goto start;
+      } else {
+	  a = 0;
+	  cnt = cnt-1;
+	  stay;
+      }
+    }
+
+}  
+
+
+	   
+    

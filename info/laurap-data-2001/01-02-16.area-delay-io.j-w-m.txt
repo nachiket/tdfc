@@ -1,0 +1,75 @@
+
+jpeg_enc:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+HuffMachine     50      41      3       3       11      13      29      29
+MixToHuff       21      21      3       3       14      21      14      14
+jquant_noinline 8       9       1       2       6       8       12      12
+muxer   	12      12      3       4       8       10      9       9
+tpose   	148     813     3       4       14      22      45      45
+write_seg       382     413     4       4       20      29      41      41
+zigzag  	56      56      6       6       10      10      13      13
+JZLE    	740     730     5       5       59      60      58      58
+
+jpeg_dec:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+DecJPEGHuff     537     496     4       5       33      35      121     121
+demuxer 	7       9       1       2       5       6       7       7
+distrib 	143     139     3       4       26      28      28      28
+ftabmod_noinl	5       5       1       1       4       6       7       7
+jdquant_noinl	8       9       1       2       6       8       11      11
+read_seg        288     257     6       4       13      14      22      22
+tpose   	148     813     3       4       14      22      45      45
+zigzag  	56      56      6       6       10      10      13      13
+bl      	144     170     4       4       31      39      30      30
+
+wav_enc:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+InWave  	28      44      4       5       8       9       11      11
+LiftWaveHD      25      37      5       6       6       7       14      14
+LiftWaveH       24      38      5       6       6       7       15      15
+Quant_DC        10      14      2       3       7       8       8       8
+VWave   	27      54      3       4       10      14      17      17
+__HuffMachine   52      60      3       3       10      11      28      28
+__Quant_ZLE     261     255     6       7       18      19      31      31
+
+wav_dec:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+DQuant_DC       2       2       1       1       2       3       3       3
+DQuant  	44      39      6       4       9       10      12      12
+DecWaveHD       18      21      3       4       6       7       12      12
+DecWaveH        15      36      3       3       7       9       15      15
+DecWaveVD       88      87      6       5       16      20      19      19
+DecWaveV        57      58      5       4       13      17      16      16
+__DZLE  	31      28      4       4       9       10      10      10
+__DecHuffByte   90      118     4       4       18      20      25      25
+
+mpegIModule:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+HuffMachine     73      100     4       3       13      16      32      32
+MixToHuff       132     176     6       5       22      31      26      26
+mquant_noinline 65      55      3       4       13      16      22      22
+muxer   	12      12      3       4       8       10      9       9
+muxtoDCT        70      155     2       5       23      40      37      37
+
+mpeg PModule:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+choose8 	240     156     4       3       38      48      82      76
+error_cmp       15      19      3       3       8       10      16      16
+motTrunc        48      36      6       4       12      14      17      17
+pmode   	6       7       1       3       6       8       6       6
+sumi    	23      173     3       3       15      23      26      26
+
+mpeg others:
+
+Name            area    areaf   Delay   Delayf  IN      INf     OUT     OUTf
+segRefManage    162     272     3       4       23      31      58      58
+seg_manage      90      203     4       3       19      29      47      47
+segrep  	5       5       1       2       5       7       12      12
+unify   	62      144     5       3       22      31      26      26
+unifyc  	166     224     3       4       25      35      48      48

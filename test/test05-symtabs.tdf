@@ -1,0 +1,37 @@
+// tests symbol tables
+
+boolean theOp(input boolean i)
+{
+  boolean     reg_b;
+  unsigned[1] reg_u;
+
+  state start(i):
+    {
+      boolean     tmp_b;
+      unsigned[1] tmp_u;
+      theOp=i;
+    }
+
+  state second(i):
+    {
+      theOp=i;
+      {
+	boolean     tmp_b;
+	unsigned[1] tmp_u;
+	tmp_b=i;
+      }
+    }
+
+  state third(i):
+    {
+      theOp=i;
+      {
+	boolean     tmp_b;
+	tmp_b=i;
+	{	
+	  unsigned[1] tmp_u;
+	  tmp_u = tmp_b?1:0;
+	}
+      }
+    }
+}

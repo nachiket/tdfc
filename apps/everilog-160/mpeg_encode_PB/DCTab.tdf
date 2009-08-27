@@ -1,0 +1,58 @@
+DCTab(input unsigned[4] fromZLE, output unsigned[12] toMixer) 
+
+{
+
+  unsigned[4] index;
+
+  // tables can be implemented in < 100 4-Luts each
+  // they could also share a lot of logic
+  // not counting routing difficulties
+
+  state lum(fromZLE): {
+
+    unsigned[12] tmp;
+
+    tmp = 1918;
+    tmp = ((fromZLE==0)?772:tmp);
+    tmp = ((fromZLE==1)?512:tmp);
+    tmp = ((fromZLE==2)?513:tmp);
+    tmp = ((fromZLE==3)?773:tmp);
+    tmp = ((fromZLE==4)?774:tmp);
+    tmp = ((fromZLE==5)?1038:tmp);
+    tmp = ((fromZLE==6)?1310:tmp);
+    tmp = ((fromZLE==7)?1598:tmp);
+    toMixer = tmp;
+
+    index = index+1;
+    if (index == 4) {
+      goto chrom;
+    }
+
+
+  }
+
+  state chrom(fromZLE): {
+
+    unsigned[12] tmp;
+
+    tmp = 2302;
+    tmp = ((fromZLE==0)?512:tmp);
+    tmp = ((fromZLE==1)?513:tmp);
+    tmp = ((fromZLE==2)?514:tmp);
+    tmp = ((fromZLE==3)?774:tmp);
+    tmp = ((fromZLE==4)?1038:tmp);
+    tmp = ((fromZLE==5)?1310:tmp);
+    tmp = ((fromZLE==6)?1598:tmp);
+    tmp = ((fromZLE==7)?1918:tmp);
+    toMixer = tmp;
+
+    index = index+1;
+    if (index == 6) {
+      index = 0;
+      goto lum;
+    }
+
+  }
+
+
+}

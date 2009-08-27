@@ -1,0 +1,21 @@
+#!/bin/csh
+#
+# Generate summary report of  { FSM style, clock speed, total LUTs }
+#   for given project, given implementation
+# Use after synthesis by Synplify
+#
+# Synplify 7.1
+# Eylon Caspi, 5/8/03
+
+if ($#argv<2) then
+  echo "Report synthesized { FSM style, clock speed, total LUTs }"
+  echo "  for a given project and given implementation"
+  echo "Usage:  $0 module impl"
+  exit
+endif
+
+set mod = $argv[1]
+set rev = $argv[2]
+
+echo "--- Summary for $mod / $rev"
+egrep -i '((clock|system).*MHz)|(Total +LUTs)|property' $mod/$rev/*.srr

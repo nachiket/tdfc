@@ -1,0 +1,52 @@
+// ISub.tdfm
+// compositional operator for I-pictures
+
+// Copyright (c) 2000 The Regents of the University of California.
+// All rights reserved.
+// Permission to use, copy, modify, and distribute this software and its
+// documentation for any purpose, without fee, and without written agreement is
+// hereby granted, provided that the above copyright notice and the following
+// two paragraphs appear in all copies of this software.
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+// OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF
+// CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+// ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+// essentially just a 2D DCT
+
+// #include "fllm.tdf"
+// #include "tpose.tdf"
+// #include "adjust.tdf"
+
+ISub(param unsigned[16] segSize,
+     input signed[9] a, input signed[9] b, input signed[9] c,
+     input signed[9] d, input signed[9] e, input signed[9] f,
+     input signed[9] g, input signed[9] h,
+     output signed[16] s, output signed[16] t, output signed[16] u,
+     output signed[16] v, output signed[16] w, output signed[16] x,
+     output signed[16] y, output signed[16] z, input unsigned[5] mode)
+
+{
+  signed[16] tr0; signed[16] tr1; signed[16] tr2; signed[16] tr3;
+  signed[16] tr4; signed[16] tr5; signed[16] tr6; signed[16] tr7;
+
+  signed[16] pr0; signed[16] pr1; signed[16] pr2; signed[16] pr3;
+  signed[16] pr4; signed[16] pr5; signed[16] pr6; signed[16] pr7;
+
+  signed[16] tr0_;
+
+  fllm( 9,16,a,b,c,d,e,f,g,h,tr0_,tr1,tr2,tr3,tr4,tr5,tr6,tr7);
+  adjust(segSize, tr0_,tr0,mode);
+  //    tpose(16,-1024,tr0,tr1,tr2,tr3,tr4,tr5,tr6,tr7,
+  //  	pr0,pr1,pr2,pr3,pr4,pr5,pr6,pr7);
+  tpose(16,0,tr0,tr1,tr2,tr3,tr4,tr5,tr6,tr7,
+	pr0,pr1,pr2,pr3,pr4,pr5,pr6,pr7);
+  fllm(16,16,pr0,pr1,pr2,pr3,pr4,pr5,pr6,pr7,s,t,u,v,w,x,y,z);
+
+
+}

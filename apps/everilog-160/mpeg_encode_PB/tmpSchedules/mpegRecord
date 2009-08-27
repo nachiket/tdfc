@@ -1,0 +1,386 @@
+interactive done
+[1mburble[m [~/develop/score/ScoreRuntime|16:36|1|]./ScoreRuntime -pp 120 -ps 120
+./ScoreRuntime -pp 120 -ps 120
+gDoneSemId = 5449728
+In attach_rdwd_self, (before)self_fd value is: -1
+the pointer to self_fd_ is 715911456
+In attach_rdwd_self, (after)self_fd value is: 5
+In attach_rdwd_self, (before)self_fd value is: -1
+the pointer to self_fd_ is 717476124
+In attach_rdwd_self, (after)self_fd value is: 6
+SCHED: BECAUSE THE SCHEDULER WAS IDLE, SENDING A TIMESLICE SEED!
+   addOperator() ==> 21058001 cycle(s)
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 1
+SCHED: SCHEDULER VIRTUAL TIME: 0( + 0 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 2( +-> 849530 )
+segRefManage initP entering writin
+segRefManage !initP entering writin
+SCHED: VIRTUAL TIME AFTER RECONFIG: 1005377 ( + 155845 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY init
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 2
+SCHED: SCHEDULER VIRTUAL TIME: 1250000( + 244623 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 1250002( +-> 329759 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 1250352 ( + 18446744073709222207 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 3
+SCHED: SCHEDULER VIRTUAL TIME: 1500000( + 249648 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 1500002( +-> 279241 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 1500352 ( + 18446744073709272725 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY outCD
+modeModule stat is 6
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 4
+SCHED: SCHEDULER VIRTUAL TIME: 1750000( + 249648 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 1750002( +-> 275174 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 1750352 ( + 18446744073709276792 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 5
+SCHED: SCHEDULER VIRTUAL TIME: 2000000( + 249648 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 2000002( +-> 309711 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 2000352 ( + 18446744073709242255 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 6
+SCHED: SCHEDULER VIRTUAL TIME: 2250000( + 249648 )
+After finddeadlock
+inside bufferlockedstreams
+resolving bufferlock stream STREAM[streamID=56784,ptr=137229232](tag_copy1=23456789)
+	 src: PAGE.out0 [139495416]uniqTag = 99 
+	sink: PAGE.in0 [139487584]uniqTag = 93 
+resolving bufferlock stream STREAM[streamID=56788,ptr=137248048](tag_copy1=23456789)
+	 src: PAGE.out0 [139494712]uniqTag = 98 
+	sink: PAGE.in5 [139471272]uniqTag = 81 
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 2250002( +-> 759508 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 3010367 ( + 857 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 7
+SCHED: SCHEDULER VIRTUAL TIME: 3250000( + 239633 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 3250002( +-> 276068 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 3250356 ( + 18446744073709275902 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 8
+SCHED: SCHEDULER VIRTUAL TIME: 3500000( + 249644 )
+After finddeadlock
+inside bufferlockedstreams
+resolving bufferlock stream STREAM[streamID=56789,ptr=137252752](tag_copy1=23456789)
+	 src: PAGE.out1 [139494712]uniqTag = 98 
+	sink: PAGE.in1 [139474192]uniqTag = 84 
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 3500002( +-> 703603 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 4204460 ( + 855 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 9
+SCHED: SCHEDULER VIRTUAL TIME: 4250000( + 45540 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 4250002( +-> 274277 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 4250358 ( + 18446744073709277695 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 10
+SCHED: SCHEDULER VIRTUAL TIME: 4500000( + 249642 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 4500002( +-> 288412 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 4500358 ( + 18446744073709263560 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 11
+SCHED: SCHEDULER VIRTUAL TIME: 4750000( + 249642 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 4750002( +-> 277922 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 4750358 ( + 18446744073709274050 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 12
+SCHED: SCHEDULER VIRTUAL TIME: 5000000( + 249642 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 5000002( +-> 290276 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 5000358 ( + 18446744073709261696 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 13
+SCHED: SCHEDULER VIRTUAL TIME: 5250000( + 249642 )
+After finddeadlock
+inside bufferlockedstreams
+resolving bufferlock stream STREAM[streamID=56890,ptr=137718448](tag_copy1=23456789)
+	 src: PAGE.out0 [139469752]uniqTag = 79 
+	sink: PAGE.in0 [139494712]uniqTag = 98 
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 5250002( +-> 652492 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 5903352 ( + 858 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY wait
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 14
+SCHED: SCHEDULER VIRTUAL TIME: 6000000( + 96648 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 6000002( +-> 286069 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 6000360 ( + 18446744073709265905 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 15
+SCHED: SCHEDULER VIRTUAL TIME: 6250000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 6250002( +-> 277628 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 6250360 ( + 18446744073709274346 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+modeModule stat is 1
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 16
+SCHED: SCHEDULER VIRTUAL TIME: 6500000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 6500002( +-> 273777 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 6500360 ( + 18446744073709278197 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY wait
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 17
+SCHED: SCHEDULER VIRTUAL TIME: 6750000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 6750002( +-> 271516 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 6750360 ( + 18446744073709280458 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+modeModule stat is 2
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 18
+SCHED: SCHEDULER VIRTUAL TIME: 7000000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 7000002( +-> 278912 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 7000360 ( + 18446744073709273062 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 19
+SCHED: SCHEDULER VIRTUAL TIME: 7250000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 7250002( +-> 272608 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 7250360 ( + 18446744073709279366 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY outAB
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 20
+SCHED: SCHEDULER VIRTUAL TIME: 7500000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 7500002( +-> 250218 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 7500360 ( + 18446744073709301756 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+segRefManage initP entering writin
+modeModule stat is 3
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 21
+SCHED: SCHEDULER VIRTUAL TIME: 7750000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 7750002( +-> 292554 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 7750360 ( + 18446744073709259420 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 22
+SCHED: SCHEDULER VIRTUAL TIME: 8000000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 8000002( +-> 304107 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 8000360 ( + 18446744073709247867 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY wait
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 23
+SCHED: SCHEDULER VIRTUAL TIME: 8250000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 8250002( +-> 274817 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 8250360 ( + 18446744073709277157 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 24
+SCHED: SCHEDULER VIRTUAL TIME: 8500000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 8500002( +-> 280349 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 8500360 ( + 18446744073709271625 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+modeModule stat is 4
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 25
+SCHED: SCHEDULER VIRTUAL TIME: 8750000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 8750002( +-> 282036 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 8750360 ( + 18446744073709269938 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+muxToSegY wait
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 26
+SCHED: SCHEDULER VIRTUAL TIME: 9000000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 9000002( +-> 274034 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 9000360 ( + 18446744073709277940 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+modeModule stat is 5
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 27
+SCHED: SCHEDULER VIRTUAL TIME: 9250000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 9250002( +-> 272609 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 9250360 ( + 18446744073709279365 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 28
+SCHED: SCHEDULER VIRTUAL TIME: 9500000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 9500002( +-> 276966 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 9500360 ( + 18446744073709275008 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 29
+SCHED: SCHEDULER VIRTUAL TIME: 9750000( + 249640 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 9750002( +-> 437784 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 10188538 ( + 752 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+segRefManage !initP entering writin
+modeModule stat is 6
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 30
+SCHED: SCHEDULER VIRTUAL TIME: 10250000( + 61462 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 10250002( +-> 1225133 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 11577086 ( + 101951 ) 
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+SCORESEGMENTREADONLYERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+SCORESEGMENTREADONLYERR: NEED TO DETACH FROM SHARED SEGMENT!
+SCORESEGMENTREADONLYERR: NEED TO DETACH FROM SHARED SEGMENT!
+SCORESEGMENTREADONLYERR: NEED TO DETACH FROM SHARED SEGMENT!
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 31
+SCHED: SCHEDULER VIRTUAL TIME: 11750000( + 172914 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 11750002( +-> 39351 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 11750026 ( + 18446744073709512289 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 32
+SCHED: SCHEDULER VIRTUAL TIME: 12000000( + 249974 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 12000002( +-> 27281 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 12000026 ( + 18446744073709524359 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 33
+SCHED: SCHEDULER VIRTUAL TIME: 12250000( + 249974 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 12250002( +-> 31063 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 12250026 ( + 18446744073709520577 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 34
+SCHED: SCHEDULER VIRTUAL TIME: 12500000( + 249974 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 12500002( +-> 29007 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 12500026 ( + 18446744073709522633 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 35
+SCHED: SCHEDULER VIRTUAL TIME: 12750000( + 249974 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 12750002( +-> 29290 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 12750026 ( + 18446744073709522350 ) 
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+segRefManage initP entering writin
+-----------------------------------------------------------
+SCHED: Starting doSchedule(): TS: 36
+SCHED: SCHEDULER VIRTUAL TIME: 13000000( + 249974 )
+SCHED: VIRTUAL TIME BEFORE RECONFIG: 13000002( +-> 94548 )
+SCHED: VIRTUAL TIME AFTER RECONFIG: 13119956 ( + 25406 ) 
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+ScoreSegmentReadWriteERR: NEED TO DETACH FROM SHARED SEGMENT!
+
+********************************************************
+********************************************************
+
+SCHED: NO MORE WORK TO DO AT CYCLE = 13119956
+SCHED: CYCLES ELAPSED FROM LAST IDLE PERIOD = 13119956
+
+********************************************************
+********************************************************
+
+SCHED: Ending doSchedule()
+-----------------------------------------------------------
+SCHED: =================================================
+Total gatherStatusInfo: 7789887 [6573 : 216385 : 312154] [66.8796%]
+Total findDonePagesSegments: 615756 [5742 : 17104 : 317006] [5.28653%]
+Total findFaultedMemSeg: 60928 [1302 : 1692 : 4279] [0.523094%]
+Total findFreeableClusters: 13403 [219 : 372 : 777] [0.115071%]
+Total dealWithDeadLock: 1304801 [817 : 36244 : 495219] [11.2023%]
+Total scheduleClusters: 1200883 [2362 : 33357 : 533439] [10.3101%]
+Total performPlacement: 661972 [1067 : 18388 : 297679] [5.68332%]
+*** Overall Total 11647630 [27281 : 323545 : 1225133]
+SCHED: =================================================
+Total reconfigTime: 124547421744 [752 : 3459650604 : 4294940039]
+Total usedCPs: 3306 [3 : 94 : 114]
+Total usedCMBs: 1871 [8 : 53 : 64]
+SCHED: =================================================
+[1mburble[m [~/develop/score/ScoreRuntime|17:31|2|]exit
+exit
+exit
+
+Process shell finished

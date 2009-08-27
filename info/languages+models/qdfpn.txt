@@ -1,0 +1,33 @@
+Original dataflow process network:
+  every stream has unbounded capacity
+
+DFPN:  G=(V,E,R,f)
+
+V = nodes (actors)
+E = edges (streams)
+R = Rule set for each node         (R^v_i = ith rule for node v)
+f = output function for each rule  (f^v_i = output of ith rule of node v)
+                                   (f^v_i:S^m-->S^n  where v has
+                                            m input streams, n output streams)
+
+Queued dataflow process network:
+  every stream has fixed capacity and state
+  (in essence, every stream is now an actor)
+
+QDFPN:  G'=(V,E,R,f,D)
+
+V = computational nodes (actors)
+E = edges (streams)
+D  : E --> N = queue depth  (capacity zero or more for each queue)
+
+
+----
+
+Each actor f is a function on (infinite) streams:  f:S^m-->S^n.
+The behavior of the system is the least fixed point solution
+to the simultaneous equations induced by connecting actors/streams.
+(e.g. feedback:  s2=f(s1), s1=g(s2))
+
+For the DFPN subset of functions f,
+f can be represented by repeated invocation of f' that acts on prefixes.
+f' has a prefix-matching rule set, and a value f_i for each rule R_i.

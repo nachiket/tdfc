@@ -1,0 +1,45 @@
+#!/bin/csh
+#
+#  Generate Synplify report files for all apps in this directory
+#  Call after synthesis (synplify-all)
+#
+#  Synplify 7.1
+#  Eylon Caspi,  10/19/03
+
+# set toolpath = ${0:h}
+set toolpath = ${cwd}/../../tools
+
+set HTMLGEN  = ${toolpath}/synplify-pp1-summary-html
+set XLSGEN   = ${toolpath}/synplify-pp1-summary-xls
+
+if ($#argv<1) then
+  echo 'Usage:  synplify-pp1-summary-web <destdir>'
+  exit
+endif
+
+set DESTDIR = ($argv[1])
+
+set HTMLDIR = ${DESTDIR}
+set XLSDIR  = ${DESTDIR}/EXCEL/ORIG
+
+mkdir -p $HTMLDIR
+mkdir -p $XLSDIR
+
+# apps = (names of all directories in current dir, w/o leading path)
+set apps = (`find . -mindepth 1 -maxdepth 1 -type d -print | \
+             perl -npe 's{./}{}'` )
+
+foreach app ($apps)
+  echo "Generating Synplify web report for" $app
+  set projdir = ${app}/proj
+  if (-d $projdir) then
+    cd $projdir
+    ${HTMLGEN} > synplify-pp1-summary.html
+    cp -fp synplify-pp1-summary.html ${HTMLDIR}/${app}.html
+    ${XLSGEN}  > synplify-pp1-summary.xls
+    cp -fp synplify-pp1-summary.xls  ${XLSDIR}/${app}.xls
+    cd ../..
+  else
+    echo "  Error: no directory $projdir"
+  endif
+end

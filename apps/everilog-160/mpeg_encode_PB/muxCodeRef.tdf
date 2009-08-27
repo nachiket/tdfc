@@ -1,0 +1,30 @@
+muxCodeRef(param unsigned[12] segSize, input unsigned[64] fst, 
+	   input unsigned[64] snd, output unsigned[64] one)
+
+{
+
+  unsigned[12] index = 0;
+
+  state first(fst): {
+
+    one = fst;
+
+    index = index+1;
+    if (index == segSize) {
+      index = 0;
+      goto second;
+    }
+  }
+
+  state second(snd): {
+    
+    one = snd;
+
+    index = index+1;
+    if (index == segSize) {
+      index = 0;
+      goto first;
+    }
+  }
+
+} 

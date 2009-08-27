@@ -1,0 +1,32 @@
+
+segyMref(param unsigned[16] segSize, param unsigned[10] rowSize,
+	  param unsigned[10] noPics,
+	  input unsigned[64] inBigA, input unsigned[64] inBigB, 
+	  param unsigned[segSize/2][64] tabA, param unsigned[segSize/2][64] tabB,
+	  output unsigned[64] outToken)
+
+{
+
+  // segment_rw(16,6,64,segrwB,addrB,dctstream_1,dataB,writeB);
+  //boolean writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH;
+  boolean outl; boolean wrt,wrA,wrB;
+
+  unsigned[16] addr, addro;
+  unsigned[13] addrA,addrB;
+
+  unsigned[64] otA,otB;
+
+  //breakupY(rowSize,inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh,inBigA,inBigB);
+
+  segRefManage(segSize,rowSize,noPics,addr,wrt,outl);
+	       //inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh,
+	       //intAa,intAb,intAc,intAd,intAe,intAf,intAg,intAh,
+	       //writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH,
+
+  segrepY(segSize/2,rowSize,addr,addrA,addrB,wrt,wrA,wrB,addro);
+  segment_rw(64,13,segSize/2,tabA,addrA,otA,inBigA,wrA);
+  segment_rw(64,13,segSize/2,tabB,addrB,otB,inBigB,wrB);
+
+  unifyc(rowSize,outl,addro,otA,otB,outToken);
+
+}

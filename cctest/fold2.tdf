@@ -1,0 +1,14 @@
+fold2(input unsigned[8] in,
+      output unsigned[8] out1,
+      output unsigned[8] out2)
+{
+   state s0(in):
+     {
+	   out1=in/0;
+	   out2=3/0;
+           goto last;
+     }
+    state last():
+      done();	
+	
+}

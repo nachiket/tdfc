@@ -1,0 +1,13 @@
+iirTop (param unsigned[5] inWidth, input signed[inWidth] inStream, output signed[inWidth] outStream, param unsigned[5] I1fS, param signed[12] I1f1, param signed[12] I1f2, param unsigned[5] I1cS, param signed[12] I1c1, param signed[12] I1c2, param unsigned[5] I1fiS, param signed[12] I1fi0, param signed[12] I1fi1, param signed[12] I1fi2, param unsigned[5] I2fS, param signed[12] I2f1, param signed[12] I2f2, param unsigned[5] I2cS, param signed[12] I2c1, param signed[12] I2c2, param unsigned[5] I2fiS, param signed[12] I2fi0, param signed[12] I2fi1, param signed[12] I2fi2, param unsigned[5] F1fS, param signed[12] F1f0, param signed[12] F1f1, param signed[12] F1f2, param unsigned[5] F2fS, param signed[12] F2f0, param signed[12] F2f1, param signed[12] F2f2)
+{
+  signed[inWidth] interStream1;
+  signed[inWidth] interStream2;
+  signed[inWidth] interStream3;
+
+  iirFilt(inWidth,I1fS,I1f1,I1f2,I1cS,I1c1,I1c2,I1fiS,I1fi0,I1fi1,I1fi2,inStream,interStream1);
+  iirFilt(inWidth,I2fS,I2f1,I2f2,I2cS,I2c1,I2c2,I2fiS,I2fi0,I2fi1,I2fi2,interStream1,interStream2);
+  firFilt(inWidth,F1fS,F1f0,F1f1,F1f2,interStream2,interStream3);
+  firFilt(inWidth,F2fS,F2f0,F2f1,F2f2,interStream3,outStream);
+}
+
+// operator instance iirTop_d1_ScOrEtMp9(16,,,8,131,112,8,231,170,5,32,51,26,6,-47,15,7,167,62,7,128,210,89,8,256,131,256,5,32,-53,32)

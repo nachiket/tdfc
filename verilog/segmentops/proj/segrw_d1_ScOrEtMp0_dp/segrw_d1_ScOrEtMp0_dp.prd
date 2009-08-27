@@ -1,0 +1,12 @@
+#-- Synplicity, Inc.
+#-- Version 7.1
+#-- Project file proj/segrw_d1_ScOrEtMp0_dp/segrw_d1_ScOrEtMp0_dp.prd
+#-- Emitted by ../../tdfc version 1.158, Tue Dec 14 12:18:04 2004
+#
+### Watch Implementation type ###
+#
+watch_impl -active
+#
+### Watch Implementation properties ###
+#
+watch_prop -clear

@@ -1,0 +1,92 @@
+// - "exlining" inlined-calls and array-mem accesses from behavioral operators
+
+//////// simple call ////////
+
+op1 (input unsigned[8] i1, output unsigned[8] o1)
+{
+  state only1 (i1):
+    o1=i1;
+}
+
+op2 (input unsigned[8] i2, output unsigned[8] o2)
+{
+  state only2 (i2):
+    op1(i2,o2);
+}
+
+//////// call with return ////////
+
+unsigned[4] op3 (input unsigned[4] i3)
+{
+  state only3 (i3):
+    op3=i3;
+}
+
+op4 (input unsigned[4] i4, output unsigned[4] o4)
+{
+  state only4 (i4):
+    o4=op3(i4);
+}
+
+unsigned[4] op5 (input unsigned[4] i5)
+{
+  state only5 (i5):
+    op5=op3(i5);
+}
+
+//////// call with param ////////
+
+op6 (param unsigned[6] p6, input unsigned[p6] i6, output unsigned[p6] o6)
+{
+  state only6 (i6) :
+    o6=i6;
+}
+
+op7 (input unsigned[11] i7, output unsigned[11] o7)
+{
+  state only7 (i7) :
+    op6(11,i7,o7);
+}
+
+//////// memory array ////////
+
+op8 (input unsigned[6] i8, output unsigned[6] o8)
+{
+  unsigned[10][6] mem;
+
+  state only8 (i8):
+    mem[i8*4+1]=mem[i8*4];
+}
+
+op9 (input unsigned[6] i9, output unsigned[6] o9)
+{
+  unsigned[10][6] mem;
+  unsigned[6] tmp1;
+  unsigned[6] tmp2;
+
+  state only9 (i9):
+    tmp1=mem[i9*2];
+    mem[i9*2+1]=tmp1;
+    tmp2=mem[i9*3];
+    mem[i9*3+1]=tmp2;
+}
+
+op10 (input unsigned[6] i10, output unsigned[6] o10)
+{
+  unsigned[10][6] memR;
+  unsigned[10][6] memW;
+  unsigned[10][6] memRW;
+  unsigned[6] tmpR;
+  unsigned[6] tmpW;
+  unsigned[6] tmpRW;
+
+  state R10 (i10):
+    tmpR=memR[i10*2];
+
+  state W10 (i10):
+    memW[i10*2+1]=tmpW;
+
+  state RW10 (i10):
+    tmpRW=memRW[i10*3];
+    memRW[i10*3+1]=tmpRW;
+}

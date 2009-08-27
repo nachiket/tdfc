@@ -1,0 +1,28 @@
+narrowcast (input unsigned[10] i, output unsigned[8] o)
+{
+  state only (i) :
+    o=i;		// -ecc does NOT mask off high bits  (tdfc 1.142)
+    o=(unsigned[8])i;	// -ecc does NOT mask off high bits
+    o=i%256;		// -ecc does     mask off high bits
+}
+
+
+narrowcast2 (input signed[10] i, output signed[8] o)
+{
+  state only (i) :
+    o=i;		// -ecc does NOT mask off high bits
+//  o=(signed[8])i;	// illegal
+}
+
+
+#define X 0x3ff
+// a 10-bit constant, all 1's
+// casting to 8-bit should yield 0xff
+
+narrowcast3 (input unsigned[10] i, output unsigned[8] o)
+{
+  state only (i) :
+    o=X;		// -ecc does NOT mask off high bits  (tdfc 1.142)
+    o=(unsigned[8])X;	// -ecc does NOT mask off high bits
+    o=X%256;		// -ecc does     mask off high bits
+}

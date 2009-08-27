@@ -1,0 +1,46 @@
+Modelling queue as DFPN process			Eylon Caspi
+-------------------------------			2/10/04
+
+
+Queue = (S_id x S_is -> S_od x S_os)
+where _i is associated with an input  stream
+      _o is associated with an output stream
+       d = data,  b = backpressure,  s = state
+
+R = { r1 : (*,*)             (i.e. consume)
+      r2 : (\bot,non-empty)  (i.e. produce)
+    }
+
+NOT sufficient.
+Production should depend on output stream back-pressure.
+
+----------------------------------------------------------------
+
+Consider DFPN that models explicit handshaking:
+  [] ---d--> []
+  [] <--b--- []
+Forward data subsumes forward valid (and EOS)
+Backwards back-pressure indicates a REQUEST for data
+
+Demand driven:  producer's rule for data production consumes bp first
+Data   driven:  consumer's rule for bp   production consumes d  first
+
+Queue = (S_id x S_ob x S_is --> S_od x S_ib x S_os)
+where _i is associated with an input  stream
+      _o is associated with an output stream
+       d = data,  b = backpressure,  s = state
+
+R = { r1 : (*,\bot,[!full])  :-> (\bot,0,[depth+1])     (i.e. consume)
+      r2 : (\bot,0,[!empty]) :-> (data,\bot,[depth-1])  (i.e. produce)
+    }
+
+These 2 rules model consumption and production as not only decoupled,
+but happening separately (i.e. as serial transformations on state).
+
+To model simultaneous consumption and production,
+without data feed-through (i.e. produce data consumed previously), add:
+
+      r3 : (*,0,[!empty]) :-> (data,0,[depth])  (i.e. consume + produce)
+
+Queue input  is data driven
+Queue output is demand driven

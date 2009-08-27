@@ -1,0 +1,1 @@
+qstat -u eylon -s r | egrep '[0-9]' | cut -d' ' -f 2 | tr '\n' ',' | xargs qstat -j | grep workdir | perl -npe 's{.*workdir:\s+}{}'

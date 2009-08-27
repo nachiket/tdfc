@@ -1,0 +1,305 @@
+Dismantling shared stream/register access
+-----------------------------------------
+
+- Problem: FSM may be partitioned s.t. a stream or register
+    is accessed from separate pages; must ensure sequential model.
+- Solution: implement request-reply scheme,
+    where streams and registers live on a particular page,
+    and all accesses must go through request/reply states
+    clustered on that page.
+- Implementation:
+    (1)  transform states s.t. each stream/register access
+           reads/writes a "inter-state transfer register"
+           instead of original read/write,
+           and transitions through a new read/write access state
+           that accesses the original stream/reg.
+    (2)  pre-cluster the all access states of a stream/reg
+           (ensures that original stream/reg has no inter-cluster data-flow)
+    (3)  min-cut state clustering
+    (4)  clusters become page operators,
+           and all inter-cluster register data-flow becomes stream IO
+- It probably suffices to dismantle only for streams/regs
+    that are accessed in multiple states.
+
+----------------------------------------------------------------
+
+DISMANTLING REGISTER ACCESS:  <<EXAMPLE>>
+
+-- BEFORE --
+
+unsigned[16] x, y;
+
+state foo () :
+  x = ... y ...
+  ...
+  goto next;
+
+
+-- AFTER --
+
+unsigned[16] x, y;		// - these become local to clusters
+unsigned[16] x_xfer, y_xfer;	// - these become DF between clusters
+  
+state foo_1 () :
+  goto read_y_foo	[will be bypassed by -xc]
+
+state foo_2 () :
+  x_xfer = ... y_xfer ...
+  goto write_x_foo;
+
+state foo_3 () :
+  goto next;		[will be bypassed by -xc]
+
+state read_y_foo () :
+  y_xfer = y;
+  goto foo_2
+
+state write_x_foo () :
+  x = x_xfer
+  foo_3;
+
+
+----------------------------------------------------------------
+
+DISMANTLING STREAM ACCESS:  <<EXAMPLE>>
+
+-- BEFORE --
+
+state foo (i) :
+  o = ... i ...
+  goto next;
+
+
+-- AFTER --
+
+state foo_1 () :
+  goto in_i_foo;	[will be bypassed by -xc]
+
+state foo_2 () :
+  oval = ... i_xfer ...
+  goto out_o_foo;
+
+state foo_3 () :
+  goto next;		[will be bypassed by -xc]
+
+state in_i_foo (i) :
+  i_xfer = i;
+  goto foo_2;
+
+state out_o_foo () :
+  o = oval;
+  goto foo_3;
+
+
+--------------------------------
+What about multiple EOS state signatures?
+
+-- BEFORE --
+
+state foo (a,b) :		{ A/B }
+state foo (a,eos(b)) :		{ A/eosB }
+state foo (eos(a),b) :		{ eosA/B }
+state foo (eos(a),eos(b)) :	{ eosA/eosB }
+
+
+-- AFTER --
+
+state foo () : { goto input_a_for_foo; }
+
+state input_a_for_foo (a) :		{ goto input_b_for_foo_a; }
+state input_a_for_foo (eos(a)) :	{ goto input_b_for_foo_eosa; }
+
+state input_b_for_foo_a    (b) :	{ goto foo_a_b; }
+state input_b_for_foo_a    (eos(b)) :	{ goto foo_a_eosb; }
+state input_b_for_foo_eosa (b) :	{ goto foo_eosa_b; }
+state input_b_for_foo_eosa (eos(b)) :	{ goto foo_eosa_eosb; }
+
+state foo_a_b () :		{ A/B }
+state foo_a_eosb () :		{ A/eosB }
+state foo_eosa_b () :		{ eosA/B }
+state foo_eosa_eosb () :	{ eosA/eosB }
+
+----------------------------------------------------------------
+
+DISMANTLING REGISTER ACCESS:  <<ALGORITHM>>
+
+for each state
+  for each stmt
+    for each expr
+      if expr reads reg R  (that is not ANNOTE_IS_SIMPLE_REG)
+        create transfer reg R_to_<state>, marked ANNOTE_IS_SIMPLE_REG
+        create new state read_reg_R_to_<state>  {R_to_<state>=R; goto <state>;}
+        convert ref to R into ref to R_to_<state>
+	cut state:
+	  retain preceding stmts + "goto read_reg_R_to_<state>"
+	  new state <state>_N contains present and subsequent stmts
+	done with this state (mark done)
+    if stmt writes reg R  (that is not ANNOTE_IS_SIMPLE_REG)
+      create transfer reg R_from_<state>, marked ANNOTE_IS_SIMPLE_REG
+      create new state write_reg_R_from_<state> {R_to_<state>=R; goto <state>;}
+      convert ref to R (LHS) into ref to R_from_<state>
+      cut state:
+        retain preceding stmts + assign + "goto write_reg_R_from_<state>"
+        new state <state>_N contains subsequent stmts
+      done with this state (mark done)
+
+Before state clustering:
+  pre-cluster state pairs that communicate (data-flow)
+  thru a register not marked ANNOTE_IS_SIMPLE_REG.
+
+NOTE
+This dismantles EVERY reg read/write --> terrible performance.
+There are lots of possible analyses for reducing the number
+  of dismantled reg accesses, but they are not trivial.
+Simple trick:	Do not dismantle local vars
+		  (until they are promoted to registers after a state cut)
+Simple trick:	Do not dismantle regs that are accessed in only 1 state
+		  (problem: cutting state may cause such regs
+		   to be accessed in multiple states;
+		   need analysis to know which regs).
+		  (solution: convert such regs into local vars,
+		   which will be upgraded to regular regs as necessary).
+Sophisticated:	Convert to SSA to identify reg data-flow
+
+
+----------------------------------------------------------------
+
+DISMANTLING STREAM ACCESS:  <<SINGLE-SIGNATURE ALGORITHM>>
+
+- Do the following before dismantling register access
+- in the following:
+    ignore input streams w/single read ref
+    ignore write streams w/single write ref
+
+Input streams:
+  for each input stream S
+    create explicit history registers:  S_0, S_1, S_2, ...
+  for each state that inputs stream S
+    create input-shift state input_stream_S_by_<state>:
+      {S_2=S_1; S_1=S_0; S_0=S; goto <state>_tail;}
+    cut state:
+      head state has no inputs, "goto input_stream_S_by_<state>;"
+      tail state has orig inputs without S, and all orig stmts
+  for each reference to input stream value S[n]
+    replace by ref to input stream reg S_n  (then dismantle reg reads)
+
+Output streams:
+  identical to register write
+
+
+----------------------------------------------------------------
+
+DISMANTLING STREAM ACCESS:  <<MULTI-SIGNATURE EXAMPLE>>
+
+-- BEFORE --
+
+state foo (a,     b,     c     ) : CASE0
+state foo (a,     b,     eos(c)) : CASE1
+state foo (a,     eos(b),c     ) : CASE2
+state foo (a,     eos(b),eos(c)) : CASE3
+state foo (eos(a),b,     c     ) : CASE4
+state foo (eos(a),b,     eos(c)) : CASE5
+state foo (eos(a),eos(b),c     ) : CASE6
+state foo (eos(a),eos(b),eos(c)) : CASE7
+
+-- AFTER PASS 1 --
+
+state foo ()                     : goto input_a_for_foo;
+state input_a_for_foo (a)        : goto foo_case0;
+state input_a_for_foo (eos(a))   : goto foo_case1;
+state foo_case0 (b,     c     )  : CASE0
+state foo_case0 (b,     eos(c))  : CASE1
+state foo_case0 (eos(b),c     )  : CASE2
+state foo_case0 (eos(b),eos(c))  : CASE3
+state foo_case1 (b,     c     )  : CASE4
+state foo_case1 (b,     eos(c))  : CASE5
+state foo_case1 (eos(b),c     )  : CASE6
+state foo_case1 (eos(b),eos(c))  : CASE7
+
+-- AFTER PASS 2 --
+
+state foo ()                         : goto input_a_for_foo;		OLD
+state input_a_for_foo (a)            : goto foo_case0;			OLD
+state input_a_for_foo (eos(a))       : goto foo_case1;			OLD
+state foo_case0 ()                   : goto input_b_for_foo_case0;
+state input_b_for_foo_case0 (b)      : goto foo_case00;
+state input_b_for_foo_case0 (eos(b)) : goto foo_case01;
+state foo_case00 (c     )            : CASE0
+state foo_case00 (eos(c))            : CASE1
+state foo_case01 (c     )            : CASE2
+state foo_case01 (eos(c))            : CASE3
+state foo_case1 ()                   : goto input_b_for_foo_case1;
+state input_b_for_foo_case1 (b)      : goto foo_case10;
+state input_b_for_foo_case1 (eos(b)) : goto foo_case11;
+state foo_case10 (c     )	     : CASE4
+state foo_case10 (eos(c))	     : CASE5
+state foo_case11 (c     )	     : CASE6
+state foo_case11 (eos(c))	     : CASE7
+
+-- AFTER PASS 3 --
+
+state foo ()                          : goto input_a_for_foo;		OLD
+state input_a_for_foo (a)             : goto foo_case0;			OLD
+state input_a_for_foo (eos(a))        : goto foo_case1;			OLD
+state foo_case0 ()                    : goto input_b_for_foo_case0;	OLD
+state input_b_for_foo_case0 (b)       : goto foo_case00;		OLD
+state input_b_for_foo_case0 (eos(b))  : goto foo_case01;		OLD
+state foo_case00 ()		      : goto input_c_for_foo_case00;
+state input_c_for_foo_case00 (c)      : goto foo_case000;
+state input_c_for_foo_case00 (eos(c)) : goto foo_case001;
+state foo_case000 ()		      : CASE0
+state foo_case001 ()		      : CASE1
+state foo_case01 ()		      : goto input_c_for_foo_case01;
+state input_c_for_foo_case01 (c)      : goto foo_case010;
+state input_c_for_foo_case01 (eos(c)) : goto foo_case011;
+state foo_case010 ()		      : CASE2
+state foo_case011 ()		      : CASE3
+state foo_case1 ()                    : goto input_b_for_foo_case1;	OLD
+state input_b_for_foo_case1 (b)       : goto foo_case10;		OLD
+state input_b_for_foo_case1 (eos(b))  : goto foo_case11;		OLD
+state foo_case10 ()		      : goto input_c_for_foo_case10;
+state input_c_for_foo_case10 (c)      : goto foo_case100;
+state input_c_for_foo_case10 (eos(c)) : goto foo_case101;
+state foo_case100 ()		      : CASE4
+state foo_case101 ()		      : CASE5
+state foo_case11 ()		      : goto input_c_for_foo_case11;
+state input_c_for_foo_case11 (c)      : goto foo_case110;
+state input_c_for_foo_case11 (eos(c)) : goto foo_case111;
+state foo_case110 ()		      : CASE6
+state foo_case111 ()		      : CASE7
+
+
+----------------------------------------------------------------
+
+DISMANTLING STREAM ACCESS:  <<MULTI-SIGNATURE ALGORITHM>>
+
+for each operator
+  for each state
+    canonicalize input-spec order across all state-cases  (optimal order?)
+    strip 1st input 'i'
+    if i has no eos(i) cases, then each case becomes:
+      <state>(i,...): {code}
+        --> becomes -->
+        <state>() : { goto input_i_for_<state>; }
+        input_i_for_<state> (i) : { goto <state>_N; }
+        <state>_N (...) : {code}
+      dump <state>_N into set for future processing
+    else  (i has eos(i) cases)
+      for each state-case that inputs i
+        <state>(i,...): {code}
+	  --> becomes -->
+          <state>() : { goto input_i_for_<state>; }
+          input_i_for_<state> (i) : { goto <state>_case0; }
+          <state>_case0 (...) : {code}
+      for each state-case that inputs eos(i)
+        <state>(eos(i),...): {code}
+	  --> becomes -->
+          <state>() : { goto input_i_for_<state>; }
+          input_i_for_<state> (eos(i)) : { goto <state>_case1; }
+          <state>_case1 (...) : {code}
+      note that we create state input_i_for_<state> with 2 state-cases
+      dump <state>_case0 and <state>_case1 into set for future processing
+
+Do this before dismantling register access.
+During register dismantling, treat stream reference same as reg reference
+  (for input as well as output)

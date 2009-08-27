@@ -1,0 +1,96 @@
+#!/bin/csh
+#
+# Create Xilinx project directories
+# for compiling behavioral module families (top, FSM, DP)
+# from EDIF to Xilinx Virtex II
+#
+# *** Run this script after running xilinx-dirs-61i and compiling its
+#     one revision.  This script adds revisions for compiling the same
+#     modules in 1.1x 1.2x 1.5x 2.0x the area of the actual, final,
+#     working floorplan size from the original 1.0x revision (min area)
+#
+# Usage:  xilinx-dirs
+#
+# Run this from the directory containing ".v" verilog sources.
+# Xilinx build depends on existing "proj" directory with Synplify build.
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Xilinx ISE 6.1i
+# Eylon Caspi, 2/12/04
+
+set toolpath = ${0:h}
+
+set synplify_projdir = proj		# Synplify project dir
+set   xilinx_projdir = proj-xilinx	# Xilinx   project dir created here
+
+# mkdir ${xilinx_projdir}		# should already be there
+
+# cp -f -p ${toolpath}/xilinx-makefile-61i       ${xilinx_projdir}
+# cp -f -p ${toolpath}/xilinx-area-constraints   ${xilinx_projdir}
+# cp -f -p ${toolpath}/xilinx-timing-constraints ${xilinx_projdir}
+
+# foreach modulev (*.v)
+#   if (`head -1 $modulev | egrep -i '// Verilog .*base .*queue'` != "") \
+#     continue
+#   set module = ${modulev:r}
+set modulepaths = (`find $xilinx_projdir -mindepth 1 -maxdepth 1 -type d`)
+foreach modulepath ($modulepaths)
+  set module = ${modulepath:t}
+  echo "PROCESSING " $module
+# mkdir ${xilinx_projdir}/${module}		# should already be there
+  if ($module =~ *_ior) then
+    set core_module = ${module:s/_ior//}
+  else
+    set core_module = 
+  endif
+# foreach areaexp (1.0 1.1 1.2 1.5 2.0)
+# foreach areaexp (1.0)
+# foreach areaexpname (1.1 1.2 1.5 2.0 unconstrained)
+  foreach areaexpname (unconstrained)
+    if  ($areaexpname == "unconstrained") then
+      set areaexp = 
+    else
+      set areaexp = $areaexpname
+    endif
+    set revdir = ${xilinx_projdir}/${module}/rev_area_${areaexpname}
+    mkdir ${revdir}
+    ln -f -s ../../xilinx-makefile-61i       ${revdir}/Makefile
+    ln -f -s ../../xilinx-area-constraints   ${revdir}/xilinx-area-constraints
+    ln -f -s ../../xilinx-timing-constraints ${revdir}/xilinx-timing-constraints
+    if ($core_module == "") then
+      echo "make			\\
+	    MODULE=${module}		\\
+	    EDIF_DIR=../../../${synplify_projdir}/${module}/rev_1__speed \\
+	    AREA_EXPANSION=${areaexp} " '$*' > ${revdir}/make
+    else
+      echo "make			\\
+	    MODULE=${module}		\\
+	    EDIF_DIR=../../../${synplify_projdir}/${module}/rev_1__speed \\
+	    CORE_MODULE=${core_module}	\\
+	    CORE_EDIF_DIR=../../../${synplify_projdir}/${core_module}/rev_1__speed \\
+	    AREA_EXPANSION=${areaexp} " '$*' > ${revdir}/make
+    endif
+    chmod +x ${revdir}/make
+
+    # new rev targets some multiple of the actual floorplan from rev_area_1.0
+    if ($areaexpname != "unconstrained") then
+      perl -ne 'chomp; print $_*2 . "\n"' ${xilinx_projdir}/${module}/rev_area_1.0/SLICES_FLOORPLAN > $revdir/LUTFFS_SYNPLIFY
+    endif
+  end
+  echo	'#\!/bin/csh						\
+	 foreach rev (rev*)					\
+	   sh -c "cd $rev; ./make $* 2>&1 | tee make.out"	\
+	 end' > ${xilinx_projdir}/${module}/make
+  chmod +x ${xilinx_projdir}/${module}/make
+end
+
+echo '#\!/bin/csh			\
+      foreach mod (*)			\
+	sh -c "cd $mod; ./make $*"	\
+      end' > ${xilinx_projdir}/make
+chmod +x ${xilinx_projdir}/make

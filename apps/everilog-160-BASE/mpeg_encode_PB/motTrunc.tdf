@@ -1,0 +1,93 @@
+// "corrects motion vectors out of range"
+
+#include "modulo_counter.txt"
+
+motTrunc(input signed[6] xin, input signed[6] yin,
+	 output signed[6] xout, output signed[6] yout) 
+{
+
+  unsigned[10] index = 0;
+  #ifdef MODULO_COUNTER
+  unsigned[widthof(22)] indexMod22 = 0;
+  #endif
+
+  state only(xin,yin): {
+
+    boolean left;
+    boolean right;
+    boolean top;
+    boolean bottom;
+
+    signed[6] xtemp;
+    signed[6] ytemp;
+
+    // for clarity
+    #ifdef MODULO_COUNTER
+    left   = (indexMod22==0);
+    right  = (indexMod22==21);
+    #else
+    left   = ((index%22)==0);
+    right  = ((index%22)==21);
+    #endif
+    top    = (index<22);
+    bottom = (index>373);
+
+    index = index+1;
+    #ifdef MODULO_COUNTER
+    indexMod22 = right ? 0 : (indexMod22+1);	// right = (indexMod22==21)
+    #endif
+
+#if 0
+    if (left&&(xin<0)) {
+      xtemp = 0;
+    } else {
+      xtemp = xin;
+    }
+
+    if (right&&(xin>0)) {
+      xtemp = 0;
+    } else {
+      xtemp = xin;
+    }
+#endif    
+    if ((left&&(xin<0))||(right&&(xin>0))) {
+      xtemp = 0;
+    } else {
+      xtemp = xin;
+    }
+
+#if 0
+    if (top&&(yin<0)) {
+      ytemp = 0;
+    } else {
+      ytemp = yin;
+    }
+
+    if (bottom&&(yin>0)) {
+      ytemp = 0;
+    } else {
+      ytemp = yin;
+    }
+#endif
+
+    if ((top&&(yin<0))||(bottom&&(yin>0))) {
+      ytemp = 0;
+    } else {
+      ytemp = yin;
+    }
+
+    xout = xtemp; yout = ytemp;
+
+    //    printf("motTrunc: xtemp(%lld) ytemp(%lld) left(%llu) top(%llu)\n",
+    //	   xtemp, ytemp, left, top);
+      
+    if (index == 396) {
+      index = 0;
+      #ifdef MODULO_COUNTER
+      indexMod22 = 0;
+      #endif
+    }
+
+  }
+
+}

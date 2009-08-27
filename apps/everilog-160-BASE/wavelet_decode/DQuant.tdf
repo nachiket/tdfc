@@ -1,0 +1,46 @@
+DQuant(param unsigned[8] outWidth, param signed[15] max, 
+       param signed[10] zerothresh,
+       output signed[outWidth] a, input unsigned[5] q)
+
+{
+
+    signed[15] range;
+    unsigned[5] ZERO_MARK = 30;
+
+    state start(): 
+      {
+          range = max-zerothresh;
+          goto process;
+      }
+
+    state process(q):
+        {
+            
+            signed[15] val;
+            signed[7] temp;
+            // unsigned[20] t1;
+
+            if (q == ZERO_MARK) {a = 0;}
+            else if (q > 14) {
+
+                temp = ((signed[6]) q)-15;
+                if (temp == 14) {
+                  val = 15*range/16;
+                }
+                else {
+                  val = temp*range/16;
+                }
+                a = zerothresh + val + range/32;
+            }
+            else {
+	        temp = (signed[6]) q;
+                if (temp == 14) {val = 15*range/16;}
+                else {
+                    val = temp*range/16;
+                }
+                a = -(zerothresh + val + range/32);
+            }
+            stay;
+        }
+
+} 

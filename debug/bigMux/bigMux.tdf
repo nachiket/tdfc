@@ -1,0 +1,120 @@
+
+#define MUX8(_var_,_dest_) \
+if (_var_ == 0) {        \
+_dest_ ## 0 = in;        \
+} else if (_var_ == 1) { \
+_dest_ ## 1 = in;        \
+} else if (_var_ == 2) { \
+_dest_ ## 2 = in;        \
+} else if (_var_ == 3) { \
+_dest_ ## 3 = in;        \
+} else if (_var_ == 4) { \
+_dest_ ## 4 = in;        \
+} else if (_var_ == 5) { \
+_dest_ ## 5 = in;        \
+} else if (_var_ == 6) { \
+_dest_ ## 6 = in;        \
+} else if (_var_ == 7) { \
+_dest_ ## 7 = in;        \
+}
+
+
+bigMux(param unsigned[8] width, input unsigned[width] in,
+
+	output unsigned[width] p_ab0, output unsigned[width] p_ab1,
+	output unsigned[width] p_ab2, output unsigned[width] p_ab3,
+	output unsigned[width] p_ab4, output unsigned[width] p_ab5,
+	output unsigned[width] p_ab6, output unsigned[width] p_ab7,
+
+	output unsigned[width] p_cd0, output unsigned[width] p_cd1,
+	output unsigned[width] p_cd2, output unsigned[width] p_cd3,
+	output unsigned[width] p_cd4, output unsigned[width] p_cd5,
+	output unsigned[width] p_cd6, output unsigned[width] p_cd7,
+
+	output unsigned[width] u_a0, output unsigned[width] u_a1,
+	output unsigned[width] u_a2, output unsigned[width] u_a3,
+	output unsigned[width] u_a4, output unsigned[width] u_a5,
+	output unsigned[width] u_a6, output unsigned[width] u_a7,
+
+	output unsigned[width] u_c0, output unsigned[width] u_c1,
+	output unsigned[width] u_c2, output unsigned[width] u_c3,
+	output unsigned[width] u_c4, output unsigned[width] u_c5,
+	output unsigned[width] u_c6, output unsigned[width] u_c7
+)
+
+{
+  unsigned[1] bigIndex = 0;
+  unsigned[16] thrIndex = 0;
+  unsigned[16] fyrIndex = 0;
+
+  state state_p_abcd_0(in) : {
+
+    if (bigIndex == 0) {
+      MUX8(fyrIndex,p_cd)
+    } else {
+      MUX8(fyrIndex,p_ab)
+    }
+
+    
+    fyrIndex = fyrIndex + 1;
+
+    if (fyrIndex == 8) {
+      fyrIndex = 0;
+      thrIndex = thrIndex + 1;
+    } 
+
+    if (thrIndex == 352 * 36) {
+      thrIndex = 0;
+      goto state_first_u_ca_0;
+    }
+  }
+
+  state state_first_u_ca_0(in) : {
+    
+    if (bigIndex == 0) {
+      MUX8(fyrIndex, u_c)
+    } else {
+      MUX8(fyrIndex, u_a)
+    }
+
+    fyrIndex = fyrIndex + 1;
+    
+    if (fyrIndex == 8) {
+      fyrIndex = 0;
+      thrIndex = thrIndex + 1;
+    }
+
+    if (thrIndex == 176 * 18) {
+      thrIndex = 0;
+      goto state_second_u_ca_0;
+    }
+  }
+
+  state state_second_u_ca_0(in) : {
+    
+    if (bigIndex == 0) {
+      MUX8(fyrIndex, u_c)
+    } else {
+      MUX8(fyrIndex, u_a)
+    }
+
+    fyrIndex = fyrIndex + 1;
+    
+    if (fyrIndex == 8) {
+      fyrIndex = 0;
+      thrIndex = thrIndex + 1;
+    }
+
+    if (thrIndex == 176 * 18) {
+      bigIndex = 0;
+      goto state_p_abcd_0;
+      bigIndex = 1;
+    }
+  }
+	
+}
+
+
+
+
+

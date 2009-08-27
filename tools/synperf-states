@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file -- States
+# - $states
+
+while (<>) {
+  if (/^State machine has +(\d+)/i)
+    { if ($states==0 || $states<$1) { $states=$1; } }
+}
+print "$states\n";

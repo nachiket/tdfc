@@ -1,0 +1,21 @@
+top2(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b,
+                output unsigned[n] o1, output unsigned[n] o2)
+{
+	state only(a,b): 
+          {
+              o1=a^b;
+              o2=a&b;
+          }
+ 
+}
+
+
+unsigned[n] terminator2(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{ 
+        unsigned[n] r2;
+	top(n,a,b,terminator2,r2)
+	// r2 shoudl get terminated since it doesn't fan out...
+}
+

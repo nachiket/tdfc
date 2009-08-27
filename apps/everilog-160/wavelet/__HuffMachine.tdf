@@ -1,0 +1,143 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+__HuffMachine(input unsigned[20] toEncode, output unsigned[8] huffout) 
+
+{
+
+    unsigned[8] result=0; // where temporary result is kept and modified
+                          // until it is ready to output
+    unsigned[8] index=0;  // bit position in current word
+    unsigned[16] bits;    // current data to be transmitted
+    unsigned[4] nbits;    // current length of data
+    unsigned[4] bits_left; // bits left in current byte
+
+    state start(toEncode): {
+	
+	bits = toEncode[19:4];
+	nbits = toEncode[3:0];
+	goto initcode;
+
+    }
+
+    state start(eos(toEncode)): {
+	close(huffout);
+	done();
+    }
+
+    state initcode(): { 
+	// we enter this state if we are starting to encode on a new
+	// byte boundary
+	unsigned[16] tbits;
+	unsigned[4] tnbits;
+	unsigned[16] a;
+	unsigned[16] b;
+	unsigned[4] nbytes;
+	unsigned[4] rt_shift;
+	unsigned[4] lt_shift;
+
+	if (nbits>=8) {
+//	    a = 1<<8;        b = a-1;  // create mask of eight 1's
+	    a = 0b100000000; b = a-1;  // create mask of eight 1's,  EC 6/13/03
+	    huffout = bits & b; // put out Least Sig Byte
+//  	  rt_shift = nbits-8;
+//  	  huffout =  bits>>rt_shift; // output
+//  	  nbits = rt_shift;
+//  	  a = 1<<rt_shift;
+//  	  b = a-1;
+//  	  tbits = bits | b;
+//  	  bits = tbits;
+	  if (nbits>8) {
+	      tbits = bits >> 8;
+	      bits = tbits;
+	      tnbits = nbits - 8;
+	      nbits = tnbits;
+	      goto initcode;
+	  } else {  // nbits is 8
+	      goto start;
+	  }
+	} else { // nbits > 8
+	  bits_left = 8-nbits;
+	  result = bits;
+	  goto intercode1;
+	} 
+
+    }
+
+    state intercode1(toEncode): {
+
+      bits = toEncode[19:4];
+      nbits = toEncode[3:0];
+      goto intercode2;
+
+    }
+
+    state intercode1(eos(toEncode)): {
+	
+	huffout = result;
+	close(huffout);
+	done();
+    }
+
+    state intercode2(): {
+        // we enter this state if we are in the middle of making
+        // up a byte - result and bits_left need to be set
+ 	unsigned[16] tbits; unsigned[16] tresult;
+	unsigned[4] tnbits; unsigned[4] tbits_left;
+	unsigned[16] a; unsigned[16] temp1;
+	unsigned[16] b; unsigned[16] temp2;
+	unsigned[4] nbytes;
+	unsigned[4] rt_shift;
+	unsigned[4] lt_shift;
+
+	if (nbits >= bits_left) {
+	    // rt_shift = nbits-bits_left;
+	    // shifting least significant bits into most 
+	    // significant positions
+	    a = 1 << bits_left; b = a-1;
+	    temp1 = bits & b;
+	    temp2 = temp1 << (8 - bits_left);
+	    huffout = result | temp2;
+	  if (nbits > bits_left) {
+	    tnbits = nbits-bits_left;	    nbits = tnbits;
+	    tbits = bits >> bits_left;	    bits = tbits;
+	    result = 0;
+	    // b = a-1;
+	    // tbits = bits | b;
+	    goto initcode;
+	  } else {
+	      result = 0;
+	      goto start;
+	  }
+	} else { // nbits strictly less than bits_left
+	    // lt_shift = 8-nbits;
+	    a = bits << (8 - bits_left);
+	    tresult = result | a; result = tresult;
+	    // bits_left = lt_shift;
+	    tbits_left = bits_left - nbits; bits_left = tbits_left;
+	    goto intercode1;
+	}      
+      
+    }
+
+}

@@ -1,0 +1,72 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+MixToHuff(input unsigned[4] selecter, 
+	  input unsigned[8] Plen, input unsigned[16] Pout,
+	  input unsigned[8] Dlen, input unsigned[16] Dout,
+	  input unsigned[8] Alen, input unsigned[16] Aout,
+	  output unsigned[16] bout, output unsigned[8] nout)
+
+{
+
+    unsigned[4] TODC = 0; unsigned[4] TOAC = 1; unsigned[4] TOAC2 = 2; 
+    unsigned[4] PLAIN = 3;
+
+    state selectin(selecter): {
+      if (selecter == TODC) {
+	goto DCout;
+      } else if (selecter == TOAC) {
+	goto ACout;
+      } else if (selecter == TOAC2) {
+	goto ACout2;
+      } else {
+	goto PLout;
+      }
+    }
+
+    state DCout(Dlen,Dout): {
+      
+      nout = Dlen; bout = Dout;
+      goto selectin;
+    }
+
+    state ACout(Alen,Aout): {
+      
+      nout = Alen; bout = Aout;
+      goto selectin;
+    }
+
+    state ACout2(Alen,Aout): {
+      
+      nout = Alen; bout = Aout;
+      goto PLout;
+    }
+
+    state PLout(Plen,Pout): {
+      
+      nout = Plen; bout = Pout;
+      goto selectin;
+    }
+
+}

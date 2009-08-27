@@ -1,0 +1,62 @@
+-----------------------------------
+Compiling TDF to FPGA - Limitations		Eylon Caspi, 2005
+-----------------------------------
+
+
+tdfc 1.160 will compile Joe Yeh's seven multimedia apps (in CVS)
+to synthesizable Verilog for FPGA using ``tdfc -synplify''.
+
+The synthesizable applications are:
+
+      IIR                -  IIR filter
+      jpeg_decode_nopar  -  JPEG    image decoder
+      jpeg_encode_nopar  -  JPEG    image encoder
+      mpeg_encode_nopar  -  MPEG 1  video encoder, {IPP}    frame pattern
+      mpeg_encode_PB     -  MPEG 1  video encoder, {IBBPBB} frame pattern
+      wavelet            -  Wavelet image encoder
+      wavelet_decode     -  Wavelet image decoder
+
+The resulting Verilog is synthesizable but not fully functional.
+The missing components for bona fide execution on FPGA
+using ``tdfc -synplify'' are:
+
+(1) No segment operators.
+
+      Apps with no segments, or with read-only segments (ROM)
+      will work fine.  Apps with read-write segments will not.
+      Segment operators are emitted as black boxes.
+      Someone will need to write generic, parameterized
+      Verilog for segment operators and extend tdfc to emit them.
+      I had started doing that (but did not finish) by writing
+      a TDF version of a segment operator -- cycle accurate but
+      without memory -- then compiling it to Verilog and manually
+      extending the Verilog with memory.
+
+(2) No per-stream specification of stream buffer size or pipe depth.
+
+      Buffer implementations, sizes, and depths are presently set
+      uniformly for every stream by command line options (``-q...'').
+      It would be very simple to extend tdfc to emit stream-specific
+      parameters in Verilog (they become Verilog module parameters
+      when instantiating each queue module).
+      There need to be annotations for every stream AST node to denote
+      buffer size and pipeline depth, which may be set by:
+      (a) command line option, (b) stream depth hint, or (c) analysis.
+
+(3) No catch-all EOS handling.
+
+      Tdfc will generate correct Verilog for explicit EOS signatures
+      (``state foo (eos(x))'').  However, it will not generate
+      Verilog for the implicit handling of unexpected EOS.
+      This is probably unimportant for most applications.
+
+(4) No implementation of block-RAM stream buffers.
+
+      Stream buffers (queues) are generic, parameterized Verilog,
+      emitted by tdfc.  I have written code for enabled register
+      queues, shift register queues, and queue + pipeline register
+      combinations.  I have not written block-RAM queues.
+      Our 7 apps have a total of 8 streams requiring large buffers,
+      for image row buffers, using a depth hint of 1000.
+      Right now, those buffers are implemented inefficiently as
+      chained shift registers, for lack of a block-RAM queue.

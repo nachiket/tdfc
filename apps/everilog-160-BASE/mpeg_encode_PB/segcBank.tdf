@@ -1,0 +1,63 @@
+segcBank(param unsigned[16] segSize, param unsigned[10] rowSize,
+	  input unsigned[64] inBig,
+	  input signed[6] xRef, input signed[6] yRef, // the motion vector
+	  param unsigned[segSize/2][64] tabA, 
+	 param unsigned[segSize/2][64] tabB,
+	 //param unsigned[segSize][8] tabC, param unsigned[segSize][8] tabD,
+	 // param unsigned[segSize][8] tabE, param unsigned[segSize][8] tabF,
+	 // param unsigned[segSize][8] tabG, param unsigned[segSize][8] tabH,
+	  output unsigned[64] out, param boolean iP)
+{
+
+  //boolean writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH;
+  boolean wrt,wrA,wrB;
+
+  unsigned[16] addr, addro;
+  unsigned[14] addrA,addrB;//addrC,addrD,addrE,addrF,addrG,addrH,addro;
+
+  //unsigned[8] intAa,intAb,intAc,intAd,intAe,intAf,intAg,intAh;
+
+#ifdef OLD
+  unsigned[8]  outA,outB,outC,outD,outE,outF,outG,outH;
+  unsigned[8]  oA,oB,oC,oD,oE,oF,oG,oH;
+  unsigned[8]  inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh;
+#else
+  unsigned[64] outA;
+  unsigned[64] oA,oB;
+  unsigned[64] inAa,inAb;
+#endif
+
+  breakup(rowSize*2,inAa,inAb,inBig); //make sure rSize takes into account both
+  // chrom elements
+
+  segc_manage((segSize/2),rowSize,addr,xRef,yRef,wrt,iP);
+	      //inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh,
+	      //intAa,intAb,intAc,intAd,intAe,intAf,intAg,intAh,
+	      //writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH,wrt);
+
+  segrepC(segSize/2,(rowSize*2),addr,addrA,addrB,wrt,wrA,wrB,addro);
+
+  //segrep_c((rowSize*2),addr,addrA,addrB,addrC,addrD,addrE,addrF,addrG,addrH,
+  //wrt,addro);
+
+  segment_rw(64,14,segSize/2,tabA,addrA,oA,inAa,wrA);
+  segment_rw(64,14,segSize/2,tabB,addrB,oB,inAb,wrB);
+#ifdef OLD
+  segment_rw(8,14,segSize,tabC,addrC,oC,inAc,wrt);
+  segment_rw(8,14,segSize,tabD,addrD,oD,inAd,wrt);
+  segment_rw(8,14,segSize,tabE,addrE,oE,inAe,wrt);
+  segment_rw(8,14,segSize,tabF,addrF,oF,inAf,wrt);
+  segment_rw(8,14,segSize,tabG,addrG,oG,inAg,wrt);
+  segment_rw(8,14,segSize,tabH,addrH,oH,inAh,wrt);
+
+  unifysc(rowSize*2,addro,oA,oB,oC,oD,oE,oF,oG,oH,
+	  outA,outB,outC,outD,outE,outF,outG,outH);
+#endif
+
+  unify(rowSize*2,addro,oA,oB,outA);
+
+  chromAdd(outA,out);
+
+  
+
+}

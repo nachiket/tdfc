@@ -1,0 +1,9 @@
+eosop (input  unsigned[8] i1,
+       input  unsigned[8] i2,
+       output unsigned[8] o1,
+       output unsigned[8] o2)
+{
+  state si1 (i1)      : o1 = i1;
+  state si1 (eos(i1)) : o2 = i1+i2; close(o1);
+  state si2 (i2)      : o1 = i2;
+}

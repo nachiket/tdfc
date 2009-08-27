@@ -1,0 +1,16 @@
+unsigned[n] ecopy(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b,  input unsigned[n] c,
+		output unsiged[n] oa,
+		output unsiged[n] ob1,
+		output unsiged[n] ob2,
+		output unsiged[n] oc1,
+		output unsiged[n] oc2,
+		output unsiged[n] oc3)
+
+)
+{ 
+       copy(a,oa);
+       copy(b,ob1,ob2);
+       copy(c,oc1,oc2,oc3);
+}
+

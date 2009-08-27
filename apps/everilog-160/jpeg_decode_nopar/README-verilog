@@ -1,0 +1,32 @@
+TDF modifications to generate synthesizable Verilog via ``tdfc -everilog''
+By Eylon Caspi, 9/26/05
+
+
+---- SUMMARY ----
+
+Non-synthesizable:  ``cvs co -r non_synthesizable''
+                    ``tdfc -ecc ...''
+
+Synthesizable:      ``cvs co -r synthesizable''
+                    ``tdfc -DAPPROX_DIV -DMODULO_COUNTER -everilog ...''
+
+                    (Example: ``make-synplify'')
+
+
+---- NOTES ----
+
+(1) Replaced integer divide-by-constant (x/C)
+      by approximation, multiply-by-reciprocal (x * 1/C).
+      See header file ``div.txt''.
+      To activate, use ``tdfc -DAPPROX_DIV''.
+
+(2) Replaced modulo-of-counter (c++; x=c%M;)
+      by two counters (c++; cmodM++; x=cmodM;).
+      See header file ``modulo_counter.txt''.
+      To activate, use ``tdfc -DMODULO_COUNTER''.
+
+(3) Corrected bit widths of vars, params, streams, segments --
+      to avoid overflow, stream endpoint mismatch, excess bits.
+
+(4) Checked into CVS using tag ``synthesizable''.
+      To retrieve prior version, use ``cvs co -r not_synthesizable''.

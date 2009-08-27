@@ -1,0 +1,592 @@
+bwt(input unsigned[9] in,
+
+    output unsigned[32] vaddr,
+    input  unsigned[9]  vdatar,
+    output unsigned[9]  vdataw,
+    output boolean      vwrite,
+
+    output unsigned[32] posaddr,
+    input  signed[32]   posdatar,
+    output signed[32]   posdataw,
+    output boolean      poswrite,
+
+    output unsigned[32] prmaddr,
+    input  signed[32]   prmdatar,
+    output signed[32]   prmdataw,
+    output boolean      prmwrite,
+
+    output unsigned[32] countaddr,
+    input  signed[32]   countdatar,
+    output signed[32]   countdataw,
+    output boolean      countwrite,
+
+    output unsigned[32] bhaddr,
+    input  boolean      bhdatar,
+    output boolean      bhdataw,
+    output boolean      bhwrite,
+
+    output unsigned[32] b2haddr,
+    input  boolean      b2hdatar,
+    output boolean      b2hdataw,
+    output boolean      b2hwrite,
+
+    output unsigned[9] out) {
+
+    unsigned[9]  a;
+    unsigned[9]  b;
+    unsigned[32] c;
+    unsigned[32] f;
+    unsigned[32] g;
+    unsigned[32] h;
+    unsigned[32] i;
+    unsigned[32] j;
+    unsigned[9]  k;
+    unsigned[32] n;
+    unsigned[32] q;
+    unsigned[32] r;
+    unsigned[32] t;
+    signed[32]   y;
+    signed[32]   ki;
+    signed[32]   kj;
+    signed[32]   posc;
+    signed[32]   posk;
+    signed[32]   posq;
+    signed[32]   poscluck;
+    signed[32]   pospurr;
+    signed[32]   foozle;
+    signed[32]   nyar;
+    signed[32]   boo;
+    signed[32]   splat;
+    signed[32]   caw;
+    unsigned[32] sentinelindex;
+    unsigned[32] woof;
+    unsigned[32] meow;
+    unsigned[32] moo;
+    unsigned[32] oink;
+    unsigned[32] cluck;
+    unsigned[32] purr;
+    unsigned[32] bark;
+    unsigned[32] roar;
+    unsigned[32] hiss;
+    unsigned[32] quack;
+
+    state onetrue(): {
+        b     = 0;
+        h     = 1;
+        k     = 0;
+        n     = 0;
+        y     = 0;
+        oink  = 0;
+        cluck = 0;
+        purr  = 0;
+
+        goto alpha;
+    }
+
+    state alpha(): {
+        if (b < 257) {
+            posaddr = b;
+            posdataw = -1;
+            poswrite = true;
+            b = b + 1;
+        } else {
+            goto beta;
+        }
+    }
+
+    state beta(in): {
+        if (in == 300) {
+            vaddr = n;
+            vdataw = 256;
+            vwrite = true;
+
+            posaddr = 256;
+            poswrite = false;
+
+            goto gravitas;
+        } else {
+            a = in;
+
+            vaddr = n;
+            vdataw = a;
+            vwrite = true;
+
+            posaddr = a;
+            poswrite = false;
+
+            goto posa;
+        }
+    }
+
+    state posa(posdatar): {
+        prmaddr = n;
+        prmdataw = posdatar;
+        prmwrite = true;
+
+        posaddr = a;
+        posdataw = (signed[33]) n;
+        poswrite = true;
+
+        n = n + 1;
+
+        goto beta;
+    }
+
+    state gravitas(posdatar): {
+        prmaddr = n;
+        prmdataw = posdatar;
+        prmwrite = true;
+
+        posaddr = 256;
+        posdataw = (signed[33]) n;
+        poswrite = true;
+
+        n = n + 1;
+        goto kloop;
+    }
+
+    state kloop(): {
+        if (k < 257) {
+            posaddr = k;
+            poswrite = false;
+            goto posk;
+        } else {
+            bhaddr = n;
+            bhdataw = true;
+            bhwrite = true;
+
+            goto oinkloop;
+        }
+    }
+
+    state posk(posdatar): {
+        posk = posdatar;
+        ki = posk;
+        goto kiloop;
+    }
+
+    state kiloop(): {
+        if (ki != -1) {
+            prmaddr = bitsof(ki);
+            prmwrite = false;
+            goto prmki;
+        } else {
+            k = k + 1;
+            goto kloop;
+        }
+    }
+
+    state prmki(prmdatar): {
+        kj = prmdatar;
+
+        prmaddr = bitsof(ki);
+        prmdataw = y;
+        prmwrite = true;
+
+        bhaddr = bitsof(y);
+        bhdataw = (ki == posk);
+        bhwrite = true;
+
+        y = y + 1;
+        ki = kj;
+        goto kiloop;
+    }
+
+    state oinkloop(): {
+        if (oink < n) {
+            prmaddr = oink;
+            prmwrite = false;
+            goto prmoink;
+        } else {
+            goto hloop;
+        }
+    }
+
+    state prmoink(prmdatar): {
+        posaddr = bitsof(prmdatar);
+        posdataw = (signed[33])oink;
+        poswrite = true;
+
+        oink = oink + 1;
+        goto oinkloop;
+    }
+
+    state hloop(): {
+        woof  = 0;
+        meow  = 0;
+        i     = 0;
+        moo   = 0;
+
+        if (h < n) {
+            goto woofloop;
+        } else {
+            goto cluckloop;
+        }
+    }
+
+    state woofloop(): {
+        if (woof < n) {
+            bhaddr = woof;
+            bhwrite = false;
+
+            posaddr = woof;
+            poswrite = false;
+
+            goto woofy;
+        } else {
+            goto endwoofloop;
+        }
+    }
+
+    state woofy(bhdatar, posdatar): {
+        if (bhdatar) {
+            meow = woof;
+
+            countaddr = meow;
+            countdataw = 0;
+            countwrite = true;
+        }
+
+        prmaddr = bitsof(posdatar);
+        prmdataw = (signed[33])meow;
+        prmwrite = true;
+
+        woof = woof + 1;
+        goto woofloop;
+    }
+
+    state endwoofloop(): {
+        roar = n - h;
+
+        prmaddr = roar;
+        prmwrite = false;
+
+        goto prmroar;
+    }
+
+    state prmroar(prmdatar): {
+        hiss = bitsof(prmdatar);
+
+        countaddr = hiss;
+        countwrite = false;
+
+        goto counthiss;
+    }
+
+    state counthiss(countdatar): {
+        nyar = countdatar;
+
+        countaddr = hiss;
+        countdataw = nyar + 1;
+        countwrite = true;
+
+        foozle = hiss + nyar;
+
+        prmaddr = roar;
+        prmdataw = foozle;
+        prmwrite = true;
+
+        b2haddr = bitsof(foozle);
+        b2hdataw = true;
+        b2hwrite = true;
+
+        goto iloop;
+    }
+
+    state iloop(): {
+        if (i < n) {
+            bhaddr = i;
+            bhwrite = false;
+            goto bhi;
+        } else {
+            goto mooloop;
+        }
+    }
+
+    state bhi(bhdatar): {
+        if (bhdatar) {
+            r = i;
+            g = i + 1;
+            goto gloop;
+        } else {
+            i = i + 1;
+            goto iloop;
+        }
+    }
+
+    state gloop(): {
+        if (g < n + 1) {
+            bhaddr = g;
+            bhwrite = false;
+            goto bhg;
+        } else {
+            goto endgloop;
+        }
+    }
+
+    state bhg(bhdatar): {
+        if (bhdatar) {
+            r = g - 1;
+            goto endgloop;
+        } else {
+            g = g + 1;
+            goto gloop;
+        }
+    }
+
+    state endgloop(): {
+        q = i;
+        goto qloop;
+    }
+
+    state qloop(): {
+        if (q <= r) {
+            posaddr = q;
+            poswrite = false;
+            goto posq;
+        } else {
+            goto endqloop;
+        }
+    }
+
+    state posq(posdatar): {
+        posq = posdatar;
+
+        if (posq >= h && posq <= n + h - 1) {
+            t = bitsof(posq - h);
+
+            prmaddr = t;
+            prmwrite = false;
+            goto prmt;
+        } else {
+            q = q + 1;
+            goto qloop;
+        }
+    }
+
+    state prmt(prmdatar): {
+        bark = bitsof(prmdatar);
+
+        countaddr = bark;
+        countwrite = false;
+        goto countbark;
+    }
+
+    state countbark(countdatar): {
+        boo = countdatar;
+        splat = bark + boo;
+
+        countaddr = bark;
+        countdataw = boo + 1;
+        countwrite = true;
+
+        prmaddr = t;
+        prmdataw = splat;
+        prmwrite = true;
+
+        b2haddr = bitsof(splat);
+        b2hdataw = true;
+        b2hwrite = true;
+
+        q = q + 1;
+        goto qloop;
+    }
+
+    state endqloop(): {
+        c = i;
+
+        goto cloop;
+    }
+
+    state cloop(): {
+        if (c <= r) {
+            posaddr = c;
+            poswrite = false;
+            goto posc;
+        } else {
+            i = i + 1;
+            goto iloop;
+        }
+    }
+
+    state posc(posdatar): {
+        posc = posdatar;
+
+        if (posc >= h && posc <= n + h - 1) {
+            prmaddr = bitsof(posc - h);
+            prmwrite = false;
+            goto caw;
+        } else {
+            c = c + 1;
+            goto cloop;
+        }
+    }
+
+    state caw(prmdatar): {
+        caw = prmdatar;
+
+        b2haddr = bitsof(caw);
+        b2hwrite = false;
+        goto b2hcaw;
+    }
+
+    state b2hcaw(b2hdatar): {
+        if (b2hdatar) {
+            j = bitsof(caw + 1);
+
+            goto weasel;
+        } else {
+            c = c + 1;
+            goto cloop;
+        }
+    }
+
+    state weasel(): {
+        bhaddr = j;
+        bhwrite = false;
+        b2haddr = j;
+        b2hwrite = false;
+
+        goto weaseltest;
+    }
+
+    state weaseltest(bhdatar, b2hdatar): {
+        if (bhdatar || !b2hdatar) {
+            quack = j;
+            f = bitsof(caw + 1);
+            goto floop;
+        } else {
+            j = j + 1;
+            goto weasel;
+        }
+    }
+
+    state floop(): {
+        if (f < quack) {
+            b2haddr = f;
+            b2hdataw = false;
+            b2hwrite = true;
+            f = f + 1;
+        } else {
+            c = c + 1;
+            goto cloop;
+        }
+    }
+
+    state mooloop(): {
+        if (moo < n) {
+            prmaddr = moo;
+            prmwrite = false;
+            b2haddr = moo;
+            b2hwrite = false;
+            goto mootest;
+        } else {
+            h = h * 2;
+            goto hloop;
+        }
+    }
+
+    state mootest(prmdatar, b2hdatar): {
+        posaddr = bitsof(prmdatar);
+        posdataw = (signed[33])moo;
+        poswrite = true;
+
+        if (b2hdatar) {
+            bhaddr = moo;
+            bhdataw = true;
+            bhwrite = true;
+        }
+
+        moo = moo + 1;
+        goto mooloop;
+    }
+
+    state cluckloop(): {
+        if (cluck < n) {
+            posaddr = cluck;
+            poswrite = false;
+            goto poscluck;
+        } else {
+            out = sentinelindex >> 24;
+            goto starfall;
+        }
+    }
+
+    state starfall(): {
+        out = (sentinelindex >> 16) & 255;
+        goto tranquility;
+    }
+
+    state tranquility(): {
+        out = (sentinelindex >> 8) & 255;
+        goto vengeance;
+    }
+
+    state vengeance(): {
+        out = sentinelindex & 255;
+        goto purrloop;
+    }
+
+    state poscluck(posdatar): {
+        poscluck = posdatar;
+
+        if (poscluck == 0) {
+            sentinelindex = cluck;
+            cluck = cluck + 1;
+            goto cluckloop;
+        } else if (poscluck == 1) {
+            out = cluck >> 24;
+            goto phoenix;
+        } else {
+            cluck = cluck + 1;
+            goto cluckloop;
+        }
+    }
+
+    state phoenix(): {
+        out = (cluck >> 16) & 255;
+        goto avatar;
+    }
+
+    state avatar(): {
+        out = (cluck >> 8) & 255;
+        goto resurrection;
+    }
+
+    state resurrection(): {
+        out = cluck & 255;
+        cluck = cluck + 1;
+        goto cluckloop;
+    }
+
+    state purrloop(): {
+        if (purr < n) {
+            posaddr = purr;
+            poswrite = false;
+            goto pospurr;
+        } else {
+            out = 300;
+            goto onetrue;
+        }
+    }
+
+    state pospurr(posdatar): {
+        pospurr = posdatar;
+
+        if (pospurr == 0) {
+            out = 0;
+            purr = purr + 1;
+            goto purrloop;
+        } else {
+            vaddr = bitsof(pospurr - 1);
+            vwrite = false;
+            goto yowsa;
+        }
+    }
+
+    state yowsa(vdatar): {
+        out = vdatar;
+        purr = purr + 1;
+        goto purrloop;
+    }
+}

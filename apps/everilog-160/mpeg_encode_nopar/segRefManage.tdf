@@ -1,0 +1,177 @@
+#include "modulo_counter.txt"
+
+#ifdef MODULO_COUNTER
+  #define INCREMENT_INDEX {						\
+    indexDivRowSize = INCRMOD_CARRY(indexModRowSize,rowSize) + indexDivRowSize; \
+    indexModRowSize = INCRMOD(indexModRowSize,rowSize);			\
+  }
+  #define SET_INDEX(CONST) {		\
+    indexDivRowSize = (CONST)/rowSize;	\
+    indexModRowSize = (CONST)%rowSize;	\
+  }
+#else
+  #define INCREMENT_INDEX  {}
+  #define SET_INDEX(CONST) {}
+#endif
+
+
+segRefManage(param unsigned[16] segSize, param unsigned[10] rowSize,
+	     param unsigned[8] noPics,
+	     output unsigned[16] addr, // now represents full address in image
+	     //output boolean a, output boolean b, output boolean c,
+	     //output boolean d, output boolean e, output boolean f,
+	     //output boolean g, output boolean h, 
+	     output boolean w, output boolean outside) 
+{
+
+  unsigned[20] index = 0;
+  #ifdef MODULO_COUNTER
+  unsigned[widthof(rowSize)] indexModRowSize = 0;
+  unsigned[widthof(index)]   indexDivRowSize = 0;
+  #endif
+  unsigned[8] picInd = 0;
+  unsigned[20] getMacInd = 0;
+  unsigned[14] initaddr;
+  unsigned[10] rows = 0;
+  unsigned[10] mbRow = 0; unsigned[10] mbCol = 0;
+  boolean phase;
+  // used to be arguments in cs252
+  unsigned[5] sRangL=8; unsigned[5] sRow = 16;
+  unsigned[10] origRow = rowSize;
+  unsigned[10] origCol = 8*segSize/rowSize;
+
+  state writin(): {
+    unsigned[10] rowInd;
+    unsigned[10] rowMod;
+    //a = true; b = true; c = true; d = true;
+    //e = true; f = true; g = true; h = true; 
+    w = true;
+    //outA = inA; outB = inB; outC = inC; outD = inD;
+    //outE = inE; outF = inF; outG = inG; outH = inH;
+
+    #ifdef MODULO_COUNTER
+    rowInd = indexDivRowSize;
+    rowMod = indexModRowSize;
+    #else
+    rowInd = index/rowSize;
+    rowMod = index%rowSize;
+    #endif
+
+    addr = (rowSize*8*rowInd)+rowMod;
+    index = index+1;
+    INCREMENT_INDEX;
+    if (index == segSize) {
+      index = 0; rows = 0; phase = true;
+      SET_INDEX(0);
+      picInd = picInd+1;
+      goto readin;
+    }
+  }
+
+  state donestate(): {
+
+    done();
+  }
+
+  state writeMB(): {
+// mbRow: where we are in the row
+// mbCol: where we are in the column
+    unsigned[10] tmpmbRow;
+    unsigned[10] tmpmbCol;
+    tmpmbRow = mbRow + 16;
+    if (tmpmbRow == origRow) {
+      tmpmbCol = mbCol + 16;
+      if (tmpmbCol == origCol) {
+        mbCol = 0; mbRow = 0;
+	if (picInd < noPics) {
+	  goto writin;
+	} else {
+	  goto donestate;
+	}
+      } else {
+        mbRow = 0; mbCol = mbCol + 16;
+        goto readin;
+      }
+    } else {
+      mbRow = mbRow+16;
+      goto readin;
+    }
+  }
+
+
+  state readin(): {
+
+    // cut and modified from "write" state original seg_manager in CS252
+    // some variable names are really confusing
+    unsigned[10] tindex;
+    unsigned[8] tcindex;
+    signed[10] writeRow =(signed[11])mbRow+(signed[21])index-(signed[6])sRangL;
+    signed[10] writeCol =(signed[11])mbCol+(signed[11])rows-(signed[6])sRangL;
+    unsigned[11] uwriteRow;
+    unsigned[11] uwriteCol;
+    uwriteRow = bitsof(writeRow);
+    uwriteCol = bitsof(writeCol);
+    tindex = index+1; tcindex = rows+1;
+    // check horizontal and vertical bounds
+
+    if (phase) {
+      if ((writeRow<0) || (writeCol<0))  {
+	outside = true;
+	// } else if (((writeRow+16)>=origRow) || ((writeCol+16)>=origCol)) {
+      } else if ((writeRow>=origRow) || (writeCol>=origCol)) {
+	outside = true;
+      } else {
+	outside = false;
+	// we read
+	//a = false; c = false; e = false; g = false;
+	//b = false; d = false; f = false; h = false;
+	w = false;
+	
+	addr = uwriteRow + rowSize*uwriteCol;  // need to correct; 
+	// hopefully corrected 4/5
+      } 
+    } else {
+      if ((writeRow<0) || (writeCol<0))  {
+	outside = true;
+      } else if (((writeRow+16)>=origRow) || ((writeCol+16)>=origCol)) {
+	outside = true;
+      } else {
+	outside = false;
+	// we read
+	//a = false; c = false; e = false; g = false;
+	//b = false; d = false; f = false; h = false; 
+	w = false;
+	// i'll explain this later
+
+	addr = uwriteRow + rowSize*(uwriteCol+8);
+      } 
+    }
+
+    // row and column indexing: "for loop" stuff
+    if (tindex == (sRow+15)) {
+      index = 0;
+      SET_INDEX(0);
+      if (phase) {
+	phase = false;
+      } else { // a
+	phase = true;
+	if (tcindex == sRow) {  // sRow = sCol
+	  rows = 0;
+	  goto writeMB;
+	} else {
+	  rows = rows+1;
+	}
+      } //a
+    } else {
+      index = index+1;
+      INCREMENT_INDEX;
+    }
+
+
+  }
+
+
+
+}
+
+   

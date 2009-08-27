@@ -1,0 +1,19 @@
+#!/bin/csh
+# - Distill synthesis results from Synplify 7 .srr file
+# - $speed MHz	$luts LUTs	$ffs FFs	$lutffs LUT-FFs	$fsmstyle FSM
+
+	  perl -e							\
+	    'while (<>) {						\
+	       if (/(clock|system) +(\d+(.\d+)?) +MHz +(\d+(.\d)?)/i)	\
+	         { if ($speed==0 || $speed>$4) { $speed=$4; } }		\
+	       elsif (/^Total +LUTs: +(\d+)/i)				\
+	         { if ($luts==0  || $luts<$1)  { $luts=$1;  } }		\
+	       elsif (/^Register bits not including I\/Os: +(\d+)/i)	\
+	         { if ($ffs==0  || $ffs<$1)  { $ffs=$1;  } }		\
+	       elsif (/^Adding property syn_encoding.*value "([^"]+)"/i)\
+		 { $fsmstyle = $1; }                                    \
+	     }								\
+	     $lutffs = ($luts>$ffs) ? $luts : $ffs;			\
+	     print "$speed MHz	$luts LUTs	$ffs FFs	" .	\
+		   "$lutffs LUT-FFs	$fsmstyle FSM\n" '		\
+	     $*

@@ -1,0 +1,269 @@
+NAME
+	tdfc - SCORE TDF compiler
+
+SYNOPSIS
+	tdfc [options] <inputFile> ...
+
+DESCRIPTION
+	tdfc performs preprocessing and compilation of TDF,
+	the ``Task Description Format'' language for SCORE.
+	Following transformations and optimizations, tdfc can
+	generate either TDF, C++ for POSIX threads, C++ for
+	the SCORE architecture simulator, or Verilog for FPGA.
+	
+	[options] are described below, in the OPTIONS section.
+	
+	<inputFile>... is a collection of ``x.tdf'' TDF source files,
+	which should contain a unique, top level TDF operator.
+	
+	Besides TDF source files, tdfc accepts a number of
+	operator-specific feedback files, described next.
+	
+	``op.fuser'' and ``op.fauto'' files specify parameter values
+	for instantiating operator ``op''.  An operator lacking these
+	files will have unbound parameter values and cannot be
+	compiled to hardware.  Typically, only a top level operator
+	requires these files, since its parameter values are
+	propagated to all other operators in a composition.
+	Each file contains one or more lines of the form:
+	``op(v1,v2,...);'', mirroring the argument list of ``op'',
+	listing vN for parameter values, and listing nothing (``,,'')
+	for non-parameter arguments.  ``.fuser'' files are created
+	by a user, while ``.fauto'' files are created automatically
+	for any operator instantiated by a C++ SCORE program.
+	
+	``op.ffsm'' files contain state profile information for
+	operator ``op''.  They are emitted during execution of TDF
+	programs compiled with option ``-as''.  They are used during
+	compilation with page partitioning (options ``-pp'' ``-pp1'').
+	Each file contains two kinds of lines.
+	A line of the form: ``count("statename")=N''
+	indicates that state "statename" fired N times.
+	A line of the form: ``count("statename1","statename2")=M''
+	indicates that a transition from state "statename1" to state
+	"statename2" occured M times.
+
+OPTIONS
+	General options:
+	
+	-b           : parser tracing
+	-q           : quiet (supress warnings)
+	-v           : print version information and exit
+	
+	Options for preprocessing:
+	
+	-E           : preprocess only (emit to standard output)
+	-D...        : define macro for C-preprocessor
+	-I<dir>      : specify #include directory for C-preprocessor
+	
+	Options for output:
+	
+	-etdf        : emit TDF code (default)
+	-ecc         : emit behavioral C++ code
+	-everilog    : emit Verilog
+	-eIR         : emit page synthesis info (implies -xc -mt)
+	-evcg        : emit .vcg files for DFGs, SFGs (requires -eIR)
+	-eRI         : emit rate information
+	-epn         : emit netlist of pages (adds to other -eXXX)
+	-esd         : emit stream depth analysis    (implies -xa)
+	-synplify    : create Synplify project files (implies -everilog)
+	
+	-syntech <t> : technology <t>=tech-part-pkg-speed for -synplify
+	-mix <c>     : set state clustering mix coef c=[0(DF)..1(SF)] for -esd
+	-SD  <d>     : set maximum static stream depth for -esd
+	
+	Options for page generation:
+	
+	-pp          : page partitioning             (implies -xa -eIR)
+	-ppmetis     : page partitioning using metis (implies -pp)
+	-pp1         : page partitioning with 1 op per page
+	-pt          : page timing                   (implies -xc)
+	-pt1         : page timing with unit delays  (implies -xc)
+	
+	-T <t>       : set cycle time (4-LUT evaluations) for -pt
+	-A <l> <h>   : set page area bounds (4-LUTs)      for -pp
+	
+	Options for page parameterization:
+	
+	-qim  <m>    : use Verilog module          <m> for page input  queues
+	-qid  <d>    : use queue depth             <d> for page input  queues
+	-qili <l>    : use logic  input pipe depth <l> for page input  queues
+	-qilo <l>    : use logic output pipe depth <l> for page input  queues
+	-qiw  <w>    : use wire         pipe depth <w> for page input  queues
+	-qom  <m>    : use Verilog module          <m> for page output queues
+	-qod  <d>    : use queue depth             <d> for page output queues
+	-qoli <l>    : use logic  input pipe depth <l> for page output queues
+	-qolo <l>    : use logic output pipe depth <l> for page output queues
+	-qow  <w>    : use wire         pipe depth <w> for page output queues
+	-qlm  <m>    : use Verilog module          <m> for page local  queues
+	-qld  <d>    : use queue depth             <d> for page local  queues
+	-qlli <l>    : use logic  input pipe depth <l> for page local  queues
+	-qllo <l>    : use logic output pipe depth <l> for page local  queues
+	-qlw  <w>    : use wire         pipe depth <w> for page local  queues
+	
+	Options for run-time diagnostics:
+	
+	-as          : add code to profile FSMs (requires -ecc)
+	-adpr        : add code to debug proc_run
+	-adps        : add code to debug pagestep
+	-ads         : add code to debug state firing
+	
+	Options for compile-time diagnostics:
+	
+	-dt          : debug: show time at timestamps
+	-dm          : debug: show memory at timestamps
+	-dshared     : debug: detect shared AST nodes at timestamps
+	
+	Options for compile-time memory management:
+	
+	-mt          : memory mgmt: keep types
+	-mgc         : memory mgmt: enable garbage collection
+	
+	Options for TDF canonical form:
+	
+	-xa          : dismantle reg/stream access (implies -xc)
+	-xc          : enable canonical-form transformations
+
+ENVIRONMENT
+	CXX
+	    Name of C/C++ compiler, used for preprocessing  (default: g++).
+	    It is invoked for each source file ``x.tdf'' as:
+	    ``$CXX -x c++ -E -D__TDFC__ -o $TMP/tdfc-... x.tdf''
+	
+	PATH
+	    Path (colon separated directories) containing CXX
+	
+	TMP
+	    Path (single directory) for temporary files created during
+	    preprocessing  (default: /tmp)
+	
+	SCORE_FEEDBACK_PATH_ENV
+	    Path (colon separated directories) containing
+	    ``.fuser'', ``.fauto'', ``.ffsm'' feedback files  (default: .)
+
+BUGS
+	Type information is not always regenerated properly after
+	deletion and garbage collection.  If you encounter compiler
+	errors, try option ``-mt'' to disable deletion of types.
+
+RESTRICTIONS
+	A variety of features are presently unimplemented
+	or poorly implemented.
+	
+	--- Unimplemented language features: ---
+	
+	TDF data widths are presently limited to 64 bits.
+	
+	TDF bit selection is supported only on named variables,
+	e.g. ``x[c]'' is allowed, ``(x+y)[c]'' is not.
+	
+	TDF casting to a narrower type is permitted, with a compiler
+	warning, as a form of bit selection.  This is a work-around
+	for the syntactic restriction on bit selection described above.
+	
+	TDF fixed-point types are not supported
+	(the parser may accept them, but the rest of the compiler will not).
+	
+	TDF locally scoped operators and embedded C++ operators
+	are not supported.
+	
+	TDF initial values for streams are not supported.
+	Instead, initial tokens must be emitted by the stream producer
+	in its initial state(s).
+	
+	TDF bitwise rewiring of streams is not supported in compositional
+	operators, e.g. ``x = cat(y,z)'' and ''x = y[z]''.
+	
+	--- Unimplemented optimizations: ---
+	
+	TDF inline calls in a behavioral operator (SFSM) are supported
+	only by exlining with option ``-xc'', which yields inefficient
+	implementations (see below).  A better solution would be
+	to inline the callee code into the caller.
+	
+	Canonical form transformations (``-xc'', ``-xa'') serialize
+	states into state sequences for the purpose of analysis.
+	The serialized form is highly inefficient for program
+	implementation (with up to 100x more states).
+	There is presently no automatic remerging of state sequences
+	to recover efficient implementation.  A number of tdfc output
+	options require canonical form, although ``-everilog''
+	(targeting an FPGA without page partitioning) is not one of them.
+	
+	--- Unimplemented features for hardware: ---
+	
+	Compilation to hardware (``-everilog'' and page generation)
+	presently requires all arrays to be implemented
+	as segments accessed by streams (stream operators).
+	The only exception is read-only arrays with ``-everilog'',
+	which are supported as Verilog ROM lookups.
+	Transformation of arrays into segment operators can be
+	done manually or using option ``-xc''.
+	
+	Compilation to hardware (``-everilog'' and page generation)
+	presently requires that each stream consume or produce
+	at most one token per firing.
+	Serialization of multiple tokens per firing can be done
+	manually or using option ``-xa''.
+	
+	Compilation to hardware (``-everilog'')
+	applies the same stream parameters for every stream,
+	as specified by options ``-q...''.
+	Stream specific parameters should be inferred from
+	stream depth hints and/or analysis.
+	
+	Page partitioning (``-pp'') is implemented as SFSM decomposition
+	with one sub-SFSM per page.  It does not include pipeline extraction
+	or page packing, so it may lead to high page fragmentation.
+	
+	Some optimizations are implemented only as analyses,
+	without a subsequent TDF transformation.
+	``-eIR'' identifies code for pipeline extraction,
+	         but it does not actually extract it.
+	``-esd'' implements partial buffer size analysis
+	         (considering operator pairs in isolation),
+	         but it does not mark streams with buffer sizes.
+
+SEE ALSO
+	For a description of TDF and the SCORE C++ API, see:
+	
+	Eylon Caspi. ``Programming SCORE.'' Technical Memorandum
+	UCB/ERL M05/33, Electronics Research Laboratory,
+	University of California, Berkeley, February 4, 2005.
+	Available online:
+	<http://brass.cs.berkeley.edu/documents/programming-score.html>
+	
+	For a description of TDF and compilation to hardware, see:
+	
+	Eylon Caspi. ``Design Automation for Streaming Systems.''
+	PhD thesis, University of California, Berkeley, 2005.
+	Available online:
+	<http://www.cs.berkeley.edu/~eylon/phd/>
+
+AUTHOR
+	Eylon Caspi, eylon@cs.berkeley.edu
+
+VERSION
+	This page documents tdfc version 1.160, September 1, 2005.
+
+COPYRIGHT
+	Copyright (c) 1999 The Regents of the University of California.
+	Permission to use, copy, modify, and distribute this
+	software and its documentation for any purpose, without fee,
+	and without a written agreement is hereby granted, provided
+	that the above copyright notice and this paragraph and the
+	following two paragraphs appear in all copies.
+	
+	IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO
+	ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR
+	CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+	THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE
+	UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY
+	OF SUCH DAMAGE.
+	
+	THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY
+	WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+	PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS,
+	AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE
+	MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.

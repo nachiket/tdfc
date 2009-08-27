@@ -1,0 +1,54 @@
+Laura Pozzi's def-use discovery algorithm
+-----------------------------------------
+
+where_last_assigned[number_of_registers] keeps track, for every possible path, of where every register was last assigned.
+
+enter operator{
+  number_registers = count(declared_registers);  //count the registers used, so to use array
+  for_every declared_register{
+    enumerated_reg[i++]= reg->symb;  // put them in an array : enumerated_reg[number_register];
+    if (reg is assigned here) // i.e. initialised in the register declaration space;
+      where_last_assigned[i]= 0; //reg was last assigned in block 0 (block 0 is a convention for register declaration space)
+  }
+  // assume states were also enumerated somewhere;
+  lookup_state(1, where_last_assigned); // pass last assignments for current path
+  
+}  //when finished, all def-use pairs should have been found
+
+lookup_state (state_id, where_last_assigned){  // pass last assignments for current path
+  if (condition_stop_on_entry)  //explained later
+    return;  // we cannot find any new def-use_pairs
+  else{    
+    //check all uses and all assignments in the state:
+    if (you encounter USE of any reg, say reg[i])
+      create_def-use_pair_for_such_register_i(def-use_pair: [ where_last_assigned[i], state_id]);
+    if (you encounter DEF (assignment) of any reg, say reg[j])
+      where_last_assigned[j]= state_id; // update where the reg has been last assigned, for the current path
+    when (you encounter the jump)
+      if (condition_keep_going (next_state1_id) )  //condition explained later
+	lookup_state (next_state1_id, where_last_assigned); 
+    if (condition_keep_going (next_state2(ifexistent)_id))
+      lookup_state (next_state2(ifexistent)_id, where_last_assigned);
+  }
+}
+
+-------
+
+condition_keep_going(state_id): keep going after having processed a state if 
+
+1) leaving a never_visited state
+OR 
+2) vector where_last_assigned is new (from any previous visit to the state)
+
+condition_stop_on_entry: stop before processin a state if
+
+1) entering an already_visited state
+AND
+2) vector where_last_assigned is not new (from any previous visit to the state)
+
+-----------
+
+NOTE: This assumes at most a single use and a single definition of each register per state.
+
+This is why def-use pairs should go from assignment to expression, rather than from state to state, as it is immaturely coded here.
+

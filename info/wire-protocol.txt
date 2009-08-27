@@ -1,0 +1,117 @@
+Wire Protocol
+-------------
+
+producer   asserts V when ready to send
+consumer deasserts B when ready to receive
+transaction completes if V & B at clock edge
+
+
+-- DIRECT CONNECTION: --
+
+            +-----+              +-----+
+ -- Xd -->  |     |   -- Yd -->  |     |  -- Zd -->
+ -- Xv -->  |  A  |   -- Yv -->  |  B  |  -- Zv -->
+<-- Xb --   |     |  <-- Yb --   |     |  <-- Zb -- 
+            +-----+              +-----+
+
+fA = Xv & ~Yb				fB  = Yv & ~Zb
+Yv =  fA				Zv =  fB
+Xb = ~fA				Yb = ~fB
+
+fA  = Xv & Yv & ~Zb			fB  = fA & ~Zb
+fA  = Xv & fA & ~Zb			fB  = fA & Xv & ~Zb & ~Zb
+fA=0 ==> (no info)			fB  = fA & Xv & ~Zb
+fA=1 ==> (Xv & ~Zb = 1)			fB  = fA
+~Xv | Zb ==> fA=0			^^^^^^^^
+
+Yv = fA = fB = Zv			Xb = ~fA = ~fB = Yb
+Yv = Zv					Xb = Yb
+^^^^^^^					^^^^^^^
+
+i.e. direct connection "passes through":
+     (1) Yd to Zd,  (2) Yb to Xb
+
+
+-- OUTPUT REG IN PAGE: --
+
+Pipeline feed-forward flow     (^ denotes register)
+Do not pipeline back-pressure
+
+            +-----+              +-----+
+ -- Xd -->  |    ^|   -- Yd -->  |    ^|  -- Zd -->
+ -- Xv -->  |  A ^|   -- Yv -->  |  B ^|  -- Zv -->
+<-- Xb --   |     |  <-- Yb --   |     |  <-- Zb -- 
+            +-----+              +-----+
+
+fA  =  Xv & (~Yv | Yv~Yb')		fB  =  Yv & (~Zv | Zv~Zb')
+    =  Xv & (~Yv |   ~Yb')		    =  Yv & (~Zv |   ~Zb')
+    =  Xv & ~(YvYb')			    =  Yv & ~(ZvZb')
+Yv' =  fA | YvYb'			Zv' =  fB | ZvZb'
+    = (Xv & ~(YvYb')) | YvYb'		    = (Yv & ~(ZvZb')) | ZvZb'
+    =  Xv | YvYb'			    =  Yv | ZvZb'
+Xb' = ~fA				Yb' = ~fB
+    = ~Xv | YvYb'			    = ~Yv | ZvZb'
+
+Yv' =  Xv | Yv(~Yv | ZvZb')
+    =  Xv | YvZvZb'
+Xb' = ~Xv | Yv(~Yv | ZvZb')
+    = ~Xv | YvZvZb'
+
+
+-- 1 QUEUE IN PAGE: --
+
+Pipeline feed-forward flow     (^ denotes register)
+Do not pipeline back-pressure
+
+            +-----+              +-----+
+ -- Xd -->  |    ^|   -- Yd -->  |     |  -- Zd -->
+ -- Xv -->  |  A ^|   -- Yv -->  |  B  |  -- Zv -->
+<-- Xb --   |     |  <-- Yb --   |     |  <-- Zb -- 
+            +-----+              +-----+
+
+fA  =  Xv & (~Yv | Yv~Yb')		fB  =  Yv & ~Zb'
+    =  Xv & (~Yv |   ~Yb')		
+    =  Xv & ~(YvYb')			
+Yv' =  fA | YvYb'			Zv' =  fB
+    = (Xv & ~(YvYb')) | YvYb'		    =  Yv & ~Zb'
+    =  Xv | YvYb'			
+Xb' = ~fA				Yb' = ~fB
+    = ~Xv | YvYb'			    = ~Yv | Zb'
+
+Yv' =  Xv | Yv(~Yv | Zb')
+    =  Xv | YvZb'
+Xb' = ~Xv | Yv(~Yv | Zb')
+    = ~Xv | YvZb'
+
+
+-- 1 QUEUE IN PAGE: --
+
+Pipeline feed-forward flow     (^ denotes register)
+Do not pipeline back-pressure
+
+            +-----+              +-----+              +-----+
+ -- Xd -->  |     |   -- Wd -->  |    ^|   -- Yd -->  |     |   -- Zd -->
+ -- Xv -->  |  A  |   -- Wv -->  |  Q ^|   -- Yv -->  |  B  |   -- Zv -->
+<-- Xb --   |     |  <-- Wb --   |     |  <-- Yb --   |     |  <-- Zb -- 
+            +-----+              +-----+              +-----+
+
+[ fix eqns ]
+
+fA  =  Xv & ~Wb'	fQ = Wv' & (~Yv | ~Yb')		fB  =  Yv & ~Zb'
+
+
+--------
+
+Systolic queue
+
+      0 - 0
+      | \ |
+      0 - 0
+      | \ |
+      0 - 0
+      | \ |
+X --> 0 - 0 --> Y
+
+Left:					Right:
+v = ~(~Uv~Rv~Yb)			v = ~(Lv~LUv~Uv~Yb)  [incomplete]
+  = Uv | Rv | Yb			  = ~Lv | LUv | Uv | Yb

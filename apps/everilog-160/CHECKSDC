@@ -1,0 +1,15 @@
+#!/bin/csh
+#
+# - Verify, for each application in "APPS",
+#     that each (compiled) non-application module
+#     got a copy of the application module's ".sdc" FSM explorer results
+# - Eylon Caspi 11/27/04
+
+foreach x (`cat APPS`)
+  pushd ${x}/proj >& /dev/null
+  set appl = (`/bin/ls -1d *_noin | egrep -v '^_page_' | perl -npe 's{_noin}{}'`)
+  # echo === ${x} === ${appl} ===
+  echo   === ${x} ===
+  ~/brass/tdfc/tools/checksdc ${appl}
+  popd >& /dev/null
+end

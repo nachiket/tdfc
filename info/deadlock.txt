@@ -1,0 +1,105 @@
+WHAT IS DEADLOCK?
+
+Eylon Caspi, 2/17/05
+
+
+--- From Parks Thesis ---
+
+Denotational meaning of program:  X=F(X), least fixed point
+In the solution, each channel may have finite or infinite #tokens.
+
+Evaluating with infinite channel capacity, forever, approximates
+denotational semantics in the limit.  Every denotationally finite
+stream will eventually have no more tokens inserted from upstream.
+
+Execution order = order of firings within each actor.
+This is a ``schedule'' and is associated with a minimum
+required buffer size.
+
+Complete execution   = channel contents same as denotational
+Incomplete execution = channel contents are prefix of denotational
+
+Parks:  strive for (1) complete, (2) bounded buffer
+When fill buffers, expand to execute more complete.
+
+Parks:
+True deadlock:        all  actors are stalled on missing input.
+Artificial deadlock:  some actors are stalled on full output.
+
+--- Eylon ---
+
+Note, there may be a denotationally infinite stream X that, in practice,
+need not be fully evaluated, because the interesting part of the
+result is some other stream (finite or infinite).
+(1) if the application runs forever, and X producer stalls on full output,
+      then will find artificial deadlock
+(2) if the application terminates, then downstream ''interesting'' actor
+      will stall on empty input (termination = wait for non-existent input);
+      if X producer stalls on full output, then will find artificial
+      deadlock.  But that can happen even after the ''interesting'' actor
+      terminates, in which case it is unimportant.
+
+BUT a compiler cannot distinguish this case
+of an infinite stream that does not need to be fully evaluated.
+(1) Halting problem is undecidable:
+      compiler does not know if application will terminate
+(2) Compiler/scheduler does not know which actor is ''interesting,''
+      and whose termination should mandate end of execution;
+      consequently, compiler/scheduler cannot distinguish artificial
+      deadlock before or after termination of (uknown) ''interesting'' actor.
+(*) If program denotes an actor A as ''interesting'',
+      then a scheduler (or partial compiler analysis) can ignore
+      artificial deadlock after A terminates
+      (how to distinguish termination?)
+
+Q:  Should deadlock include the case where one part of a graph D
+      is artificially deadlocked but another part C continues forever?
+A:  No.
+      (1) If subgraph C needs data from deadlocked subgraph D,
+            then eventually C will deadlock too
+      (2) If subgraph C sends data to deadlocked subgraph D,
+            then eventually C will deadlock too
+      (3) If subgraph C never needs data from D
+            (i.e. disconnected, or connected but made data-dependent
+             decision to ignore D), then C should continue,
+             to approximate Parks scheduling goal 1 (complete execution),
+             even though it is incomplete due to artificially deadlocked D.
+
+Exception to A (3):
+Consider graph G w/subgraphs A, C, D, s.t.:
+  - A feeds C and D;                               ---> C
+  - C and D are independent;                     A 
+  - C and D have primary outputs  (visible);       ---> D
+  - D is programmed to consume only its first N inputs,
+      then emit output forever based on feedback;
+  - A is programmed to emit only N outputs to D.
+Suppose A and C never deadlock, but D artificially deadlocks after
+consuming its first N inputs.  Deadlock in D will not affect A or C.
+But deadlock in D will affect primary outputs, so incompleteness
+of execution will be visible.  Parks does not deal with this case,
+only with the case that the entire graph deadlocks.
+
+If TDFPN queue sizing algorithm is an abstract version of Park's
+algorithm, then it would not catch subgraph deadlock.
+It would bless it, synthesize it, and create a deadlocked circuit.
+Need definition of ``artificial deadlock'' that catches subgraph
+deadlock.
+
+[ See email to Edward Lee eal@eecs.berkeley.edu 2/17/05 ]
+
+
+--- TDFPN Automata ---
+
+Consider an abstract version of Park's algorithm.
+Do TDFPN automata composition (representing stream I/O),
+and if detect deadlock, try again with larger queues.
+
+(1) match Parks?
+(2) how?
+(3) how to grow queues?
+(4) what def of deadlock?  esp. subgraphs
+
+----
+
+[Parks] Tom Parks, ``Bounded Scheduling of Process Networks,''
+        Ph.D. thesis, UCB 1995

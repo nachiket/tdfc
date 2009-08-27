@@ -1,0 +1,56 @@
+enum SCORE_Type { score_unsigned,
+		  score_signed,
+		  score_fixed,
+		  ... };
+
+////////////////////////////////////////////////////////////////
+
+class ScoreStream {...}
+
+template <SCORE_Type T>
+class TypedScoreStream : public ScoreStream
+{
+  TypedScoreStream(...) : ScoreStream(...) {}
+}
+
+////////////////////////////////////////////////////////////////
+
+class ScoreSegment {...}
+
+template <SCORE_Type T>
+class TypedScoreSegment : public ScoreSegment
+{
+  TypedScoreSegment(...) : ScoreSegment(...) {}
+}
+
+////////////////////////////////////////////////////////////////
+
+class ScoreSegmentRO
+{
+private:
+  constructorHelper (ScoreSegment seg, ScoreStream dataStream, ...);
+
+public:
+  ScoreSegmentRO (int id, ScoreStream dataStream, ...)
+		 { constructorHelper(idToPtr(id),dataStream,...); }
+
+  ScoreSegmentRO (TypedScoreSegment<score_unsigned> seg,
+		  TypedScoreStream <score_unsigned> dataStream, ...)
+		 { constructorHelper(seg->id,dataStream...); }
+
+  ScoreSegmentRO (TypedScoreSegment<score_signed> seg,
+		  TypedScoreStream <score_signed> dataStream, ...)
+		 { constructorHelper(seg->id,dataStream,...); }
+
+  ScoreSegmentRO (TypedScoreSegment<score_fixed> seg,
+		  TypedScoreStream <score_fixed> dataStream, ...)
+		 { constructorHelper(seg->id,dataStream,...); }
+  ...
+
+  // the following does NOT work,
+  // no way to make T range over SCORE_Types:
+
+  ScoreSegmentRO (TypedScoreSegment<T> seg,
+		  TypedScoreStream <T> dataStream, ...)
+		 { constructorHelper(seg->id,dataStream,...); }
+}

@@ -1,0 +1,53 @@
+#if 0
+breakup(output unsigned[8] outA, output unsigned[8] outB,
+	output unsigned[8] outC, output unsigned[8] outD, output unsigned[8] outE,
+	output unsigned[8] outF, output unsigned[8] outG, output unsigned[8] outH,
+	input unsigned[64] inWord)
+
+{
+
+
+  state only(inWord): {
+
+    outA = inWord[63:56]; outB = inWord[55:48];
+    outC = inWord[47:40]; outD = inWord[39:32];
+    outE = inWord[31:24]; outF = inWord[23:16];
+    outG = inWord[15:8]; outH = inWord[7:0];
+
+  }
+
+
+}
+#else
+
+breakup(param unsigned[12] rowSize, output unsigned[64] outA, 
+	output unsigned[64] outB, input unsigned[64] inWord)
+
+{
+
+  unsigned[12] index=0;
+
+  state first(inWord): {
+
+    outA = inWord;
+    index = index+1;
+    if (index == rowSize){
+      index = 0; 
+      goto second;
+    }
+  }
+
+  state second(inWord): {
+
+    outB = inWord;
+    index = index+1;
+    if (index == rowSize){
+      index = 0; 
+      goto first;
+    }
+  }
+
+
+}
+
+#endif

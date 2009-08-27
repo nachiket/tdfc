@@ -1,0 +1,163 @@
+#-- Synplicity, Inc.
+#-- Version 7.1
+#-- Project file proj/_page_jdquant_d1_ScOrEtMp51_q/_page_jdquant_d1_ScOrEtMp51_q.prj
+#-- Emitted by ../../../tdfc version 1.160, Mon Aug 24 17:52:44 2009
+
+#add_file options
+add_file -verilog "/home/nachiket/tdfc/apps/everilog-160/jpeg_decode_nopar/_page_jdquant_d1_ScOrEtMp51_q.v"
+
+#reporting options
+
+#implementation: "rev_1__speed"
+impl -add rev_1__speed
+
+#device options
+set_option -technology  VIRTEX2P
+set_option -part        XC2VP70
+set_option -package     FF1704
+set_option -speed_grade -7
+
+#simulation options
+set_option -write_verilog 0
+set_option -write_vhdl    0
+
+#automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+
+#implementation attributes
+set_option -vlog_std v2001
+set_option -compiler_compatible 0
+
+#compilation/mapping options
+set_option -default_enum_encoding default
+set_option -symbolic_fsm_compiler 1
+set_option -resource_sharing 1
+set_option -use_fsm_explorer 1
+set_option -top_module "_page_jdquant_d1_ScOrEtMp51_q"
+
+#map options
+set_option -frequency 500.000
+set_option -fanout_limit 100
+set_option -disable_io_insertion 1
+set_option -pipe 1
+set_option -modular 0
+set_option -retiming 1
+
+#set result format/file last
+project -result_file "rev_1__speed/_page_jdquant_d1_ScOrEtMp51_q.edf"
+
+#implementation: "rev_2__area"
+impl -add rev_2__area
+
+#device options
+set_option -technology  VIRTEX2P
+set_option -part        XC2VP70
+set_option -package     FF1704
+set_option -speed_grade -7
+
+#simulation options
+set_option -write_verilog 0
+set_option -write_vhdl    0
+
+#automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+
+#implementation attributes
+set_option -vlog_std v2001
+set_option -compiler_compatible 0
+
+#compilation/mapping options
+set_option -default_enum_encoding default
+set_option -symbolic_fsm_compiler 1
+set_option -resource_sharing 1
+set_option -use_fsm_explorer 1
+set_option -top_module "_page_jdquant_d1_ScOrEtMp51_q"
+
+#map options
+set_option -frequency 0.000
+set_option -fanout_limit 100
+set_option -disable_io_insertion 1
+set_option -pipe 1
+set_option -modular 0
+set_option -retiming 1
+
+#set result format/file last
+project -result_file "rev_2__area/_page_jdquant_d1_ScOrEtMp51_q.edf"
+
+#implementation: "rev_3__no_optim"
+impl -add rev_3__no_optim
+
+#device options
+set_option -technology  VIRTEX2P
+set_option -part        XC2VP70
+set_option -package     FF1704
+set_option -speed_grade -7
+
+#simulation options
+set_option -write_verilog 0
+set_option -write_vhdl    0
+
+#automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+
+#implementation attributes
+set_option -vlog_std v2001
+set_option -compiler_compatible 0
+
+#compilation/mapping options
+set_option -default_enum_encoding default
+set_option -symbolic_fsm_compiler 0
+set_option -resource_sharing 0
+set_option -use_fsm_explorer 0
+set_option -top_module "_page_jdquant_d1_ScOrEtMp51_q"
+
+#map options
+set_option -frequency 0.000
+set_option -fanout_limit 100
+set_option -disable_io_insertion 1
+set_option -pipe 0
+set_option -modular 0
+set_option -retiming 0
+
+#set result format/file last
+project -result_file "rev_3__no_optim/_page_jdquant_d1_ScOrEtMp51_q.edf"
+
+#implementation: "rev_4__200mhz"
+impl -add rev_4__200mhz
+
+#device options
+set_option -technology  VIRTEX2P
+set_option -part        XC2VP70
+set_option -package     FF1704
+set_option -speed_grade -7
+
+#simulation options
+set_option -write_verilog 0
+set_option -write_vhdl    0
+
+#automatic place and route (vendor) options
+set_option -write_apr_constraint 1
+
+#implementation attributes
+set_option -vlog_std v2001
+set_option -compiler_compatible 0
+
+#compilation/mapping options
+set_option -default_enum_encoding default
+set_option -symbolic_fsm_compiler 1
+set_option -resource_sharing 1
+set_option -use_fsm_explorer 1
+set_option -top_module "_page_jdquant_d1_ScOrEtMp51_q"
+
+#map options
+set_option -frequency 200.000
+set_option -fanout_limit 100
+set_option -disable_io_insertion 1
+set_option -pipe 1
+set_option -modular 0
+set_option -retiming 1
+
+#set result format/file last
+project -result_file "rev_4__200mhz/_page_jdquant_d1_ScOrEtMp51_q.edf"
+
+impl -active "rev_4__200mhz"

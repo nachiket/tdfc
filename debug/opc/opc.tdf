@@ -1,0 +1,9 @@
+op (input unsigned[4] i, output unsigned[4] o) {
+  state only (i) : o = i+1;
+}
+
+opc (input unsigned[4] i, output unsigned[4] o) {
+  unsigned[4] w;
+  op(i,w);
+  op(w,o);
+}

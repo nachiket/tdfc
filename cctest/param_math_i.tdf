@@ -1,0 +1,23 @@
+unsigned[outwidth] ca(param unsigned[6] outwidth, 
+                             param unsigned[6] initial,
+                             param unsigned[6] width,
+                             input unsigned[width] a)
+{
+	unsigned[outwidth] cnt=initial;
+        state only(a):
+          {
+             cnt=cnt+1;
+             ca=cnt;
+             stay;           
+          }
+}
+
+unsigned[a+2] param_math_i(param unsigned[6] a,
+                             param unsigned[6] b,
+                             param unsigned[6] c,
+                             input unsigned[c] d)
+{
+
+	param_math_i=ca((a+2),(b<<2),(c+5),d);
+}
+

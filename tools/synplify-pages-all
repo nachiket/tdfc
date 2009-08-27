@@ -1,0 +1,30 @@
+#!/bin/csh
+#
+# Synplify every compositional module family (top/page, noin)
+#   in this directory, every implementation / revision thereof
+#
+# Usage:  synplify-pages-all family ...
+#
+# Assume separate project directories for top/page, noin, queue modules,
+#            each project directory named after its module
+#   - top (i.e. page)     is named "<topmodule>"
+#   - input queue         is named "<topmodule>_qin"   (ignored)
+#   - output/local queue  is named "<topmodule>_q"     (ignored)
+#   - ops w/o input queue is named "<topmodule>_noin"
+#
+# Note, tdfc -pp1 names compositional top module "_page_<basemodule>"
+#
+# Synplify 7.1
+# Eylon Caspi, 10/16/03
+
+set toolpath = ${0:h}
+
+# set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -name _page_\* -print | perl -npe 's{.*/}{}; s{_qin$}{}; s{_q$}{}; s{_noin$}{}' | sort | uniq`
+set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -name \*_noin -print | perl -npe 's{.*/}{}; s{_noin$}{}'`
+
+foreach topmodule ($topmodules)
+  foreach revpath ($topmodule/rev*)
+    set rev = ${revpath:t}
+    $toolpath/synplify-pages-impl $topmodule $rev
+  end
+end

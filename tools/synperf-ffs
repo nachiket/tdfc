@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file -- FFs
+# - $ffs
+
+while (<>) {
+  if (/^Register bits not including I\/Os: +(\d+)/i)
+    { if ($ffs==0 || $ffs<$1) { $ffs=$1; } }
+}
+print "$ffs\n";

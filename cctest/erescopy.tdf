@@ -1,0 +1,38 @@
+unsigned[n] xor(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{
+	state only(a,b): xor=a^b;
+}
+
+unsigned[n] and(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{
+	state only(a,b): xor=a&&b;
+}
+unsigned[n] or(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{
+	state only(a,b): xor=a||b;
+}
+
+erescopy(param unsigned[6] n, 
+                  input unsigned[n] a0, input unsigned[n] b0, 
+                  input unsigned[n] a1, input unsigned[n] b1, 
+                  input unsigned[n] a2, input unsigned[n] b2, 
+  		output unsiged[n] oa,
+		output unsiged[n] ob1,
+		output unsiged[n] ob2,
+		output unsiged[n] oc1,
+		output unsiged[n] oc2,
+		output unsiged[n] oc3)
+
+)
+{ 
+       ares=xor(a0,b0);
+       bres=and(a1,b1);
+       cres=or(a2,b2);
+       copy(ares,oa);
+       copy(bres,ob1,ob2);
+       copy(cres,oc1,oc2,oc3);
+}
+

@@ -1,0 +1,82 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999-2001 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+#include "div.txt"
+
+#ifdef APPROX_DIV
+#define QuantStepsShift 14
+#endif
+
+
+jquant(input signed[16] inStream, output signed[16] outStream,
+       param unsigned[8] exfactor, param unsigned[64][9] quantSteps) 
+
+{
+
+  //needs compilation with the -xc option
+  unsigned[8] index = 0;
+
+  state only(inStream): {
+    unsigned[8] tmpindex;
+    #ifndef APPROX_DIV
+    unsigned[8] step;
+    signed[9] newstep;
+    #else
+    unsigned[12-LOG2(exfactor)] step_inv;
+    // - quantization step inverses are 9 bits with exfactor=8,
+    //     and they are inversely proportional to exfactor
+    #endif
+    signed[16] regStream;
+    signed[16] regOut;
+
+    regStream = ((inStream<0)?(-inStream):inStream);
+ 
+    #ifndef APPROX_DIV
+      step = quantSteps[index]*exfactor;
+      newstep = (signed[9]) step;
+      regOut = (2*regStream + (newstep/2))/newstep;
+    #else
+      // - Approximate division as mult-and-right-shift, EC 6/29/03
+      // - Instead of dividing by quantizer step,
+      //     we multiply by step's inverse and right-shift by QuantStepsShift
+      // - In this case, QuantSteps array contains step _inverses_
+      //     for multiplication, pre-scaled by "exfactor"
+      // - Round using:  in/newstep = (2*in/newstep+1)/2
+      step_inv=quantSteps[index];
+      regOut = ((((2*regStream)*step_inv) >> (QuantStepsShift-1)) + 1) >> 1;
+    #endif
+
+    outStream = ((inStream<0)?(-regOut):regOut);
+    tmpindex = index+1;
+    if (tmpindex == 64) {
+      index = 0;
+    } else {
+      index = index+1;
+    }
+
+
+  }
+
+}
+  

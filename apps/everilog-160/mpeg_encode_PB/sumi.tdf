@@ -1,0 +1,122 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999,2001 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.2 $
+// $Date: 2005/09/27 05:20:08 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+#include "div.txt"
+
+sumi(param unsigned[16] wait,
+     input unsigned[64] inp, output unsigned[16] sumall)
+
+{
+
+  unsigned[16] tempsum=0;
+  unsigned[8] cycles;
+  unsigned[16] index = 0;
+
+  signed[9] at; signed[9] bt; signed[9] ct; signed[9] dt;
+  signed[9] et; signed[9] ft; signed[9] gt; signed[9] ht;
+
+  state init(inp): {
+    // wait out I picture
+    index = index+1;
+    if (index==wait) {
+      cycles = 32;
+      goto st_1;
+    }
+  }
+
+  state st_1(inp):  {
+    //unsigned[8] tempcycles;
+    //tempcycles = cycles - 1;
+    cycles = cycles-1;
+
+    at = ((signed[9])(inp[63:56])); bt = ((signed[9])(inp[55:48]));
+    ct = ((signed[9])(inp[47:40])); dt = ((signed[9])(inp[39:32]));
+    et = ((signed[9])(inp[31:24])); ft = ((signed[9])(inp[23:16])); 
+    gt = ((signed[9])(inp[15:8])); ht = ((signed[9])(inp[7:0]));
+
+    goto st_1a;
+  }
+
+  state st_1a(inp): {
+    unsigned[8] tempcycles;
+
+    signed[9] inresa;  signed[9] inresb; signed[9] inresc; signed[9] inresd;
+    signed[9] inrese;  signed[9] inresf; signed[9] inresg; signed[9] inresh; 
+
+    tempcycles = cycles - 1; cycles = tempcycles;
+
+    inresa = at - ((signed[9])(inp[63:56]));
+    inresb = bt - ((signed[9])(inp[55:48]));
+    inresc = ct - ((signed[9])(inp[47:40]));
+    inresd = dt - ((signed[9])(inp[39:32]));
+    inrese = et - ((signed[9])(inp[31:24]));
+    inresf = ft - ((signed[9])(inp[23:16]));
+    inresg = gt - ((signed[9])(inp[15:8]));
+    inresh = ht - ((signed[9])(inp[7:0]));
+
+    tempsum = tempsum + bitsof(inresa<0 ? (-inresa) : inresa)
+      + bitsof(inresb<0 ? (-inresb) : inresb)
+      + bitsof(inresc<0 ? (-inresc) : inresc)
+      + bitsof(inresd<0 ? (-inresd) : inresd)
+      + bitsof(inrese<0 ? (-inrese) : inrese)
+      + bitsof(inresf<0 ? (-inresf) : inresf)
+      + bitsof(inresg<0 ? (-inresg) : inresg)
+      + bitsof(inresh<0 ? (-inresh) : inresh);
+
+    at = ((signed[9])(inp[63:56])); bt = ((signed[9])(inp[55:48]));
+    ct = ((signed[9])(inp[47:40])); dt = ((signed[9])(inp[39:32]));
+    et = ((signed[9])(inp[31:24])); ft = ((signed[9])(inp[23:16])); 
+    gt = ((signed[9])(inp[15:8])); ht = ((signed[9])(inp[7:0]));
+
+    //tempsum = tempsum+a+b+c+d+e+f+g+h;
+    if (tempcycles == 0) {
+      goto st_2;
+    } else if (tempcycles == 16) {
+      goto st_1;
+    } else {
+      stay;
+    }
+  }
+
+  state st_2(): {
+    // sumall = (tempsum*16)/15;
+    sumall = DIV(tempsum*16,15);
+    cycles = 32;
+    tempsum = 0; goto st_1;
+  }
+#if 0
+  state st_wait(inp): {
+    unsigned[8] tempcycles;
+    tempcycles = cycles - 1; cycles = tempcycles;
+    if (tempcycles == 0) {
+      goto init;
+    } else {
+      stay;
+    }
+  }
+#endif
+}

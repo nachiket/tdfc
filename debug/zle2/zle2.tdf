@@ -1,0 +1,6 @@
+zle2 (input unsigned[3] i, output unsigned[4] o)
+{
+  unsigned[4] tmp;
+  zle(i,tmp);
+  zle(tmp[2:0],o);
+}

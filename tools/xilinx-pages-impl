@@ -1,0 +1,62 @@
+#!/bin/csh
+#
+# Compile a given compositional module family (top/page, noin, qin, q),
+#   given implementation / revision,
+#   from EDIF to Xilinx Virtex II
+#
+# Usage:  xilinx-pages-impl topmodule impl [omit_queues]
+#
+# Note, qin + q modules are not compiled if pass arg "omit_queues" (any value)
+#
+# Assume separate project directories for top/page, noin, queue modules,
+#            each project directory named after its module
+#   - top (i.e. page)     is named "<topmodule>"
+#   - input queue         is named "<topmodule>_qin"   (ignored)
+#   - output/local queue  is named "<topmodule>_q"     (ignored)
+#   - ops w/o input queue is named "<topmodule>_noin"
+#
+# Note, tdfc -pp1 names compositional top module "_page_<basemodule>"
+#
+# Xilinx ISE 5.2i
+# Eylon Caspi, 10/16/03
+
+if ($#argv<2) then
+  echo "Compile a given compositional module family (top/page, noin, qin, q)"
+  echo "and given implementation from EDIF to Xilinx Virtex II"
+  echo ""
+  echo "Usage:  $0 topmodule impl"
+  exit
+endif
+
+set topmodule   = $argv[1]
+set rev         = $argv[2]
+@   omitqueues  = ($#argv == 3)	    # any 3rd arg value disables queue compile
+
+set noinmodule  = ${topmodule}_noin
+set qinmodule   = ${topmodule}_qin
+set qmodule     = ${topmodule}_q
+
+echo "--- Cleaning Up ${topmodule}, ${noinmodule} / Implementation $rev"
+sh -c "cd ${topmodule}/${rev};  ./make reallyclean"
+sh -c "cd ${noinmodule}/${rev}; ./make reallyclean"
+if (! $omitqueues) then
+  echo "--- Cleaning Up ${qinmodule}, ${qmodule} / Implementation $rev"
+  sh -c "cd ${qinmodule}/${rev}; ./make reallyclean"
+  sh -c "cd ${qmodule}/${rev};   ./make reallyclean"
+endif
+
+echo "--- Synthesizing Top/Page Module $topmodule / Implementation $rev"
+sh -c "cd ${topmodule}/${rev}; ./make 2>&1 | tee make.out"
+
+echo "--- Synthesizing No-in Module $noinmodule / Implementation $rev"
+sh -c "cd ${noinmodule}/${rev}; ./make 2>&1 | tee make.out"
+
+if (! $omitqueues) then
+  echo "--- Synthesizing Input Queue Module $qinmodule / Implementation $rev"
+  sh -c "cd ${qinmodule}/${rev};  ./make 2>&1 | tee make.out"
+
+  echo "--- Synthesizing Output/Local Module $qmodule / Implementation $rev"
+  sh -c "cd ${qmodule}/${rev};  ./make 2>&1 | tee make.out"
+endif
+
+echo "--- Done"

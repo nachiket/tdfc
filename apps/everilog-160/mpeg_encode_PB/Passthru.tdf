@@ -1,0 +1,11 @@
+Passthru(input unsigned[8] checkin, output unsigned[8] checkout) 
+{
+
+  state only(checkin): {
+
+    //    printf("huffstream is %lld\n",checkin);
+    checkout = checkin;
+
+  }
+
+}

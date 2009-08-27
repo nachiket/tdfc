@@ -1,0 +1,87 @@
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+compWavelet(param unsigned[10] rowLen, param unsigned[10] colLen, 
+	param unsigned[15] MAX, param unsigned[10] ZERO_MARK, 
+	input signed[9] a, output unsigned[5] DCs, output unsigned[8] AC1,
+	output unsigned[8] AC2, output unsigned[8] AC3, 
+	output unsigned[8] AC4, output unsigned[8] AC5,
+	output unsigned[8] AC6)
+
+{
+
+    signed[12] dump1;    signed[14] dump2;
+    signed[12] h1out;    signed[14] v2out;
+
+    signed[16] h2outs;    signed[16] h2outd;
+    signed[16] v3aouts;    signed[16] v3aoutd;
+    signed[16] v3bouts;    signed[16] v3boutd;
+
+    signed[16] h4outs;    signed[16] h4outd;
+    signed[16] v5aouts;    signed[16] v5aoutd;
+    signed[16] v5bouts;    signed[16] v5boutd;
+
+    unsigned[5] q1; unsigned[5] q2; unsigned[5] q3;
+    unsigned[5] q4; unsigned[5] q5; unsigned[5] q6;
+
+    // FIFO's for Vertical Wavelets
+
+    signed[14] v2sb; signed[14] v2db; signed[14] v2dmb;
+    signed[16] v3asb; signed[16] v3adb; signed[16] v3admb;
+    signed[16] v3bsb; signed[16] v3bdb; signed[16] v3bdmb;
+
+    signed[16] v5asb; signed[16] v5adb; signed[16] v5admb;
+    signed[16] v5bsb; signed[16] v5bdb; signed[16] v5bdmb;
+
+    LiftWaveH(rowLen,9,12,a,h1out,dump1);
+    LiftWaveV(rowLen/2,colLen,12,14,h1out,v2out,dump2,
+	      v2sb,v2sb,v2db,v2db,v2dmb,v2dmb);
+
+    LiftWaveH(rowLen/2,14,16,v2out,h2outs,h2outd);
+    LiftWaveV(rowLen/2,colLen/2,16,16,h2outs,v3aouts,v3aoutd,
+	      v3asb,v3asb,v3adb,v3adb,v3admb,v3admb);
+    LiftWaveV(rowLen/2,colLen/2,16,16,h2outd,v3bouts,v3boutd,
+	      v3bsb,v3bsb,v3bdb,v3bdb,v3bdmb,v3bdmb);
+
+    LiftWaveH(rowLen/4,16,16,v3aouts,h4outs,h4outd);
+    LiftWaveV(rowLen/4,colLen/2,16,16,h4outs,v5aouts,v5aoutd,
+	      v5asb,v5asb,v5adb,v5adb,v5admb,v5admb);
+    LiftWaveV(rowLen/4,colLen/2,16,16,h4outd,v5bouts,v5boutd,
+	      v5bsb,v5bsb,v5bdb,v5bdb,v5bdmb,v5bdmb);
+
+    Quant_DC(16,v5aouts,DCs);
+
+    Quant(16,512,39,v5bouts,q1);    Quant(16,512,27,v5aoutd,q2);
+    Quant(16,2048,104,v5boutd,q3);    Quant(16,512,79,v3bouts,q4);
+    Quant(16,512,50,v3aoutd,q5);    Quant(16,1024,191,v3boutd,q6);
+
+    ZLE(MAX,ZERO_MARK,q1,AC1); ZLE(MAX,ZERO_MARK,q2,AC2);
+    ZLE(MAX,ZERO_MARK,q3,AC3); ZLE(MAX,ZERO_MARK,q4,AC4);
+    ZLE(MAX,ZERO_MARK,q5,AC5); ZLE(MAX,ZERO_MARK,q6,AC6);
+
+}
+    
+
+    

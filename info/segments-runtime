@@ -1,0 +1,16 @@
+ScoreSegmentReadOnly	(SCORE_SEGMENT_ID nid,
+			 SCORE_STREAM addr, SCORE_STREAM data);
+
+ScoreSegmentWriteOnly	(SCORE_SEGMENT_ID nid,
+			 SCORE_STREAM addr, SCORE_STREAM data);
+
+ScoreSegmentReadWrite	(SCORE_SEGMENT_ID nid,
+			 SCORE_STREAM addr, SCORE_STREAM dataIn,
+			 SCORE_STREAM dataOut, SCORE_STREAM, writeMode);
+
+ScoreSegmentSeqReadOnly	(SCORE_SEGMENT_ID nid, SCORE_STREAM data);
+
+ScoreSegmentSeqWriteOnly(SCORE_SEGMENT_ID nid, SCORE_STREAM data);
+
+ScoreSegmentSeqReadWrite(SCORE_SEGMENT_ID nid,
+			 SCORE_STREAM dataIn, SCORE_STREAM dataOut);

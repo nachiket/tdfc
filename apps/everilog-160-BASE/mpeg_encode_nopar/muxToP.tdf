@@ -1,0 +1,69 @@
+muxToP(param unsigned[10] noMB,
+       input unsigned[64] a, input unsigned[64] b, 
+       input unsigned[64] c, input unsigned[64] d,
+       output unsigned[64] toP)
+{
+
+  unsigned[10] index=0;
+  unsigned[10] macIndex=0;
+
+
+  state firstPic(a,b): { // wait these tokens out
+
+    index = index+1;
+    if (index == noMB*16) {
+      index = 0;
+      goto steadyYc;
+    }
+  }
+
+  state steadyYa(a): {
+    toP = a;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto steadyYb;
+    }
+  }
+
+  state steadyYb(b): {
+    toP = b;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0;
+	goto steadyYc;
+      } else {
+	goto steadyYa;
+      }
+    }
+  }
+
+  state steadyYc(c): {
+    toP = c;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto steadyYd;
+    }
+  }
+
+  state steadyYd(d): {
+    toP = d;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0;
+	goto steadyYa;
+      } else {
+	goto steadyYc;
+      }
+    }
+  }  
+    
+
+}

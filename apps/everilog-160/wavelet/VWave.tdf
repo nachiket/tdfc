@@ -1,0 +1,64 @@
+#ifndef _VWAVE
+#define _VWAVE
+
+VWave(param unsigned[10] rowLen, param unsigned[10] colLen, 
+      param unsigned[8] inWidth, param unsigned[8] outWidth, 
+      input signed[inWidth] a, output signed[outWidth] s,
+      output signed[outWidth] d, input signed[inWidth] s_bufi,
+      input signed[inWidth] d_bufi, input signed[outWidth] dmbufi)
+  
+{
+  unsigned[10] count = 1;
+  unsigned[10] index = 0;
+  signed[outWidth] diff;
+  
+  // make sure to take care of count variable
+
+  state vmiddle00(a,d_bufi,s_bufi):
+    {
+      //diff = d_bufi*2-s_bufi-a;
+      diff = d_bufi*2-s_bufi-a;
+      d = diff;
+      s = s_bufi + (diff>>2);
+      index = index+1; 
+      if (index == rowLen) {index = 0; goto vmiddle01;}
+      else {stay;}
+    }
+
+  state vmiddle01():
+    {
+      count = count+1;
+      index = 0;
+      if (count == colLen/2) {
+	goto vfinal;
+      } else {
+	goto vmiddle10;
+      }
+    }
+  
+  state vmiddle10(a,d_bufi,s_bufi,dmbufi):
+    {
+      diff = d_bufi*2-s_bufi-a;
+      d = diff;
+      s = s_bufi + ((diff+dmbufi)>>3);
+      //s = sum; d = diff;
+      index = index+1;
+      if (index == rowLen) {index = 0; goto vmiddle01;}
+      else {stay;}
+    }
+  
+  state vfinal(d_bufi,s_bufi,dmbufi):
+    {
+      diff = (d_bufi-s_bufi)*2;
+      d = diff;
+      s = s_bufi + ((diff+dmbufi)>>3);
+      //s = sum; d = diff;
+      index = index+1;
+      if (index == rowLen) {index = 0; count = 1; goto vmiddle00;}
+      else {stay;}
+    } 
+
+}
+
+
+#endif

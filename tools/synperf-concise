@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file
+# - $speed	$luts	$ffs	$lutffs 	$states 	$fsmstyle
+#   (MHz)	(LUTs)	(FFs)	(LUT-FFs)	(States)	(FSM)
+
+while (<>) {
+  if (/(clock|system) +(\d+(.\d+)?) +MHz +(\d+(.\d)?)/i)
+    { if ($speed==0  || $speed>$4)  { $speed=$4;  } }
+  elsif (/^Total +LUTs: +(\d+)/i)
+    { if ($luts==0   || $luts<$1)   { $luts=$1;   } }
+  elsif (/^Register bits not including I\/Os: +(\d+)/i)
+    { if ($ffs==0    || $ffs<$1)    { $ffs=$1;    } }
+  elsif (/^State machine has +(\d+)/i)
+    { if ($states==0 || $states<$1) { $states=$1; } }
+  elsif (/^Adding property syn_encoding.*value "([^"]+)"/i)
+    { if (!defined($fsmstyle)) { $fsmstyle=$1; } else { $fsmstyle="MULTI"; } }
+}
+$lutffs = ($luts>$ffs) ? $luts : $ffs;
+print "$speed	$luts	$ffs	$lutffs	$states	$fsmstyle\n";

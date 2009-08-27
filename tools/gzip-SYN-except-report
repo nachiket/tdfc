@@ -1,0 +1,1 @@
+'ls' | egrep -v '\.(srr|edf|sdc)(\.gz)?$' | xargs gzip -r

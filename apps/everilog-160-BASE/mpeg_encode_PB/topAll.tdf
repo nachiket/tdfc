@@ -1,0 +1,186 @@
+// Copyright (c) 2001 The Regents of the University of California.
+// All rights reserved.
+// Permission to use, copy, modify, and distribute this software and its
+// documentation for any purpose, without fee, and without written agreement is
+// hereby granted, provided that the above copyright notice and the following
+// two paragraphs appear in all copies of this software.
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+// OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF
+// CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+// ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+#include "div.txt"
+
+
+topAll(param unsigned[10] noPics,
+       param unsigned[17] totalPix, param unsigned[10] rowPix,
+       input unsigned[64] p0, input unsigned[64] p1, input unsigned[64] u0,
+       output unsigned[8] outStream)
+
+{
+
+  signed[6] mvx0,mvy0,mvx1,mvy1;
+  unsigned[5] modeStream;
+
+  unsigned[64] w,y,u,v,a0,a1,pa,pb,pc,pd,ua,uc;
+  unsigned[64] ref,r(1000),p_,ref_y,u_,ref_c,est,rY;
+  unsigned[64] x_,z_;
+  unsigned[16] maxErr0,maxErr1;
+
+  //#include "segArgs.txt"
+  unsigned[totalPix/16][64] segYatab0;
+  unsigned[totalPix/16][64] segYatab1;
+  unsigned[totalPix/16][64] segYbtab0;
+  unsigned[totalPix/16][64] segYbtab1;
+  unsigned[totalPix/16][64] segYctab0;
+  unsigned[totalPix/16][64] segYctab1;
+  unsigned[totalPix/16][64] segYdtab0;
+  unsigned[totalPix/16][64] segYdtab1;
+  unsigned[totalPix/32][64] segCatab0;
+  unsigned[totalPix/32][64] segCatab1;
+  unsigned[totalPix/32][64] segCctab0;
+  unsigned[totalPix/32][64] segCctab1;
+
+  unsigned[112][12] Iaclvtab = 
+                    {65,131,260,325,454,550,545,650,797,792,787,
+		     784,858,857,856,855,927,926,925,924,923,922,
+		     921,920,919,918,917,916,915,914,913,912,984,
+		     983,982,981,980,979,978,977,976,195,390,549,
+		     652,795,854,853,991,990,989,988,987,986,985,
+		     1043,1042,1041,1040,261,452,651,788,852,327,548,
+		     796,851,326,655,786,391,649,850,389,798,1044,
+		     388,789,455,785,453,849,551,848,547,1050,546,
+		     1049,544,1048,654,1047,653,1046,648,1045,799,794,
+		     793,791,790,863,862,861,860,859,1055,1054,1053,
+		     1052,1051};
+
+  unsigned[17][9] Imvtab = {33,65,97,129,195,229,228,227,299,298,297,337,
+			    336,335,334,333,332};
+
+  unsigned[64][9] IpattTab = {0x0,0xb5,0x95,0xd6,0xd4,0x177,0x137,0x1f8,
+			      0xc4,0x167,0x127,0x1e8,0x135,0x1b8,0x178,0x138,
+			      0xb4,0x157,0x117,0x1d8,0x115,0x198,0x158,0x118,
+			      0xf6,0xf8,0xd8,0x39,0xf5,0xb8,0x78,0x79,
+			      0xa4,0x147,0x107,0x1c8,0xe6,0xe8,0xc8,0x29,
+			      0x105,0x188,0x148,0x108,0xe5,0xa8,0x68,0x69,
+			      0x125,0x1a8,0x168,0x128,0xd5,0x98,0x58,0x59,
+			      0xc5,0x88,0x48,0x49,0x73,0xa5,0x85,0xc6};
+
+  // - Quantizer expansion factor
+  #define exfactor 8
+
+  #ifndef APPROX_DIV
+  // - if "mquant" uses real division "/",
+  //     then "QuantSteps" contains the quantizer steps "mquant" divides by;
+  //     each step will be scaled by "exfactor" inside "mquant".
+  // - steps from page 60 of standard
+  unsigned[64][9] QuantSteps =  {  8,16,16,19,16,19,22,22,
+				  22,22,22,22,26,24,26,27,
+				  27,27,26,26,26,26,27,27,
+				  27,29,29,29,34,34,34,29,
+				  29,29,27,27,29,29,32,32,
+				  34,34,37,38,37,35,35,34,
+				  35,38,38,40,40,40,48,48,
+				  46,46,56,56,58,69,69,83};
+
+  #else
+  // - if "mquant" uses approximate division by mult-and-right-shift,
+  //     then "QuantSteps" contains the quantizer step _inverses_
+  //     that "mquant" will multiply by, pre-scaled by "exfactor"
+  // - to match precision of original quantizer steps,
+  //     the inverse multipliers will be approx. 7 bits,
+  //     and right-shift will be 14 bits.
+  // - EC 6/29/03
+  #define QuantStepsShift 14
+//#define POWEROFSHIFT POWEROF2(QuantStepsShift)	// - slow to type-check
+  #define POWEROFSHIFT 0b100000000000000
+  #define INV(x) DIVCONSTS(POWEROFSHIFT,x*exfactor)
+  unsigned[64][9] QuantSteps =
+	{INV( 8),INV(16),INV(16),INV(19),INV(16),INV(19),INV(22),INV(22),
+	 INV(22),INV(22),INV(22),INV(22),INV(26),INV(24),INV(26),INV(27),
+	 INV(27),INV(27),INV(26),INV(26),INV(26),INV(26),INV(27),INV(27),
+	 INV(27),INV(29),INV(29),INV(29),INV(34),INV(34),INV(34),INV(29),
+	 INV(29),INV(29),INV(27),INV(27),INV(29),INV(29),INV(32),INV(32),
+	 INV(34),INV(34),INV(37),INV(38),INV(37),INV(35),INV(35),INV(34),
+	 INV(35),INV(38),INV(38),INV(40),INV(40),INV(40),INV(48),INV(48),
+	 INV(46),INV(46),INV(56),INV(56),INV(58),INV(69),INV(69),INV(83)};
+
+  #endif  // #ifndef APPROX_DIV
+
+  // FIXME! take mode out of PModule -> check
+  PModule(a0,x_,mvx0,mvy0,maxErr0,7);
+  PModule(a1,z_,mvx1,mvy1,maxErr1,7);
+
+  // FIXME! Change driver code to use only one set of 3 streams->check
+  // FIXME! put in segment writing control operator->check
+  // FIXME! do check between these muxes and muxtoP->check
+  // FIXME! put in init arguments to the seg_managers->check
+  muxToSegY(totalPix/16,p0,p1,pa,pb,pc,pd);
+  muxToSegC(totalPix/16,u0,ua,uc);
+
+//    segy_bank(totalPix/8,rowPix,
+//  	    pa,pb,mvx0,mvy0, // motion vector
+//  	    segYatab0,segYatab1,segYatab2,segYatab3,
+//  	    segYatab4,segYatab5,segYatab6,segYatab7,w,true);
+
+  segyBank(totalPix/8,rowPix,
+	    pa,pb,mvx0,mvy0, // motion vector
+	    segYatab0,segYatab1,w,true);
+  
+  segyMref(totalPix/8,rowPix,noPics,
+	   pa,pb,
+	   segYbtab0,segYbtab1,
+	   //segYbtab2,segYbtab3,segYbtab4,segYbtab5,segYbtab6,segYbtab7,
+	   x_,true);
+
+//    segy_bank(totalPix/8,rowPix,
+//  	    pc,pd,mvx1,mvy1, // motion vector
+//  	    segYctab0,segYctab1,segYctab2,segYctab3,
+//  	    segYctab4,segYctab5,segYctab6,segYctab7,y,false);
+
+  segyBank(totalPix/8,rowPix,
+	    pc,pd,mvx1,mvy1, // motion vector
+	    segYctab0,segYctab1,y,false);
+
+  segyMref(totalPix/8,rowPix,noPics,
+	   pc,pd,
+	   segYdtab0,segYdtab1,
+	   //segYdtab2,segYdtab3,segYdtab4,segYdtab5,segYdtab6,segYdtab7,
+	   z_,false);
+
+  segcBank(totalPix/16,rowPix/2,
+	    ua,mvx0,mvy0,
+	    segCatab0,segCatab1,
+	    //segCatab2,segCatab3,segCatab4,segCatab5,segCatab6,segCatab7,
+	    u,true);
+
+  segcBank(totalPix/16, rowPix/2,
+	    uc,mvx1,mvy1,
+	    segCctab0,segCctab1,
+	    //segCctab2,segCctab3,segCctab4,segCctab5,segCctab6,segCctab7,
+	    v,false);
+  
+  muxToP(totalPix/256,p0,p1,a0,a1);
+
+  // FIXME! change muxToI operation->check
+  muxToI(totalPix/256,p0,p1,u0,r,rY);
+
+  //  muxReforEst(396*62*16,x_,z_,est);
+  // FIXME! change IModule to take two sets of motion vectors-> check
+  // FIXME! change IModule to take two sets of reference streams-> check
+  // FIXME! remove modestream input and put mode-estimating->check
+  // operators inside IModule
+  IModule(totalPix/16+totalPix/8,noPics,r,rY,w,u,y,v,
+	  maxErr0,maxErr1,
+	  mvx0,mvy0,mvx1,mvy1,outStream,
+	  Iaclvtab,Imvtab,exfactor,QuantSteps,IpattTab);
+//	  Iaclvtab,Imvtab,         QuantSteps,IpattTab);
+
+}
+
+

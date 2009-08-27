@@ -1,0 +1,16 @@
+persist2(input unsigned[8] a,
+         output unsigned[8] out)
+
+{
+
+   state s0(a):
+      {
+         goto s1;
+      }
+   state s1():
+      {
+         out=a;
+         goto s0;
+      }
+
+}

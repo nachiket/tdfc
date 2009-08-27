@@ -1,0 +1,19 @@
+streamdepth (input unsigned[16] i, output unsigned[16] o)
+{
+  boolean g;
+  unsigned[16] v;
+  op1(i,g,v);	// passes i to g, v
+  G(g,v,o);	// gated passing of v to o  (when g true)
+		// --> composition requires buffer depths g:0 v:\infty
+}
+
+op1 (input unsigned[16] i, output boolean g, output unsigned[16] v)
+{
+  state op1(i) : g=(i>0); v=i;
+}
+
+G (input boolean g, input unsigned[16] v, output unsigned[16] o)
+{
+  state Gg(g) : if (g) goto Gv; else stay;
+  state Gv(v) : o=v;   goto Gg;
+}

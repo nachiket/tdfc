@@ -1,0 +1,108 @@
+OPERATIONAL SEMANTICS -- TDF CHANGE OF STATE
+
+Notation based on:
+Glynn Winskel, The Formal Semantics of Programming Languages: An Introduction,
+Chapter 2, MIT Press, Cambridge, MA, 1993.
+
+
+---- SETS ----
+
+Let V  = set of scalar vars	(should distinguish bool from int)
+Let Qi = set of input  streams
+Let Qo = set of output streams
+Let Q  = Qi UNION Qo
+Let gg = FSM state variable
+
+Let T    = set of scalar values, i.e. type of scalar vars
+Let N    = set of natural numbers
+Let BOOL = {true, false}
+Let G    = set of FSM state names
+Let (list of T) = set of stream values, i.e. buffer contents
+
+Let S = total state
+      = UNION({gg},V,Qi,Qo) -> UNION(G,T,list of T,list of T)
+
+Let E = space of exprs		(should distinguish bool from int)
+      = BOOL | N | V | E+E | E-E | E*E | E==E | E!=E | ...
+
+Let C = space of commands
+      = V=E | if(E) C else C | goto G | state G(Qi,...) | Qo=E | C;C | NOP
+
+
+---- EVALUATION ----
+
+Let <e,s> : E x S -> N  = evaluation of expr e in state s \in S
+Let <c,s> : C x S -> S  = evaluation of cmd  c in state s \in S
+
+Modification of state:
+Let s/x->y  = { s'\in S : s'(z) = (z==x ? y : s(z)) }
+
+
+---- RANGE VARIABLES ----
+
+Let  v       range over V          (a variable v)
+     qi,i,j  range over Qi         (an input  stream qi)
+     qo      range over Qo         (an output stream qo)
+     q       range over Q          (a         stream q)
+     a,b,c   range over T          (a scalar value a, b, or c)
+     n,m     range over N          (an int value n or m)
+     b       range over B          (a bool value b)
+     g       range over G          (an FSM state g)
+     l       range over list of T  (a stream buffer l)
+     s       range over S          (a total state s)
+     e       range over E          (an expr e, e1, e2, ...)
+     c       range over C          (a cmd   c, c1, c2, ...)
+
+
+---- INPUT HISTORY REGISTERS ----
+
+Let H:Qi->N = history depth of an input queue
+
+For each qi \in Qi,
+  extend V with input history variables
+  qi[h] \in V, \forall h \in {0..H(qi)-1}
+
+
+---- EXPR EVALUATION RULES ----
+
+Input ref:
+		-------------------
+		<qi,s> == <qi[0],s>	i.e. ref to "qi" == 0th history reg
+
+
+---- CMD EVALUATION RULES ----
+
+Var assign:	<e,s>==n
+		------------------
+		<v=e ,s> == s\v->n
+
+Goto:		
+		----------------------
+		<goto g ,s> == s\gg->g
+
+If-Else:	<e,s>==true, <c1,s>==s'		<e,s>==false, <c2,s>==s''
+		---------------------------	----------------------------
+		<if(e) c1 else c2 ,s> =- s'	<if(e) c1 else c2, s> == s''
+
+Consume:	<i,s>==hi::ti, <j,s>==hj::tj
+		----------------------------------------------
+		<state g(i,j,...), s> == 
+		     s \ i[n]->i[n-1] \forall n\in(1..H(i)-1),
+		         i[0]->hi,
+		         i->ti,
+		         j[m]->j[m-1] \forall m\in(1..H(j)-1),
+		         j[0]->hj,
+		         j->tj,
+		         ...
+
+Emit:		<e,s>==n, <qo,s>==l
+		--------------------
+		<qo=e> == s\qo->l;;n	where l;;n means append n to end of l
+
+Cmd Seq:	<c1,s>==s', <c2,s'>==s''
+		------------------------
+		<c1;c2 ,s> = s''
+
+NOP:		
+		------------
+		<NOP,s> == s

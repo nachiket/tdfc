@@ -1,0 +1,8 @@
+parameter_matchfixed(input unsigned[8] a, param unsigned[8] match, 
+           output boolean res)
+  {
+    state only(a):
+      if (a==match) res=true; 
+      else res=false;
+  }
+

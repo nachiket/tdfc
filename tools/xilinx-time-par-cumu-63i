@@ -1,0 +1,20 @@
+# - Extract cumulative Placer + Router completion time from ``par'' stdout
+#     (tallies repeated runs triggered by xilinx-makefile-63i)
+# - Xilinx ISE 6.3i
+# - Eylon Caspi, 4/26/05
+
+	perl -e 'while (<>) {						#\
+		   if (/^Total CPU time to Placer completion: +((\d+) days *)?((\d+) hrs *)?((\d+) mins *)?((\d+) secs)?/i) #\
+		     { $ptime=(((($2)*24+$4)*60+$6)*60+$8);		#\
+		       $cumutime+=$ptime; }				#\
+		   if (/^Total CPU time to Router completion: +((\d+) days *)?((\d+) hrs *)?((\d+) mins *)?((\d+) secs)?/i) #\
+		     { $rtime=(((($2)*24+$4)*60+$6)*60+$8);		#\
+		       $cumutime+=$rtime-$ptime; }			#\
+		 }							#\
+		 print "$cumutime\n";'					#\
+		 $*
+
+#		 $< > $@
+
+#			print; print "ptime=$ptime cumutime=$cumutime\n"; } #\
+#			print; print "rtime=$rtime cumutime=$cumutime\n"; } #\

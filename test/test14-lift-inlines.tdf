@@ -1,0 +1,45 @@
+// - tests lifting of inline-calls + mem-array accesses
+
+op1 (param unsigned[8] p)
+{
+  unsigned[100][8] memarray;
+  unsigned[8] r;
+  state only () :
+    {
+      {
+	memarray[p]=p;
+      }
+      {
+	r=memarray[p][p];
+      }
+      {
+	memarray[p]=memarray[p+1];
+      }
+      {
+	memarray[p]=memarray[memarray[p+2]];
+      }
+      {
+	memarray[p]=memarray[memarray[p+2]][memarray[p+3]];
+      }
+      {
+	r=op2(p);
+      }
+      {
+	r=op2(op2(p));
+      }
+      {
+	memarray[op2(r)]=memarray[memarray[op2(p)+op2(r)]][memarray[p+3]];
+      }
+      {
+	if (op2(r)>0)
+	  r=memarray[p];
+	else
+	  memarray[p]=r;
+      }
+    }
+}
+
+unsigned[8] op2 (input unsigned[8] i)
+{
+  state only (i) : op2=i;
+}

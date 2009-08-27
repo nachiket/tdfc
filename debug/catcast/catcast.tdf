@@ -1,0 +1,4 @@
+catcast (input unsigned[20] a, input unsigned[40] b, output signed[60] o)
+{
+  state only (a,b) :  o=cat(a,b);  o=cat(b,a);  o=(unsigned[44])a+b;
+}

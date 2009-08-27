@@ -1,0 +1,155 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.14 $
+// $Date: 2005/09/27 04:55:42 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+//  #include "zigzag.tdf"
+//  #include "muxer.tdf"
+//  #include "ISub.tdf"
+//  #include "jquant.tdf.xc"
+//  #include "write_seg.tdf"
+//  #include "JZLE.tdf"
+//  #include "MixToHuff.tdf"
+//  #include "HuffMachine.tdf"
+//  #include "CheckZero.tdf"
+//  #include "repeater.tdf"
+
+#include "div.txt"
+
+JPEG_mod(input signed[9] inA, input signed[9] inB, input signed[9] inC,
+	 input signed[9] inD, input signed[9] inE, input signed[9] inF,
+         input signed[9] inG, input signed[9] inH, output unsigned[8] hout,
+	 param unsigned[12][8] dcltab, param unsigned[12][16] dcvtab,
+	 param unsigned[256][8] acltab, param unsigned[256][16] acvtab) 
+{
+
+  signed[16] outA; signed[16] outB; signed[16] outC; signed[16] outD;
+  signed[16] outE; signed[16] outF; signed[16] outG; signed[16] outH;
+
+  unsigned[16] bts; unsigned[8] nbts;
+
+  //signed[16] dctstream_0; signed[16] dctstream_1;
+  signed[16] dctistream; signed[16] dctstream;
+  unsigned[8] prehout;
+  unsigned[8] plainlen; unsigned[16] plainout;
+
+  // unsigned[6] segReadAddr;
+  // boolean writeA; boolean writeB;
+  //  unsigned[6] addrA; unsigned[6] addrB;
+  //  signed[16] dataA; signed[16] dataB; 
+  unsigned[4] toMux;
+
+  unsigned[4] DCind; unsigned[4] DCind1; unsigned[4] DCind2; 
+  unsigned[8] ACind; unsigned[8] ACind1; unsigned[8] ACind2; 
+
+  unsigned[8] dclout; unsigned[8] aclout;
+  unsigned[16] dcvout; unsigned[16] acvout;
+
+  //0008 0606 0706 0508
+  //0707 0709 0908 0a0c 140d 0c0b 0b0c 1912
+  //130f 141d 1a1f 1e1d 1a1c 1c20 242e 2720
+  //222c 231c 1c28 3729 2c30 3134 3434 1f27
+  //393d 3832 3c2e 3334 32
+
+#if 0
+  unsigned[64][9] QuantSteps =  {0x08,0x06,0x06,0x07,0x06,0x05,0x08,0x07,
+				 0x07,0x07,0x09,0x09,0x08,0x0a,0x0c,0x14,
+				 0x0d,0x0c,0x0b,0x0b,0x0c,0x19,0x12,0x13,
+				 0x0f,0x14,0x1d,0x1a,0x1f,0x1e,0x1d,0x1a,
+				 0x1c,0x1c,0x20,0x24,0x2e,0x27,0x20,0x22,
+				 0x2c,0x23,0x1c,0x1c,0x28,0x37,0x29,0x2c,
+				 0x30,0x31,0x34,0x34,0x34,0x1f,0x27,0x39,
+				 0x3d,0x38,0x32,0x3c,0x2e,0x33,0x34,0x32};
+#endif
+
+  // - Quantizer expansion factor
+  #define exfactor 8
+
+  #ifndef APPROX_DIV
+  // - if "jquant" uses real division "/",
+  //     then "QuantSteps" contains the quantizer steps "jquant" divides by;
+  //     each step will be scaled by "exfactor" inside "jquant".
+  unsigned[64][9] QuantSteps =  {16,17,17,18,23,13,19,25,
+				 25,16,18,29,27,33,24,31,
+				 36,37,34,31,19,27,39,50,
+				 41,52,63,28,17,45,60,61,
+				 66,57,48,20,33,55,59,68,
+				 81,49,21,20,51,86,64,56,
+				 35,32,56,64,56,20,22,48,
+				 52,31,22,35,20,15,16,8};
+
+  #else
+  // - if "jquant" uses approximate division by mult-and-right-shift,
+  //     then "QuantSteps" contains the quantizer step _inverses_
+  //     that "jquant" will multiply by, pre-scaled by "exfactor"
+  // - to match precision of original quantizer steps,
+  //     the inverse multipliers will be approx. 7 bits,
+  //     and right-shift will be 14 bits.
+  // - EC 6/29/03
+  #define QuantStepsShift 14
+//#define POWEROFSHIFT POWEROF2(QuantStepsShift)	// - slow to type-check
+  #define POWEROFSHIFT 0b100000000000000
+  #define INV(x) DIVCONSTS(POWEROFSHIFT,x*exfactor)
+  unsigned[64][9] QuantSteps =
+	{INV(16),INV(17),INV(17),INV(18),INV(23),INV(13),INV(19),INV(25),
+	 INV(25),INV(16),INV(18),INV(29),INV(27),INV(33),INV(24),INV(31),
+	 INV(36),INV(37),INV(34),INV(31),INV(19),INV(27),INV(39),INV(50),
+	 INV(41),INV(52),INV(63),INV(28),INV(17),INV(45),INV(60),INV(61),
+	 INV(66),INV(57),INV(48),INV(20),INV(33),INV(55),INV(59),INV(68),
+	 INV(81),INV(49),INV(21),INV(20),INV(51),INV(86),INV(64),INV(56),
+	 INV(35),INV(32),INV(56),INV(64),INV(56),INV(20),INV(22),INV(48),
+	 INV(52),INV(31),INV(22),INV(35),INV(20),INV(15),INV(16),INV( 8)};
+
+  #endif  // #ifndef APPROX_DIV
+
+  // DCT frontend
+  ISub(inA,inB,inC,inD,inE,inF,inG,inH,
+       outA,outB,outC,outD,outE,outF,outG,outH,4096);
+  //write_seg(outA,outB,outC,outD,outE,outF,outG,outH,
+  //    addrA,dataA,addrB,dataB,writeA,writeB,segReadAddr);
+  // transfers from DCT to segments
+
+  //segment_rw(16,6,64,segrwA,addrA,dctstream_0,dataA,writeA); 
+  //segment_rw(16,6,64,segrwB,addrB,dctstream_1,dataB,writeB);
+
+  // segments for holding transformed data
+  //zigzag(8,segReadAddr,4097); 
+
+  zigzag_(outA,outB,outC,outD,outE,outF,outG,outH,dctistream);
+
+  //muxer(dctstream_0,dctstream_1,dctistream);
+//jquant(dctistream,dctstream,8,       QuantSteps);
+  jquant(dctistream,dctstream,exfactor,QuantSteps);
+  JZLE(dctstream,DCind,ACind,plainlen,plainout,toMux);
+  repeater_a(DCind,DCind1,DCind2);
+  repeater_x(ACind,ACind1,ACind2);
+  segment_r(8,4,12,dcltab,DCind1,dclout); // Huffman table for DC lengths
+  segment_r(16,4,12,dcvtab,DCind2,dcvout); // Huffman table for DC values
+  segment_r(8,8,256,acltab,ACind1,aclout); // Huffman table for AC lengths
+  segment_r(16,8,256,acvtab,ACind2,acvout); // Huffman table for AC values
+  MixToHuff(toMux,plainlen,plainout,dclout,dcvout,aclout,acvout,bts,nbts);
+  HuffMachine(bts,nbts,prehout);
+  CheckZero(prehout,hout);
+
+}

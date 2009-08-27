@@ -1,0 +1,20 @@
+streamdepth (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  unsigned[16] x, y;
+  op1(a,x,y);		// emits    x but not y
+  op2(b,x,y,o);		// consumes x and y ... deadlocks
+}
+
+op1 (input unsigned[16] a,
+     output unsigned[16] x, output unsigned[16] y)
+{
+  state op1A(a) : x=a+1; goto op1B;
+  state op1B()  : x=a-1; goto op1A;
+}
+
+op2 (input  unsigned[16] b, input unsigned[16] x, input unsigned[16] y,
+     output unsigned[16] o)
+{
+  state op2A(b,x) : o=b+x; goto op2B;
+  state op2B(y)   : o=y+1; goto op2A;
+}

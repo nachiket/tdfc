@@ -1,0 +1,18 @@
+twomult_top
+	(input  unsigned[16] a, input  unsigned[16] b,
+	 output unsigned[16] c, 
+	 input  unsigned[16] x, input  unsigned[16] y,
+	 output unsigned[16] z)
+{
+  twomult(a,b,c,x,y,z);
+}
+
+
+twomult (input  unsigned[16] a, input  unsigned[16] b,
+	 output unsigned[16] c, 
+	 input  unsigned[16] x, input  unsigned[16] y,
+	 output unsigned[16] z)
+{
+  state abc (a,b) : c=a*b; goto xyz;
+  state xyz (x,y) : z=x*y; goto abc;
+}

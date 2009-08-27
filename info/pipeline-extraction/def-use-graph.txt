@@ -1,0 +1,66 @@
+list<Tree> Tree::deps
+list<Tree> Tree::uses
+
+Stmt:  uses = lvalue expressions that use assigned symbol
+       defs = rvalue
+
+Expr:  uses = parent stmt
+       defs = / value:   none
+              | lvalue:  assts of live defs, possibly in another state
+              \ other:   child exprs
+
+----
+
+StmtAssign	uses = ExprLValues that reference assigned symbol
+		defs = rhs
+
+StmtIf		uses = ???
+		defs = cond
+
+StmtGoto	uses = ???
+		defs = ???
+
+StmtBlock	uses = ???
+		defs = ???
+
+StmtCall	uses = ExprLValues that reference assigned symbols
+			(call outputs)
+		defs = args
+
+StmtBuiltin	(same as StmtCall)
+
+ExprValue	uses = parent expr/stmt
+		defs = none
+
+ExprLValue	uses = parent expr/stmt;
+			if in output call arg, then
+			ExprLValues that reference assigned symbol
+		defs = StmtAssign(s) that assign live value;
+		       ExprLValue in args of ExprCall/StmtCall/StmtBuiltin
+		         that assigns live value
+
+ExprCall	uses = ExprLValues that reference assigned symbols;
+			parent expr/stmt, if call has return value
+			(dichotomy b/w ExprCall as expr or parallel assignment)
+		defs = args
+
+ExprBuiltin	(same as ExprCall)
+
+ExprCond	uses = parent expr/stmt
+		defs = 3 args (t, f, c)
+
+ExprBop		uses = parent expr/stmt
+		defs = 2 args (l, r)
+
+ExprUop		uses = parent expr/stmt
+		defs = 1 arg
+		
+
+ExprCast	uses = parent expr/stmt
+		defs = 1 arg
+
+ExprArray	uses = parent expr/stmt  (are there any?)
+		defs = args
+
+ExprBitsel	uses = parent expr/stmt
+		defs = args  (data, low pos, high pos)

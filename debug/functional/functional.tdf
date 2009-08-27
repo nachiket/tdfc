@@ -1,0 +1,4 @@
+functional (input unsigned[8] i, output unsigned[8] o)
+{
+  state only (i) : o = i+i@1;
+}

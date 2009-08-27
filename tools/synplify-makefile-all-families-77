@@ -1,0 +1,80 @@
+# Makefile to run Synplify on all module families
+#   using script synplify-...-family
+#   (omit page queues, but include top/appl. queues)
+#
+# - Use this after verilog-reg-shells
+# - Use this inside "proj" directory
+# - Recursive, must be named "Makefile"
+#
+# - Synplify 7.7
+# - Eylon Caspi, 10/1/04
+
+# "make"       - build all modules
+# "make appl"  - build modules of application (top) composition
+# "make pages" - build modules of pages
+# "make smart" - build appl (-j 1) and pages (-j 2)
+
+################################################################
+
+TOOLPATH  = $(HOME)/brass/tdfc/tools
+SYNAPPL   = $(TOOLPATH)/synplify-pages-family-rev4
+SYNFAMILY = $(TOOLPATH)/synplify-pp1+dpq-family-rev4
+SYNREV    = synplify_pro -batch -impl rev_4__200mhz
+
+################################################################
+
+# All modules
+MODULES = $(notdir $(shell find . -mindepth 1 -maxdepth 1 -type d))
+
+# Modules without page queues
+MODULES_NOPAGEQ = $(filter-out _page_%_qin _page_%_qin_ior _page_%_q _page_%_q_ior,$(MODULES))
+
+# Modules _ior
+MODULES_IOR         = $(filter %_ior,$(MODULES))
+MODULES_IOR_NOPAGEQ = $(filter %_ior,$(MODULES_NOPAGEQ))
+
+# Module families
+FAMILIES = $(patsubst %_noin,%,$(filter %_noin,$(MODULES)))
+
+# TDF name of application (top) composition
+APPL1   = $(strip $(patsubst %_noin,%,\
+		  $(filter %_noin,     $(filter-out _page_%, $(MODULES)))))
+APPL2   = $(strip $(patsubst %_noin_ior,%,\
+		  $(filter %_noin_ior, $(filter-out _page_%, $(MODULES)))))
+APPL    = $(if $(APPL1),$(APPL1),$(APPL2))
+
+# Modules for application (top) composition
+FAMILIES_APPL = $(filter     $(APPL)%,$(FAMILIES))
+
+# Modules for pages
+FAMILIES_PAGE = $(filter-out $(APPL)%,$(FAMILIES))
+
+.PHONY:	families appl pages smart ior ior_nopageq $(FAMILIES) $(MODULES_IOR)
+
+all:	families ior_nopageq
+
+families:	$(FAMILIES)
+
+appl:	$(FAMILIES_APPL)
+
+pages:	$(FAMILIES_PAGE)
+
+smart:
+	$(MAKE) -j 1 appl
+	$(MAKE) -j 2 pages
+
+# $(FAMILIES):
+# 	echo $(SYNFAMILY) $@
+
+$(FAMILIES_APPL):
+	$(SYNAPPL) $@
+
+$(FAMILIES_PAGE):
+	$(SYNFAMILY) $@
+
+ior:	$(MODULES_IOR)
+
+ior_nopageq:	$(MODULES_IOR_NOPAGEQ)
+
+$(MODULES_IOR):
+	$(SYNREV) $@/*.prj

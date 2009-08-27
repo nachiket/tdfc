@@ -1,0 +1,13 @@
+#-- Synplicity, Inc.
+#-- Version 7.1        
+#-- Project file /home/cs/eylon/brass/tdfc/verilog/queues/proj/Q_fifo_bubl_test/proj_Q_fifo_bubl_test.prd
+#-- Written on Thu May  8 21:53:52 2003
+
+#
+### Watch Implementation type ###
+#
+watch_impl -active
+#
+### Watch Implementation properties ###
+#
+watch_prop -clear

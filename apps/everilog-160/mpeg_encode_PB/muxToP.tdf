@@ -1,0 +1,97 @@
+muxToP(param unsigned[10] noMB,
+       input unsigned[64] a, input unsigned[64] b, 
+       output unsigned[64] toP0, output unsigned[64] toP1)
+{
+
+  unsigned[10] index=0;
+  unsigned[10] macIndex=0;
+  unsigned[8] stat = 0;
+
+  state firstPic(a,b): { // wait these tokens out
+
+    index = index+1;
+    if (index == noMB*16) {
+      index = 0;
+      goto P0a;
+    }
+  }
+
+  state P0a(a): {
+    toP0 = a;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto P0b;
+    }
+  }
+
+  state P0b(b): {
+    toP0 = b;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0; stat = stat+1;
+	goto Palla;
+      } else {
+	goto P0a;
+      }
+    }
+  }
+
+  state P1a(a): {
+    toP1 = a;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto P1b;
+    }
+  }
+
+  state P1b(b): {
+    toP1 = b;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0; stat = stat+1;
+	goto Palla;
+      } else {
+	goto P1a;
+      }
+    }
+  }  
+    
+  state Palla(a): {
+    toP1 = a; toP0 = a;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto Pallb;
+    }
+  }
+
+  state Pallb(b): {
+    toP1 = b; toP0 = b;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0; stat = stat+1;
+	if (stat == 6) {
+	  stat = 0; goto P0a;
+	} else if (stat == 3) {
+	  goto P1a;
+	} else {
+	  goto Palla;
+	}
+      } else {
+	goto Palla;
+      }
+    }
+  }  
+
+}

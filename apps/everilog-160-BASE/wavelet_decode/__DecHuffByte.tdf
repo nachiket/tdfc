@@ -1,0 +1,146 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+
+
+// - x 1's,  x bits unsigned            (EC 6/13/03)
+// - x must be compile-time const
+#define ONES(x) bitsof((signed[x])(-1))
+
+// - b low bits of x,  b bits unsigned  (EC 6/13/03)
+// - b may be run-time variable, infers shifter
+#define LOW_BITS(x,b)  (~(ONES(widthof(x))<<(b))&(x))
+
+
+// tailored for decoding wavelet
+__DecHuffByte(param unsigned[8] tokenLen, input unsigned[tokenLen] filebyte,
+	    output unsigned[16] decSegAddr, output unsigned[8] decToken,
+	    input unsigned[8] segInput)
+
+{
+
+  unsigned[8] marker;
+  unsigned[8] hiMark;
+  unsigned[24] intermed;
+  unsigned[16] curraddr;
+  unsigned[16] currbits;
+
+  // tokenLen is assumed to be greater than 3
+
+  state start(filebyte): {
+    intermed = filebyte;
+    hiMark = tokenLen;
+    marker = 0;
+    goto startdec;
+  }
+
+  state middle(filebyte): {
+    unsigned[24] temp;
+    temp = intermed>>marker;
+    intermed = temp+(filebyte<<(hiMark-marker));
+    hiMark = hiMark-marker+tokenLen;
+    marker = 0;
+    goto startdec;
+  }
+
+  state middle_seg(filebyte): {
+    unsigned[24] temp;
+    temp = intermed>>marker;
+    intermed = temp+(filebyte<<(hiMark-marker));
+    hiMark = hiMark-marker+tokenLen;
+    marker = 0;
+    goto segdec;    
+  }
+
+  state startdec(): {
+
+    unsigned[8] val;
+    if ((hiMark-marker) < 3) {
+      goto middle;
+    } else {
+//    val = (1<<3) + intermed[(marker+2):(marker)];
+      val = 0b1000 + LOW_BITS(intermed>>marker,3);	    // (EC 6/13/03)
+      if (val == 8) {
+	decToken = 0;
+	marker = marker+3;
+      } else if (val == 12) {
+	decToken = 15;
+	marker = marker+3;
+      } else if (val == 11) {
+	decToken = 30;
+	marker = marker+3;
+      } else {
+	if ((hiMark-marker) < 4) {
+	  // marker = marker-3;
+	  goto middle;
+	} else {
+//	  val = (1<<4)  + intermed[(marker+3):(marker)];
+	  val = 0b10000 + LOW_BITS(intermed>>marker,4);     // (EC 6/13/03)
+	  marker = marker+4;
+	  if (val == 22) {
+	    decToken = 1;
+	  } else if (val == 17) {
+	    decToken = 16;
+	  } else if (val == 21) {
+	    decToken = 31;
+	  } else {
+	    curraddr = val;
+	    currbits = 4;
+	    goto segdec;
+	  }
+	}
+      }
+    }
+
+  }
+
+  state segdec(): {
+    unsigned[16] val;
+    if (marker == hiMark) {
+      goto middle_seg;
+    } else {
+      //val = (curraddr<<1) + intermed[marker];
+//    val = (1<<(currbits+1)) +
+//          ((intermed[marker])<<currbits) +
+//          curraddr[(currbits-1):0];
+      val = ( ((unsigned[widthof(val)])(1))                << (currbits+1) ) +
+	    ( ((unsigned[widthof(val)])(intermed[marker])) << currbits     ) +
+            LOW_BITS(curraddr,currbits);		    // (EC 6/13/03)
+      marker = marker+1;
+      currbits = currbits+1;
+      decSegAddr = val;
+      curraddr = val;
+      goto getSeg;
+    }
+  }
+
+  state getSeg(segInput): {
+    if (segInput == 255) {
+      goto segdec;
+    } else {
+      decToken = segInput;
+      goto startdec;
+    }
+  }
+
+}

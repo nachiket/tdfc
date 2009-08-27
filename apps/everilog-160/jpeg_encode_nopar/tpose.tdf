@@ -1,0 +1,149 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.4 $
+// $Date: 2000/12/15 01:11:35 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+tpose(param unsigned[8] inWidth, param signed[inWidth] offset,
+     input signed[inWidth] a0, input signed[inWidth] a1,
+     input signed[inWidth] a2, input signed[inWidth] a3,
+     input signed[inWidth] a4, input signed[inWidth] a5,
+     input signed[inWidth] a6, input signed[inWidth] a7,
+     output signed[inWidth] b0, output signed[inWidth] b1,
+     output signed[inWidth] b2, output signed[inWidth] b3,
+     output signed[inWidth] b4, output signed[inWidth] b5,
+     output signed[inWidth] b6, output signed[inWidth] b7)
+
+{
+
+  state init_0(a0): {
+    b0 = a0+offset;
+    goto init_1;
+  }
+
+  state init_1(a0,a1): {
+    b0 = a1; b1 = a0+offset;
+    goto init_2;
+  }
+
+  state init_2(a0,a1,a2): {
+    b0 = a2; b1 = a1; b2 = a0+offset;
+    goto init_3;
+  }
+
+  state init_3(a0,a1,a2,a3): {
+    b0 = a3; b1 = a2; b2 = a1; b3 = a0+offset;
+    goto init_4;
+  }
+
+  state init_4(a0,a1,a2,a3,a4): {
+    b0 = a4; b1 = a3; b2 = a2; b3 = a1; b4 = a0+offset;
+    goto init_5;
+  }
+
+  state init_5(a0,a1,a2,a3,a4,a5): {
+    b0 = a5; b1 = a4; b2 = a3; b3 = a2; b4 = a1; b5 = a0+offset;
+    goto init_6;
+  }
+
+  state init_6(a0,a1,a2,a3,a4,a5,a6): {
+    b0 = a6; b1 = a5; b2 = a4; b3 = a3; b4 = a2; b5 = a1; b6 = a0+offset;
+    goto st_7;
+  }
+
+  state st_0(a0,a1,a2,a3,a4,a5,a6,a7):  {
+    b0 = a0+offset;
+    b1 = a7; b2 = a6; b3 = a5; b4 = a4; b5 = a3; b6 = a2; b7 = a1;
+    goto st_1;
+  }
+  state st_0(eos(a0),a1,a2,a3,a4,a5,a6,a7): {
+    b1 = a7; b2 = a6; b3 = a5; b4 = a4; b5 = a3; b6 = a2; b7 = a1;
+    goto end_1;
+  }
+  state st_1(a0,a1,a2,a3,a4,a5,a6,a7):  { 
+    b0 = a1; b1 = a0+offset;
+    b2 = a7; b3 = a6; b4 = a5; b5 = a4; b6 = a3; b7 = a2;
+    goto st_2;
+  }
+  state st_2(a0,a1,a2,a3,a4,a5,a6,a7):  {
+    b0 = a2; b1 = a1; b2 = a0+offset;
+    b3 = a7; b4 = a6; b5 = a5; b6 = a4; b7 = a3;
+    goto st_3;
+  }
+  state st_3(a0,a1,a2,a3,a4,a5,a6,a7):  {
+    b0 = a3; b1 = a2; b2 = a1; b3 = a0+offset;
+    b4 = a7; b5 = a6; b6 = a5; b7 = a4;
+    goto st_4;
+  }
+  state st_4(a0,a1,a2,a3,a4,a5,a6,a7):  {
+    b0 = a4; b1 = a3; b2 = a2; b3 = a1; b4 = a0+offset;
+    b5 = a7; b6 = a6; b7 = a5;
+    goto st_5;
+  }
+  state st_5(a0,a1,a2,a3,a4,a5,a6,a7):  {
+    b0 = a5; b1 = a4; b2 = a3; b3 = a2; b4 = a1; b5 = a0+offset;
+    b6 = a7; b7 = a6;
+    goto st_6;
+  }
+  state st_6(a0,a1,a2,a3,a4,a5,a6,a7):  {
+    b0 = a6; b1 = a5; b2 = a4; b3 = a3; b4 = a2; b5 = a1; b6 = a0+offset;
+    b7 = a7;
+    goto st_7;
+  }
+  state st_7(a0,a1,a2,a3,a4,a5,a6,a7): {
+    b0 = a7; b1 = a6; b2 = a5; b3 = a4; b4 = a3; b5 = a2; b6 = a1; b7 = a0+offset;
+    goto st_0;
+  }
+
+  state end_1(a2,a3,a4,a5,a6,a7): {
+    b2 = a7; b3 = a6; b4 = a5; b5 = a4; b6 = a3; b7 = a2;
+    goto end_2;
+  }
+  
+  state end_2(a3,a4,a5,a6,a7): {
+    b3 = a7; b4 = a6; b5 = a5; b6 = a4; b7 = a3;
+    goto end_3;
+  }
+
+  state end_3(a4,a5,a6,a7): {
+    b4 = a7; b5 = a6; b6 = a5; b7 = a4;
+    goto end_4;
+  }
+
+  state end_4(a5,a6,a7): {
+    b5 = a7; b6 = a6; b7 = a5;
+    goto end_5;
+  }
+
+  state end_5(a6,a7): {
+    b6 = a7; b7 = a6;
+    goto end_6;
+  }
+
+  state end_6(a7): {
+    b7 = a7;
+  }
+  
+
+}

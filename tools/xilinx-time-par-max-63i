@@ -1,0 +1,19 @@
+# - Extract maximum Placer or Router completion time from ``par'' stdout
+#     (over repeated runs triggered by xilinx-makefile-63i)
+# - Xilinx ISE 6.3i
+# - Eylon Caspi, 4/26/05
+
+	perl -e 'while (<>) {						#\
+		   if (/^Total CPU time to Placer completion: +((\d+) days *)?((\d+) hrs *)?((\d+) mins *)?((\d+) secs)?/i) #\
+		     { $ptime=(((($2)*24+$4)*60+$6)*60+$8);		#\
+		       if ($maxtime==0 || $maxtime<$ptime)		#\
+					{ $maxtime=$ptime } }		#\
+		   if (/^Total CPU time to Router completion: +((\d+) days *)?((\d+) hrs *)?((\d+) mins *)?((\d+) secs)?/i) #\
+		     { $rtime=(((($2)*24+$4)*60+$6)*60+$8);		#\
+		       if ($maxtime==0 || $maxtime<$rtime)		#\
+					{ $maxtime=$rtime } }		#\
+		 }							#\
+		 print "$maxtime\n";'					#\
+		 $*
+
+#		 $< > $@

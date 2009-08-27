@@ -1,0 +1,29 @@
+Memory reduction
+----------------
+
+Types:
+  - compute + retain all types
+      * 80-90% memory in type subtrees
+  - compute on demand + retain, user clears
+      * retained during intense use / tree walks
+  - compute only on demand, but retain heavily-used items
+      * cache model, housekeeping overhead
+  - compute only on demand, GC deletes
+      * normal GC deletes later
+      * smart Type pointers delete when pointer out-of-scope
+	(requires normal GC for backup if pointer is copied)
+  - compute only on demand, user deletes
+      * user tree-walk computes type for n nodes requires n sub-walks
+
+GC:
+  - Tree base class records each node allocation
+  - "root set" includes gSuite, user-registered temps
+  - method
+      * mark+sweep:  mark root-set used, delete all unmarked allocations
+		     (transparent to user)
+      * stop+copy:   copy root-set, delete all old allocations
+		     (modifies gSuite + user temps)
+  - when to GC
+      * user trigger		(e.g. after each stage / each operator)
+      * on timer		(might lose user temps before registered)
+      * on timer with user lock	(prevent GC during critical/alloc sections)

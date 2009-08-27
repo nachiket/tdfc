@@ -1,0 +1,48 @@
+warning: preprocess compose.tdf...
+// operator compose
+// operator alt_compose
+// operator add8_3arg
+// operator add9_3arg
+// operator add8
+// operator add9
+
+compose (input unsigned[8] a, input unsigned[8] b, input unsigned[8] c, output unsigned[10] o)
+{
+  unsigned[9] d;
+
+  add8_3arg(a,b,d);
+  add9_3arg(c,d,o);
+}
+
+unsigned[10] alt_compose (input unsigned[8] a, input unsigned[8] b, input unsigned[8] c)
+{
+  alt_compose=add9(c,add8(a,b));
+}
+
+add8_3arg (input unsigned[8] a, input unsigned[8] b, output unsigned[9] o)
+{
+  state only (a,b) :
+    o=a+b;
+}
+
+add9_3arg (input unsigned[9] a, input unsigned[9] b, output unsigned[10] o)
+{
+  state only (a,b) :
+    o=a+b;
+}
+
+unsigned[9] add8 (input unsigned[8] a, input unsigned[8] b)
+{
+  state only (a,b) :
+    add8=a+b;
+}
+
+unsigned[10] add9 (input unsigned[9] a, input unsigned[9] b)
+{
+  state only (a,b) :
+    add9=a+b;
+}
+
+FOUND ASSIGNMENT TO RETURN VALUE OR OUTPUT0x9565660
+compose.tdf:13: at "=": Found non L-value assigned to an output stream
+warning: Exiting...

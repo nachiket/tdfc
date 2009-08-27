@@ -1,0 +1,59 @@
+----------------------------------------------------------------
+BASIC BLOCK ANALYSIS
+
+typedef list<Tree*> BasicBlock;		// - a basic block as list of
+					//     stmt, state headers
+
+class BasicBlocks {
+public:
+  OperatorBehavioral *op;		// - Associated operator
+  set<BasicBlock*> bblocks;		// - BBs, stored on heap
+  BasicBlock *start, *end;		// - Start + end BB
+  map<Tree*,BasicBlock*> bb_of;		// - Map stmt/state to its BB
+  graph<BasicBlock*,Stmt*> bbfg;	// - BB flow graph,
+  					//     node=BB, edge=goto or nil
+  graph<BasicBlock*> dominators;	// - Dominators graph
+  
+  BasicBlocks (Operator *op_i) : ...
+  ~BasicBlocks () ...
+  BasicBlock *BB_of (Tree *t) { return bb_of[t]; }
+  void buildBasicBlockFlowGraph () ...
+  void buildDominatorsGraph () ...
+  bool dominates(BasicBlock *bb1, BasicBlock *bb2);
+}
+
+Conventions for BBFG:
+ - 1 start node
+ - 1 end node, or nil
+      (construct super-sink end state; every "done" is "goto end")
+ - if-then-else induces
+     (1) condition check at end of some BB
+     (2) branch to true/false BBs
+     (3) join/continue BB, even if empty
+           (used as a place-holder for adding stmts at end of a state)
+ - state w/multiple state-cases induces
+     (1) state entry place-holder  (node points to *State)
+     (2) non-deterministic branch to state-cases
+     (3) no join BB
+
+
+----------------------------------------------------------------
+PIPELINE EXTRACTION
+
+Pipeline extraction to-do:
+ - build basic blocks
+ - build dominators
+ - build def-use chains
+ - extract output pipelines  (modify original; build composition)
+ - extract input pipelines   (modify original; build composition)
+ - flatten
+ - merge pipelines
+
+
+ - if do pipeline extraction before const folding, then
+     (1) fast, do once for all instances
+     (2) may create empty/const pipelines during const folding
+
+ - if do pipeline extraction after const folding, then
+     (1) eliminate const-condition if-then-else
+     (2) avoid empty pipelines

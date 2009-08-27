@@ -1,0 +1,329 @@
+// ADPCM encoder (16-->4)
+// Adapted from UCLA MediaBench Intel/DVI ADPCM encoder
+// Based on CS262 project code (Eylon Caspi, 11/23/98)
+//
+// Eylon Caspi, 3/13/00
+//
+// 8 pages, ~35-slow
+
+
+DiffSign (input  unsigned[16] inVal,
+	  input  unsigned[16] inValPred,
+	  output unsigned[16] outDiff,
+	  output boolean      outSign_ValPred,
+	  output boolean      outSign_MuxNibbles)
+{
+  // betweenFirings(2);
+  // betweenOutputs(6);
+
+  state fire   (inVal,inValPred):	goto delay1;
+  state delay1 ():			goto delay2;
+  state delay2 ():			goto delay3;
+  state delay3 ():			goto delay4;
+  state delay4 ():			goto delay5;
+  state delay5 ():
+  {
+    signed[17] diff = inVal-inValPred;
+    if (diff>0)
+    {
+      {
+	// outDiff=(unsigned[16])bitsof(diff);
+        unsigned[17] tmp=bitsof(diff);
+        outDiff=tmp[15:0];
+      }
+      outSign_ValPred=false;
+      outSign_MuxNibbles=false;
+    }
+    else
+    {
+      {
+        // outDiff=(unsigned[16])bitsof(-diff);
+	unsigned[17] tmp=bitsof(-diff);
+        outDiff=tmp[15:0];
+      }
+      outSign_ValPred=true;
+      outSign_MuxNibbles=true;
+    }
+    if (inVal==0x7fff)
+      done();
+  }
+}
+
+
+DivMul2 (input  unsigned[16] inDiff,
+	 input  unsigned[8]  inStep,
+	 output boolean      outDelta2_MuxNibbles,
+	 output boolean      outDelta2_Index,
+	 output unsigned[16] outDiffReduced2,
+	 output unsigned[16] outStepZeroed2)
+{
+  // betweenFirings(2);
+  // betweenOutputs(6);
+
+  state fire   (inDiff,inStep):		goto delay1;
+  state delay1 ():			goto delay2;
+  state delay2 ():			goto delay3;
+  state delay3 ():			goto delay4;
+  state delay4 ():			goto delay5;
+  state delay5 ():
+  {
+    unsigned[17] diffReduced2 = inDiff-inStep;
+    if (diffReduced2>=0)
+    {
+      outDelta2_MuxNibbles=true;
+      outDelta2_Index=true;
+      {
+	// outDiffReduced2=(unsigned[16])bitsof(diffReduced2);
+        unsigned[17] tmp=bitsof(diffReduced2);
+	outDiffReduced2=tmp[15:0];
+      }
+      outStepZeroed2=inStep;
+    }
+    else {
+      outDelta2_MuxNibbles=false;
+      outDelta2_Index=false;
+      outDiffReduced2=inDiff;
+      outStepZeroed2=0;
+    }
+  }
+}
+
+
+DivMul1 (input  unsigned[16] inDiffReduced2,
+	 input  unsigned[16] inStepZeroed2,
+	 input  unsigned[8]  inStep,
+	 output boolean      outDelta1_MuxNibbles,
+	 output boolean      outDelta1_Index,
+	 output unsigned[16] outDiffReduced1,
+	 output unsigned[16] outStepZeroed1,
+	 output unsigned[16] outVPDiff1)
+{
+  // betweenFirings(2);
+  // betweenOutputs(6);
+
+  state fire (inDiffReduced2,inStepZeroed2,inStep):
+					goto delay1;
+  state delay1 ():			goto delay2;
+  state delay2 ():			goto delay3;
+  state delay3 ():			goto delay4;
+  state delay4 ():			goto delay5;
+  state delay5 ():
+  {
+    signed[17]   diffReduced1 = inDiffReduced2 - (inStep>>1);
+    if (diffReduced1>=0)
+    {
+      outDelta1_MuxNibbles=true;
+      outDelta1_Index=true;
+      {
+	// outDiffReduced1=(unsigned[16])bitsof(diffReduced1);
+	unsigned[17] tmp=bitsof(diffReduced1);
+	outDiffReduced1=tmp[15:0];
+      }
+      outStepZeroed1=(inStep>>1);
+    }
+    else
+    {
+      outDelta1_MuxNibbles=false;
+      outDelta1_Index=false;
+      {
+	// outDiffReduced1=bitsof(diffReduced1);	// ?! switch sign ?!
+        unsigned[17] tmp=bitsof(diffReduced1);
+	outDiffReduced1=tmp[15:0];
+      }
+      outStepZeroed1=0;
+    }
+    outVPDiff1 = (inStep>>3)+inStepZeroed2;
+  }
+}
+
+
+DivMul0 (input  unsigned[16] inDiffReduced1,
+	 input  unsigned[16] inStepZeroed1,
+	 input  unsigned[8]  inStep,
+	 input  unsigned[16] inVPDiff1,
+	 output boolean      outDelta0_MuxNibbles,
+	 output boolean      outDelta0_Index,
+	 output unsigned[16] outVPDiffAbs)
+{
+  // betweenFirings(2);
+  // betweenOutputs(9);
+
+  state fire (inDiffReduced1,inStepZeroed1,inStep,inVPDiff1):
+					goto delay1;
+  state delay1 ():			goto delay2;
+  state delay2 ():			goto delay3;
+  state delay3 ():			goto delay4;
+  state delay4 ():			goto delay5;
+  state delay5 ():			goto delay6;
+  state delay6 ():			goto delay7;
+  state delay7 ():			goto delay8;
+  state delay8 ():
+  {
+    unsigned[17] VPDiff0 = inVPDiff1 + inStepZeroed1;
+    signed[17]   diffReduced0 = inDiffReduced1 - (inStep>>2);
+    unsigned[16] stepZeroed0;
+    if (diffReduced0>=0)
+    {
+      outDelta0_MuxNibbles=true;
+      outDelta0_Index=true;
+      stepZeroed0 = inStep>>2;
+    }
+    else {
+      outDelta0_MuxNibbles=false;
+      outDelta0_Index=false;
+      stepZeroed0=0;
+    }
+    {
+      // outVPDiffAbs=(unsigned[16])(VPDiff0+stepZeroed0);
+      unsigned[18] tmp=bitsof(VPDiff0+stepZeroed0);
+      outVPDiffAbs=tmp[15:0];
+    }
+  }
+}
+
+
+ValPredUpdate (input  unsigned[16] inVPDiffAbs,
+	       input  boolean      inSign,
+	       output unsigned[16] outValPred)
+{
+  // betweenFirings(8);
+  // betweenFirings(8);
+
+  unsigned[16] valPred=0;
+
+  state fire   (inVPDiffAbs,inSign):	goto delay1;
+  state delay1 ():			goto delay2;
+  state delay2 ():			goto delay3;
+  state delay3 ():			goto delay4;
+  state delay4 ():			goto delay5;
+  state delay5 ():			goto delay6;
+  state delay6 ():			goto delay7;
+  state delay7 ():
+  {
+    signed[17] VPDiff = inSign?(-inVPDiffAbs):inVPDiffAbs;
+    signed[17] valPredTmp = valPred + VPDiff + (inSign?1:0);
+    if (valPredTmp<-32768)
+      valPred = -32768;
+    else if (valPredTmp>32767)
+      valPred = 32767;
+    else
+      valPred = valPredTmp;
+    outValPred=valPred;
+  }
+}
+
+
+IndexOffsetTable (input  unsigned[7] inIndex,
+		  input  boolean     inDelta2,
+		  input  boolean     inDelta1,
+		  input  boolean     inDelta0,
+		  output unsigned[7] outIndex_Index,
+		  output unsigned[7] outIndex_StepTable)
+{
+  // private static int indexOffset[] = {-1, -1, -1, -1, 2, 4, 6, 8};
+  // betweenFirings(1);
+  // betweenOutputs(7);
+
+  state fire   (inIndex,inDelta2,inDelta1,inDelta0):	goto delay1;
+  state delay1 ():					goto delay2;
+  state delay2 ():					goto delay3;
+  state delay3 ():					goto delay4;
+  state delay4 ():					goto delay5;
+  state delay5 ():					goto delay6;
+  state delay6 ():
+  {
+    // unsigned[3] delta = cat(inDelta2,inDelta1,inDelta0);
+    signed[5] indexOffset = inDelta2 ? (inDelta1 ? (inDelta0 ? 8 : 6)
+						 : (inDelta0 ? 4 : 2)) : -1;
+    signed[8] newIndex    = inIndex + indexOffset;
+    signed[8] newIndexM88 = newIndex - 88;
+    unsigned[7] outIndex  = (inIndex<0) ? 0 :
+			    (newIndexM88<88) ? 88 :
+			    bitsof(newIndex);
+    outIndex_Index=outIndex;
+    outIndex_StepTable=outIndex;
+  }
+}
+
+
+MuxNibbles (input  boolean inSign,
+	    input  boolean inDelta2,
+	    input  boolean inDelta1,
+	    input  boolean inDelta0,
+	    output unsigned[4] outAdpcmEnc)
+{
+  // betweenFirings(1);
+  // betweenOutputs(1);
+
+  state fire (inSign,inDelta2,inDelta1,inDelta0):
+  {
+    outAdpcmEnc = cat(inSign?1:0, inDelta2?1:0, inDelta1?1:0, inDelta0?1:0);
+  }
+}
+
+
+AdpcmEnc (input  unsigned[16] inAdpcmEnc,
+	  output unsigned[4]  outAdpcmEnc)
+{
+  unsigned[88][16] stepTable =
+    { 7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
+      19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
+      50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
+      130, 143, 157, 173, 190, 209, 230, 253, 279, 307,
+      337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
+      876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066,
+      2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358,
+      5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
+      15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
+    };
+
+  unsigned[16] outStep;
+  unsigned[16] outDiff;
+  boolean      outSign_ValPred;
+  boolean      outSign_MuxNibbles;
+  boolean      outDelta2_MuxNibbles;
+  boolean      outDelta2_Index;
+  unsigned[16] outDiffReduced2;
+  unsigned[16] outStepZeroed2;
+  boolean      outDelta1_MuxNibbles;
+  boolean      outDelta1_Index;
+  unsigned[16] outDiffReduced1;
+  unsigned[16] outStepZeroed1;
+  unsigned[16] outVPDiff1;
+  boolean      outDelta0_MuxNibbles;
+  boolean      outDelta0_Index;
+  unsigned[16] outVPDiffAbs;
+  unsigned[16] outValPred;
+  unsigned[7]  outIndex_Index;
+  unsigned[7]  outIndex_StepTable;
+
+  // segment_seq_r(5,18,16,srcArray, srcData);
+  // segment_seq_w(5,18,4 ,sinkArray,outAdpcmEnc);
+  segment_r(7,88,16,stepTable,outIndex_StepTable,outStep);
+
+  DiffSign(/*in */ inAdpcmEnc,outValPred,
+	   /*out*/ outDiff,outSign_ValPred,outSign_MuxNibbles);
+
+  DivMul2(/*in */ outDiff,outStep,
+	  /*out*/ outDelta2_MuxNibbles,outDelta2_Index,
+		  outDiffReduced2,outStepZeroed2);
+
+  DivMul1(/*in */ outDiffReduced2,outStepZeroed2,outStep,
+	  /*out*/ outDelta1_MuxNibbles,outDelta1_Index,
+		  outDiffReduced1,outStepZeroed1,outVPDiff1);
+
+  DivMul0(/*in */ outDiffReduced1,outStepZeroed1,outStep,outVPDiff1,
+	  /*out*/ outDelta0_MuxNibbles,outDelta0_Index,
+		  outVPDiffAbs);
+
+  ValPredUpdate(/*in */ outVPDiffAbs,outSign_ValPred,
+		/*out*/ outValPred);
+
+  IndexOffsetTable(/*in */ outIndex_Index,outDelta2_Index,
+			   outDelta1_Index,outDelta0_Index,
+		   /*out*/ outIndex_Index,outIndex_StepTable);
+
+  MuxNibbles(/*in */ outSign_MuxNibbles,outDelta2_MuxNibbles,
+		     outDelta1_MuxNibbles,outDelta0_MuxNibbles,
+	     /*out*/ outAdpcmEnc);
+}

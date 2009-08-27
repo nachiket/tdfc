@@ -1,0 +1,85 @@
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+
+
+DecWaveH(param unsigned[10] rowLen, param unsigned[8] inWidth, 
+	 param unsigned[8] outWidth, 
+	 output signed[outWidth] a, input signed[inWidth] s,
+	 input signed[inWidth] d)
+
+{
+
+  unsigned[20] count = 0;
+  signed[outWidth] stemp1 = 0;
+  signed[outWidth] stemp2 = 0;
+
+  // a is alternately s and d in decomp.c
+
+  // first two lines outside of loop in decomp.c
+  state start(s,d):
+    {
+      a = s - (d/4);
+      stemp2 = s - (d/4); 
+      goto init;
+    }
+
+  state init(s,d):
+    {
+      stemp1 = s -((d@1+d)/8); // must wait for first d output
+      count = 2;
+      goto middle01;
+    }
+  //
+
+  state middle01():
+    {
+      a = (d@2+stemp1+stemp2)/2;
+      if (count == (rowLen/2)) {goto final01;}
+      else {goto middle02;}
+    }
+
+  state middle02(s,d):
+    {
+	a = stemp1;
+	stemp2 = stemp1;
+	stemp1 = s-((d@1+d)/8);
+	count = count+1;
+	goto middle01;
+    }
+
+  state final01():
+      {
+	a = stemp1;
+	stemp2 = stemp1;
+	goto final02;
+      }
+
+  state final02():
+      {
+	a = (d@2+stemp2+stemp2)/2;
+	goto start;
+      }
+
+}

@@ -1,0 +1,12 @@
+myOp (input boolean b)
+{
+  state first(b):
+    goto first;
+    goto second;
+    stay;
+
+  state second(b):
+    goto first;
+    goto second;
+    stay;
+}

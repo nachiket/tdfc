@@ -1,0 +1,221 @@
+name JPEG_dec
+name illm_d1_ScOrEtMp101	totDF+reg_area 3165	tot extr_area 3165	tot_unextracted 0
+name tpose_d1_ScOrEtMp102	totDF+reg_area 1136	tot extr_area 1136	tot_unextracted 0
+name illm_d1_ScOrEtMp103	totDF+reg_area 3165	tot extr_area 3165	tot_unextracted 0
+name bl_d1_ScOrEtMp104		totDF+reg_area 216	tot extr_area 216	tot_unextracted 0
+name distrib_d1_ScOrEtMp105	totDF+reg_area 256	tot extr_area 152	tot_unextracted 104
+name read_seg_d1_ScOrEtMp106	totDF+reg_area 141	tot extr_area 14	tot_unextracted 127
+name zigzag_d1_ScOrEtMp107	totDF+reg_area 310	tot extr_area 49	tot_unextracted 261
+name demuxer_d1_ScOrEtMp108	totDF+reg_area 72	tot extr_area 48	tot_unextracted 24
+name jdquant_noinline_d1_ScOrEt totDF+reg_area 305	tot extr_area 200	tot_unextracted 105
+name DecJPEGHuff_d1_ScOrEtMp113	totDF+reg_area 1559	tot extr_area 212	tot_unextracted 1347
+name ftabmod_noinline_d1_ScOrE  totDF+reg_area 168	tot extr_area 40	tot_unextracted 128
+name total			tot_area 10493	extr_area 8397	total unex 2096
+
+
+name JPEG_mod
+name fllm_d1_ScOrEtMp87		totDF+reg_area 1673	tot extr_area 1673	tot_unextracted 0
+name tpose_d1_ScOrEtMp88	totDF+reg_area 1136	tot extr_area 1136	tot_unextracted 0
+name fllm_d1_ScOrEtMp89		totDF+reg_area 2548	tot extr_area 2548	tot_unextracted 0
+name write_seg_d1_ScOrEtMp90	totDF+reg_area 470	tot extr_area 238	tot_unextracted 232
+name zigzag_d1_ScOrEtMp91	totDF+reg_area 310	tot extr_area 49	tot_unextracted 261
+name muxer_d1_ScOrEtMp92	totDF+reg_area 72	tot extr_area 16	tot_unextracted 56
+name jquant_noinline_d1_ScOr	totDF+reg_area 441	tot extr_area 328	tot_unextracted 113
+name JZLE_d1_ScOrEtMp97		totDF+reg_area 1558	tot extr_area 404	tot_unextracted 1154
+name repeater_d1_ScOrEtMp98	totDF+reg_area 0	tot extr_area 0	tot_unextracted 0
+name MixToHuff_d1_ScOrEtMp99	totDF+reg_area 84	tot extr_area 84	tot_unextracted 0
+name HuffMachine_d1_ScOrEtMp100	totDF+reg_area 528	tot extr_area 176	tot_unextracted 352
+name CheckZero_d1_ScOrEtMp101	totDF+reg_area 16	tot extr_area 16	tot_unextracted 0
+name total			tot_area 8836	extr_area 6668	total unex 2168
+
+
+name IModule
+name convsign_d1_ScOrEtMp228	totDF+reg_area 72	tot extr_area 72	tot_unextracted 0
+name convsign_d1_ScOrEtMp229	totDF+reg_area 72	tot extr_area 72	tot_unextracted 0
+name muxtoDCT_d1_ScOrEtMp230	totDF+reg_area 261	tot extr_area 197	tot_unextracted 64
+name add_array_d1_ScOrEtMp279	totDF+reg_area 152	tot extr_area 152	tot_unextracted 0
+name add_array2_d1_ScOrEtMp280	totDF+reg_area 44	tot extr_area 44	tot_unextracted 0
+name mult_054_076_d1_ScOrEtM	totDF+reg_area 156	tot extr_area 156	tot_unextracted 0
+name mult_184_117_d1_ScOrEtMp2	totDF+reg_area 276	tot extr_area 276	tot_unextracted 0
+name inter_add_d1_ScOrEtMp283	totDF+reg_area 118	tot extr_area 118	tot_unextracted 0
+name mult_029_205_d1_ScOrEtM	totDF+reg_area 135	tot extr_area 135	tot_unextracted 0
+name mult_307_150_d1_ScOrEtMp28	totDF+reg_area 145	tot extr_area 145	tot_unextracted 0
+name mult_089_256_d1_ScOrEtMp28	totDF+reg_area 175	tot extr_area 175	tot_unextracted 0
+name mult_196_039_d1_ScOrEtMp28	totDF+reg_area 165	tot extr_area 165	tot_unextracted 0
+name last_array_d1_ScOrEtMp288	totDF+reg_area 418	tot extr_area 418	tot_unextracted 0
+name tpose_d1_ScOrEtMp289	totDF+reg_area 3014	tot extr_area 916	tot_unextracted 2098
+name add_array_d1_ScOrEtMp321	totDF+reg_area 264	tot extr_area 264	tot_unextracted 0
+name add_array2_d1_ScOrEtMp322	totDF+reg_area 72	tot extr_area 72	tot_unextracted 0
+name mult_054_076_d1_ScOrEtMp32	totDF+reg_area 246	tot extr_area 246	tot_unextracted 0
+name mult_184_117_d1_ScOrEtMp32	totDF+reg_area 437	tot extr_area 437	tot_unextracted 0
+name inter_add_d1_ScOrEtMp325	totDF+reg_area 146	tot extr_area 146	tot_unextracted 0
+name mult_029_205_d1_ScOrEtMp32	totDF+reg_area 229	tot extr_area 229	tot_unextracted 0
+name mult_307_150_d1_ScOrEtMp3	totDF+reg_area 246	tot extr_area 246	tot_unextracted 0
+name mult_089_256_d1_ScOrEtMp3	totDF+reg_area 288	tot extr_area 288	tot_unextracted 0
+name mult_196_039_d1_ScOrEtMp3	totDF+reg_area 270	tot extr_area 270	tot_unextracted 0
+name last_array_d1_ScOrEtMp330	totDF+reg_area 516	tot extr_area 516	tot_unextracted 0
+name write_seg_d1_ScOrEtMp331	totDF+reg_area 477	tot extr_area 238	tot_unextracted 239
+name zigzag_d1_ScOrEtMp332	totDF+reg_area 318	tot extr_area 49	tot_unextracted 269
+name muxer_d1_ScOrEtMp333	totDF+reg_area 72	tot extr_area 16	tot_unextracted 56
+name mquant_noinline_d1_ScOrEt	totDF+reg_area 943	tot extr_area 675	tot_unextracted 268
+name MZLE_d1_ScOrEtMp338	totDF+reg_area 1787	tot extr_area 636	tot_unextracted 1151
+name repeater_d1_ScOrEtMp339	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name repeater_d1_ScOrEtMp340	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name repeater_d1_ScOrEtMp341	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name MixToHuff_d1_ScOrEtMp342	totDF+reg_area 311	tot extr_area 263	tot_unextracted 48
+name HuffMachine_d1_ScOrEtMp343	totDF+reg_area 984	tot extr_area 352	tot_unextracted 632
+name total	tot_area 12809	extr_area 7984	total unex 4825
+
+
+name muxCodeRef_d1_ScOrEtMp0	totDF+reg_area 332	tot extr_area 212	tot_unextracted 120
+name total	tot_area 332	extr_area 212	total unex 120
+
+
+name muxReforEst_d1_ScOrEtMp0	totDF+reg_area 160	tot extr_area 112	tot_unextracted 48
+name total	tot_area 160	extr_area 112	total unex 48
+
+
+name PModule
+name prepeat2_d1_ScOrEtMp342	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name prepeat2_d1_ScOrEtMp343	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name prepeat2_d1_ScOrEtMp344	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name prepeat2_d1_ScOrEtMp345	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp621	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp622	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp623	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp624	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp625	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp626	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp627	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp628	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp629	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp630	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp631	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp632	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp633	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp634	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp635	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name rep16_d1_ScOrEtMp636	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name proc_end_d1_ScOrEtMp637	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp638	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp639	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp640	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp641	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp642	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp643	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp644	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp645	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp646	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp647	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp648	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp649	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp650	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp651	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name proc_end_d1_ScOrEtMp652	totDF+reg_area 1376	tot extr_area 194	tot_unextracted 1182
+name choose8_d1_ScOrEtMp653	totDF+reg_area 554	tot extr_area 148	tot_unextracted 406
+name error_cmp_d1_ScOrEtMp654	totDF+reg_area 114	tot extr_area 50	tot_unextracted 64
+name motTrunc_d1_ScOrEtMp655	totDF+reg_area 165	tot extr_area 36	tot_unextracted 129
+name sumi_d1_ScOrEtMp656	totDF+reg_area 526	tot extr_area 178	tot_unextracted 348
+name pmode_d1_ScOrEtMp657	totDF+reg_area 21	tot extr_area 21	tot_unextracted 0
+name total			tot_area 23396	extr_area 3537	total unex 19859
+
+
+name repeat_motion_d1_ScOrEtMp0	totDF+reg_area 110	tot extr_area 80	tot_unextracted 30
+name total			tot_area 110	extr_area 80	total unex 30
+
+
+name repeatTar
+name repeatTar_noinline_d1_ScO	totDF+reg_area 800	tot extr_area 696	tot_unextracted 104
+name total			tot_area 800	extr_area 696	total unex 104
+
+
+name segc_bank
+name segc_manage_d1_ScOrEtMp48	totDF+reg_area 2347	tot extr_area 1501	tot_unextracted 846
+name segrep_d1_ScOrEtMp49	totDF+reg_area 705	tot extr_area 705	tot_unextracted 0
+name chrom_add_d1_ScOrEtMp50	totDF+reg_area 304	tot extr_area 64	tot_unextracted 240
+name chrom_add_d1_ScOrEtMp51	totDF+reg_area 304	tot extr_area 64	tot_unextracted 240
+name unify_d1_ScOrEtMp52	totDF+reg_area 5159	tot extr_area 4623	tot_unextracted 536
+name total			tot_area 8819	extr_area 6957	total unex 1862
+
+
+name segy_bank
+name seg_manage_d1_ScOrEtMp39	totDF+reg_area 1465	tot extr_area 759	tot_unextracted 706
+name segrep_d1_ScOrEtMp40	totDF+reg_area 705	tot extr_area 705	tot_unextracted 0
+name unify_d1_ScOrEtMp41	totDF+reg_area 5159	tot extr_area 4623	tot_unextracted 536
+name total			tot_area 7329	extr_area 6087	total unex 1242
+
+
+name segy_mref
+name segRefManage_d1_ScOrEtMp40	totDF+reg_area 995	tot extr_area 746	tot_unextracted 249
+name segrep_d1_ScOrEtMp41	totDF+reg_area 705	tot extr_area 705	tot_unextracted 0
+name unifyc_d1_ScOrEtMp42	totDF+reg_area 559	tot extr_area 535	tot_unextracted 24
+name total			tot_area 2259	extr_area 1986	total unex 273
+
+
+name switchoff8_d1_ScOrEtMp0	totDF+reg_area 289	tot extr_area 176	tot_unextracted 113
+name total	tot_area 289	extr_area 176	total unex 113
+
+
+name switchoff8s_d1_ScOrEtMp0	totDF+reg_area 144	tot extr_area 96	tot_unextracted 48
+name total	tot_area 144	extr_area 96	total unex 48
+
+
+name compDecoder
+name DecWaveHD_d1_ScOrEtMp60	totDF+reg_area 144	tot extr_area 36	tot_unextracted 108
+name DecWaveVD_d1_ScOrEtMp61	totDF+reg_area 558	tot extr_area 112	tot_unextracted 446
+name DecWaveH_d1_ScOrEtMp62	totDF+reg_area 332	tot extr_area 110	tot_unextracted 222
+name DecWaveV_d1_ScOrEtMp63	totDF+reg_area 587	tot extr_area 243	tot_unextracted 344
+name DecWaveV_d1_ScOrEtMp64	totDF+reg_area 587	tot extr_area 243	tot_unextracted 344
+name DecWaveH_d1_ScOrEtMp65	totDF+reg_area 336	tot extr_area 114	tot_unextracted 222
+name DecWaveV_d1_ScOrEtMp66	totDF+reg_area 587	tot extr_area 243	tot_unextracted 344
+name DecWaveV_d1_ScOrEtMp67	totDF+reg_area 587	tot extr_area 243	tot_unextracted 344
+name DQuant_DC_d1_ScOrEtMp68	totDF+reg_area 78	tot extr_area 61	tot_unextracted 17
+name DQuant_d1_ScOrEtMp69	totDF+reg_area 432	tot extr_area 95	tot_unextracted 337
+name DQuant_d1_ScOrEtMp70	totDF+reg_area 432	tot extr_area 95	tot_unextracted 337
+name DQuant_d1_ScOrEtMp71	totDF+reg_area 432	tot extr_area 95	tot_unextracted 337
+name DQuant_d1_ScOrEtMp72	totDF+reg_area 432	tot extr_area 95	tot_unextracted 337
+name DQuant_d1_ScOrEtMp73	totDF+reg_area 432	tot extr_area 95	tot_unextracted 337
+name DQuant_d1_ScOrEtMp74	totDF+reg_area 432	tot extr_area 95	tot_unextracted 337
+name __DZLE_d1_ScOrEtMp75	totDF+reg_area 205	tot extr_area 21	tot_unextracted 184
+name __DZLE_d1_ScOrEtMp76	totDF+reg_area 205	tot extr_area 21	tot_unextracted 184
+name __DZLE_d1_ScOrEtMp77	totDF+reg_area 205	tot extr_area 21	tot_unextracted 184
+name __DZLE_d1_ScOrEtMp78	totDF+reg_area 205	tot extr_area 21	tot_unextracted 184
+name __DZLE_d1_ScOrEtMp79	totDF+reg_area 205	tot extr_area 21	tot_unextracted 184
+name __DZLE_d1_ScOrEtMp80	totDF+reg_area 205	tot extr_area 21	tot_unextracted 184
+
+
+
+name compWaveHuff
+name LiftWaveHD_d1_ScOrEtMp54	totDF+reg_area 355	tot extr_area 98	tot_unextracted 257
+name InWave_d1_ScOrEtMp60	totDF+reg_area 336	tot extr_area 156	tot_unextracted 180
+name VWave_d1_ScOrEtMp61	totDF+reg_area 449	tot extr_area 301	tot_unextracted 148
+name LiftWaveH_d1_ScOrEtMp62	totDF+reg_area 459	tot extr_area 138	tot_unextracted 321
+name InWave_d1_ScOrEtMp69	totDF+reg_area 348	tot extr_area 168	tot_unextracted 180
+name VWave_d1_ScOrEtMp70	totDF+reg_area 483	tot extr_area 331	tot_unextracted 152
+name repWave_d1_ScOrEtMp71	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name InWave_d1_ScOrEtMp78	totDF+reg_area 348	tot extr_area 168	tot_unextracted 180
+name VWave_d1_ScOrEtMp79	totDF+reg_area 483	tot extr_area 331	tot_unextracted 152
+name repWave_d1_ScOrEtMp80	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name LiftWaveH_d1_ScOrEtMp81	totDF+reg_area 459	tot extr_area 138	tot_unextracted 321
+name InWave_d1_ScOrEtMp88	totDF+reg_area 348	tot extr_area 168	tot_unextracted 180
+name VWave_d1_ScOrEtMp89	totDF+reg_area 483	tot extr_area 331	tot_unextracted 152
+name repWave_d1_ScOrEtMp90	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name InWave_d1_ScOrEtMp97	totDF+reg_area 348	tot extr_area 168	tot_unextracted 180
+name VWave_d1_ScOrEtMp98	totDF+reg_area 483	tot extr_area 331	tot_unextracted 152
+name repWave_d1_ScOrEtMp99	totDF+reg_area 0	tot extr_area 0		tot_unextracted 0
+name Quant_DC_d1_ScOrEtMp100	totDF+reg_area 140	tot extr_area 72	tot_unextracted 68
+name __Quant_ZLE_d1_ScOrEtMp101	totDF+reg_area 1162	tot extr_area 848	tot_unextracted 314
+name __Quant_ZLE_d1_ScOrEtMp102	totDF+reg_area 1162	tot extr_area 848	tot_unextracted 314
+name __Quant_ZLE_d1_ScOrEtMp103	totDF+reg_area 1162	tot extr_area 848	tot_unextracted 314
+name __Quant_ZLE_d1_ScOrEtMp104	totDF+reg_area 1162	tot extr_area 848	tot_unextracted 314
+name __Quant_ZLE_d1_ScOrEtMp105	totDF+reg_area 1162	tot extr_area 848	tot_unextracted 314
+name __Quant_ZLE_d1_ScOrEtMp106	totDF+reg_area 1162	tot extr_area 848	tot_unextracted 314
+name __HuffMachine_d1_ScOrE	totDF+reg_area 388	tot extr_area 120	tot_unextracted 268
+name __HuffMachine_d1_ScOrEt	totDF+reg_area 388	tot extr_area 120	tot_unextracted 268
+name __HuffMachine_d1_ScOrEtM	totDF+reg_area 388	tot extr_area 120	tot_unextracted 268
+name __HuffMachine_d1_ScOrEt	totDF+reg_area 388	tot extr_area 120	tot_unextracted 268
+name __HuffMachine_d1_ScOrE	totDF+reg_area 388	tot extr_area 120	tot_unextracted 268
+name __HuffMachine_d1_ScOrEt	totDF+reg_area 388	tot extr_area 120	tot_unextracted 268
+name total			tot_area 14822	extr_area 8707	total unex 6115
+
+

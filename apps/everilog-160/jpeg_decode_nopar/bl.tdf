@@ -1,0 +1,25 @@
+bl(input signed[9] a, input signed[9] b, input signed[9] c,
+   input signed[9] d, input signed[9] e, input signed[9] f,
+   input signed[9] g, input signed[9] h,
+   output signed[9] s, output signed[9] t, output signed[9] u,
+   output signed[9] v, output signed[9] w, output signed[9] x,
+   output signed[9] y, output signed[9] z) 
+
+{
+
+  state only(a,b,c,d,e,f,g,h): {
+
+    signed[9] A; signed[9] B; signed[9] C; signed[9] D;
+    signed[9] E; signed[9] F; signed[9] G; signed[9] H;
+
+    A = ((a<0)?0:a); s = ((A>255)?255:A);
+    B = ((b<0)?0:b); t = ((B>255)?255:B);
+    C = ((c<0)?0:c); u = ((C>255)?255:C);
+    D = ((d<0)?0:d); v = ((D>255)?255:D);
+    E = ((e<0)?0:e); w = ((E>255)?255:E);
+    F = ((f<0)?0:f); x = ((F>255)?255:F);
+    G = ((g<0)?0:g); y = ((G>255)?255:G);
+    H = ((h<0)?0:h); z = ((H>255)?255:H);
+
+  }
+}

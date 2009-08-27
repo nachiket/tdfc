@@ -1,0 +1,232 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999,2000 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#include "constants.txt"
+
+MixToHuff(input unsigned[4] selecter, input unsigned[9] pattVal, 
+	  input unsigned[8] Plen, input unsigned[16] Pout,
+	  //	  input unsigned[12] Dylval, input unsigned[12] Dclval,
+	  input unsigned[12] Dlval,
+	  input unsigned[12] Alval, input unsigned[9] motval,
+	  input unsigned[2] Asign,
+	  output unsigned[16] bout, output unsigned[8] nout,
+	  output boolean flusher)
+
+{
+
+    unsigned[8] pcount = 0;
+    unsigned[2] p3count = 2;
+    // pcount refers to picture order in bitstream
+    unsigned[8] DCcount = 0; //for debugging! don't count for luts.
+
+    state selectin(selecter): {
+      if (selecter == TODC) {
+	goto DCout;
+      } else if (selecter == TODCINP) {
+	goto DCoutIntraInP;
+      } else if (selecter == TOAC) {
+	goto ACout;
+      } else if (selecter == PLAIN) {
+	goto PLout;
+      } else if (selecter == MV) {
+	goto MVout;
+      } else if (selecter == PATTERN) {
+	goto PATTout;
+      } else {
+	goto pstart;
+       }
+    }
+
+    state PATTout(pattVal): {
+
+      nout = pattVal[3:0];
+      bout = pattVal[8:4];
+      flusher = false;
+      goto selectin;
+    }
+
+    state DCout(Dlval): {
+      
+      DCcount = DCcount+1;
+      nout = Dlval[11:8];
+      bout = Dlval[7:0];
+      flusher = false;      
+      goto selectin;
+    }
+
+    state DCoutIntraInP(Dlval,pattVal): {
+      // need to throw away pattVal
+      DCcount = DCcount+1;
+      nout = Dlval[11:8];
+      bout = Dlval[7:0];
+      flusher = false;      
+      goto selectin;
+
+    }
+
+    state ACout(Alval,Asign): {
+      
+      nout = Alval[10:6]+1; bout = 2*(Alval[5:0])+Asign;
+      flusher = false;
+      goto selectin;
+    }
+
+    state MVout(motval,Asign): {
+      
+      if (Asign==2) {
+	nout = 1; bout = 1;
+      } else {
+	nout = motval[8:5]+1; 
+	bout = 2*(motval[4:0])+Asign;
+      }
+      flusher = false;
+      goto MVout2;
+
+    }
+
+    state MVout2(motval,Asign): {
+      
+      if (Asign==2) {
+	nout = 1; bout = 1;
+      } else {
+	nout = motval[8:5]+1; 
+	bout = 2*(motval[4:0])+Asign;
+      }
+      flusher = false;
+      goto selectin;
+
+    }
+
+    state PLout(Plen,Pout): {
+      nout = Plen; bout = Pout;
+      flusher = false;
+      goto selectin;
+    }
+
+    state pstart(): {
+      // picture_start_code (first two bytes)
+      nout = 16; bout = 0;
+      flusher = true;
+      goto pstart1;
+    }
+
+    state pstart1(): {
+      // picture_start_code (second two bytes)
+      nout = 16; bout = 256;
+      flusher = false;
+      if (pcount == 0) {
+	goto pstart2;
+      } else if (p3count==3) {
+	p3count = 0;
+	goto ppstart2;
+      } else {
+	goto pbstart2;
+      }
+    }
+
+    state pstart2(): {
+      // 10 bits of picture count, and then 001 for I picture
+      // 16 bits of 1's for some fake VBV information 2^17 = 128M
+      // a 0 to end extra information, and I think 2 more 0's to
+      // align the next start code on a byte boundary
+      nout = 32;
+      bout = (pcount<<22)+(0xffff8);
+      flusher = false;
+      pcount = pcount+1; p3count = p3count+1;
+      goto pstart3;
+    }
+    
+    state pstart3(): { // slice start code
+      nout = 32;
+      bout = 257;
+      flusher = false;
+      goto pstart4;
+    }
+
+    state pstart4(): { // quant init and extra info
+      nout = 6;
+      bout = 16;
+      flusher = false;
+      goto selectin;
+    }
+
+    // following states for P pictures
+    state ppstart2(): {
+      nout = 10; // picture number
+      //bout = (pcount<<22)+(0x17fff8);
+      bout = pcount+2;
+      flusher = false;
+      pcount = pcount+1; p3count = p3count+1;
+      goto ppstart2a;
+    }
+
+    state ppstart2a(): {
+      nout = 19; 
+      // 010 picture type P plus 16 bits garbage VBV
+      bout = 0x2ffff;
+      flusher = false;
+      goto ppstart2b;
+    }
+    
+    state ppstart2b(): {
+      nout = 11;
+      bout = 0x480;
+      // 1 001 000 0000
+      // (full pel MV) (MV scaling) (fill out byte)
+      flusher = false;
+      goto pstart3;
+    }
+
+    // following states for B pictures
+    state pbstart2(): {
+      nout = 10; // picture number
+      //bout = (pcount<<22)+(0x17fff8);
+      bout = pcount-1;
+      flusher = false;
+      pcount = pcount+1; p3count = p3count+1;
+      goto pbstart2a;
+    }
+
+    state pbstart2a(): {
+      nout = 19; 
+      // 011 picture type B plus 16 bits garbage VBV
+      bout = 0x3ffff;
+      flusher = false;
+      goto pbstart2b;
+    }
+    
+    state pbstart2b(): {
+      nout = 11;
+      bout = 0x4c8;
+      // 100 1100 1000
+      // (full pel MV) (MV scaling1) (full pel MV) (MV scaling1) 
+      // (fill out byte)
+      flusher = false;
+      goto pstart3;
+    }
+
+
+
+}
+
+

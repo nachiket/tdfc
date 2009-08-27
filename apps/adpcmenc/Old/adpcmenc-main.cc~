@@ -1,0 +1,71 @@
+// ADPCM encoder (16-->4)
+// Adapted from UCLA MediaBench Intel/DVI ADPCM encoder
+// Based on CS262 project code (Eylon Caspi, 11/23/98)
+//
+// Eylon Caspi, 4/5/00
+//
+// 8 pages, ~35-slow
+
+
+
+  unsigned[18][16] srcArray =	{0x0010,
+				 0x0001,
+				 0x0012,
+				 0x0003
+				 0x0014
+				 0x0005
+				 0x0016
+				 0x0007
+				 0x0018
+				 0x0009
+				 0x001a
+				 0x000b
+				 0x001c
+				 0x000d
+				 0x001e
+				 0x000f
+				 0x0000,
+				 0x7fff };
+  unsigned[18][4] sinkArray;
+  unsigned[88][16] stepTable =
+    { 7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
+      19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
+      50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
+      130, 143, 157, 173, 190, 209, 230, 253, 279, 307,
+      337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
+      876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066,
+      2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358,
+      5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
+      15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
+    };
+
+  segment_seq_r(5,18,16,srcArray, srcData);
+  segment_seq_w(5,18,4 ,sinkArray,outAdpcm);
+  segment_r(7,88,16,stepTable,outIndex_StepTable,outStep);
+
+  DiffSign(/*in */ srcData,outValPred,
+	   /*out*/ outDiff,outSign_ValPred,outSign_MuxNibbles);
+
+  DivMul2(/*in */ outDiff,outStep,
+	  /*out*/ outDelta2_MuxNibbles,outDelta2_Index,
+		  outDiffReduced2,outStepZeroed2);
+
+  DivMul1(/*in */ outDiffReduced2,outStepZeroed2,outStep,
+	  /*out*/ outDelta1_MuxNibbles,outDelta1_Index,
+		  outDiffReduced1,outStepZeroed1,outVPDiff1);
+
+  DivMul0(/*in */ outDiffReduced1,outStepZeroed1,outStep,outVPDiff1,
+	  /*out*/ outDelta0_MuxNibbles,outDelta0_Index,
+		  outVPDiffAbs);
+
+  ValPredUpdate(/*in */ outVPDiffAbs,outSign_ValPred,
+		/*out*/ outValPred);
+
+  IndexOffsetTable(/*in */ outIndex_Index,outDelta2_Index,
+			   outDelta1_Index,outDelta0_Index,
+		   /*out*/ outIndex_Index,outIndex_StepTable);
+
+  MuxNibbles(/*in */ outSign_MuxNibbles,outDelta2_MuxNibbles,
+		     outDelta1_MuxNibbles,outDelta0_MuxNibbles,
+	     /*out*/ outAdpcm);
+}

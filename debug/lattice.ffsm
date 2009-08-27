@@ -1,0 +1,12 @@
+count(n1,n2)=10
+count(n2,n3)=100
+count(n1,n4)=100
+count(n2,n5)=10
+count(n3,n6)=20
+count(n4,n5)=100
+count(n5,n6)=10
+count(n4,n7)=100
+count(n5,n8)=14
+count(n6,n9)=100
+count(n7,n8)=15
+count(n8,n9)=30

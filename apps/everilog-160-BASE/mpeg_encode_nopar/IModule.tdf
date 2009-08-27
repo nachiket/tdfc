@@ -1,0 +1,123 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000,2001 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.15 $
+// $Date: 2005/09/27 05:14:07 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+IModule(param unsigned[16] segSize, 
+	param unsigned[8] iter, input unsigned[5] mode,
+	input unsigned[64] in, input unsigned[64] refY, 
+	input unsigned[64] refC, input signed[6] mx, input signed[6] my,
+	output unsigned[8] hout,
+	//param signed[64][16] segrwA, param signed[64][16] segrwB,
+	//param unsigned[8][12] dcytab, param unsigned[8][12] dcctab,
+	param unsigned[112][12] aclvtab, param unsigned[17][9] mvtab,
+	param unsigned[8]     exfactor,
+	param unsigned[64][9] lQuantSteps,
+	param unsigned[64][9] pattVals)
+{
+
+  //signed[9] inA_; signed[9] inB_; signed[9] inC_; signed[9] inD_;
+  //signed[9] inE_; signed[9] inF_; signed[9] inG_; signed[9] inH_;
+
+  signed[9] tdctA,tdctB,tdctC,tdctD,tdctE,tdctF,tdctG,tdctH;
+  signed[16] outA,outB,outC,outD,outE,outF,outG,outH;
+
+  unsigned[3] bm;
+  unsigned[16] bts; unsigned[8] nbts;
+
+  signed[16] dctistream,dctstream;//dctstream_;
+  unsigned[8] plainlen; unsigned[16] plainout;
+
+#ifdef OLDZIG
+  signed[16] dctstream_0,dctstream_1;
+  unsigned[6] segReadAddr;
+  boolean writeA; boolean writeB;
+  unsigned[6] addrA, addrB;
+  signed[16] dataA, dataB; 
+#endif
+  unsigned[4] toMux; 
+
+  unsigned[4] DCind; 
+  unsigned[7] ACind; unsigned[5] MVind; unsigned[6] pattInd;
+
+  unsigned[12] dcout; unsigned[12] aclvout; unsigned[9] mvout,pVal;
+  unsigned[64] ref;
+
+  boolean flush,skip; unsigned[2] asign;
+
+  // needs to mux luma and chroma
+  switchoff8s(refY,refC,ref);
+  muxtoDCT(19008,mode,in,ref,
+	   tdctA,tdctB,tdctC,tdctD,tdctE,tdctF,tdctG,tdctH);
+	   
+  // DCT frontend
+  ISub(segSize,tdctA,tdctB,tdctC,tdctD,tdctE,tdctF,tdctG,tdctH,
+       outA,outB,outC,outD,outE,outF,outG,outH,mode);
+
+#ifdef OLDZIG
+  write_seg(outA,outB,outC,outD,outE,outF,outG,outH,
+	    addrA,dataA,addrB,dataB,writeA,writeB,segReadAddr,iter*2376);
+  // transfers from DCT to segments
+
+  segment_rw(16,6,64,segrwA,addrA,dctstream_0,dataA,writeA); 
+  segment_rw(16,6,64,segrwB,addrB,dctstream_1,dataB,writeB);
+
+  // segments for holding transformed data
+  zigzag(8,segReadAddr,(iter*2376+1)); 
+
+  muxer(dctstream_0,dctstream_1,dctistream);
+#else
+  zigzag(outA,outB,outC,outD,outE,outF,outG,outH,dctistream); 
+#endif
+
+//mquant(dctistream,mode,dctstream,8,       lQuantSteps);
+  mquant(dctistream,mode,dctstream,exfactor,lQuantSteps);
+
+  //Passthru(dctstream_,dctstream);
+  // takes care of everything from mb level on down
+  MZLE(dctstream,mode,mx,my,DCind,ACind,MVind,asign,
+       plainlen,plainout,toMux,skip,iter);
+  pattDetect(segSize*8,dctstream,skip,pattInd);
+  //repeater(DCind,DCind1,DCind2);
+  //rep4(mode,mode_a,mode_b,mode_c,mode_d);
+  
+  // the following segments can all be combined into one w/out extra ports
+  // none of them require parallel lookups
+  //segment_r(12,4,9,dcytab,DCind1,dcyout); // Huffman table for DC Y
+  //segment_r(12,4,9,dcctab,DCind2,dccout); // Huffman table for DC C
+  DCTab(DCind,dcout);
+  segment_r(12,7,112,aclvtab,ACind,aclvout); // Huffman table for AC lengths
+  segment_r(9,5,17,mvtab,MVind,mvout); // Huffman table for motion vectors
+  segment_r(9,6,64,pattVals,pattInd,pVal); // Huffman table for pattern detection
+  // make this guy responsible for picture level coding... 
+  // hopefully this won't make things inconvenient later
+  //MixToHuff(toMux,bm,plainlen,plainout,dcyout,dccout,
+  MixToHuff(toMux,pVal,plainlen,plainout,dcout,
+	    aclvout,mvout,asign,bts,nbts,flush);
+  
+
+  HuffMachine(bts,nbts,hout,flush);
+  //  Passthru(hout_,hout);
+
+}

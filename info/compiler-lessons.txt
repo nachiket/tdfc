@@ -1,0 +1,35 @@
+-----------------------------------
+Suggestions for Writing a Compiler:
+Lessons Learned from tdfc
+-----------------------------------
+
+Eylon Caspi, 2005
+
+
+- Guard all warnings with "-d" debug flag
+
+- Guard all warnings with "-dN" debug flag, debug level N, warn(msg,n)
+
+- Warnings should report token horizontal position
+
+- Is linking really necessary?
+    * Linking in tdfc == threading names to targets
+        (e.g. call to called op), done after parsing
+    * Do manual linking during parsing,
+      e.g. link parameterized return stream width after parsing op decl
+    * Do manual linking when transforming AST
+
+- Folding should be an AST method, descend all the way into types
+
+- Parameter passing should distinguish between
+    input (by value), output (by value), input/output (by val/ret, esp arrays)
+
+- To guarantee analyses have been done and have not been outdated
+    by tree modification,
+    * Mark trees (tree tops) with analysis done flags
+    * Let analyses skip work if   analysis done flag is set
+    * Tree modification fns need hook to selectively erase analysis done flags
+
+- Type Checking
+    * When to emit type-checking width warnings?  (creates duplicates)
+    * Separate type creation/completion/linking from type checking

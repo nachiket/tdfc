@@ -1,0 +1,29 @@
+// rotating arguments
+//  intended to test whetehr or not parameters are being 
+//  resolved in the appropriate environment
+param_math_j(param unsigned[8] w3, param unsigned[8] w2,
+      param unsigned[8] w1, param unsigned[8] w0, 
+      input unsigned[1] in ,output unsigned[16]out)
+ {
+    wrap2(w0,w3,w2,w1,in,out);
+ }
+wrap2(param unsigned[8] w3, param unsigned[8] w2,
+      param unsigned[8] w1, param unsigned[8] w0, 
+      input unsigned[1] in ,output unsigned[16]out)
+ {
+    wrap1(w0,w3,w2,w1,in,out);
+ }
+wrap1(param unsigned[8] w3, param unsigned[8] w2,
+      param unsigned[8] w1, param unsigned[8] w0, 
+      input unsigned[1] in ,output unsigned[16]out)
+ {
+    param_math_j_base(w0,w3,w2,w1,in,out);
+ }
+
+param_math_j_base(param unsigned[8] w3, param unsigned[8] w2,
+      param unsigned[8] w1, param unsigned[8] w0, 
+      input unsigned[1] in ,output unsigned[16] out)
+{
+     state only(in): out=in+2*w0+3*w1+5*w2+7*w3;
+}
+

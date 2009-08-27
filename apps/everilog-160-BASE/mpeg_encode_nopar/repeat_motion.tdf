@@ -1,0 +1,33 @@
+repeat_motion(input signed[6] inVecx, input signed[6] inVecy,
+	      output signed[6] voutxa, output signed[6] voutya,
+	      output signed[6] voutxb, output signed[6] voutyb,
+	      param unsigned[10] macsInPic) 
+{
+  
+  unsigned[10] index = 0;
+
+  state first(inVecx, inVecy): {
+
+    voutxa = inVecx;     voutya = inVecy; 
+
+    index = index+1;
+    if (index == macsInPic) {
+      index = 0;
+      goto second;
+    }
+    
+  }
+
+  state second(inVecx, inVecy): {
+
+    voutxb = inVecx;     voutyb = inVecy; 
+
+    index = index+1;
+    if (index == macsInPic) {
+      index = 0;
+      goto first;
+    }
+
+  }
+
+}

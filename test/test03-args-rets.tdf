@@ -1,0 +1,11 @@
+op1 (input boolean i)
+  { state only (): }
+
+op2 (input unsigned[8] i, output signed[4] o)
+  { state only (): }
+
+boolean op3 ()
+  { state only (): }
+
+signed[16] op4 (param boolean p)
+  { state only (): }

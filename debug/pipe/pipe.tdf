@@ -1,0 +1,23 @@
+// - Example of logic pipelining
+// - Build with:  tdfc -synplify -qom Q_lwpipe -qol N -qow 0
+//                where N = logic pipelining depth
+
+pipecore (param  signed[6] w,
+          input  signed[w] a,
+          input  signed[w] b,
+          input  signed[w] c,
+          output signed[w] o)
+{
+  signed[w+1] tmp;
+//state only (a,b,c) : o = a + b - c;
+  state only (a,b,c) : tmp = a+b ; o = (tmp>0) ? (tmp-c) : (tmp+c) ;
+}
+
+pipe     (param  signed[6] w,
+          input  signed[w] a,
+          input  signed[w] b,
+          input  signed[w] c,
+          output signed[w] o)
+{
+  pipecore(w,a,b,c,o);
+}

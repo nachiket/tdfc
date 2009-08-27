@@ -1,0 +1,9 @@
+pingpong (input  unsigned[16] i,
+	  input  unsigned[16] j,
+	  output unsigned[16] o)
+{
+  unsigned[16] r=0;
+
+  state I(i) : {o=r; r=i; goto J;}
+  state J(j) : {o=r; r=j; goto I;}
+}

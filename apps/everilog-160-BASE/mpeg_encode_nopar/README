@@ -1,0 +1,17 @@
+Before making the executable (score_mpeg), you need to determine how
+many pictures you would like to encode (including the first I frame).
+
+Then, you edit the topAll.fuser file:
+
+topAll(5,101376,352,,,,,,,,,,,,);
+
+Changing the first parameter to the number of pictures you want to 
+encode.
+
+Then after making, then you have to start up the Runtime (of course),
+then run score_mpeg with the argument of how many pictures you want to
+encode, i.e.:
+
+score_mpeg 5
+
+

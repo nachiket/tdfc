@@ -1,0 +1,8 @@
+#!/bin/csh
+
+foreach app (`cat APPS`)
+  pushd $app
+  ./make-synplify |& tee make-synplify.OUT
+  mkdir proj-DISABLE proj-xilinx-DISABLE
+  popd
+end

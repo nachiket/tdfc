@@ -1,0 +1,557 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// toAC gets symbols as outlined on pg 192 on Pennebaker and Mitchell
+// toDC bitwidths of DPCM differences as on pg 93 of Penn, Mitch, Fogg, Legall
+
+#include "modulo_counter.txt"
+
+#ifdef MODULO_COUNTER
+  #define INCREMENT_BLOCKIND {						\
+    blockindMod6    = INCRMOD(blockindMod6,6);				\
+    blockindMod2376 = INCRMOD(blockindMod2376,2376);			\
+  }
+#else
+  #define INCREMENT_BLOCKIND {}
+#endif
+
+#define GOTDCVAL {							\
+  if (isI || (tmod == INTRA)) {						\
+    goto DCval;								\
+  }									\
+  else {								\
+    blockind = blockind+1;						\
+    INCREMENT_BLOCKIND;							\
+    transpire = 0;							\
+    firstrun = true;							\
+    goto zero;								\
+  }									\
+}
+
+#define GOTINIT {if (isI) {goto init;} else {goto initmode;}}
+// #define GOTDCVAL {if (isI || (tmod == INTRA)) {goto DCval;} else {blockind = blockind+1; transpire = 0; firstrun = true; goto zero;}}
+
+#include "constants.txt"
+
+
+MZLE (input signed[16] a, input unsigned[5] mod, 
+      input signed[6] motx0, input signed[6] moty0,
+      input signed[6] motx1, input signed[6] moty1,
+      output unsigned[4] toDC, output unsigned[7] toAC, 
+      output unsigned[5] toMV,
+      output unsigned[2] toSign, output unsigned[8] plainlen, 
+      output unsigned[16] plainout, output unsigned[4] toMux,
+      input boolean isSkip, param unsigned[8] totPic)
+{
+  // tosign = 2 means that there is no sign bit 
+  boolean firstrun,tmpSkip;
+  unsigned[5] tmod;
+  signed[6] tmotx,tmoty,tmotx_,tmoty_;
+  signed[6] pmotx = 0; signed[6] pmoty = 0;
+  signed[6] pmotxb = 0; signed[6] pmotyb = 0;
+  signed[16] atemp;
+  unsigned[7] cnt=0;
+  unsigned[4] DCl;
+  unsigned[7] dataSize = 64;
+  signed[16] oldDCYValue=0; signed[16] oldDCCrValue=0;
+  signed[16] oldDCCbValue=0;
+  unsigned[6] transpire; // how many data values have gone by
+  unsigned[4] stat=5;
+
+  // since the last DC value
+  // nopend = not pending
+  unsigned[16] plainout_t;
+//unsigned[4] blockind=0;		// - 4 bits is too narrow  (EC 6/30/03)
+					// - may count up to 2376*totPic
+  unsigned[widthof(2376)+widthof(totPic)] blockind        = 0;
+  #ifdef MODULO_COUNTER
+  unsigned[widthof(6)]                    blockindMod6    = 0;
+  unsigned[widthof(2376)]                 blockindMod2376 = 0;
+  #endif
+  unsigned[8] picIndex=0;
+  boolean isI=true;
+  boolean bflag;
+
+  state picinit(): {
+    toMux = PICSTART;
+    oldDCYValue = 0;
+    oldDCCrValue = 0;
+    oldDCCbValue = 0;
+    pmotx = 0; pmoty = 0;
+    pmotxb = 0; pmotyb = 0;
+    if (isI) {
+      // isI = false;
+      goto init;
+    } else {
+      goto initmode;
+    }
+  }
+
+  state init(): { // for intra picture
+    // one hi-bit tells decoder that MB address incrementing by one
+    // (why it wouldn't I don't know)
+    // another hi-bit tells decoder that quantizer doesn't change
+    toMux = PLAIN;
+    plainlen = 2;
+    plainout = 3;
+    goto DCval;
+  }
+
+  state initmode(mod,isSkip): { // in non-I picture
+    toMux = PLAIN;
+    tmod = mod;
+    tmpSkip = isSkip;
+    if (mod == INTRA) {
+      pmotx = 0; pmoty = 0;
+      pmotxb = 0; pmotyb = 0;
+      // combination of 1 (MB address increment)
+      // and 00011 (MB type Intra-no quant)
+      plainlen = 6;
+      plainout = 35;
+    } else if ((stat==0)||(stat==3)) {
+      // combination of 1 (MB address increment)
+      // and 001 (MB type P no pattern) or
+      // and 1 (MB type P with pattern)
+      plainlen = (isSkip?4:2);
+      plainout = (isSkip?9:3);
+      firstrun = true;
+    } else if (mod == MOTION_BACKWARD) {
+      plainlen = 4;
+      plainout = (isSkip?10:11);
+      firstrun = true;
+    } else if (mod == MOTION_BOTH) {
+      plainlen = 3;
+      plainout = (isSkip?6:7);
+      firstrun = true;
+    } else {
+      plainlen = 5;
+      plainout = (isSkip?18:19);
+      firstrun = true;
+    }
+    
+    if (stat==0) {
+      goto codevecA;
+    } else if (stat==3) {
+      goto codevecB;
+    } else {
+      goto codevecC;
+    }
+
+  }
+
+  state codevecA(motx0,moty0): {
+    
+    if (tmod == INTRA) {
+      goto DCval;  // throwing away vector
+    } else {
+      oldDCYValue=0; oldDCCrValue=0; oldDCCbValue=0;
+      toMux = MV;
+      // fill me in;
+      tmotx = motx0; tmoty = moty0;
+      goto codevec1;
+    }
+
+  }
+
+  state codevecB(motx1,moty1): {
+    
+    if (tmod == INTRA) {
+      goto DCval;  // throwing away vector
+    } else {
+      oldDCYValue=0; oldDCCrValue=0; oldDCCbValue=0;
+      toMux = MV;
+      // fill me in;
+      tmotx = motx1; tmoty = moty1;
+      goto codevec1;
+    }
+  }
+
+  state codevecC(motx0,moty0,motx1,moty1): {
+    
+    //    bflag = false;
+    if (tmod == INTRA) {
+      goto DCval;  // throwing away vector
+    } else if ((tmod==MOTION_BACKWARD)!=(stat>3)) {
+      // using second != as an XOR
+      oldDCYValue=0; oldDCCrValue=0; oldDCCbValue=0;
+      toMux = MV;
+      // fill me in;
+      tmotx = motx1; tmoty = moty1;
+      tmotx_ = motx0; tmoty_ = moty0;
+      goto codevec1;
+    } else {
+      oldDCYValue=0; oldDCCrValue=0; oldDCCbValue=0;
+      toMux = MV;
+      tmotx_ = motx1; tmoty_ = moty1;
+      tmotx = motx0; tmoty = moty0;
+      goto codevec1;
+    }
+  }
+
+    state codevec1(): {
+      unsigned[6] mvmag;
+      signed[6] diffx;
+      transpire = 0;
+      blockind = blockind+1; // increment usually done in DCval
+      INCREMENT_BLOCKIND;
+      diffx = ((tmod!=MOTION_BACKWARD)?(tmotx-pmotx):(tmotx-pmotxb));
+
+      toSign = ((diffx==0)?2:((diffx>0)?0:1));
+      mvmag = ((diffx>0)?(bitsof(diffx)):(bitsof(-diffx)));
+      toMV = ((diffx==0)?0:mvmag);
+
+#if 0
+      if ((stat==1)||(stat==2)||(stat==4)||(stat==5)) {
+	if (tmod==MOTION_BACKWARD) {
+	  #ifdef MODULO_COUNTER
+	  printf("Back vectors %llu, %lld %lld\n",blockindMod6,tmotx,tmoty);
+	  #else
+	  printf("Back vectors %llu, %lld %lld\n",blockind/6,tmotx,tmoty);
+	  #endif
+	} else {
+	  #ifdef MODULO_COUNTER
+	  printf("Front vectors %llu, %lld %lld\n",blockindMod6,tmotx,tmoty);
+	  #else
+	  printf("Front vectors %llu, %lld %lld\n",blockind/6,tmotx,tmoty);
+	  #endif
+	}
+      }
+#endif
+
+      if (tmod!=MOTION_BACKWARD) pmotx = tmotx;
+      else pmotxb = tmotx;
+      goto codevec2;
+    }
+
+    state codevec2(): {
+      unsigned[6] mvmag;
+      signed[6] diffy;
+      diffy = ((tmod!=MOTION_BACKWARD)?(tmoty-pmoty):(tmoty-pmotyb));
+
+      toSign = ((diffy==0)?2:((diffy>0)?0:1));
+      mvmag = ((diffy>0)?(bitsof(diffy)):(bitsof(-diffy)));
+      toMV = ((diffy==0)?0:mvmag);
+
+      if (tmod!=MOTION_BACKWARD) pmoty = tmoty;
+      else pmotyb = tmoty;
+
+      if (tmod == MOTION_BOTH) {
+	toMux = MV;
+	goto codevec01;
+      } else {
+	if (!tmpSkip) toMux = PATTERN;
+	goto zero;
+      }
+    }
+
+    state codevec01(): {
+      unsigned[6] mvmag;
+      signed[6] diffx;
+      diffx = tmotx_-pmotxb;
+
+#if 0
+      #ifdef MODULO_COUNTER
+      printf("Back vectors %llu, %lld %lld\n",blockindMod6,tmotx_,tmoty_);
+      #else
+      printf("Back vectors %llu, %lld %lld\n",blockind/6,tmotx_,tmoty_);
+      #endif
+#endif
+      toSign = ((diffx==0)?2:((diffx>0)?0:1));
+      mvmag = ((diffx>0)?(bitsof(diffx)):(bitsof(-diffx)));
+      toMV = ((diffx==0)?0:mvmag);
+
+      pmotxb = tmotx_;
+      goto codevec02;
+    }
+
+    state codevec02(): {
+      unsigned[6] mvmag;
+      signed[6] diffy;
+      diffy = tmoty_-pmotyb;
+
+      toSign = ((diffy==0)?2:((diffy>0)?0:1));
+      mvmag = ((diffy>0)?(bitsof(diffy)):(bitsof(-diffy)));
+      toMV = ((diffy==0)?0:mvmag);
+
+      pmotyb = tmoty_;
+      if (!tmpSkip) toMux = PATTERN;
+      goto zero;
+    }
+
+    state DCval(a): {
+      signed[16] A;
+      unsigned[4] DClen;
+      signed[16] b;
+      signed[16] last;
+      unsigned[3] blockMod;
+
+      #ifdef MODULO_COUNTER
+      blockMod = blockindMod6;
+      #else
+      blockMod = blockind%6;
+      #endif
+      //bmout = blockMod;
+      blockind = blockind+1;
+      INCREMENT_BLOCKIND;
+      if (blockMod == 4) {
+	last = oldDCCrValue;
+      } else if (blockMod == 5) {
+	last = oldDCCbValue;
+      } else {
+	last = oldDCYValue;
+      }
+      A = a - last;
+      if ((isI)||(blockMod!=0)) {toMux = TODC;} // going to DC length table 
+      else {toMux = TODCINP;}
+      if (A < 0) {b = -A;}
+      else {b = A;}
+
+      // following logic takes 26 luts at last estimate
+      DClen = ((b<1024)?10:11); DClen = ((b<512)?9:DClen);
+      DClen = ((b<256)?8:DClen); DClen = ((b<128)?7:DClen);
+      DClen = ((b<64)?6:DClen); DClen = ((b<32)?5:DClen);
+      DClen = ((b<16)?4:DClen); DClen = ((b<8)?3:DClen);
+      DClen = ((b<4)?2:DClen); DClen = ((b<2)?1:DClen);
+      DClen = ((b==0)?0:DClen);
+      toDC = DClen;  // for DC hufftable
+      DCl = DClen;   // for next state
+
+      if (A<0) {
+	plainout_t = bitsof(A+((1<<DClen)-1));
+      } else if (A>0) {
+	plainout_t = bitsof(A);
+      }
+      // insert code to calculate DCvalue
+      // oldDCValue = a; // NOT A
+      if (blockMod == 4) {
+	oldDCCrValue = a;
+      } else if (blockMod == 5) {
+	oldDCCbValue = a;
+      } else {
+	oldDCYValue = a;
+      }
+      goto DCval2;
+    }
+
+    state DCval2(): {
+      if (DCl != 0) {
+	plainlen = DCl;
+	plainout = plainout_t;
+	toMux = PLAIN; // should be only done if difference wasn't zero
+      }
+      transpire = 1;
+      goto zero;
+    }
+
+    state zero(a): {  
+      unsigned[6] ttrans;
+      unsigned[16] b;
+      unsigned[1] sign;
+      unsigned[4] ssss;
+      unsigned[8] toACtmp;
+      ttrans = transpire + 1;
+      transpire = transpire + 1;
+      //aold = a;
+      if (a==0) {
+	if (ttrans==dataSize) {  // transpire will be set in DCval2
+	  if (cnt != 63) {
+	    toMux = PLAIN;
+	    plainout = 2; // EOB symbol
+	    plainlen = 2;
+	  } // else this block was not coded
+	  cnt = 0;
+	  //goto DCval;
+	  #ifdef MODULO_COUNTER
+	  if (blockindMod2376==0) {
+	  #else
+	  if ((blockind%2376)==0) {
+	  #endif
+	    picIndex = picIndex+1;
+	    stat = stat+1;
+	    if (stat==6) stat=0;
+	    if (picIndex == totPic) {
+	      goto donestate;
+	    } else {
+	      isI = false;
+	      goto picinit;
+	    }
+	  }
+	  #ifdef MODULO_COUNTER
+	  else if (blockindMod6==0) GOTINIT
+	  #else 
+	  else if ((blockind%6)==0) GOTINIT
+	  #endif
+	  else GOTDCVAL  //goto DCval;
+	}
+	else {
+	  cnt=cnt+1;
+	}
+      }
+      else {
+	if (a < 0) {b = bitsof(-a); sign = 1;}
+	else {b = bitsof(a); sign = 0;}
+	if ( ((cnt==0)&&(b>40)) || ((cnt==1)&&(b>18)) ||
+	     ((cnt==2)&&(b>5)) || ((cnt==3)&&(b>4)) ||
+	     ((cnt>3)&&(cnt<7)&&(b>3)) || ((cnt>6)&&(cnt<17)&&(b>2)) ||
+	     ((cnt>16)&&(cnt<32)&&(b>1)) || (cnt>31)) {
+	  firstrun = false;
+	  // prepare for and goto escape coding
+	  toMux = PLAIN;
+	  plainlen = 6;
+	  plainout = 1;
+	  goto escape1;
+	} else if ((cnt==0)&&(b==1)&&(!isI)&&(tmod!=INTRA)&&(firstrun)) {
+	  // special first 0/1 in 
+	  toMux = PLAIN;
+	  firstrun = false;
+	  plainlen = 2;
+	  plainout = 2+sign;
+	} else { //a
+	  firstrun = false;
+	  toMux = TOAC;
+	  toACtmp = b;
+	  toACtmp = ((cnt==1)?(b+40):toACtmp);
+	  toACtmp = ((cnt==2)?(b+58):toACtmp);
+	  toACtmp = ((cnt==3)?(b+63):toACtmp);
+	  toACtmp = (((cnt>3)&&(cnt<7))?(3*(cnt-4)+67+b):toACtmp);
+	  toACtmp = (((cnt>6)&&(cnt<17))?(2*(cnt-7)+76+b):toACtmp);
+	  toACtmp = ((cnt>16)?((cnt-16)+96):toACtmp);
+#if 0
+	  if (cnt==0) {toAC=b; toSign=sign;}
+	  else if (cnt==1) {toAC=(b+40); toSign=sign;}
+	  else if (cnt==2) {toAC=(b+58); toSign=sign;}
+	  else if (cnt==3) {toAC=(b+63); toSign=sign;}
+	  else if ((cnt>3)&&(cnt<7)) {
+	    toAC=3*(cnt-4)+67+b; toSign=sign;
+	  }
+	  else if ((cnt>6)&&(cnt<17)) {
+	    toAC=2*(cnt-7)+76+b; toSign=sign;
+	  }
+	  else if (cnt>16) {
+	    toAC=(cnt-16)+96; toSign=sign;
+	  }
+#endif
+	  toAC = toACtmp;
+	  toSign = sign;
+	  cnt = 0;
+	  if (ttrans==dataSize) {
+	    goto eobstate;
+	  }
+	} //a
+      }
+    }
+
+    state eobstate(): {
+      toMux = PLAIN;
+      plainlen = 2;
+      plainout = 2;
+      #ifdef MODULO_COUNTER
+      if (blockindMod2376==0) {
+      #else
+      if ((blockind%2376)==0) {
+      #endif
+	picIndex = picIndex+1;
+	stat = stat+1;
+	if (stat==6) stat = 0;
+	if (picIndex == totPic) {
+	  goto donestate;
+	} else {
+	  isI = false;
+	  goto picinit;
+	}
+      }
+      #ifdef MODULO_COUNTER
+      else if (blockindMod6==0) GOTINIT
+      #else
+      else if ((blockind%6)==0) GOTINIT
+      #endif
+      else GOTDCVAL
+    }
+
+    state escape1(): {
+      toMux=PLAIN;
+      plainlen = 6;
+      plainout = cnt;
+      goto escape2;
+    }
+
+    state escape2(): {
+      toMux=PLAIN;
+      cnt = 0;
+      if ((a<127)&&(a>(-127))) { // dangerous
+	plainlen = 8;
+	plainout = ((a>0)?(bitsof(a)):(bitsof(256+a)));
+#if 0
+	if (a>0) {plainout = bitsof(a);}
+	else {plainout = bitsof(256+a);}
+#endif
+      } else {
+	plainlen = 16;
+	plainout = ((a<0)?(bitsof(0x8001 + a + 255)):(bitsof(a)));
+      }
+#if 0
+      else if (a<0) {
+	plainlen = 16;
+	plainout = bitsof(0x8001 + a + 255);
+      } else {
+	plainlen = 16;
+	plainout = bitsof(a);
+      }
+#endif
+	
+      if (transpire==dataSize) {
+	#ifdef MODULO_COUNTER
+	if (blockindMod2376==0){
+	#else
+	if ((blockind%2376)==0){
+	#endif
+	  picIndex = picIndex+1;
+	  stat = stat+1;
+	  if (stat==6) stat=0;
+	  if (picIndex == totPic) {
+	    goto donestate;
+	  } else {
+	    isI = false;
+	    goto picinit;
+	  }
+	}
+	#ifdef MODULO_COUNTER
+	else if (blockindMod6==0) GOTINIT
+	#else
+	else if ((blockind%6)==0) GOTINIT
+	#endif
+	else GOTDCVAL //goto DCval;
+      } else {
+	goto zero;
+      }
+
+    }
+
+    state donestate(): {
+      
+      done();
+
+    }
+
+}  
+

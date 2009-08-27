@@ -1,0 +1,2 @@
+doit  () { boolean x; state only (): stay; }
+doit2 () { boolean x; state only (): stay; }

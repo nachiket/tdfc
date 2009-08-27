@@ -1,0 +1,4 @@
+op (param unsigned[8] w, input unsigned[w] i, output unsigned[w] o)
+{
+  state only (i) : o=i;
+}

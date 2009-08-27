@@ -1,0 +1,20 @@
+debugSegment_rw(param unsigned[10] dataSize, param unsigned[10] addrSize,
+		param unsigned[14] segSize, 
+		param unsigned[segSize][dataSize] tabl, 
+		input unsigned[addrSize] addr, 
+		output unsigned[dataSize] outToken,
+		input unsigned[dataSize] inToken,
+		input boolean writer) 
+
+{
+
+  unsigned[addrSize] addr_;
+  unsigned[dataSize] outToken_,inToken_;
+  boolean writer_;
+
+  segWrap(dataSize,addrSize,addr,outToken,inToken,writer,addr_,outToken_,inToken_,writer_);
+
+  segment_rw(dataSize,addrSize,segSize,tabl,addr_,outToken_,inToken_,writer_);
+
+}
+

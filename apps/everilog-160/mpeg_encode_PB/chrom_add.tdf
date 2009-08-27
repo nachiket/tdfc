@@ -1,0 +1,76 @@
+
+chrom_add(input unsigned[8] a, input unsigned[8] b, input unsigned[8] c,
+	  input unsigned[8] d, input unsigned[8] e, input unsigned[8] f,
+	  input unsigned[8] g, input unsigned[8] h,
+	  //	  output unsigned[8] aout, output unsigned[8] bout, output unsigned[8] cout, 
+	  //	  output unsigned[8] dout, output unsigned[8] eout, output unsigned[8] fout,
+	  //	  output unsigned[8] gout, output unsigned[8] hout,
+	  output unsigned[64] uOut, param unsigned[16] segSize) 
+
+{
+
+  unsigned[12] atemp,btemp,ctemp,dtemp,etemp,ftemp,gtemp,htemp;
+  unsigned[8] aout,bout,cout,dout,eout,fout,gout,hout;
+
+  unsigned[16] index=0;
+
+#if 0
+
+  state init(a,b,c,d,e,f,g,h): {
+    aout = a; bout = b; cout = c; dout = d; eout = e; fout = f; gout = g; hout = h;
+    uOut = (aout<<56)+(bout<<48)+(cout<<40)+(dout<<32)+
+      (eout<<24)+(fout<<16)+(gout<<8)+hout;
+    index = index+1;
+    if (index==segSize) {
+      index = 0;
+      goto first;
+    }
+  }
+
+#endif
+
+  state first(a,b,c,d,e,f,g,h): {
+    atemp = a; btemp = b; ctemp = c; dtemp = d;
+    etemp = e; ftemp = f; gtemp = g; htemp = h;
+    goto second;
+  }
+
+  state second(a,b,c,d,e,f,g,h): {
+    atemp = atemp+a; btemp = btemp+b;
+    ctemp = ctemp+c; dtemp = dtemp+d;
+    etemp = etemp+e; ftemp = ftemp+f;
+    gtemp = gtemp+g; htemp = htemp+h;
+    goto third;
+  }
+
+  state third(a,b,c,d,e,f,g,h): {
+    atemp = atemp+a; btemp = btemp+b;
+    ctemp = ctemp+c; dtemp = dtemp+d;
+    etemp = etemp+e; ftemp = ftemp+f;
+    gtemp = gtemp+g; htemp = htemp+h;
+    goto fourth;
+  }
+
+  state fourth(a,b,c,d,e,f,g,h): {
+    aout = (atemp+a)/4; bout = (btemp+b)/4;
+    cout = (ctemp+c)/4; dout = (dtemp+d)/4;
+    eout = (etemp+e)/4; fout = (ftemp+f)/4;
+    gout = (gtemp+g)/4; hout = (htemp+h)/4;
+    //uOut = (aout<<56)+(bout<<48)+(cout<<40)+(dout<<32)+
+    //(eout<<24)+(fout<<16)+(gout<<8)+hout;
+    uOut = cat(aout,bout,cout,dout,eout,fout,gout,hout);
+    goto first;
+
+#if 0
+    index = index+1;
+    if (index == segSize) {
+      index = 0;
+      goto init;
+    } else {
+      goto first;
+    }
+#endif
+
+  }
+
+}

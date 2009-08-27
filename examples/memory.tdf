@@ -1,0 +1,76 @@
+// CMB-style examples of memory arrays
+
+
+unsigned[8] cmb_ram_64k (input unsigned[16] addr,
+			 input unsigned[8]  data,
+			 input boolean      rwMode)
+{
+  // 64kB byte-addressable CMB
+  // 16-bit addr, 8-bit data, low-active write-mode
+
+  unsigned[65536][8] memory;
+
+  state only (addr, data, rwMode) :
+    {
+      if (rwMode)
+	// - read mode
+	cmb_ram_64k=memory[addr];
+      else
+	// - write mode
+	memory[addr]=data;
+    }
+}
+
+
+unsigned[n] cmb_seq_r_64k (param unsigned[8] n,
+			   param unsigned[65336][n] contents)
+{
+  // 64kWord sequential read-only CMB
+  // arbitrary word width n
+
+  unsigned[16] index=0;
+
+  state only () :
+    {
+      cmb_seq_r_64k=contents[index];
+      if (index==bitsof((signed[16])(-1)))
+	done();
+      else
+	index=index+1;
+    }
+}
+
+
+cmb_seq_w_64k (param unsigned[8] n,
+	       param unsigned[65336][n] contents,
+	       input unsigned[n] data)
+{
+  // 64kWord sequential write-only CMB
+  // arbitrary word width n
+
+  unsigned[16] index=0;
+
+  state only (data) :
+    {
+      contents[index]=data;
+      if (index==bitsof((signed[16])(-1)))
+	done();
+      else
+	index=index+1;
+    }
+}
+
+
+unsigned[8] lut_10 (input unsigned[4] index)
+{
+  // lookup table containing 10 byte-wide elements
+  unsigned[10][8] memory = {0,10,20,30,40,50,60,70,80,90};
+
+  state only (index) :
+    {
+      if (index>=10)
+	{} // out_of_bounds_exception();
+      else
+	lut_10=memory[index];
+    }
+}

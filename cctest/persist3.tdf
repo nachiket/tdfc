@@ -1,0 +1,20 @@
+persist3(input unsigned[8] a,
+         output unsigned[8] out)
+
+{
+
+   state s0(a):
+      {
+         out=a@1;
+         goto s0;
+      }
+   state s0(eos(a)):
+      {
+         out=a;
+	 goto final;
+      }
+   state final():
+      {
+         done();
+      }
+}

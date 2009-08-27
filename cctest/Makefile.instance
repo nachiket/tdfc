@@ -1,0 +1,54 @@
+#SCORE_RUNTIME=/project/cs/brass/a/tools/brass/develop/SCORE/runtime
+#LEDA_INCLUDE_DIR = /project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8-linux-egcs-1.0/incl
+#LEDA_LIB_DIR = /project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8-linux-egcs-1.0
+#SCORE_RUNTIME=/scratch/SCORE/runtime
+#LEDA_INCLUDE_DIR = /scratch/LEDA-3.8/incl
+#LEDA_LIB_DIR = /scratch/LEDA-3.8
+SCORE_RUNTIME=/project/cs/brass/a/tools/brass/gold/SCORE/runtime
+LEDA_LIB_DIR =/project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8a-linux-egcs-1.1
+LEDA_INCLUDE_DIR = /project/cs/brass/a/tools/free/LEDA-3.8/LEDA-3.8a-linux-egcs-1.1/incl
+
+CFLAGS =  -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR)
+CXXFLAGS = -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR)
+INSTANCE_HEADERS=$(SCORE_RUNTIME)/ScoreOperatorInstance.h \
+	$(SCORE_RUNTIME)/ScoreStream.h \
+	$(SCORE_RUNTIME)/ScorePage.h \
+	$(SCORE_RUNTIME)/ScoreSegment.h \
+	$(SCORE_RUNTIME)/ScoreSegmentReadOnly.h 
+INSTANCE_OBJECTS=$(SCORE_RUNTIME)/ScoreRuntime.a
+#	$(SCORE_RUNTIME)/ScoreOperatorInstance.o \
+#	$(SCORE_RUNTIME)/ScoreGraphNode.o\
+#	$(SCORE_RUNTIME)/ScorePage.o \
+#        $(SCORE_RUNTIME)/ScoreSegment.o \
+#        $(SCORE_RUNTIME)/ScoreSegmentReadOnly.o \
+#	$(SCORE_RUNTIME)/ScoreStream.o
+INSTANCE_LIBRARIES=-L$(LEDA_LIB_DIR) -lL -lG
+
+################################################################
+
+INSTANCES       = $(shell cat *.instances)
+
+target: $(INSTANCES:=.so)
+
+%.so:	%.o $(INSTANCE_HEADERS) $(INSTANCE_OBJECTS)
+	g++ $(CFLAGS) -shared -o $@ $*.o $(INSTANCE_LIBRARIES) \
+	$(INSTANCE_OBJECTS)
+
+%.o:	%.cc $(INSTANCE_HEADERS)
+	g++ $(CFLAGS) -fPIC -c $*.cc
+
+clean:
+	rm -f *.cc *.h *.o *.so core
+
+
+
+
+
+
+
+
+
+
+
+
+

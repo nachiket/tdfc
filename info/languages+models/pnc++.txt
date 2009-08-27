@@ -1,0 +1,70 @@
+pnC++ : process networks in C++ 		8/22/05
+------------------------------- 
+
+pnstream<T>
+
+pnstream<T>[int] means history of values, type T
+
+pnstream_pattern := pnstream | pnstream#n | "pnstream_pattern && pnstream"
+
+pnstream_patterns := pnstream_pattern | "pnstream_patterns || pnstream_pattern"
+
+pnget(pnstream_patterns) returns index of pattern
+
+pnput(pnstream<T>,T)
+
+
+---- synthesizable form ----
+
+foo (pnstreams...) {
+  int...	// local decls
+  while (1) {
+    switch (state) {			| canonical firing function
+      case S1:				| - each case has 1 pnget() at top
+      	pnget(...)			| - each case has at most 1 pnput
+      	...				|     per output stream
+      case S2:				|
+      	switch (pnget(...)) {		|
+      	  case 1:			|
+      	  case 2:			|
+      	}				|
+    }					|
+  }
+}
+
+
+---- general form ----
+
+foo (pnstreams...) {
+  init code
+  loop code, using pnget, pnput
+  termination code
+}
+
+
+---- example ----
+
+// - unscheduled ZLE
+// - how to handle parameterized width?
+
+void zle (ipnstream<Int<8>> i, opnstream<Int<9>> o, int MAXLEN)
+{
+  Int<8> len(0,MAXLEN-1) = 0;	// - declare range-limited int
+  bool   inseq = false;
+  
+  while (1) {
+    pnget(i);
+    if (inseq) {
+      if (i[0]==0) {
+        if (len==MAXLEN-1)	{ inseq=false; pnput(o,(1<<8)|len); }
+        else			{ len++; }
+      }
+      else
+      				{ inseq=false; pnput(o,(1<<8)|len); pnput(o,i[0]); }
+    }
+    else { // (!inseq)
+      if (i[0]==0)		{ inseq=true; len=1; }
+      else			{ pnput(o,i[0]); }
+    }
+  }
+}

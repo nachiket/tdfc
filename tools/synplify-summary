@@ -1,0 +1,20 @@
+#!/bin/csh
+#
+# Generate summary report of  { FSM style, clock speed, total LUTs }
+#   for every project in this directory, every implementation thereof.
+# Use after synthesis (synplify-all)
+#
+# Synplify 7.1
+# Eylon Caspi, 5/8/03
+
+set toolpath = ${0:h}
+
+set modules = `find . -maxdepth 1 -mindepth 1 -type d -print`
+
+foreach dir ($modules)
+  foreach revpath ($dir/rev*)
+    set rev = ${revpath:t}
+    $toolpath/synplify-summary-impl $dir $rev
+    echo ''
+  end
+end

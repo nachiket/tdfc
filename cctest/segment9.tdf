@@ -1,0 +1,8 @@
+// stolen from: test12-operator-segment:myOp2
+// changed to actually be wired up...
+segment9 (param unsigned[10][8] array, input unsigned[4] i, 
+                                       input unsigned[8] d)
+{
+  segment_w (4,8,10,array,i,d);        
+}
+

@@ -1,0 +1,5 @@
+# - Count number of PAR expansions + restarts due to ``par'' failure
+# - Usage:  xilinx-expansions-par-63i make.OUT
+# - Eylon Caspi 5/4/05
+
+grep '^###.*par again' $* | wc -l

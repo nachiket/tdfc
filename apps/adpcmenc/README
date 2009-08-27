@@ -1,0 +1,13 @@
+This directory contains a SCORE implementation of the
+UCLA Mediabench Intel/DVI ADPCM encoder.
+
+The data-flow decomposition is adapted from the CS262 SCORE project,
+11/1998.  Recoded in TDF by Eylon Caspi, 4/2000.
+
+The encoder converts 16-bit signed integers from stdin
+into byte-packed nibble codewords on stdout.
+
+The file "clinton.pcm" (originally provided with MediaBench)
+should be used as input.  For testing, run as:
+
+adpcmenc-main <clinton.pcm >/dev/null

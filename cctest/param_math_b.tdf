@@ -1,0 +1,12 @@
+unsigned[a+b] mulb(param unsigned[5] a, param unsigned[5] b, 
+                  input unsigned[a] p1, input unsigned[b] p2)
+{
+  state only(p1,p2):
+    mulb=p1*p2;
+}
+
+unsigned[31] param_math_b(input unsigned[16] pa, input unsigned[15] pb)
+{
+  param_math_b=mulb(16,15,pa,pb);
+}
+

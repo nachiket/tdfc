@@ -1,0 +1,37 @@
+// merge-sort operator, to demonstrate EOS handling
+// (receives a & b, outputs smaller first, pass-thru if 1 stream closed)
+
+
+merge (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  unsigned[16] ta;
+  unsigned[16] tb;
+
+  // --- normal cases:
+
+  state start(a,b):
+			    if (a<b)	{ o=a; tb=b; goto bpend; }
+			    else	{ o=b; ta=a; goto apend; }
+
+  state apend(b):
+			    if (ta<b)	{ o=ta; tb=b;  goto bpend; }
+			    else	{ o=b;  ta=ta; goto apend; }
+
+  state bpend(a):
+			    if (a<tb)	{ o=a;  tb=tb; goto bpend; }
+			    else	{ o=tb; ta=a;  goto apend; }
+
+  // --- EOS cases:  (single-fire EOS token)
+
+  state start(a,eos(b)):		{ o=a; goto aonly; }
+  state start(eos(a),b):		{ o=b; goto bonly; }
+  state start(eos(a),eos(b)):		{ close(o); done(); }
+
+  state apend(eos(b)):			{ o=ta; goto aonly; }
+  state bpend(eos(a)):			{ o=tb; goto bonly; }
+
+  state aonly(a):			{ o=a; stay; }
+  state bonly(b):			{ o=b; stay; }
+  state aonly(eos(a)):			{ close(o); done(); }
+  state bonly(eos(b)):			{ close(o); done(); }
+}

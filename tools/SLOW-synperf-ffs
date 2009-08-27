@@ -1,0 +1,11 @@
+#!/bin/csh
+# - Distill synthesis results from Synplify 7 .srr file -- FFs
+# - $ffs
+
+	  perl -e							\
+	    'while (<>) {						\
+	       if (/^Register bits not including I\/Os: +(\d+)/i)	\
+	         { if ($ffs==0  || $ffs<$1)  { $ffs=$1;  } }		\
+	     }								\
+	     print "$ffs\n" '						\
+	     $*

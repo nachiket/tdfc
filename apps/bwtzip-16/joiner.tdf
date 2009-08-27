@@ -1,0 +1,110 @@
+joiner(
+       input  unsigned[9] in1,
+       input  unsigned[9] in2,
+       input  unsigned[9] in3,
+       input  unsigned[9] in4,
+       input  unsigned[9] in5,
+       input  unsigned[9] in6,
+       input  unsigned[9] in7,
+       input  unsigned[9] in8,
+       input  unsigned[9] in9,
+       input  unsigned[9] in10,
+       input  unsigned[9] in11,
+       input  unsigned[9] in12,
+       input  unsigned[9] in13,
+       input  unsigned[9] in14,
+       input  unsigned[9] in15,
+       input  unsigned[9] in16,
+
+       output unsigned[8] loopout,
+       input  unsigned[8] loopin,
+       output unsigned[8] out) {
+
+    unsigned[8] num_streams = 16;
+
+    unsigned[8] k = 1;
+    unsigned[9] thingy;
+
+    unsigned[32] n = 0;
+
+    state what_to_do(): {
+             if (k == 1) { goto wait1; }
+        else if (k == 2) { goto wait2; }
+        else if (k == 3) { goto wait3; }
+        else if (k == 4) { goto wait4; }
+        else if (k == 5) { goto wait5; }
+        else if (k == 6) { goto wait6; }
+        else if (k == 7) { goto wait7; }
+        else if (k == 8) { goto wait8; }
+        else if (k == 9) { goto wait9; }
+        else if (k == 10) { goto wait10; }
+        else if (k == 11) { goto wait11; }
+        else if (k == 12) { goto wait12; }
+        else if (k == 13) { goto wait13; }
+        else if (k == 14) { goto wait14; }
+        else if (k == 15) { goto wait15; }
+        else if (k == 16) { goto wait16; }
+    }
+
+    state wait1(in1): { thingy = in1; goto filltheloop; }
+    state wait2(in2): { thingy = in2; goto filltheloop; }
+    state wait3(in3): { thingy = in3; goto filltheloop; }
+    state wait4(in4): { thingy = in4; goto filltheloop; }
+    state wait5(in5): { thingy = in5; goto filltheloop; }
+    state wait6(in6): { thingy = in6; goto filltheloop; }
+    state wait7(in7): { thingy = in7; goto filltheloop; }
+    state wait8(in8): { thingy = in8; goto filltheloop; }
+    state wait9(in9): { thingy = in9; goto filltheloop; }
+    state wait10(in10): { thingy = in10; goto filltheloop; }
+    state wait11(in11): { thingy = in11; goto filltheloop; }
+    state wait12(in12): { thingy = in12; goto filltheloop; }
+    state wait13(in13): { thingy = in13; goto filltheloop; }
+    state wait14(in14): { thingy = in14; goto filltheloop; }
+    state wait15(in15): { thingy = in15; goto filltheloop; }
+    state wait16(in16): { thingy = in16; goto filltheloop; }
+
+    state filltheloop(): {
+        if (thingy == 300) {
+            out = n >> 24;
+            goto second;
+        } else {
+            loopout = thingy;
+            n = n + 1;
+            goto what_to_do;
+        }
+    }
+
+    state second(): {
+        out = (n >> 16) & 0xFF;
+        goto third;
+    }
+
+    state third(): {
+        out = (n >> 8) & 0xFF;
+        goto fourth;
+    }
+
+    state fourth(): {
+        out = n & 0xFF;
+        goto emptytheloop;
+    }
+
+    state emptytheloop(): {
+        if (n == 0) {
+            k = k + 1;
+            if (k > num_streams) {
+                k = 1;
+            }
+
+            goto what_to_do;
+        } else {
+            goto mlar;
+        }
+    }
+
+    state mlar(loopin): {
+        out = loopin;
+        n = n - 1;
+        goto emptytheloop;
+    }
+}

@@ -1,0 +1,18 @@
+streamdepth (input unsigned[16] i, output unsigned[16] o)
+{
+  unsigned[16] a, b;
+  op1(i,a,b);		// emits a, b
+  op2(a,b,o);		// consumes dynamically from a & b
+			// --> composition requires infinite stream depths
+}
+
+op1 (input unsigned[16] i, output unsigned[16] a, output unsigned[16] b)
+{
+  state op1(i) : a=i; b=i;
+}
+
+op2 (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  state op2A(a) : if (a>0) goto op2B; else stay;
+  state op2B(b) : if (b>0) goto op2A; else stay;
+}

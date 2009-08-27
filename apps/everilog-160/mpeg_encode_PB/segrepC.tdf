@@ -1,0 +1,78 @@
+#include "div.txt"
+
+segrepC(param unsigned[12] segSize, param unsigned[10] origRow, input unsigned[16] in, 
+	output unsigned[14] A, output unsigned[14] B,
+#ifdef OLD	
+	output unsigned[14] C, output unsigned[14] D, output unsigned[14] E, 
+	output unsigned[14] F, output unsigned[14] G, output unsigned[14] H, 
+#endif
+	input boolean wr, output boolean wrA, output boolean wrB,
+	output unsigned[16] rep) 
+
+{
+  boolean phase = true;
+  unsigned[14] tA=0,tB;
+
+  state only(in,wr): {
+
+    //unsigned[14] tB, tC, tD, tE, tF, tG, tH;
+
+    unsigned[10] rowCount; unsigned[8] rowMod;
+    unsigned[3] colMod; unsigned[5] colInd;
+
+    if (wr) {
+      tB = cat(tA[13:4],tA[2:0],tA[3]);      
+      if (phase) {
+	phase = false;
+	A = tB;
+	wrA = true;
+      } else {
+	phase = true;
+	B = tB;
+	wrB = true;
+	tA = tA+1;	
+      }
+    } else {
+
+      #ifndef APPROX_DIV
+      rowCount = in/origRow;
+      rowMod   = in%origRow;
+      #else
+      rowCount = DIV(in,origRow);
+      rowMod   = in - rowCount*origRow;
+      #endif
+      colInd = rowCount>>4;  // colInd = rowCount>>3;
+      colMod = rowCount[3];  // colMod = rowCount%8;
+
+      tA = ((colInd+colMod)*origRow+rowMod);
+      tB = (colInd*origRow+rowMod);
+      if (tA < segSize) {A = tA;} 
+      else {A = 0;}//possible when grabbing the last 8 rows of image
+      B = tB; 
+      wrA = false; wrB = false;
+      rep = in;
+      tA = 0;
+    }
+
+#if 0
+    if (tA > 6336) {
+      printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+    }
+
+    printf("segrep_c: in = %lld\n",in);
+
+    printf("segrep_c: colInd = %lld, colMod = %lld, rowCount = %lld, rowMod = %lld\n", 
+	   colInd, colMod, rowCount, rowMod);
+
+#endif
+
+#ifdef OLD
+    A = tA; B = tB; C = tC; D = tD;
+    E = tE; F = tF; G = tG; H = tH;
+#endif
+
+  }
+
+
+}
+

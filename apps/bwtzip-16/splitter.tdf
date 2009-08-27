@@ -1,0 +1,101 @@
+splitter(input  unsigned[8] in,
+
+         output unsigned[9] out1,
+         output unsigned[9] out2,
+         output unsigned[9] out3,
+         output unsigned[9] out4,
+         output unsigned[9] out5,
+         output unsigned[9] out6,
+         output unsigned[9] out7,
+         output unsigned[9] out8,
+         output unsigned[9] out9,
+         output unsigned[9] out10,
+         output unsigned[9] out11,
+         output unsigned[9] out12,
+         output unsigned[9] out13,
+         output unsigned[9] out14,
+         output unsigned[9] out15,
+         output unsigned[9] out16
+    ) {
+
+    unsigned[8] num_streams = 16;
+
+    unsigned[8] byte;
+    unsigned[32] n = 0;
+    unsigned[8] k = 1;
+
+    state only(in): {
+        byte = in;
+
+        if (n == 4000) {
+                 if (k == 1) { out1 = 300; }
+            else if (k == 2) { out2 = 300; }
+            else if (k == 3) { out3 = 300; }
+            else if (k == 4) { out4 = 300; }
+            else if (k == 5) { out5 = 300; }
+            else if (k == 6) { out6 = 300; }
+            else if (k == 7) { out7 = 300; }
+            else if (k == 8) { out8 = 300; }
+            else if (k == 9) { out9 = 300; }
+            else if (k == 10) { out10 = 300; }
+            else if (k == 11) { out11 = 300; }
+            else if (k == 12) { out12 = 300; }
+            else if (k == 13) { out13 = 300; }
+            else if (k == 14) { out14 = 300; }
+            else if (k == 15) { out15 = 300; }
+            else if (k == 16) { out16 = 300; }
+
+            n = 0;
+
+            k = k + 1;
+            if (k > num_streams) {
+                k = 1;
+            }
+        }
+
+        goto foozle;
+    }
+
+    state only(eos(in)): {
+             if (k == 1) { out1 = 300; }
+        else if (k == 2) { out2 = 300; }
+        else if (k == 3) { out3 = 300; }
+        else if (k == 4) { out4 = 300; }
+        else if (k == 5) { out5 = 300; }
+        else if (k == 6) { out6 = 300; }
+        else if (k == 7) { out7 = 300; }
+        else if (k == 8) { out8 = 300; }
+        else if (k == 9) { out9 = 300; }
+        else if (k == 10) { out10 = 300; }
+        else if (k == 11) { out11 = 300; }
+        else if (k == 12) { out12 = 300; }
+        else if (k == 13) { out13 = 300; }
+        else if (k == 14) { out14 = 300; }
+        else if (k == 15) { out15 = 300; }
+        else if (k == 16) { out16 = 300; }
+
+        done();
+    }
+
+    state foozle(): {
+             if (k == 1) { out1 = byte; }
+        else if (k == 2) { out2 = byte; }
+        else if (k == 3) { out3 = byte; }
+        else if (k == 4) { out4 = byte; }
+        else if (k == 5) { out5 = byte; }
+        else if (k == 6) { out6 = byte; }
+        else if (k == 7) { out7 = byte; }
+        else if (k == 8) { out8 = byte; }
+        else if (k == 9) { out9 = byte; }
+        else if (k == 10) { out10 = byte; }
+        else if (k == 11) { out11 = byte; }
+        else if (k == 12) { out12 = byte; }
+        else if (k == 13) { out13 = byte; }
+        else if (k == 14) { out14 = byte; }
+        else if (k == 15) { out15 = byte; }
+        else if (k == 16) { out16 = byte; }
+
+        n = n + 1;
+        goto only;
+    }
+}

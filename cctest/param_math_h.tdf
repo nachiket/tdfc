@@ -1,0 +1,13 @@
+unsigned[outwidth] param_math_h(param unsigned[6] outwidth, 
+                             param unsigned[6] initial,
+                             param unsigned[6] width,
+                             input unsigned[width] a)
+{
+	unsigned[outwidth] cnt=initial;
+        state only(a):
+          {
+             cnt=cnt+1;
+             param_math_h=cnt;
+             stay;           
+          }
+}

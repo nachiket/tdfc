@@ -1,0 +1,14 @@
+timing (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  timing_(a,b,o);
+}
+
+timing_ (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  unsigned[16] r1,r2;
+
+  state only (a,b) : {
+    r2 = (a+b)+r1;
+    r1 = a;			// WAR hazard on r1
+  }
+}

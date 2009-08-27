@@ -1,0 +1,36 @@
+distribute(input unsigned[64] A,
+	   output unsigned[64] B, output unsigned[64] C,
+	   param unsigned[10] totalRun, param unsigned[10] offset) 
+{
+
+
+  unsigned[10] index=0;
+
+  state init(A): {
+    index = index+1;
+    B = A;
+    if (index == offset) {
+      index = 0;
+      goto med;
+    }
+  }
+
+  state med(A): {
+    index = index+1;
+    C = A; B = A;
+    if (index == (totalRun-2*offset)) {
+      index = 0;
+      goto fin;
+    }
+  }
+
+  state fin(A): {
+    index = index+1;
+    C = A;
+    if (index == offset) {
+      index = 0;
+      goto init;
+    }
+  }
+
+}

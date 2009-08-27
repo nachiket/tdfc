@@ -1,0 +1,18 @@
+select2(param unsigned[6] w, input signed[w]  a, input signed[w]  b, 
+        input boolean sel, output signed[w] o)
+  {
+    state start(sel):
+      if (sel) goto getB;
+      else goto getA;
+    state getA(a):
+      {
+       o=a;  
+       goto start;
+      }
+    state getB(b):
+      {
+       o=b; 
+       goto start;
+      }
+  }
+

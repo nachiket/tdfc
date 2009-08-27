@@ -1,0 +1,22 @@
+bits ()
+{
+  unsigned[16] a; unsigned[8] b;
+  unsigned[8] i; unsigned[8] j;
+  unsigned[60] x;
+
+  state only () :
+    a[7:0] = b; 
+    b = a[7:0];
+    a[i:j]=b;
+    b = a[i:j];
+
+    x[7:0] = b; 
+    b = x[7:0];
+    x[i:j]=b;
+    b = x[i:j];
+
+    x[1:1] = b[0];
+    x[1]   = b[0];
+    b[0] = x[1:1];
+    b[0] = x[1];
+}

@@ -1,0 +1,98 @@
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#if 0
+#include "LiftWaveHD.tdf"
+#include "LiftWaveVD.tdf"
+#include "LiftWaveH.tdf"
+#include "LiftWaveV.tdf"
+#include "Quant_DC.tdf"
+#include "__Quant_ZLE.tdf"
+#include "SegHuffByte.tdf"
+#endif
+
+compWaveHuff(param unsigned[10] rowLen, param unsigned[10] colLen, 
+	     param unsigned[10] MAX, param unsigned[5] ZERO_MARK, 
+	     input signed[9] a, output unsigned[5] DCs, output unsigned[8] AC1,
+	     output unsigned[8] AC2, output unsigned[8] AC3, 
+	     output unsigned[8] AC4, output unsigned[8] AC5,
+	     output unsigned[8] AC6, 
+	     // param unsigned[256][20] hufftab)
+	     param unsigned[256][20] hufftab1, param unsigned[256][20] hufftab2,
+	     param unsigned[256][20] hufftab3, param unsigned[256][20] hufftab4,
+	     param unsigned[256][20] hufftab5, param unsigned[256][20] hufftab6)
+
+{
+
+  signed[12] h1out;
+  signed[14] v2out;
+  signed[16] h2outs,h2outd,v3aouts,v3aoutd,v3bouts,v3boutd;
+  signed[16] h4outs,h4outd,v5aouts,v5aoutd,v5bouts,v5boutd;
+
+  unsigned[5] q1,q2,q3,q4,q5,a6;
+
+  unsigned[8] zl1,zl2,zl3,zl4,zl5,zl6;
+
+    LiftWaveHD(rowLen,9,12,a,h1out);
+    LiftWaveVD(rowLen/2,colLen,12,14,h1out,v2out);
+
+    LiftWaveH(rowLen/2,14,16,v2out,h2outs,h2outd);
+    LiftWaveV(rowLen/4,colLen/2,16,16,h2outs,v3aouts,v3aoutd);
+    LiftWaveV(rowLen/4,colLen/2,16,16,h2outd,v3bouts,v3boutd);
+
+    LiftWaveH(rowLen/4,16,16,v3aouts,h4outs,h4outd);
+    LiftWaveV(rowLen/8,colLen/4,16,16,h4outs,v5aouts,v5aoutd);
+    LiftWaveV(rowLen/8,colLen/4,16,16,h4outd,v5bouts,v5boutd);
+
+    Quant_DC(16,v5aouts,DCs);
+
+#if 0
+    // Quantd(16,512,39,v5bouts,q1);    Quant(16,512,27,v5aoutd,q2);
+    Quant(16,512,27,v5bouts,q1);     Quant(16,512,39,v5aoutd,q2);
+    Quant(16,2048,104,v5boutd,q3);    Quant(16,512,50,v3bouts,q4);
+    Quant(16,512,79,v3aoutd,q5);    Quant(16,1024,191,v3boutd,q6);
+
+    ZLE(MAX,ZERO_MARK,q1,zl1); ZLE(MAX,ZERO_MARK,q2,zl2);
+    ZLE(MAX,ZERO_MARK,q3,zl3); ZLE(MAX,ZERO_MARK,q4,zl4);
+    ZLE(MAX,ZERO_MARK,q5,zl5); ZLE(MAX,ZERO_MARK,q6,zl6);
+#endif
+
+    __Quant_ZLE(16,512,27,MAX,ZERO_MARK,v5bouts,zl1); 
+    __Quant_ZLE(16,512,39,MAX,ZERO_MARK,v5aoutd,zl2);
+    __Quant_ZLE(16,2048,104,MAX,ZERO_MARK,v5boutd,zl3); 
+    __Quant_ZLE(16,512,50,MAX,ZERO_MARK,v3bouts,zl4);
+    __Quant_ZLE(16,512,79,MAX,ZERO_MARK,v3aoutd,zl5); 
+    __Quant_ZLE(16,1024,191,MAX,ZERO_MARK,v3boutd,zl6);
+
+
+    SegHuffByte(zl1,AC1,hufftab1);  SegHuffByte(zl2,AC2,hufftab2);
+    SegHuffByte(zl3,AC3,hufftab3); SegHuffByte(zl4,AC4,hufftab4);
+    SegHuffByte(zl5,AC5,hufftab5); SegHuffByte(zl6,AC6,hufftab6);   
+
+    //    Dump(12, dump1);
+    //    Dump(14, dump2);
+
+}
+    
+

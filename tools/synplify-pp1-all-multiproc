@@ -1,0 +1,47 @@
+#!/bin/csh
+#
+# Synplify every "-pp1" page module family (top/page, noin, op, fsm, dp)
+#   in this directory, every implementation / revision thereof
+# Separately compile the page composition, behavioral op, but NOT queues
+# Fork <numprocessors> simultaneous jobs
+#
+# Usage:  synplify-pp1-multiproc <numprocessors>
+#
+# Assume separate project directories for top/page, noin, queue modules,
+#            each project directory named after its module
+#   - compos.    top (i.e. page)     is named "<topmodule>"
+#   - compos.    input queue         is named "<topmodule>_qin"   (ignored)
+#   - compos.    output/local queue  is named "<topmodule>_q"     (ignored)
+#   - compos.    ops w/o input queue is named "<topmodule>_noin"
+#   - behavioral top                 is named "<basemodule>"
+#   - behavioral FSM                 is named "<basemodule>_fsm"
+#   - behavioral DP                  is named "<basemodule>_dp"
+#
+# Note, tdfc -pp1 names top module "_page_<basemodule>"
+#
+# Synplify 7.1
+# Eylon Caspi, 10/16/03
+
+set toolpath = ${0:h}
+
+# set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -name _page_\* -print | perl -npe 's{.*/}{}; s{_qin$}{}; s{_q$}{}; s{_noin$}{}' | sort | uniq`
+set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -name \*_noin -print | perl -npe 's{.*/}{}; s{_noin$}{}'`
+
+if ($#argv < 1) then
+  echo "Usage:  synplify-pages-all-multiproc <numprocessors>"
+  exit
+endif
+set numprocessors = $argv[1]
+
+@ job = 0
+while ($job < $numprocessors)
+  @ modnumlow = (($#topmodules * ($job    )) / $numprocessors    ) + 1
+  @ modnumhi  = (($#topmodules * ($job + 1)) / $numprocessors - 1) + 1
+  set jobtopmodules = ($topmodules[${modnumlow}-${modnumhi}])
+  echo "Starting job $job for module families $modnumlow - $modnumhi :"
+  echo "  { $jobtopmodules }"
+  ${toolpath}/synplify-pp1-family $jobtopmodules &
+  @ job = $job + 1
+end
+
+wait

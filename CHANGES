@@ -1,0 +1,957 @@
+##############################################################################
+##
+## BRASS source file
+##
+## SCORE TDF compiler:  Change log
+## $Revision: 1.160 $
+##
+##############################################################################
+##
+## Version discipline:  Version "1.XXX" gets CVS tag "v1_XXX".
+##                      After "cvs commit",
+##                         do "cvs tag v1_XXX" in tdfc top directory.
+##
+##############################################################################
+
+1.160  (9/1/05, eylon)
+- Verilog emission "-everilog" got
+    * New option "-syntech" specifies Synplify technology: tech-part-pkg-speed
+        (e.g. VIRTEX2P-XC2VP70-FF1704-7, VIRTEX4-XC4VLX100-FF1148-11)
+    * Improved stream queues
+        + "Q_pipe.v" family now explicitly uses regs, not SRL
+        + "Q_srl.v" + "Q_srl_reserve.v" output regs are now non-retimable
+        + New family "Q_lowqli.v" has both input-side and output-side
+            logic pipelining, plus wire pipelining
+    * New options to distinguish between input-side and output-side
+      logic pipelining depths  (use with "Q_lowqli.v")
+        + "-qili" "-qilo"  (replace "-qil")
+        + "-qoli" "-qolo"  (replace "-qol")
+        + "-qlli" "-qllo"  (replace "-qll")
+    * Distinguish 2 kinds of compositional ops
+        + (1) netlist = composition of compositions,   queues are wires
+        + (2) page    = composition of behavioral ops, queues from "-qim" etc.
+        + top composition is netlist is page partitioning, page if not
+    * Many new scripts for mapping to FPGA  (tools directory)
+- Environment variable "CXX" now overrides compiler used for pre-processing
+
+1.159  (12/8/04, eylon)
+- Improved type-checking of calls to built-ins (e.g. cat)
+- Added final type-checking after instance generation, constant folding,
+    and page transformations
+
+1.158  (10/13/04, eylon)
+- Verilog emission "-everilog" got
+    * ROM emission for read-only, inline arrays  (not in "-ecc", use "-xc")
+    * Faster stream queues  ("Q_srl" + "Q_srl_reserve" with data output reg)
+    * New module "<page>_dpq" containing data-path + output queues
+        (implemented as "<page>_noin" with black-box FSM, may include segments)
+        (intended to test datapath pipelining with "-qom Q_lwpipe")
+- C back-end "-ecc" now treats all segment data as "long long"
+    to match runtime C implementation of segments
+    (previously inferred type from data bit width)
+
+1.157  (8/10/04, eylon)
+- Page netlist emission ("-epn") now emits files in
+    AT&T GraphVis format (opname.dot) in addition to
+    Randy Huang's format (opname.pagenetlist)
+    (note: "-epn" is additive to and happens after other -eXXX emission)
+- New options for choosing logic pipelining depth and interconnect/wire
+  pipelining depth of Verilog streams:  (use with "Q_srl_reserve_lwpipe.v")
+    -qil <l>   : use logic pipe depth <l> for page input  queues
+    -qiw <w>   : use wire  pipe depth <w> for page input  queues
+    -qol <l>   : use logic pipe depth <l> for page output queues
+    -qow <w>   : use wire  pipe depth <w> for page output queues
+    -qll <l>   : use logic pipe depth <l> for page local  queues
+    -qlw <w>   : use wire  pipe depth <w> for page local  queues
+- Verilog emission ("-everilog") got
+    * New stream queues  (e.g. pipelined stream "Q_srl_reserve_lwpipe.v")
+    * New implementation "rev_4__200mhz" targetting 200MHz for "-synplify"
+    * Code cleanup + bug fixes
+
+1.156  (11/18/03, eylon)
+- Verilog emission ("-everilog", "-synplify") now emits pages
+  induced by compositional operators, w/queues for input/output/local streams
+    * Verilog module hierarchy:
+        op_page = { op_qin, op_noin }
+        op_noin = { op_q,   behavop1, behavop2, ..., segop1, segop2, ...}
+        behavop = { behavop_fsm, behavop_dp }
+    * Segment ops emit as Verilog black-boxes
+    * Page partitioning modes:
+        "single page"  mode:  no partitioning, all ops and queues in 1 page
+        "op per page"  mode:  "-pp1" emits pages containing 1 op and I/O queues
+        "manual partn" mode:  user writes TDF 2 level compositional hierarchy,
+			      top is page graph, 2nd is pages (UNIMPLEMENTED)
+        "auto partn"   mode:  automatically generate TDF 2 level compositional
+			      hierarchy (UNIMPLEMENTED)
+- New option "-pp1" for "op per page" dummy partitioning mode,
+    creates pages each containing 1 behavioral op plus input/output queues
+    (flattens and wraps each behavioral op in its own compositional op)
+- New options for choosing module and depth of Verilog queues:
+    -qim <m>  :  use Verilog module <m> for page input  queues
+    -qid <d>  :  use         depth  <d> for page input  queues
+    -qom <m>  :  use Verilog module <m> for page output queues
+    -qod <d>  :  use         depth  <d> for page output queues
+    -qlm <m>  :  use Verilog module <m> for page local  queues
+    -qld <d>  :  use         depth  <d> for page local  queues
+- Fixed C back-end bug where firing should stall on full output
+    but control falls through to "safe EOS" termination
+    (split firing condition into 2 levels: 1 for inputs, 1 for outputs,
+     with "safe EOS" being else-case for level 1)
+    (note, bug still exists where do not match any of multiple input
+     signatures/state-cases but control falls through to "safe EOS")
+- Added lots of scripts for Synplify and Xilinx compilation
+
+1.155  (7/7/03, eylon)
+- constant folding now propagates the value of read-only reg/local variables
+- TDF transformations now respect the order of variable declarations
+- TDF syntax now admits empty statements ";"
+         and empty variable declarations ";"
+    (except under "if", where we still need a non-empty stmt or stmt block).
+
+1.154  (6/13/03, eylon)
+- constant folding now masks high bits of result to limit bit width
+    * this is more strict w.r.t. TDF typing rules, e.g. 1<<2 is 0 not 0b100
+    * this may change previously erroneous CC emission
+- to avoid conflict with gcc naming convention,
+    * copy operators     are now generated with name "_copy" not "__copy"
+    * pipe regs in "-tt" are now generated with name "_pipe" not "__pipe"
+
+1.153  (6/10/03, eylon)
+- new option "-everilog" emits Verilog
+    * for each page p, emit 3 modules in separate files:
+        datapath "p_dp.v",  FSM "p_fsm.v",  composition "p.v"
+- new option "-synplify" emits Synplify project files
+    * create dir "proj"
+    * for each page p, create project dirs "proj/p_dp" "proj/p_fsm" "proj/p"
+    * for each project create project files and 3 implementation directories
+    * presently hard-coded to map for XC240 speed grade -6)
+- fixed "-pt", "-esd" to admit a single behavioral operator,
+    so no longer need a dummy top-level compositional operator
+
+1.152  (3/27/03, eylon)
+- fixed bug in timing transform (blockdfg.cc) to recreate partition DFGs
+    using correct edge adjacency list order
+    (depending on edge order is brittle, should probably change it)
+- Linux build now uses LEDA 3.7.1 (recompiled) instead of fakeLEDA
+
+1.151  (9/24/02, eylon)
+- updated to use RedHat 7.3, Linux kernel 2.4.18, g++ 2.96
+- Linux build now uses Yury's "fakeLEDA" (LEDA API with STL under the hood);
+    good for debugging, but expands tdfc size and runtime about 3x
+- fixed bug in "-esd" option to set start node when copying automata
+
+1.150  (5/15/02, eylon)
+- new option "-esd" Emits Stream Depth bound analysis
+    (try composing automata for pairs of connected behavioral operators
+     with increasingly larger queues, as per EE290N project 5/15/02)
+- new option "-SD <d>" to set max depth tried by "-esd" option (default 2)
+
+1.149  (5/7/02, eylon)
+- new option "-ppmetis" emits page partitioning graph for each op
+  in extended Metis format, "<instancename>.metis"
+    * vertex line format:  a v1 e1s e1b v2 e2s e2b ...
+        (a=area, vi=vertex, eis=state xfer count, eib=bit width)
+    * page partn graph has state nodes, state xfer edges, data-flow edges
+        (multi-graph, i.e. multiple edges connecting same vertices)
+    * page partn graph is after dismantling shared stream/reg access
+        and pre-clustering states that access same stream/reg
+
+1.148  (5/3/02, eylon)
+- new option "-pt1" for page timing transformation, dummy timing model
+    * converts any state-case with a multi-cycle action
+        into a sequence of single-cycle states
+    * dummy timing model:  all primitives take 1 cycle (const, reg write = 0)
+    * does pseudo-ssa conversion
+        (multiple asst to a var in same state induces new, single-asst vars)
+    * does dead-code elimination within a state action
+- new option "-pt" for page timing transformation, HSRA-based timing model
+    * cascade 2 LUTs or 4 carries per cycle
+    * not fully debugged
+- new option "-T <n>" to set cycle length to n
+    * for "-pt1" option:  base cycle length n=1
+    * for "-pt"  option:  base cycle length n=1000
+
+1.147  (1/23/02, eylon)
+- page partitioning is now done by "-pp" option,
+    before and independent of any "-eXXX" emission option  ("-ecl" is defunct)
+
+1.146  (1/14/02, eylon)
+- migrated to CVS
+    * version numbering discipline:  version 1.XXX gets CVS tag "v1_XXX";
+                                     use "cvs tag v1_XXX" after "cvs commit"
+    * RCS history was retained;
+        old RCS version 1.XXX is accessible using appropriate CVS tag "v1_XXX"
+    * Makefile now deduces TDFC_VERSION directly from CHANGES file
+
+1.145  (1/8/02, eylon)
+- new option "-epn" to Emit a Page-level Netlist for each instance (page);
+    creates netlist file "opname.pagenetlist" formatted for rhuang's router;
+    option "-epn" is additive to and happens after other -eXXX emission.    
+- casting from signed int to a narrower signed int is now allowed
+    (I am not happy about allowing destructive casting,
+     but it seems to be the only reasonable syntax we have
+     to discard high-order bits from a signed int)
+- bug fix in C back-end to avoid incompletely specified types
+    (we are still using TYPE_ANY to represent unknown / un-type-checked types;
+     in the future, we should use NULL types instead,
+     then use getType()/typeCheck() to automatically generate on demand)
+
+1.144  (12/26/01, eylon)
+- fixed C backend emission of boolean params + initial values (Joe's bug)
+
+1.143  (11/30/01, eylon)
+- fixed C backend emission of cat() to properly widen C types for shift+mask
+- fixed C backend emission of casting to properly widen + sign-upgrade types
+    (note: casting from unsigned to narrower unsigned does NOT mask high bits)
+
+1.142  (11/14/01, eylon)
+- casting from unsigned int to a narrower unsigned int is now allowed
+    (this is a special case of bit selection, since have no inline bit sel op)
+    (user is discouraged from using this in TDF source--
+     it was added as a hack for internal optimizations + back-ends)
+- minor fix to build in Mac OS X 10.1
+
+1.141  (11/2/01, eylon)
+- fixed automatic fanout generation (copy operators)
+    to distinguish between copy(signed) and copy(unsigned)
+
+1.140  (10/30/01, eylon)
+- page synthesis:  extended "-ecl" (state clustering) to
+    * synthesize TDF code for pages of partitioned operators
+    * modify top-level compositional op to expose pages
+    * print TDF of new composition and pages  ("*** RESULTS OF PARTITIONING")
+- fixed "-ecl" bug that sometimes lost first cluster (partition)
+- fixed constant folding of bitsof() in instance generation
+    (andre always stripped bitsof; new code may keep it)
+- added basic bitsof() support to Laura's IR
+    (strip bitsof(), add DF edge to its arg)
+- "-xc" now bypasses/removes "dumb" start state (contains goto, no inputs)
+
+1.139  (10/2/01, eylon)
+- option "-xa":  dismantle reg/stream access
+    * extends operator decomposition;
+        is simple model to guarantee sequentially-consistent access
+        to shared regs/streams across all pages of decomposed operator
+    * implementation:
+        (1) front-end xform s.t. each reg/stream access gets own state
+        (2) in state clustering, pre-cluster states that access same reg/stream
+    * "-xa" must be used with both "-ecl" (state cluster) and "-as" profiling
+- fixed bug in "-ecl" state clustering, in choosing of nodes to hoist;
+    was accepting nodes that, together with source node,
+    violated partition area even before min-cut;  now optional
+- DIV area model now assumes NxM array (like mult; was 0 area const shift)
+- linking of 'goto' stmt now "relinks" target state,
+    i.e. finds target by name in present scope + fixes target ptr
+    (this should fix laurap's complaint about bad gotos in IR code)
+- now builds in Mac OS X with LEDA 3.7.1
+
+1.138  (8/15/01, eylon)
+- made -ecl option more quiet (most output is now in warnings, can use -q)
+
+1.137  (8/13/01, eylon)
+- fixed -as bug that lead to execution errors and inflated firing counts
+
+1.136  (7/23/01, eylon)
+- reduced work for -ecl state clustering:
+    when evaluating nodes to hoist across cut,
+    skip "equivalent" nodes that would lead to a previously-seen min-cut
+
+1.135  (7/4/01, eylon)
+- revised version of -ecl state clustering
+    * Wong algorithm now evaluates all neighbor nodes
+        when choosing a node to hoist across the min-cut
+    * previous clusters are collapsed into a common node that serves
+        as sink for next cluster's min-cut
+
+1.134  (6/28/01, eylon)
+- bug fixes for -ecl state clustering
+    * node merging now sums flows/residuals for merged edges
+    * simplified backwards edge model-- every edge now gets a bwd counterpart
+
+1.133  (6/26/01, eylon)
+- added support for fanout using copy()
+    * new builtin operator copy(i,o1,...oN) for fanout, available in compos ops
+    * automatic inferencing of fanout in compositional operators;
+        when stream has multiple readers, generate corresponding copy() calls
+    * automatic generation of behavioral code for copy operators
+        (creates parameterized ops "__copy_XN" where X={b,i,f}, N=fanout)
+- no longer need g++ 2.95 to compile clusterstates.cc,
+    g++ 2.91 now compiles everything
+
+1.132  (6/7/01, eylon)
+- various bug fixes for "-ecl" state clustering:
+    * skip single-state operators, assuming they are pipelines
+    * disallow merging src+dst nodes during Wong min-cut
+    * choose dst node as largest state (not largest, previously unused state)
+    * statistics
+
+1.131  (5/29/01, eylon)
+- "-ecl" state clustering now exposes register data-flow edges between states
+    for min-cut state clustering
+- experimental option "-mix" sets data-flow/state-flow mixing coeff for "-ecl"
+    ("-mix 0" for pure DF cut, "-mix 1" for pure SF cut, frac [0..1] to mix).
+- Special note:  "-ecl" data-flow/state-flow mixing does NOT yield cut-sizes
+    monotonic in the mixing coefficient!  This is theoretical, not bug.
+- "-ecl" min-cut now chooses src/dst states as largest nodes, not random
+    (chooses largest nodes not used as src/dst since last graph modification);
+    this heuristic seems to improve mix behavior.
+- "-ecl" now treats zero-frequency states/transitions from "-as"
+    state profiling (i.e. from ".ffsm" files) as frequency=1,
+    so they are not ignored altogether.
+- "-ecl" bug fixes, including hiding zero-frequency edges before min-cut.
+
+1.130  (5/17/01, eylon)
+- TDF printf() now prints to stderr to avoid conflict w/ScoreRuntime output
+- new flag -ads adds debug code that prints state name+inputs at state entry
+- fixed bug in -xc basic block decomposition where upgrading a
+    local variable to a register mistakenly moved its initialization point
+- added pass to -xc to bypass+remove "dumb" states (containing only a goto)
+    and unreferenced states
+- incorporated 1.120ab changes to SCORE API calls for faster simulation:
+    * Array-side     NEW_*_STREAM*()              becomes *_ARRAY()
+    * Array-side     STREAM_READ/WRITE/DATA/EOS() become  *_ARRAY()
+    * Processor-side STREAM_READ/WRITE()          become  *_NOACC()
+
+1.129  (4/11/01, eylon)
+- new counter "doneCount" in pagestep() code, counts stall cycles after done
+- fixes to support g++ 2.95.2 and LEDA 4.2  (not used in Makefile yet)
+
+1.128  (3/9/01, laurap)
+- made the IR code part more user friendly. now a message shows which are the
+    files that contain data flow area and fsm information
+- taken many comments out
+- modified some constructors in ir_graph.h/cc
+
+1.127  (2/9/01, laurap)
+- fixed a bug on FSM kiss2 format emission.
+    (modified:  ir_graph.h ir_create_dfg.cc ir_create_sfg.cc)
+
+1.126  (2/5/01, eylon)
+- state clustering (-ecl) now uses SFG from IR (for state flow, state DF area)
+
+1.125  (2/4/01, eylon)
+- reading FSM feedback files (-ecl) now checks if state exists in AST
+
+1.124  (2/4/01, eylon)
+- option -eIR no longer turns on -ecc
+- changed names of many command-line options for consistency
+- state clustering:
+    * Implements Wong balanced min-cut on state transition probabilities
+    * Presently no IO constraints
+    * Presently ignores IR, builds own SF graph from FSM profiling results,
+        pretends all states are size 1
+    * option -as:   add code in CC back-end (-ecc) to profile FSMs at run-time
+    * option -ecl:  emit state clustering results  (uses -as profiling results)
+
+1.123  (2/4/01, eylon)
+- cleaned up the passing of instance pages to IR generation
+    (reverted instance.cc/.h +  bindvalues.cc/.h to version 1.121)
+
+1.122  (2/1/01, laurap)
+- new intermediate representation (IR),
+  including pipeline extraction, FSM synthesis, etc. (new files: ir_*)
+    * option -eIR:  use IR, emit synthesis info
+    * option -evcg: emit .vcg files to graph DFGs, SFGs
+
+1.121  (1/20/01, eylon)
+- fixed bug supporting 64 arguments per operator
+
+1.120  (11/13/00, eylon)
+- fixed bug where compositional op disallowed initialization of local array
+
+1.119  (9/11/00, eylon)
+- support multiple variable decls. per line  (e.g.: "unsigned[8] a,b,c;")
+- support stream depth hint  (e.g.: "unsigned[8] a(500)" on local stream decl.)
+    * depth hint specifies minimum recommended buffer space for stream
+    * depth hint is element of SymbolVar, which is used to represent
+      local stream declarations inside a compositional operator
+
+1.118  (8/8/00, yurym)
+- modified Makefile to force gmake to use _only_ local compilers
+  this should make it easier to distribute tdfc to any linux box
+
+1.117  (8/8/00, eylon)
+- added "printf" to TDF
+    usage: printf("format", exprs...)
+    all args except format string are cast to (long long), so use "%Ld"
+
+1.116  (8/7/00, eylon)
+- fixed bit selection bugs for data widths 33-to-64  (Antoine Hue's bug report)
+
+1.115  (5/30/00, yurym)
+- unified bitmask type for operator arguments among tdfc and runtime
+
+1.114  (5/25/00, eylon)
+- operators now support up to 64 arguments
+- feedback files now handle long lines (up to 4096 chars)
+- fixed numerous type errors to satisfy the latest g++ (2.95.2)
+
+1.113  (2/3/00, mmchu)
+- added a check to input_free[N] before STREAM_FREE in eos state cases.
+
+1.112  (1/6/00, mmchu)
+- added a "fictional" done state to the C++ instance output so that a 
+  page that has signalled done can be safely rescheduled into the
+  array and guarantee to "do no harm".
+
+1.111  (1/4/00, mmchu)
+- fixed a bug in cceval.cc for simplify_select. changed -1 to +1.
+
+1.110  (1/4/00, eylon)
+- fixed segment initialization in CC backend
+
+1.109  (1/3/00, mmchu)
+- added STREAM_MARKREADSTREAM and STREAM_MARKWRITESTREAM to bindInput and
+  bindOutput for proc_run.
+
+1.108  (1/3/00, eylon)
+- fixed parser bug which disallowed local variable names to override names
+    from enclosing blocks
+- fixed bug whereby operator instances ignored the "-xc" flag
+
+1.107  (12/30/99, eylon)
+- "-E" option now exits cleanly
+- fixed error reporting for bad arguments to segment operators
+
+1.106  (12/28/99, mmchu)
+- changed STREAM_READ and STREAM_WRITE => STREAM_READ_NOACC and 
+  STREAM_WRITE_NOACC.
+
+1.105  (12/8/99, eylon)
+- "-xc" and "-ecc" can now be used together
+    ("-ecc" was seg-faulting on NULL tokens created by "-xc")
+- fixed CC emission of segments (garbage width)
+- another CC bug fix to admit uninitialized local arrays (scratch segments)
+
+1.104  (12/7/99, mmchu)
+- fixed precendence problem when CC outputting conditionals.
+  (a+b?c:d) is wrong! (a+(b?c:d)) is right!
+
+1.103  (12/6/99, eylon)
+- front-end accepts hex (0x...), octal (0...), and binary (0b...) numbers
+    (bug: bad octal numbers, e.g."08", "09", are read as 0 without error msg)
+
+1.102  (12/5/99, mmchu)
+- Fixed "else-bracket" nesting bug for proc_run code as well.
+
+1.101  (12/4/99, eylon)
+- CC back-end now admits uninitialized local arrays (scratch segments)
+- fixed CC back-end bug which printed a pointer for a shift amount
+- front-end now allows arrays of booleans
+- fixed front-end bug which created untyped segment operators
+
+1.100  (12/4/99, mmchu)
+- Added C linkage support to C++ operator output. Now, if C/C++ driver code
+  always instantiate operators via NEW_* and refer to operator types as
+  OPERATOR_* then SCORE tdf operators may be freely used in either C or
+  C++ code!
+
+1.99  (11/11/99, mmchu)
+- Removed outputting of local state variable (so that state changes can
+  be reflected in the state variable defined in the ScorePage class).
+
+1.98  (11/10/99, mmchu)
+- Fixed "else-bracket" nesting bug where, in ccpage for the pagestep code,
+  if a state had multiple cases, the else did not correctly generate
+  the nesting bracket.
+
+1.97  (11/10/99, mmchu)
+- fixed ccpage so that the global produces/consumes arrays are appropriately
+  typed.
+
+1.96  (11/9/99, mmchu)
+- moved the calculation and generation of produces/consumes arrays in ccpage
+  down after all the other setAnnotes() to CC_STREAM_ID. this fixes a bug
+  where incorrect values were being written out for produces/consumes when
+  a compositional operator was used.
+- fixed ccpage to actually output STREAM_FULL checks before doing a
+  STREAM_WRITE.
+
+1.95  (11/4/99, eylon)
+- "-xc" now exlines
+    (lifts inlined calls and array-mem references from behavioral operators)
+    (still makes "-ecc" segfault)
+
+1.94  (11/3/99, mmchu)
+- changed the C++ output so that generated C++ code only includes the
+    Score.h file instead of individual .h files (i.e. ScoreStream.h, etc.).
+
+1.93  (11/3/99, amd)
+- fix eylon state name truncation bug
+    (though eylon should check StmtGoto code and see if I should
+    have had to do what I did...or if this is just a kludgy work
+    around a bug in StmtGoto)
+
+1.91  (10/26/99, mmchu)
+- changed C++ output code so that segment obj->id conversion is done through
+    the macro SEGMENT_OBJ_TO_ID instead of directly through the method call.
+    this guarantees that we will always call noAccess() on the segment during
+    the obj->id conversion of a segment.
+- made it so that ScoreStream.h was added to the #include list of operator
+    .h files.
+
+1.90  (10/26/99, mmchu)
+- changed ccbody.cc and ccinstance.cc so that the outputted C++ code would
+    include the .h files it needed from ScoreRuntime instead of assuming they
+    were included by some other include file.
+    In particular, generated operators
+    now include ScoreUserSegmentOperators.h (a compositional .h file) for the
+    ScoreSegmentOperator* classes and instance files include ScoreSegment.h
+    ScoreStream.h and ScoreUserSegments.h (a compositional .h file of
+    ScoreSegment*).
+
+1.89  (10/25/99, mmchu)
+- changed tdfc so that its outputted C++ code would interface correctly to
+    ScoreSegment* and ScoreSegmentOperator*. This is after the discussion to
+    clear up ScoreSegmentOperator*. Also, in compositional operators,
+    ScoreSegmentOperator* are simply forked off (all special pthread code
+    was removed).
+
+1.88  (10/21/99, amd)
+- defang bogus complaint about overspecified segment info in feedback
+- (remove comment left from debug below)
+
+1.87  (10/21/99, amd)
+- annotes: added a few (ccannote now just includes annotes for backward compat)
+- ccinstance/ccprep: changed to count (and name) instances better
+    (rather than unique operators as was before)
+
+1.86  (10/20/99, eylon)
+- "-xc" option now flattens states into basic-blocks  (exline still not done)
+- bug fixes for array type-checking and symtab scoping
+
+1.85  (10/14/99, amd)
+- checked-in ccinstance, ccbody, ccoperator, cccopy
+- CC body fix: segment initiation and maybe naming
+- added operator "terminate" (also "copy")
+- instance support for copy/terminate, and fixed segment numbering
+    (problem remains with segment counting)
+    (that's ccinstance, ccbody, and operator not ccoperator)
+- added cccopy to makefile
+
+1.84  (10/14/99, eylon)
+- "if" now checks type of condition (must be boolean)
+- issue warnings for stmt calls which ignore operator's return value
+
+1.83  (10/14/99, eylon)
+- new "-xc" option enables canonical-form xforms (exlining, etc.),
+    presently implemented only lifting inlined-calls/array-refs to stmt level
+- "-etdf" option now prints type predicates as TDF comments
+- CC backend: added missing segment cast
+
+1.82  (9/8/99, eylon)
+- reduced memory footprint and runtime by 100x!
+    (changed LEDA implementation of Tree annotations from "map" to "d_array")
+
+1.81  (9/2/99, eylon)
+- fixed type-checking bug for cat() builtin  (amd spotted early exit)
+
+1.80  (9/2/99, eylon)
+- type regeneration now catches internal type-checking errors (fatal)
+- fixed bug in mapping over memory-array refs, where gc corrupted the refs
+- fixed bug in constant-folding type predicates
+- cosmetic changes to reduce g++ warnings when compiling tdfc
+
+1.79  (9/1/99, eylon)
+- garbage collector is now more careful to not delete built-in
+  operators, exprs, types, symbols
+
+1.78  (8/31/99, amd)
+- added support to delete types, even at stmt level at several points
+
+1.77  (8/31/99, amd)
+- added support to frontend (operator, expr) for a builtin copy
+  (wanted to go ahead and check this back in now so we stay in-sync
+     ...also think eylon may want to look at typechecking for cat)
+
+1.76  (8/30/99, amd)
+- ccbody/define segments in proc_run/compose case
+- some tweaks to instance in preparation for overhaul (again)
+
+1.75  (8/27/99, amd)
+- add -dps option
+- ccbody/create result
+
+1.74  (8/27/99, eylon)
+- new "-gc" option for AST garbage-collection
+    (we presently gc only after type-checking & instance generation,
+     could be more frequent to save more memory)
+- Type info may now be manually deleted, regenerated on-demand
+    (we presently do not actually delete types anywhere)
+- relaxed initial-value assignment of too-wide a word from fatal to warning
+
+1.73  (8/26/99, amd)
+- cosmetic typkind->int casts 
+- add id->obj cast to stream types
+- work on typing and constructors for segments
+- start tracking return/output value assignment problems in instance
+
+1.72  (8/26/99, rhuang)
+- initial fix of typed Segments in cctypes.h
+
+1.71  (8/24/99, amd)
+- support typed ScoreSegments
+- fixed minor spacing problem w/ segments
+- reverted code added in 1.69 which screwed up stream creation for
+   instances
+- fixed result stream creation for proc_run
+- removed local typedecleration in Page code which shadowed 
+   object state (thanks Michael)
+
+1.70  (8/20/99, amd)
+- Makefile update for linux (3.8a) LEDA
+- ccinstance generated lingering reference to group, changed to page_group
+
+1.69  (8/19/99, amd)
+- better support segments in cc backend
+  + deal with EXPR_ARRAY and TYPE_ARRAY
+  + deal with passing/typing/creating/initialization
+  + support to distinguish params which don't cause instances
+- support hex constants in frontend
+
+1.68  (8/5/99, amd)
+- make read values persistent (always stash in retime array and read from there)
+- cleanup some constant folding
+- cleanup/fold bit select code
+- add segment start (well, start adding, it's problematic as it is now)
+
+1.67  (8/5/99, eylon)
+- allow more expressions in compositional operators
+    (warning, did not implement binding-time analysis to allow only
+     expressions with bound arguments, i.e. consts/params)
+
+1.66  (8/5/99, eylon)
+- fixed prototypes of builtin segment operators (R,W ports were reversed)
+
+1.65  (8/5/99, eylon)
+- fixed AST node-sharing bugs (in Expr type-checking)
+- fixed inlined-call type-checking to regenerate cleared types
+- fixed disallowing of input-streams as inlined-call args in compositional ops
+
+1.64  (8/5/99, eylon)
+- "-pm" memory-profiling option now reads process memory, not system memory
+
+1.63  (8/4/99, eylon)
+- "-dshared" debug option finds shared AST nodes
+- fixed tons of AST node-sharing bugs (more pending)
+- fixed various expression type-checking bugs
+- fixed generation of type-predicates (now at AST leaves only, not propagated)
+- changed handling of type-widths to improve type-checking, sharing, memory use
+    * Type with constant width does not keep widthExpr
+       (Type::getWidth()>=0 --> Type::getWidthExpr()==NULL)
+    * Type::makeWidthExpr() generates unique copy of widthExpr on demand
+    * similarly for TypeFixed::makeIntWidthExpr,
+                    TypeFixed::makeFracWidthExpr,
+                    TypeArray::makeNelemsExpr
+- added non-recursive AST destructors (prep for discarding Types, GC)
+
+1.62  (8/3/99, amd)
+- comparison test for builtin types in instance flatten expr was faulty
+- minor change, but once added compiles stuff in cctest w/out crashing
+
+1.61  (8/3/99, amd)
+- more work on instance resolution
+  (dealing with null environments, getting args evaluate in right
+     environment)
+- initial attempt at segment handling code in instance generation
+- fixed bug where param assignments all going to param[0]
+- feedback file reading deal with 0x specification for values
+- fix constant folding bug which led to count+1 being reduced to count
+- minor fix to expr typing on builtins to not trash type
+
+1.60  (8/2/99, eylon)
+- clearType() AST method clears ptrs to memoized types
+    (presently for mem profiling; must GC unreferenced types elsewhere)
+
+1.59  (7/30/99, eylon)
+- support built-in segment operators (CMBs) in compositional operators
+
+1.58  (7/29/99, amd)
+- added linux specific memory usage monitor
+- added tree node option to timestamp
+- revamped bindvalues to use map2
+- fixed a couple of problems in ccinstance pagestep code generation
+  + mismatch in assignments of numbers to done_ eos_
+  + using wrong return value to create bogus return stream
+
+1.57  (7/28/99, eylon/amd)
+- "-pm" for memory profiling, "-pt" for time profiling
+- variable duplication bug (eylon)
+- "type vs. symtab" bug in instance.cc (amd)
+
+1.56  (7/28/99, amd)
+- include operator name in proc_run verbose (-dpr) state print
+
+1.55  (7/28/99, amd)
+- generate .instances file
+- hoist flattening out of instance generation loop
+- continue to work on / revamp resolution in instance.cc
+  fixed many problems with things being evaluated in wrong environment
+
+1.54  (7/26/99, eylon)
+- fixed more type-sharing bugs
+
+1.53  (7/22/99, amd)
+- added flag (-dpr) to generate verbose information in proc_run state
+    translation (prints out state name and input values on each transition)
+- worked on builtin_cat in bindvalues (looks like there's still some
+    duplicate/relink problems)
+- instance.cc needed some builtin_cat/widthof/bitsof support
+
+1.52  (7/22/99, amd)
+- proper handling of result value in ccbody (processor side compose)
+  create result stream when necessary
+  rename functional largs to result when necessary
+- with this done, everything currently in cctest compiles to a .o file
+  (master file)
+
+1.51  (7/21/99, amd)
+- revamp instance generation to avoid symbol proliferation
+  (do own interpretation and assignment as much as possible)
+  uses map2
+- add support for builtin_done and builtin_cat
+- feedback deal more robustly when fgets not return data
+- with this done, everything produces .cc files w/out crashing
+
+1.50  (7/21/99, eylon)
+- fixed duplication of builtin calls (ExprBuiltin)
+
+1.49  (7/21/99, eylon)
+- AST threading is now done in node constructors, obviating thread() method
+- fixed more type-sharing bugs
+- documented map, map2
+
+1.48  (7/21/99, eylon)
+- bug-fixes for map2
+
+1.47  (7/21/99, eylon)
+- overhauled map2  (now allows changing AST node to different kind)
+- version string is now "unknown" if Makefile cannot figure it out
+
+1.46  (7/20/99, eylon)
+- support builtin done()
+- support implicit 0-width sync tokens for inlined calls with no arguments
+- fixed more duplication & link bugs
+
+1.45  (7/20/99, eylon)
+- version string is now in macro TDFC_VERSION,
+    not dynamic file "version.h", so make recompiles fewer files
+    (version computed by Makefile, default "unknown" in new file version.h)
+
+1.44  (7/19/99, amd)
+- minor fix in ccinstance to guard retime structure consistently between 
+  declaration and use (pretty minor change, but is orthogonal to what
+  I expect to be toucing next)
+
+1.43  (7/16/99, jyeh)
+- added basic code for rate identification
+- should be stable in the sense of no compile time errors
+- or run-time core dumps but still a lot a work to do
+
+1.42  (7/15/99, eylon)
+- fixed cases of shared Type nodes (see 1.36 comments)
+- added beta-renaming (replace formals by actuals) in return-type
+    of inlined calls  (no beta-renaming of streams during type-checking yet)
+- new Tree::map2() allows walking + modifying AST in-place
+- "-ecc" now renames vars of all operators before any further processing
+
+1.41  (7/14/99, amd)
+- added code (mostly in ccinstance) to handle retiming for page step code
+- fixed some symbol finding in bindvalue
+- added lots of noise/debug to instance generation (for now)
+- comment out debug noise in cctype
+
+1.40  (7/13/99, amd)
+- added code (mostly in ccbody) to handle retiming for proc_run case
+- also split out case header common code into cccase
+
+1.39  (7/12/99, amd)
+- add code in C++ generation to rename variables to avoid conflicts with
+  variables added during compilation and C++ keywords
+- added timestamps code
+
+1.38  (7/6/99, amd)
+- fixed up stuff so output instance c++ code will compile
+   (mostly moving around initialization into constructor)
+- fixed fencepost error on default eos
+- fixed produce value initialization problem
+- made ccstmt take a state_prefix argument
+
+1.37  (7/5/99, amd)
+- fix check eos default exit at end of explicit state signatures
+- fix (put in scheme to fix, anyway) problem with return value/call arg
+  types being resolved in wrong environment ... try to rename to 
+  syms to acount for formal/actual assignment
+- bit of cosmetic work on alignment
+- added ifdefs for cygwin, tweaked makefile for curret linux/scratch setup 
+ 
+1.36  (7/2/99, eylon)
+- Type nodes in AST are no longer shared  (was problematic for duplication)
+
+1.35  (7/1/99, amd)
+- cleanup spacing in ccinstance (pagestep code)
+- force more things through EvalExpr before passing to ccEvalExpr
+- broaden instance compose exprs (allow values), more useful error message
+- reunited return sym and function name
+
+1.34  (7/1/99, eylon/amd)
+- more fixes for duplicate+link of symbols, symtabs  (obviated amd's rebind.cc)
+- compute produces/consumes for page generation [untested] (amd)
+- NULL-else bug fix (procrun) (amd)
+- compose exprs allow math (assume typechecked elsewhere) (amd)
+- cast parens balance (amd)
+
+1.33  (7/1/99, eylon)
+- fixed duplicate+link for child symbol tables
+
+1.32  (6/30/99, amd)
+- checked in changes w/ pagestep code addition
+- code compiles, but no run tests
+- bindvalue work
+- before integrating eylon's 1.31 changes
+
+1.31  (6/30/99, eylon)
+- fixed AST duplicate+link to support operator instantiation ("unique dup")
+
+1.30  (6/29/99, amd)
+- [some 1.30 files checked in as 1.29]
+- first pass at bindvalues
+- some code in ccinstance to declare top level variables in page
+
+1.29  (6/29/99, eylon)
+- fixed bug where binary operator '%' did not print in TDF output
+- fixed bug which reversed high/low bit-range-positions in arrays (x[1][2:3])
+- TDF output now has smarter (fewer) parentheses
+- more type-checking for arrays
+- [see 1.30]
+
+1.28  (6/28/99, amd)
+- catchup getValues->getValue (for scalars, still not handle memories)
+- some work dealing with cygwin32 (most of it still comments of what will
+     need to change)
+- work cleaning up flattening/duplication in instance generation
+
+1.27  (6/24/99, eylon)
+- added support for memory arrays
+- fixed initial values for variables
+
+1.26  (6/17/99, eylon)
+- fixed bugs in AST duplication (forgot to set parent pointers)
+
+1.25  (6/17/99, eylon)
+- fixed bugs in operator duplication
+
+1.24  (6/16/99, eylon)
+- fixed handling of "stay"  (stored internally as "goto own-state")
+- fixed seg-faulting bugs due to copying NULL tokens  (tokens need not copy)
+- made file locking more portable  (no flock() on Solaris; use lockf())
+
+1.23  (6/16/99, amd)
+- added first pass at flattenning code (needs debug)
+- started backend ScoreOperatorInstance/ScorePage generation 
+
+1.22  (6/15/99, amd)
+- added frontend stuff to read feedback files and sort out
+     instances that need to be generated
+- probably some cleaning up of C++ code generation
+
+1.21  (6/11/99, eylon)
+- g++ version used for preprocessing is now macro "CXX" set by Makefile
+    (still looked up thru $PATH, default "g++")
+- added option '-I<dir>' for preprocessing
+
+1.20  (6/11/99, eylon)
+- now invokes C-preprocessor via g++
+- added options '-E', '-D...' for preprocessing
+- added options '-etdf' '-ecc' to emit target language ('-ecc' engine by amd)
+- examples:  modified Makefile, renamed source files '.d', '.pd' to '.tdf'
+
+1.19  (6/10/99, amd)
+- internal changes in '-ecc' engine
+
+1.18  (6/10/99, eylon)
+- fixed type-checking of operator '?'
+- fixed creation and printing of variable symbol-tables 
+
+1.17  (6/9/99, eylon/amd)
+- behavioral operators now remember their start-state (eylon)
+- support for renaming symbols (vars,streams,params,operators,states) (eylon)
+- separated build directories:  src, architecture-build, examples, etc. (amd)
+- modified Makefile for multiple architectures (working: sparc, linux) (amd)
+
+1.16  (6/3/99, eylon)
+- restructured #includes
+    (moved inclusion of all AST stuff from "parse.h" to new "treeincl.h")
+- fixed minor bug which threw away constants
+
+1.15  (6/2/99, amd)
+- modified Makefile to build on Solaris 2.5 (previously only 2.6, 2.7)
+
+1.14  (4/21/99, eylon)
+- changed compiler name to "tdfc"  ("dfrtl"-->"tdf" in text & file names)
+- new "eos()" syntax/semantics  (now a token in state signatures)
+- added mechanism to map a funct over a tree (map())
+- fixed version info ("-v") to get version number from src files, not RCS files
+- added U.C.Regents disclaimer and RCS revision tag to all source files
+
+1.13  (4/18/99, eylon)
+- added more type-checking code to detect illegal stream usage (e.g. wrong dir)
+- fixed compositional operator syntax to accept pass-through assignment "a=b"
+- version info ("-v") now reflects all source files
+    (scans RCS files, stored in automatically-created file "version.h")
+
+1.12  (4/16/99, eylon)
+- added type-checking
+- added "-q" quiet option to supress warnings
+- removed lots of old, commented-out type-checking code (from v1.5)
+
+1.11  (4/11/99, eylon)
+- added boolean constants "true", "false" to lexer
+- fixed parser actions which generated reversed lists (e.g. arg lists)
+- removed syntax for typeless arg-decls (e.g. "param n")
+    to avoid confusion regarding implicit type
+- activated+debugged some unactivated linking code
+- added code to print AST
+- added code to compare exprs, types, syms
+- tokens now point into a set of file names instead of duplicating strings
+
+1.10  (4/7/99, eylon)
+- added "-v" option to front end to show revision info
+    (only shows revision for dfrtl.cc, not across all files)
+
+1.9  (4/7/99, eylon)
+- created superclass "Tree" for all parts of AST,
+    providing homogeneous access to token, parent, symtab scope, etc.
+- added wildcard type for unlinked & polymorphic types (in builtins),
+    also nil type for non-typed tree nodes
+- added linking code with minimal semantic checks
+    (e.g. disallow certain stmts/expr in compositional operators)
+- dfrtl_init() now handles all initialization of pre-defined objects
+
+1.8  (4/2/99, eylon)
+- global "gSuite" of new class "Suite" contains all known operators
+- converted several list<> implementations to set<> for performance
+
+1.7  (4/1/99, eylon)
+- parser now constructs abstract syntax tree (AST),
+    with minimal semantic checks during parse
+- lexer/parser returns real tokens
+- introduced dfrtl_init(), dfrtl_exit(),
+    for now just to initialize builtin operators
+
+1.6  (3/24/99, eylon)
+- fixed expression grammar to be more C-like.
+    now allows mixing of boolean and numeric expressions.
+    note:  unlike C, TDF statements (e.g. assignment) do NOT have values.
+
+1.5  (3/24/99, eylon)
+- added lots of preliminary, commented-out linking/type-checking code
+- filled in some interface details of parser classes
+- added dependencies Makefile
+
+1.4  (3/15/99, eylon)
+- overhauled grammar
+- first try at parser classes in separate operator/state/stmt/expr files
+
+1.1-1.3  (amd)
+- Andre's initial work

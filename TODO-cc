@@ -1,0 +1,321 @@
+Things on queue to do now:
+
+  - support to spawn pthread for segments in ccbody
+    + WRITTEN --> check out
+
+  - PUSH test exercise memory builtins (added, will parse, REVIEW CODE)
+    (now added .fusers to force instance generation)
+     + segment1
+     + segment2
+     + segment3
+     + segment4
+     + segment5
+     + segment6
+     + segment7
+     + segment8
+     + table_trans
+
+  - push run tests on cctest
+    + ...check xor3a, xor3b
+    + when Ok, build rest of xor3 run tests
+    + check existing run tests
+    + ? rest of hand tests -> run tests here
+    + everything under cctest/run under RCS
+
+  - instance
+    + support fanout and copy nodes
+    + orphaned (non-escaping, but unused outputs) need something
+         done with them (maybe free them from output side) --> terminate
+    + tests (write and verify)
+      - terminator (explicit terminate)
+      - terminator2 (terminate should be inserted) 
+      - ecopy (explicity copy inputs)
+      - erescopy (explict copy results)
+      - copy node typechecking
+        + won't copy arrays
+        + outputs must be lvalues
+        + outputs must be consistent with input
+      - copy nodes collapsed
+      - flattened copy nodes collapsed 
+         (i.e. not visible as cascaded copy until inlined)
+      - (icopy,irescopy) fanout in operator required copy addition
+      - fanout in operators cause additions (like flatten node collapse)
+      - direct input->output connection
+      - input shared by output and internal
+      - internal stream goes to multiple outputs
+      - single output case gets canonicalized w/out copy node
+      - input stream fans out to multiple internal consumes
+    
+  - ccinstance/ccbody handle copy nodes
+    + mostly done
+    + TODO: ccCopyPage (write pagestep code for a copy operator)
+    + TODO: ScoreCopy (proc_run code for a copy operator)
+
+
+  - michael would like dps to flag which state entering before fire 
+         a particular signature....
+
+  - cat7.tdf --> getting TYPE_ANY while trying to figure out widthof(vb)...
+    ?? still
+
+
+
+  - add tests targeted at value folding
+    rerun/check fold results for these
+     + fold1 single value
+     + fold2 divide by zero
+     + fold3 cond
+     TODO constant pairs
+
+  - add masking
+     + assignments when target smaller than expr
+     + casts (when smaller than expr)
+     + stream writes (again, when smaller...)
+
+  - add some tests which use widthof
+  - cat tests
+     + look at results from those that already exist
+     + maybe more
+  - add test cases where do throw away return value from operator call
+    (i.e. call operator w/ return value, but not assign to anything)
+  - ultimately add table_trans and then equivalents for other modes
+
+  - gc the now gratuitous EvaluateExprs in ccinstance/cceval/etc. 
+  - hoist flatten before generating proc_run code
+  - ? figure out if there is an EvaluateExpr/bindvalue like pass
+    can run on code before generating proc_run (to fold existing constants...)
+  - ? also check if there is/needs to be some constant fold at 
+      statement level (handle if-then-else, mostly)
+
+  - keep track of proc_run pthread handles,
+     code to join on atexit
+
+
+  - ccinstance / ScoreOperatorInstance
+       * add open_streams
+       * compute open_streams
+
+
+note: tdfc <-- might need to be update parameter_locs there
+          (or, at least, make sure feedback->read_feedback can
+            deal robustly w/ not getting a parameter value for
+            some slot which is sym->isParam but not in ccParamCausesInstance)
+
+  - ? fix ccbody retiming to deal with icky cases of local variables
+    defined from parameters and used as retiming depth...
+
+  - in instance case, map over all types for acceptability
+    (count numbers and report for chuckles)    
+
+
+  - ccEvalExpr augment with evaluation context ?
+    + deal with stream translation?
+     (7/27/99 --> I don't know what this means any more...)
+
+----------------------------------------------------------------------------
+Things have been put off on first pass
+  (won't work now, will need to come back to):
+  
+  - fixed point representation and handling
+  - memory: declaration and use (doesn't exist in AST, yet)
+  - embedded C++/C++ operators (not in AST or "programming..")
+
+Pre-processing assuming (above cc..., all still todo):
+
+  - inlining (exlining) of calls
+  - inlining builtins?
+  - other builtins
+  - composition operator bit move/select transformation
+  - multiple consumption transformation of states 
+  - memory type identification
+  - fixed/dynamic rate determination
+
+  Got clear w/ Eylon
+  - sorting out which parameters cause instances... 
+     (depends on backend, but mostly everything execpt TYPE_ARRAY)
+  - where need to do type acceptance tests for variable declarations, yet?
+          (map over all, not doing, yet )
+  - semantic difference in regular vs. locals (none now, like C)
+
+
+
+----------------------------------------------------------------------------
+  - bug w/ stmts dissappearing
+  - push stream constructors at rhuang
+  - STREAM handling
+    + declare type for read values (written)
+    + close/free (written)
+    + stream/value naming  (first attempt)
+  - Makefile 
+     + segregate machine specific / generic
+     + port linux
+  - first state identification
+  - change return/functional
+  - include header files for called operators in composite
+  - cctest
+       xor, xor3
+      select2
+      merge
+      sigma10
+      jyeh_faan_dct_jun10
+      (lazydiv have to wait for embedded C++ syntax/compile support)
+      (table_trans wait for memory...)
+(Joe's examples:  ~jyeh/develop/score/taskdesc/{dct,Decoder,Encoder})
+  - value resolution/binding at end of instance before pass on to ccinstance
+  - pagestep code
+  - ? duplicate problems in instance.cc [second time through not seeing
+         same structure...probably trashing some original...]
+  - fencepost error (missing top stream?) on default/eos check code
+  - chase down bogus/erroneous produce values
+  - move around initialization (into constructor) so instance code will compile
+  - rename user vars so don't conflict with things I use...(like in)
+  ? variable/name mangling?  (same thing as above?)
+  - max retiming depth identification
+  - input retiming / retiming of data streams
+      e.g. ~jyeh/develop/score/taskdesc/Encoder/src/ZLE.tdf
+  - serious revamp of instance.cc
+    do assignments internally, don't create all the extra symbols
+    + avoid GC A=A stmts (avoid adding?) [check/work]
+  - initially cyclic assignment tests for instance.cc
+  - pass over ccinstance/ccbody/instance to 
+    note what builtins they expect to see and make sure they
+    are dealing with them
+  + param_math_a.fuser, sigma10.fuser, comp_cycle_a.fuser
+   xor3f --> ccbody not deal with return value through procedure call?
+            not even declaring/setting return value stream...
+         + return didn't need to be declared in body (done in header)
+         + did have to make sure return value gets allocated and
+            is renamed in callargs
+  - debug code to print out state and firing info... (-dpr)
+  - add tests to exercise cat
+   ...include cat w/ parameter math (in both behave and compose)
+  - shake down new instance
+     + why logic dissappearing? --> answer: not turning call exprs
+                                      back into stmts and putting
+                                      back in code after flattening. (now fixed)
+                                    
+      
+	cat4_4_3.cc:    pages=0;
+	cat5_3_1.cc:    pages=0;
+	comp_cycle_a_b.cc:    pages=0;            <--- START HERE
+	param_math_e_instance.cc:    pages=0;
+	param_math_f_6.cc:    pages=0;
+	param_math_j_0_1_2_3.cc:    pages=0;
+	xor3f_8.cc:    pages=0;
+	xor3g_9.cc:    pages=0;
+	xor3h_7.cc:    pages=0;
+  - support builtin_done, builtin_cat (behave version) -- written/shakedown
+    +bindvalues needs more general, partially defined cat support
+    ...blah, now looks like we have a problem with resolution/linking
+          --> yes, that's where it was.
+  - tdfc/instance
+     hoist flattenning out of generate_instance loop
+     hoist flattenning out of generate_instance loop
+     ...flatten for everyone, then duplicate an instance for each
+      value binding / instance generation
+  - tdfc generate foo.make (or some such) for instances...
+    ACTUAL: tdfc generate foo.instances 
+       ...use that in Makefile to get target list
+  - instance now not resolving because some things substituted too early
+    PROBLEM:  was that shouldn't be resolving at every level if
+              going to link all the way back to environment at
+              point of flattening.
+    SOLUTION: only link top level
+              ...introduced other problems (necessary changes) to 
+              deal with fact things aren't relinked at each stage.
+  - had a problem with actuals arguments being evaluated in the environment
+     w/ the formals for the called procedure...need to make sure
+     evaluated in higher environment.
+  - condition showing of Time
+  - metric memory behavior
+  - bindvalues use map2 to replace bound values
+     (perhaps obsolete EvaluteExpr)
+      ?? careful with cases (like cat) where width of original expression
+         needs to be preserved
+      add single constant value folding...
+  - cat6 
+     - environment push/pop consistency problem
+         (null environment can be on stack,
+         need to distinguish the case where there is NO environment
+         from the case where a NULL environment means use the
+         same environment as the parent tree node...)
+        + also was still having trouble resolving environments correctly
+     - causes coredump (cat problem in ExprCall::link,
+                         continue 
+  - feedback.cc <- use strtoul so can handle 0x in feedback numbers
+  (change ScoreOperator.cc to include this data)
+  - add some tests which use widthof
+     + cat6 
+     + param_math_k 
+
+  - rework code so stream values persistent...available
+     even beyond state in which read...and correct
+     thing when eos occurs on stream
+    + ccbody 
+    + ccinstance
+    + cceval
+  
+  - problems in cctest w/ retiming existing (cat1_2_3_4.cc)
+     + was still guarding creation of retime_length and array at class level
+      (removed)
+  - bindvalue folding
+     arbitrary ? consta:consta
+  - add tests for various cases of bit selection a[h:l]
+    + bitsel1.tdf
+  - add test 
+     + persist2,1 state x(a): goto y; state y(b): o=a; ... etc.
+     + persist3 state foo(eos(a)): o=a; // last value read 
+    -dshared cctest problems (duplicate lvalue given to 
+                              evaluated expr arguments so have separate
+                              copy for assignment and args,
+                              duplicate type when creating new symbol)
+  - ccinstance's shift value (for a[h:l]) looks problematic (written/test)
+    ...maybe deal better w/ these in folding?
+     (avoided by writting folding into cceval)
+
+  - parser accept hex formatted constants 
+  - backend support memory builtins
+    + instance, ccbody, ccinstance
+    NOW
+     + what are these arrays....not dealing with them at all
+       when local, need to create segment
+     +  when passed in, pass along...
+       ...need to start worrying about parameters which don't generate
+         instances....
+     SO: made pass over to check places where did getTypeKind and isParam
+     + ccinstance, cctype, bindvalues, cceval, feedback, ccbody
+          ccheader, ccprep (collect up builtins like calls)
+     new: ccmem
+
+  - cat4.cc looking for cat.h ... maybe need to guard not to 
+      print .h files fo builtins....
+  - no space between new and segment...
+  - master file for xor3 (xor3.cc/ccbody) doesn't create(new) the
+      result stream .... need to track down
+    (also check for spurious semi's at beginning of constructor)
+      8/24 --> ah, yes the code is obvious.  it was not guarding
+        the semi, but was guarding the new...
+  - reverted so ccinstance will create streams (even when output)
+      to pass into ScorePage instances
+  - add test use hex format (done, works)
+    + fold1h.tdf/fuser
+  - when get access to tdfc
+     + dps->debug_logic option to ccinstance
+  - Document/writeup
+    + file types in use
+    + how to run tdfc
+  - tdfc <-- add -noinstances
+  - Document/writeup
+    + invariants/where normalizing transforms are done
+
+
+
+
+
+
+
+
+
+
+
+

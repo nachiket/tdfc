@@ -1,0 +1,35 @@
+SegmentRO	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] data);
+
+SegmentRO_s	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param    signed[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output   signed[dwidth] data);
+
+SegmentRO_f	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      fwidth,	// no. fractional bits
+		 param  unsigned[6]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][(dwidth-fwidth).fwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[(dwidth-fwidth).fwidth] data);
+
+SegmentRO_fs	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      fwidth,	// no. fractional bits
+		 param  unsigned[6]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param    signed[nwords][(dwidth-fwidth).fwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output   signed[(dwidth-fwidth).fwidth] data);
+
+----
+
+SegmentRO<datatype>(...)
+
+SegmentRO(...)

@@ -1,0 +1,164 @@
+// - Segment operator implementations for Xilinx Virtex II BlockRAMs
+//
+// - BlockRAM synchronous read + write, must register address and write data
+// - Verilog extensions are:     // VERILOG ...
+//     and assume memory "mem":  // VERILOG reg [dwidth-1:0] mem [nwords-1:0];
+// - RAM address + data registers are shown as TDF variables,
+//     written only on firing;  a more efficient implementation
+//     would write those registers on every cycle, without enable.
+//
+// - Eylon Caspi 12/9/04
+
+
+////////////////////////////////////////////////////////////////
+
+SegmentR	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] data)
+{
+  unsigned[awidth] addrreg;
+  unsigned[dwidth] memo;	// does NOT infer register
+
+  state start  (addr) : addrreg=addr;            goto steady;
+  state steady (addr) : addrreg=addr; data=memo; goto steady;
+  state steady ()     :               data=memo; goto start;
+
+  // VERILOG assign memo = mem[addrreg];
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 input  unsigned[dwidth] data)
+{
+  unsigned[awidth] addrreg;
+  unsigned[awidth] datareg;
+
+  // VERILOG reg we;		// does NOT infer register
+  // VERILOG always @(posedge clock) begin we=0; [fire here] end
+
+  state steady (addr,data) : addrreg=addr; datareg=data;  // VERILOG we=1;
+
+  // VERILOG always @(posedge clock) begin
+  // VERILOG   if (we) begin mem[addrreg] <= datareg; end
+  // VERILOG end
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentRW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] dataR,
+		 input  unsigned[dwidth] dataW,
+		 input  boolean          write) 	// r/w mode
+{
+  // - Static rate implementation
+  //     dataW is consumed on every firing, even for read
+
+  unsigned[awidth] addrreg;
+  unsigned[awidth] datareg;
+  unsigned[dwidth] memo;	// does NOT infer register
+
+  // VERILOG reg we;		// does NOT infer register
+  // VERILOG always @(posedge clock) begin we=0; [fire here] end
+
+  state start  (addr,dataW,write) :
+    addrreg=addr;
+    datareg=data;
+                           goto steady; // VERILOG we=write;
+
+  state steady (addr,dataW,write) :
+    addrreg=addr;
+    datareg=data;
+    if (write)                          // VERILOG we=1;
+    else       dataR=memo; goto start;  // VERILOG we=0;
+
+  state steady () :
+    if (write)                          // VERILOG we=1;
+    else       dataR=memo; goto start;  // VERILOG we=0;
+
+  // VERILOG assign memo = mem[datareg];
+  // VERILOG always @(posedge clock) begin
+  // VERILOG   if (we) begin mem[addrreg] <= datareg; end
+  // VERILOG end
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentRW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] dataR,
+		 input  unsigned[dwidth] dataW,
+		 input  boolean          write) 	// r/w mode
+{
+  // Dynamic rate implementation
+  //  - dataW is consumed only on write firings, when write==0
+
+  unsigned[awidth] addrreg;
+  unsigned[awidth] datareg;
+  unsigned[dwidth] memo;	// Verilog temporary
+
+  // VERILOG assign memo = mem[addrreg];
+
+  // VERILOG reg we;
+  // VERILOG always @(posedge clock) begin we=0; [fire here] end
+
+  state start (addr,      write) :
+    if (write) addrreg=addr; goto getd; 		  // VERILOG we=1;
+    else       addrreg=addr;				  // VERILOG we=0;
+  state start (addr,dataW,write) :
+    if (write) addrreg=addr; datareg=dataW;		  // VERILOG we=1;
+    else       addrreg=addr; datareg=dataW; goto nodata;  // VERILOG we=0;
+  state getd   (dataW) :
+                             datareg=dataW; goto start;   // VERILOG we=1;
+  state nodata (addr,write) :
+    if (write) goto start;				  // VERILOG we=1;
+    else       addrreg=addr;				  // VERILOG we=0;
+
+  // VERILOG  if (we) begin mem[addrreg] <= datareg; end
+
+  // The firings are very convoluted, because TDF does not
+  // support value guards.  What we really want is:
+  // state start (addr,      write==0) : ...
+  // state start (addr,dataW,write==1) : ...
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentSeqR	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 output unsigned[dwidth] data);
+
+////////////////////////////////////////////////////////////////
+
+SegmentSeqW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[dwidth] data);
+
+////////////////////////////////////////////////////////////////
+
+SegmentSeqRW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// max words
+		 param  unsigned[nwords][dwidth] contents,
+		 output unsigned[dwidth] dataR,
+		 input  unsigned[dwidth] dataW);
+
+////////////////////////////////////////////////////////////////

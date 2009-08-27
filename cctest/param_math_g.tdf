@@ -1,0 +1,22 @@
+unsigned[w+1] myadd(param unsigned[5] w, 
+                  input unsigned[w] a, input unsigned[w] b)
+{
+  state only(a,b):
+    myadd=a+b;
+}
+
+unsigned[w+2] myadd3(param unsigned[5] w, input unsigned[w] a, 
+                     input unsigned[w] b, input unsigned[w] c)
+{
+  myadd3=myadd(w+1,a,myadd(w,b,c));
+}
+
+
+unsigned[w+3] param_math_g(param unsigned[5] w, input unsigned[w] a, 
+                     input unsigned[w] b, input unsigned[w] c,
+                     input unsigned[w] d, input unsigned[w] e, 
+                     input unsigned[w] f)
+{
+  param_math_g=myadd(w+2,myadd3(w,a,b,c),myadd3(w,d,e,f));
+}
+

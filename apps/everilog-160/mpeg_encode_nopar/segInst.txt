@@ -1,0 +1,5 @@
+segYbtab[0],segYbtab[1],segYbtab[2],segYbtab[3],segYbtab[4],segYbtab[5],segYbtab[6],segYbtab[7],
+segYctab[0],segYctab[1],segYctab[2],segYctab[3],segYctab[4],segYctab[5],segYctab[6],segYctab[7],
+segYdtab[0],segYdtab[1],segYdtab[2],segYdtab[3],segYdtab[4],segYdtab[5],segYdtab[6],segYdtab[7],
+segCatab[0],segCatab[1],segCatab[2],segCatab[3],segCatab[4],segCatab[5],segCatab[6],segCatab[7],
+segCctab[0],segCctab[1],segCctab[2],segCctab[3],segCctab[4],segCctab[5],segCctab[6],segCctab[7],

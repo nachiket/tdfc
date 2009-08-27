@@ -1,0 +1,37 @@
+//  Zero-length encoder
+//   - input  7-bits
+//   - output 8-bits [zero | value]
+//       high-bit==0 indicates non-zero value passed through
+//       high-bit==1 indicates run of zeros, value==(run length)
+
+#define ZERO_MASK 128
+
+zle_eos (param  unsigned[7] maxZeros,	// max allowable run length
+         input  unsigned[7] i,		// input value
+         output unsigned[8] o)		// output [zero-bit | value]
+{
+  unsigned[7] cnt=0;
+
+  state start (i) :
+    if (i==0)	{ cnt=1; goto zeros; }
+    else	{ o=i; }
+
+  state zeros (i) :
+    if (i==0)
+    {
+      if (cnt==maxZeros)	{ o=ZERO_MASK|maxZeros; cnt=0; goto start; }
+      else			{ cnt=cnt+1; }
+    }
+    else
+				{ o=ZERO_MASK|cnt; cnt=0; goto pending; }
+
+  state zeros (eos(i)) :
+				{ o=ZERO_MASK|cnt; close(o); done(); }
+
+  state pending (i) :
+    if (i==0)			{ o=i@1; cnt=1; goto zeros; }
+    else			{ o=i@1; }
+
+  state pending (eos(i)) :
+				{ o=i; close(o); done(); }
+}

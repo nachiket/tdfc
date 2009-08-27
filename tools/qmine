@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+#
+# - Print number of grid slots used by $USER
+# - Eylon Caspi, 10/21/04
+
+$USER = $ENV{USER};
+$jobs = 0;
+open(QSTAT,"qstat -u $USER |");
+while (<QSTAT>) {
+    if (m{$USER}) { $jobs++ }
+}
+close(QSTAT);
+print "$jobs\n";

@@ -1,0 +1,15 @@
+New names for the language
+--------------------------
+
+D	data, description
+DF	data flow
+G	grammar
+S	syntax, stream
+O	operator
+B	Berkeley
+T	task, token
+L	language
+
+DOG	Data-flow operator grammar
+BOD	Berkeley operator description
+BOGUS	Berkeley operator grammar U** syntax

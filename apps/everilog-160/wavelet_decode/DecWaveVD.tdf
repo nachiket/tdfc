@@ -1,0 +1,97 @@
+DecWaveVD(param unsigned[10] rowLen, param unsigned[10] colLen,
+	 param unsigned[8] inWidth, param unsigned[8] outWidth,
+	 output signed[outWidth] a, input signed[inWidth] s,
+	 input signed[outWidth] stemp1bufi,
+	 input signed[outWidth] stemp2bufi,
+	 output signed[outWidth] stemp1bufo,
+	 output signed[outWidth] stemp2bufo,
+	 input signed[outWidth] stemp1abufi, 
+	 output signed[outWidth] stemp1abufo)
+	 // *o is supposed to be connected to *i
+{
+
+  unsigned[20] count = 0;
+  unsigned[20] index = 0;
+
+  unsigned[outWidth] stemp1 = 0;
+  unsigned[outWidth] stemp2 = 0;
+
+  // a is alternately s and d in decomp.c
+
+  // first two lines outside of loop in decomp.c
+  state start(s):
+    {
+      unsigned[21] t_index;
+      a = s;
+      stemp2bufo = s; 
+      // dbufo = d;
+      t_index = index+1; index= index+1; 
+      if (t_index == (rowLen)) {index = 0; goto init;}
+      else {stay;}
+    }
+
+  state init(s):
+    {
+      unsigned[21] t_index;
+      count = 2;
+      stemp1bufo = s; // must wait for first d output
+      t_index = index+1; index = index+1; 
+      // dbufo = d;
+      // d2bufo = dbufi;
+      if (t_index == (rowLen)) {index = 0; goto middle01;}
+      else {stay;}
+    }
+  //
+
+  state middle01(stemp1bufi,stemp2bufi):
+    {
+      unsigned[21] t_index;
+      a = (stemp1bufi+stemp2bufi)/2;
+      stemp1abufo = stemp1bufi;
+      t_index = index+1; index = index+1; 
+      if (t_index == rowLen) {
+	  index = 0;
+	  if (count == (colLen/2)) {goto final01;}
+	  else {goto middle02;}
+      }
+      else {stay;}
+    }
+
+  state middle02(s,stemp1abufi):
+      {
+	  unsigned[21] t_index;
+	  a = stemp1abufi;
+	  stemp2bufo = stemp1abufi;
+	  stemp1bufo = s;
+	  t_index = index+1; index = index+1; 
+	  if (t_index == rowLen) {
+	      index = 0;
+	      count = count + 1; goto middle01;
+	  }
+	  else {stay;}
+      }
+
+  state final01(stemp1abufi):
+      {
+	  unsigned[21] t_index;
+	  a = stemp1abufi;
+	  stemp2bufo = stemp1abufi;
+	  t_index = index+1; index = index+1; 
+	  if (t_index == rowLen) {
+	      index = 0; goto final02;
+	  }
+	  else {stay;}
+      }
+
+  state final02(stemp2bufi):
+      {
+	  unsigned[21] t_index;
+	  a = (stemp2bufi+stemp2bufi)/2;
+	  t_index = index+1; index = index+1; 
+	  if (t_index == rowLen) {
+	      index = 0; goto start;
+	  }
+	  else {stay;}
+      }
+
+}

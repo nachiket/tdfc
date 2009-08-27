@@ -1,0 +1,1 @@
+gcc -I/home/eecs/yurym/ScoreRuntime -I/project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1/incl/ -I/project/cs/brass/a/tools/free/perfctr-0.6 -c *.cc

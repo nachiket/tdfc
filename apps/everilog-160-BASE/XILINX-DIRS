@@ -1,0 +1,23 @@
+#!/bin/csh
+
+# - Create xilinx build directories for all "_ior.v" register shells
+#     except:  page queues, segments, top/appl. "dpq"
+#              (but include top/appl. queues)
+# - Call this inside an application directory, after "verilog-reg-shells"
+# - Eylon Caspi, 9/30/04
+
+if (-d V) then
+  echo "oops, directory V already exists"
+  exit
+endif
+
+set appl = (`ls -1 *_noin.v | egrep -v '^_page_' | perl -npe 's{_noin\.v}{}'`)
+
+mkdir V
+mv `ls -1 *.v | grep -v '_ior\.v'` V
+mv segment_*_ior.v *_qin_ior.v *_q_ior.v ${appl}_noin_ior.v ${appl}_dpq_ior.v V
+
+~/brass/tdfc/tools/xilinx-dirs-63i
+
+mv V/* .
+rmdir V

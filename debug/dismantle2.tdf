@@ -1,0 +1,22 @@
+op (input boolean i, output boolean o)
+{
+  state only (i)      : o=i;
+  state only (eos(i)) : o=!i; done();
+}
+
+op2 (input boolean i, input boolean j, output boolean o)
+{
+  state only (i,     j     ) : o=i&&j;
+  state only (i,     eos(j)) : o=i;     done();
+  state only (eos(i),j     ) : o=j;     done();
+  state only (eos(i),eos(j)) : o=!i&&!j; done();
+}
+
+op3 (input boolean a,
+     input boolean b,
+     input boolean c,
+     input boolean d,
+     output boolean o)
+{
+  state only (a,b,c,d) : o=a&&b&&c&&d;
+}

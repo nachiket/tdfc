@@ -1,0 +1,46 @@
+#!/bin/tcsh
+#
+# Generate tab-delimited (Excel compatible) summary report
+#   for every behavioral project in this directory,
+#   every implementation thereof
+# Use after synthesis (synplify-all)
+# Report format:
+#
+#               rev_1__speed        rev_2__area         rev_3__no_optim
+#               speed area style    speed area style    speed area style  
+# module_dp     .     .    .        .     .    .        .     .    .
+# module_fsm    .     .    .        .     .    .        .     .    .
+# module        .     .    .        .     .    .        .     .    .
+# ...
+#
+# Synplify 7.1
+# Eylon Caspi, 6/8/03
+
+set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -print | perl -npe 's{.*/}{}; s{_fsm$}{}; s{_dp$}{};' | sort | uniq | egrep -v '^_page_'`
+
+echo "Synthesis results for:  ${cwd:h}"
+echo `date`
+echo ""
+echo "\trev_1__speed\t\t\trev_2__area\t\t\trev_3__no_optim\t\t\t"
+echo "\tSpeed\tArea\tFSM\tSpeed\tArea\tFSM\tSpeed\tArea\tFSM\t"
+echo "\t(MHz)\t(LUTs)\tStyle\t(MHz)\t(LUTs)\tStyle\t(MHz)\t(LUTs)\tStyle\t"
+
+foreach topmodule ($topmodules)
+  set modules = (${topmodule}_dp ${topmodule}_fsm ${topmodule})
+  foreach module ($modules)
+    echo -n "$module\t"
+    foreach revpath ($module/rev*)
+      set rev = ${revpath:t}
+      perl -e 'foreach (<>) {                                               \
+		 if (/^(clock|system) +(\d+(.\d+)) MHz +(\d+(.\d+)) MHz/i)  \
+		   { if ($speed==0 || $speed>$4) { $speed=$4; } }           \
+		 if (/^Adding property syn_encoding, value "([^"]+)"/i)     \
+		   { $fsmstyle = $1; }                                      \
+		 if (/^Total +LUTs: (\d+)/i)                                \
+		   { $area = $1 }                                           \
+               }                                                            \
+	       print "$speed\t$area\t$fsmstyle\t"' $revpath/*.srr
+    end
+    echo ""
+  end
+end

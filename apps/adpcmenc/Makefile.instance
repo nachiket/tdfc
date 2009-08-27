@@ -1,0 +1,38 @@
+#SCORE_RUNTIME=/project/cs/brass/a/tools/brass/gold/SCORE/runtime
+SCORE_RUNTIME=/home/eecs/yurym/ScoreRuntime
+#SCORE_RUNTIME=/home/cs/mmchu/SCORE/runtime
+#SCORE_RUNTIME=/home/cs/rhuang/brass/sim/workbench
+LEDA_INCLUDE_DIR = /project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1/incl
+LEDA_LIB_DIR = /project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1
+PERFCTR_LIB_DIR = /project/cs/brass/a/tools/free/perfctr-0.6
+#SCORE_RUNTIME=/scratch/SCORE/runtime
+#LEDA_INCLUDE_DIR = /scratch/LEDA-3.8/incl
+#LEDA_LIB_DIR = /scratch/LEDA-3.8
+#CFLAGS =  -O -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) -I$(PERFCTR_LIB_DIR)
+#CXXFLAGS = -O  -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) -I$(PERFCTR_LIB_DIR)
+CC=/usr/bin/gcc
+CXX=/usr/bin/g++
+CFLAGS	 = -g -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) \
+	   -I$(PERFCTR_LIB_DIR) $(EXTRA_CFLAGS)
+CXXFLAGS = -g -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) \
+	   -I$(PERFCTR_LIB_DIR) $(EXTRA_CFLAGS)
+INSTANCE_HEADERS=$(SCORE_RUNTIME)/ScoreOperatorInstance.h \
+	$(SCORE_RUNTIME)/ScoreStream.h \
+	$(SCORE_RUNTIME)/ScorePage.h \
+	$(SCORE_RUNTIME)/ScoreSegment.h \
+	$(SCORE_RUNTIME)/ScoreSegmentReadOnly.h 
+INSTANCE_OBJECTS=$(SCORE_RUNTIME)/ScoreRuntime.a 
+INSTANCE_LIBRARIES=-L$(LEDA_LIB_DIR) -lL -lG -L$(PERFCTR_LIB_DIR) -lperfctr
+
+################################################################
+
+INSTANCES       = $(shell cat *.instances)
+
+target: $(INSTANCES:=.so)
+
+%.so:	%.o $(INSTANCE_HEADERS) $(INSTANCE_OBJECTS)
+	$(CXX) $(CFLAGS) -shared -o $@ $*.o $(INSTANCE_OBJECTS) \
+	$(INSTANCE_LIBRARIES)
+
+%.o:	%.cc $(INSTANCE_HEADERS)
+	$(CXX) $(CFLAGS) -fPIC -c $*.cc

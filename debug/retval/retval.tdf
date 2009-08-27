@@ -1,0 +1,4 @@
+unsigned[16] retval (input unsigned[16] i) {
+  state only (i) :
+    retval = i+1;
+}

@@ -1,0 +1,60 @@
+bwtsingle(input unsigned[8]         in,
+          param unsigned[5001][9]   v,
+          param signed[5001][32]    pos,
+          param signed[5001][32]    prm,
+          param signed[5001][32]    count,
+          param boolean[5002]       bh,
+          param boolean[5002]       b2h,
+          output unsigned[8]        out) {
+
+    unsigned[9] sentineled;
+
+    unsigned[32] vaddr;
+    unsigned[9]  vdatar;
+    unsigned[9]  vdataw;
+    boolean      vwrite;
+
+    unsigned[32] posaddr;
+    signed[32]   posdatar;
+    signed[32]   posdataw;
+    boolean      poswrite;
+
+    unsigned[32] prmaddr;
+    signed[32]   prmdatar;
+    signed[32]   prmdataw;
+    boolean      prmwrite;
+
+    unsigned[32] countaddr;
+    signed[32]   countdatar;
+    signed[32]   countdataw;
+    boolean      countwrite;
+
+    unsigned[32] bhaddr;
+    boolean      bhdatar;
+    boolean      bhdataw;
+    boolean      bhwrite;
+
+    unsigned[32] b2haddr;
+    boolean      b2hdatar;
+    boolean      b2hdataw;
+    boolean      b2hwrite;
+
+    sentineler(in, sentineled);
+
+    bwt(sentineled,
+        vaddr, vdatar, vdataw, vwrite,
+        posaddr, posdatar, posdataw, poswrite,
+        prmaddr, prmdatar, prmdataw, prmwrite,
+        countaddr, countdatar, countdataw, countwrite,
+        bhaddr, bhdatar, bhdataw, bhwrite,
+        b2haddr, b2hdatar, b2hdataw, b2hwrite,
+        out
+    );
+
+    segment_rw(9, 32, 5001, v, vaddr, vdatar, vdataw, vwrite);
+    segment_rw(32, 32, 5001, pos, posaddr, posdatar, posdataw, poswrite);
+    segment_rw(32, 32, 5001, prm, prmaddr, prmdatar, prmdataw, prmwrite);
+    segment_rw(32, 32, 5001, count, countaddr, countdatar, countdataw, countwrite);
+    segment_rw(1, 32, 5002, bh, bhaddr, bhdatar, bhdataw, bhwrite);
+    segment_rw(1, 32, 5002, b2h, b2haddr, b2hdatar, b2hdataw, b2hwrite);
+}

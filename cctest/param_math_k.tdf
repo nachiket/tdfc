@@ -1,0 +1,31 @@
+unsigned[8] kfoo(param unsigned[8] a, // 7
+                 param unsigned[a] b, // 2
+                 param unsigned[8] c, // 90 
+                 param unsigned[8] d, // 4
+                 input unsigned[8] in)
+  {
+      state only(in): kfoo=(in ^ (widthof(b) + cat((c>>d),a[3:0])));
+     //                                7 +     0x05, 0x07
+     // 0x05d = 94
+  }
+
+unsigned[8] kfoo_wrap(param unsigned[8] b,
+                      param unsigned[8] e, 
+                      param unsigned[8] a,
+                      param unsigned[8] c,
+                      param unsigned[8] d,
+                      param unsigned[8] f,
+                      param unsigned[8] g,
+                      input unsigned[8] in)
+  {
+       kfoo_wrap=kfoo((b+e),a,(c^d),(f-g),in);
+      //                7   2  0x5A  4
+  }
+
+unsigned[8] param_math_k(input unsigned[8] in)
+  {
+//       param_math_k=kfoo_wrap(3,4,2,0x0f,0x55,0x10,0x0c,in);
+// blah, tdfc not take hex constants?!?...we should fix that
+       param_math_k=kfoo_wrap(3,4,2,15,85,16,12,in);
+  }
+

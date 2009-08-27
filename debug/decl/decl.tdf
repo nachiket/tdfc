@@ -1,0 +1,42 @@
+myBehavOp (input unsigned[8] i, output unsigned[8] o)
+{
+  unsigned[8] Foo;
+  unsigned[8] Bar, Baz;
+  unsigned[8] Fee=1, Fie=2, Foe=3, Fum=4;
+
+  state only (i) : o=i;
+}
+
+myComposOp (input unsigned[8] i, output unsigned[8] o)
+{
+  unsigned[8] foo;
+  unsigned[8] fox(3);
+  unsigned[8] bar, baz(2);
+
+  myBehavOp(i,o);
+}
+
+myParamOp (input unsigned[8] i, output unsigned[8] o, param unsigned[8] p)
+{
+  unsigned[8] foo1;
+  unsigned[8] fox1(p);
+  unsigned[8] bar1, baz1(2*p);
+
+  myBehavOp(i,o);
+}
+
+myParamOp2 (input unsigned[8] i, output unsigned[8] o, param unsigned[8] p2)
+{
+  unsigned[8] foo2;
+
+  myParamOp(i,foo2,p2+1);
+  myParamOp(foo2,o,p2+2);
+}
+
+myParamOp3 (input unsigned[8] i, output unsigned[8] o, param unsigned[8] p3)
+{
+  unsigned[8] foo3;
+
+  myParamOp2(i,foo3,2*p3);
+  myParamOp2(foo3,o,3*p3);
+}

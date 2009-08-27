@@ -1,0 +1,74 @@
+# Makefile to run Xilinx tools on all modules,
+#          using two processors (-j 2) for everything
+#          except application (top) composition
+#
+# - Use this after verilog-reg-shells, synplify, xilinx-dirs-61i,
+# - Use this inside "proj-xilinx" directory
+# - Recursive, must be named "Makefile"
+#
+# - Xilinx ISE 6.1i
+# - Eylon Caspi, 10/1/04
+
+# "make"             - build applonly        and pages
+# "make smart"       - build applonly (-j 1) and pages (-j 2)
+#
+# "make applonly"    - build            application (top) composition
+# "make appl"        - build modules of application (top) composition
+# "make pages"       - build modules of pages
+
+################################################################
+
+REV      = rev_area_1.0
+
+# - Uncomment the following line to precede every xilinx command by "echo"
+# PREFIX = echo
+
+################################################################
+
+# All modules
+MODULES = $(notdir $(shell find . -mindepth 1 -maxdepth 1 -type d))
+
+# TDF name of application (top) composition
+APPL1   = $(strip $(patsubst %_noin,%,\
+		  $(filter %_noin,     $(filter-out _page_%, $(MODULES)))))
+APPL2   = $(strip $(patsubst %_noin_ior,%,\
+		  $(filter %_noin_ior, $(filter-out _page_%, $(MODULES)))))
+APPL    = $(if $(APPL1),$(APPL1),$(APPL2))
+
+# Modules for application (top) composition
+MODULES_APPL = $(filter     $(APPL)%,$(MODULES))
+
+# Modules for pages
+MODULES_PAGE = $(filter-out $(APPL)%,$(MODULES))
+
+# PERIOD_PAR targets for all modules
+PERIOD_PARS = $(patsubst %,%/$(REV)/PERIOD_PAR,$(MODULES))
+
+.PHONY:	modules appl pages smart $(MODULES)
+
+all:	applonly pages
+
+smart:
+	$(MAKE) -j 1 applonly
+	$(MAKE) -j 2 pages
+
+modules:	$(MODULES)
+
+applonly:	$(filter $(APPL) $(APPL)_ior,$(MODULES_APPL))
+
+appl:		$(MODULES_APPL)
+
+pages:		$(MODULES_PAGE)
+
+$(MODULES):	%:	%/$(REV)/PERIOD_PAR
+
+$(PERIOD_PARS):
+	cd $(patsubst %/$(REV)/PERIOD_PAR,%,$@) ; $(PREFIX) ./make
+
+################################################################
+
+.PHONY:	showappl
+
+showappl:
+	echo $(APPL)
+

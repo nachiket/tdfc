@@ -1,0 +1,86 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// - TDF Macros for modulo counter:  INCRMOD(x,m), INCRMOD_CARRY(x,m)
+// - Eylon Caspi, 6/26/03
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+// - To activate, define MODULO_COUNTER
+
+#ifdef MODULO_COUNTER
+
+
+// - Synplify does not support modulo by an arbitrary constant
+// - Workaround for counters:  keep modulo copy of the counter,
+//     roll copy back to zero when incrementing past the modulo
+// - For a modulo-m counter x, apply the following transforms:
+//
+//     (1)  Define counter:  unsigned[w] counter;
+//          Becomes:         unsigned[w] counter;
+//                           unsigned[widthof(m)] counterModM;
+//                           unsigned[widthof(counter)-widthof(m)] counterDivM
+//
+//     (2)  Set to const:    counter = K;
+//          Becomes:         counter = K;
+//                           counterModM = K%m;
+//                           counterDivM = K/m;
+//
+//     (3)  Modulo by m:     counter%m
+//          Becomes:         counterModM
+//
+//     (4)  Divide by m:     counter/m
+//          Becomes:         counterDivM
+//
+//     (5)  Increment:       counter = counter+1;
+//          Becomes:         counter = counter+1;
+//                           counterDivM = INCRMOD_CARRY(counterModM,m) + counterDivM
+//                           counterModM = INCRMOD(counterModM,m);
+//
+//			     [ order matters in (5)! ]
+//
+// - EC 6/30/03
+
+
+// - For modulo-m counter x that increments by 1:
+#define INCRMOD(x,m)       (((x)==(m)-1) ? 0 : ((x)+1))
+#define INCRMOD_CARRY(x,m) (((x)==(m)-1) ? 1 : 0)
+
+
+// - For strided modulo-m counter x that increments by s:  (0<s<m, s|m)
+#define INCRMOD_STRIDED(x,m,s)       (((x)==(m)-(s)) ? 0 : ((x)+(s)))
+#define INCRMOD_STRIDED_CARRY(x,m,s) (((x)==(m)-(s)) ? 1 : 0)
+
+
+// - Modulo (x%m) for quantity x that is over m by up to m:  (0<=x<2m)
+#define MOD_ONCE(x,m) (((x)<(m)) ? (x) : ((x)-(m)))
+
+// - the version above may synthesie into a comparator AND a subtractor
+// - the following version should synthesize 1 subtractor w/resource sharing
+#define SIGN_UPGRADE(x) ((signed[widthof(x)+1])(x))
+#define MOD_ONCE_(x,m)   ( ((SIGN_UPGRADE(x)-(m))<0) ? (x) : \
+				bitsof(SIGN_UPGRADE(x)-(m)) )
+
+
+#endif  // #ifdef MODULO_COUNTER

@@ -1,0 +1,22 @@
+
+DQuant_DC(param unsigned[8] outWidth, input unsigned[5] a, 
+	 output signed[outWidth] dq)
+
+{
+
+    // signed[outWidth+1] temp;
+    unsigned[outWidth+1] t;
+    state start(a):
+	{
+	    //      temp = (a+32)/10;
+	    //      if (temp<0) temp = 0;
+	    //      if (temp>31) temp = 31;
+	    //      t = bitsof(temp);
+	    //      q = t%32;
+	    
+	    t = 10*a;
+	    dq = t-32+5;
+	  
+	    stay;
+	}
+}

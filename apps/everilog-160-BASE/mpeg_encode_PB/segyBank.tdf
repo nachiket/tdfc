@@ -1,0 +1,32 @@
+
+segyBank(param unsigned[16] segSize, param unsigned[10] rowSize,
+	 input unsigned[64] inBigA, input unsigned[64] inBigB, 
+	 input signed[6] xRef, input signed[6] yRef, // the motion vector
+	 param unsigned[segSize/2][64] tabA, param unsigned[segSize/2][64] tabB,
+	 output unsigned[64] out, param boolean iP)
+{
+
+  //boolean writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH;
+  
+  boolean wrt,wrA,wrB;
+
+  unsigned[16] addr, addro;
+  unsigned[13] addrA,addrB;
+
+  //unsigned[8] intAa,intAb,intAc,intAd,intAe,intAf,intAg,intAh;
+
+  unsigned[64]  outA,outB;
+  //unsigned[8] inAa,inAb;
+
+  //breakupY(rowSize,inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh,inBigA,inBigB);
+
+  seg_manage(segSize,rowSize,addr,xRef,yRef,wrt,iP);
+
+  segrepY(segSize/2,rowSize,addr,addrA,addrB,wrt,wrA,wrB,addro);
+
+  segment_rw(64,13,segSize/2,tabA,addrA,outA,inBigA,wrA);
+  segment_rw(64,13,segSize/2,tabB,addrB,outB,inBigB,wrB);
+
+  unify(rowSize,addro,outA,outB,out);
+
+}

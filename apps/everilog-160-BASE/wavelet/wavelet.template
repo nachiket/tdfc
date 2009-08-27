@@ -1,0 +1,51 @@
+array {
+   CPs: 16;
+   CMBs: 16;   // CMB size = 262144
+   CMB_size: 262144;
+   DefaultSegment_size: 131072;
+   DefaultConfig_size: 20480;
+   CMB Partitions:
+   //L0 (L1, ...)
+   B0 (B0, B1, B2, B3, B4, B5, B6) :
+   null (B7, B8, B9, B10, B11);
+}
+
+design {
+   visual: "something";
+   0: page (1, 1) "LiftWaveHD in LiftWaveHD.tdf" : 0.output0 ={12}=> 1.input0 , cpu.output0 ={9}=> 0.input0;
+   1: page (1, 3) "InWave in InWave.tdf" : 1.output0 ={12}1000=> 2.input0 , 1.output1 ={14}1000=> 2.input1 , 1.output2 ={14}1000=> 2.input2 ;
+   2: page (4, 2) "VWave in VWave.tdf" : 2.output0 ={12}=> 3.input0 , 2.output1 ={14}1000=> 2.input3 ;
+   3: page (1, 2) "LiftWaveH in LiftWaveH.tdf" : 3.output0 ={16}=> 4.input0 , 3.output1 ={16}=> 7.input0 ;
+   4: page (1, 3) "InWave in InWave.tdf" : 4.output0 ={16}=> 5.input0 , 4.output1 ={16}=> 5.input1 , 4.output2 ={16}=> 5.input2 ;
+   5: page (4, 2) "VWave in VWave.tdf" : 5.output0 ={16}=> 10.input0 , 5.output1 ={16}=> 6.input0 ;
+   6: page (1, 2) "repWave in repWave.tdf" : 6.output0 ={16}=> 22.input0 , 6.output1 ={16}=> 5.input3 ;
+   7: page (1, 3) "InWave in InWave.tdf" : 7.output0 ={16}=> 8.input0 , 7.output1 ={16}=> 8.input1 , 7.output2 ={16}=> 8.input2 ;
+   8: page (4, 2) "VWave in VWave.tdf" : 8.output0 ={16}=> 21.input0 , 8.output1 ={16}=> 9.input0 ;
+   9: page (1, 2) "repWave in repWave.tdf" : 9.output0 ={16}=> 23.input0 , 9.output1 ={16}=> 8.input3 ;
+   10: page (1, 2) "LiftWaveH in LiftWaveH.tdf" : 10.output0 ={16}=> 11.input0 , 10.output1 ={16}=> 14.input0 ;
+   11: page (1, 3) "InWave in InWave.tdf" : 11.output0 ={16}=> 12.input0 , 11.output1 ={16}=> 12.input1 , 11.output2 ={16}=> 12.input2 ;
+   12: page (4, 2) "VWave in VWave.tdf" : 12.output0 ={16}=> 17.input0 , 12.output1 ={16}=> 13.input0 ;
+   13: page (1, 2) "repWave in repWave.tdf" : 13.output0 ={16}=> 19.input0 , 13.output1 ={16}=> 12.input3 ;
+   14: page (1, 3) "InWave in InWave.tdf" : 14.output0 ={16}=> 15.input0 , 14.output1 ={16}=> 15.input1 , 14.output2 ={16}=> 15.input2 ;
+   15: page (4, 2) "VWave in VWave.tdf" : 15.output0 ={16}=> 18.input0 , 15.output1 ={16}=> 16.input0 ;
+   16: page (1, 2) "repWave in repWave.tdf" : 16.output0 ={16}=> 20.input0 , 16.output1 ={16}=> 15.input3 ;
+   17: page (1, 1) "Quant_DC in Quant_DC.tdf" : 17.output0 ={5}=> cpu.input0 ;
+   18: page (1, 1) "__Quant_ZLE in __Quant_ZLE.tdf" : 18.output0 ={8}=> 30.input0 ;
+   19: page (1, 1) "__Quant_ZLE in __Quant_ZLE.tdf" : 19.output0 ={8}=> 31.input0 ;
+   20: page (1, 1) "__Quant_ZLE in __Quant_ZLE.tdf" : 20.output0 ={8}=> 32.input0 ;
+   21: page (1, 1) "__Quant_ZLE in __Quant_ZLE.tdf" : 21.output0 ={8}=> 33.input0 ;
+   22: page (1, 1) "__Quant_ZLE in __Quant_ZLE.tdf" : 22.output0 ={8}=> 34.input0 ;
+   23: page (1, 1) "__Quant_ZLE in __Quant_ZLE.tdf" : 23.output0 ={8}=> 35.input0 ;
+   24: page (1, 1) "__HuffMachine in __HuffMachine.tdf" : 24.output0 ={8}=> cpu.input1 ;
+   25: page (1, 1) "__HuffMachine in __HuffMachine.tdf" : 25.output0 ={8}=> cpu.input2 ;
+   26: page (1, 1) "__HuffMachine in __HuffMachine.tdf" : 26.output0 ={8}=> cpu.input3 ;
+   27: page (1, 1) "__HuffMachine in __HuffMachine.tdf" : 27.output0 ={8}=> cpu.input4 ;
+   28: page (1, 1) "__HuffMachine in __HuffMachine.tdf" : 28.output0 ={8}=> cpu.input5 ;
+   29: page (1, 1) "__HuffMachine in __HuffMachine.tdf" : 29.output0 ={8}=> cpu.input6 ;
+   30: segment<256x20> (1, 1) "Segment" : 30.output0 ={20}=> 24.input0 ;
+   31: segment<256x20> (1, 1) "Segment" : 31.output0 ={20}=> 25.input0 ;
+   32: segment<256x20> (1, 1) "Segment" : 32.output0 ={20}=> 26.input0 ;
+   33: segment<256x20> (1, 1) "Segment" : 33.output0 ={20}=> 27.input0 ;
+   34: segment<256x20> (1, 1) "Segment" : 34.output0 ={20}=> 28.input0 ;
+   35: segment<256x20> (1, 1) "Segment" : 35.output0 ={20}=> 29.input0 ;
+}

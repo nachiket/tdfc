@@ -1,0 +1,15 @@
+widthof3(output unsigned[8] out, input unsigned[4] in)
+{
+
+  state one():
+    {
+      out=widthof(cat(in,in));
+      goto last;
+    }
+           
+  state last():
+    {
+      done();
+    }
+
+}

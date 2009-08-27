@@ -1,0 +1,13 @@
+/usr/bin/time ./TDFC-APPS                 | & tee TDFC-APPS.OUT
+
+/usr/bin/time ./XILINX-DIRS2-APPS 1.0 1.2 | & tee XILINX-DIRS2-APPS.OUT
+
+foreach x (`cat APPS`)
+# mv $x/Q_srl_reserve.v $x/Q_srl_reserve.v.ORIG
+# cp -fp ~/brass/tdfc/verilog/queues/Q_srl_reserve_oreg3_prefull_preresv_SIMPLE.v $x/Q_srl_reserve.v
+  cp -fp ~/brass/tdfc/verilog/queues/Q_lowqli_p_p_srl_r.v     $x/Q_lowqli.v
+  cp -fp ~/brass/tdfc/verilog/queues/Q_lowqli_in_p_p_srl_r.v  $x/Q_lowqli_in.v
+  cp -fp ~/brass/tdfc/verilog/queues/Q_lowqli_out_p_p_srl_r.v $x/Q_lowqli_out.v
+end
+
+/usr/bin/time ./BUILD2-APPS -j 50 -k appl | & tee BUILD2-APPS-appl.OUT

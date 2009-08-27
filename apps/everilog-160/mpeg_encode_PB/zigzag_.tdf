@@ -1,0 +1,160 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2002 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.1 $
+// $Date: 2002/05/15 18:03:27 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+zigzag_(input signed[16] inA, input signed[16] inB, input signed[16] inC,
+	input signed[16] inD, input signed[16] inE, input signed[16] inF,
+	input signed[16] inG, input signed[16] inH,
+	output signed[16] outS)
+
+{
+
+  unsigned[6] index=0;
+  boolean phase1 = true;
+  boolean phase2 = true;
+  boolean phase3 = true;
+  boolean phase4 = true;
+  boolean phase5 = true;
+  boolean phase6 = true;
+  boolean phase7 = true;
+  boolean phase8 = true;
+
+  state _1(inA):
+    {
+      outS = inA;
+      index = index+1;
+      if (phase1) {
+	phase1 = false;
+	goto _2;
+      } else {
+	phase1 = true;
+	if (index == 36) goto _2;
+      }
+    }
+
+  state _2(inB):
+    {
+      outS = inB;
+      index = index+1;
+      if (phase2) {
+	phase2 = false;
+	goto _1;
+      } else {
+	phase2 = true;
+	goto _3;
+      }
+    }
+
+  state _3(inC):
+    {
+      outS = inC;
+      index = index+1;
+      if (phase3) {
+	phase3 = false;
+	goto _4;
+      } else {
+	phase3 = true;
+	if (index == 49) goto _4;
+	else goto _2;
+      }
+    }
+
+  state _4(inD):
+    {
+      outS = inD;
+      index = index+1;
+      if (phase4) {
+	phase4 = false;
+	goto _3;
+      } else {
+	phase4 = true;
+	goto _5;
+      }
+    }
+
+  state _5(inE):
+    {
+      outS = inE;
+      index = index+1;
+      if (phase5) {
+	phase5 = false;
+	goto _6;
+      } else {
+	phase5 = true;
+	if (index == 58) goto _6;
+	else goto _4;
+      }
+    }
+
+  state _6(inF):
+    {
+      outS = inF;
+      index = index+1;
+      if (phase6) {
+	phase6 = false;
+	goto _5;
+      } else {
+	phase6 = true;
+	goto _7;
+      }
+    }
+
+  state _7(inG):
+    {
+      outS = inG;
+      index = index+1;
+      if (phase7) {
+	phase7 = false;
+	goto _8;
+      } else {
+	phase7 = true;
+	if (index == 63) goto _8;
+	else goto _6;
+      }
+    }
+
+  state _8(inH):
+    {
+      outS = inH;
+      index = index+1;
+      if (phase8) {
+	phase8 = false;
+	goto _7;
+      } else {
+	phase8 = true;
+	if (index == 64) {
+	  index = 0;
+	  goto _1;
+	}
+	else goto _8;
+      }
+    }
+
+
+}
+	  
+
+

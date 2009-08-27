@@ -1,0 +1,97 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.1 $
+// $Date: 2000/03/11 02:12:10 $
+//
+/////////////////////////////////////////////////////////////////////////////
+
+choose8(input unsigned[16] sumerrA, input unsigned[16] sumerrB, 
+	input unsigned[16] sumerrC, input unsigned[16] sumerrD,
+	input unsigned[16] sumerrE, input unsigned[16] sumerrF,
+	input unsigned[16] sumerrG, input unsigned[16] sumerrH,
+	input unsigned[16] sumerrI, input unsigned[16] sumerrJ, 
+	input unsigned[16] sumerrK, input unsigned[16] sumerrL,
+	input unsigned[16] sumerrM, input unsigned[16] sumerrN,
+	input unsigned[16] sumerrO, input unsigned[16] sumerrP,
+	output unsigned[4] toecmp,
+	output unsigned[16] lowerr)
+
+{
+
+  state only(sumerrA,sumerrB,sumerrC,sumerrD,
+	     sumerrE,sumerrF,sumerrG,sumerrH,
+	     sumerrI,sumerrJ,sumerrK,sumerrL,
+	     sumerrM,sumerrN,sumerrO,sumerrP): {
+
+    unsigned[16] oneA; unsigned[16] oneB; unsigned[16] oneC; unsigned[16] oneD;
+    unsigned[16] oneE; unsigned[16] oneF; unsigned[16] oneG; unsigned[16] oneH;
+    
+    unsigned[16] twoA; unsigned[16] twoB; unsigned[16] twoC; unsigned[16] twoD;
+    unsigned[16] thrA; unsigned[16] thrB;
+    
+    unsigned[5] bitone_0;  unsigned[5] bitone_1;  unsigned[5] bitone_2;
+    unsigned[5] bitone_3;  unsigned[5] bitone_4;  unsigned[5] bitone_5;
+    unsigned[5] bitone_6;  unsigned[5] bitone_7;   
+
+    unsigned[5] bittwo_0; unsigned[5] bittwo_1; unsigned[5] bittwo_2;
+    unsigned[5] bittwo_3;
+
+    unsigned[5] bitthr_0; unsigned[5] bitthr_1; 
+
+
+    if (sumerrA < sumerrB) {oneA = sumerrA; bitone_0 = 0;}
+    else {oneA = sumerrB; bitone_0 = 1;}
+    if (sumerrC < sumerrD) {oneB = sumerrC; bitone_1 = 2;}
+    else {oneB = sumerrD; bitone_1 = 3;} 
+    if (sumerrE < sumerrF) {oneC = sumerrE; bitone_2 = 4;}
+    else {oneC = sumerrF; bitone_2 = 5;}
+    if (sumerrG < sumerrH) {oneD = sumerrG; bitone_3 = 6;}
+    else {oneD = sumerrH; bitone_3 = 7;}
+    if (sumerrI < sumerrJ) {oneE = sumerrI; bitone_4 = 8;}
+    else {oneE = sumerrJ; bitone_4 = 9;}
+    if (sumerrK < sumerrL) {oneF = sumerrK; bitone_5 = 10;}
+    else {oneF = sumerrL; bitone_5 = 11;} 
+    if (sumerrM < sumerrN) {oneG = sumerrM; bitone_6 = 12;}
+    else {oneG = sumerrN; bitone_6 = 13;}
+    if (sumerrO < sumerrP) {oneH = sumerrO; bitone_7 = 14;}
+    else {oneH = sumerrP; bitone_7 = 15;}
+
+    if (oneA < oneB) {twoA = oneA; bittwo_0 = bitone_0;}
+    else {twoA = oneB; bittwo_0 = bitone_1;}
+    if (oneC < oneD) {twoB = oneC; bittwo_1 = bitone_2;}
+    else {twoB = oneD; bittwo_1 = bitone_3;}
+    if (oneE < oneF) {twoC = oneE; bittwo_2 = bitone_4;}
+    else {twoC = oneF; bittwo_2 = bitone_5;}
+    if (oneG < oneH) {twoD = oneG; bittwo_3 = bitone_6;}
+    else {twoD = oneH; bittwo_3 = bitone_7;}
+
+    if (twoA < twoB) {thrA = twoA; bitthr_0 = bittwo_0;}
+    else {thrA = twoB; bitthr_0 = bittwo_1;}
+    if (twoC < twoD) {thrB = twoC; bitthr_1 = bittwo_2;}
+    else {thrB = twoD; bitthr_1 = bittwo_3;}
+
+    if (thrA < thrB) {lowerr = thrA; toecmp = bitthr_0;}
+    else {lowerr = thrB; toecmp = bitthr_1;}
+
+  }
+
+}

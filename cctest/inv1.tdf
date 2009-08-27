@@ -1,0 +1,15 @@
+boolean prim_inv(input boolean a)
+  {
+     state only(a): prim_inv=!a;
+  }
+
+
+boolean inv(input boolean a)
+  {
+     inv=prim_inv(a);
+  }
+
+boolean inv1(input boolean  a)
+  {
+      inv1=inv(inv(inv(a)));
+  }

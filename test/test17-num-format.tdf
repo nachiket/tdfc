@@ -1,0 +1,10 @@
+myOp (output unsigned[8] o)
+{
+  state only () :
+    {
+      o=101;		// decimal, = 101
+      o=0b101;		// binary,  = 5
+      o=0101;		// octal,   = 65
+      o=0x101;		// hex,     = 257
+    }
+}

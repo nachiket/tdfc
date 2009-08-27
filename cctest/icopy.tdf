@@ -1,0 +1,20 @@
+unsigned[n] icopy(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b,  input unsigned[n] c,
+		output unsiged[n] oa,
+		output unsiged[n] ob1,
+		output unsiged[n] ob2,
+		output unsiged[n] oc1,
+		output unsiged[n] oc2,
+		output unsiged[n] oc3)
+
+)
+{ 
+
+        oa=a;
+	ob1=b;
+	ob2=b;
+	oc1=c;
+	oc2=c;
+	oc3=c;
+}
+

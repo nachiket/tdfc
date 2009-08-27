@@ -1,0 +1,49 @@
+#include "div.txt"
+
+unify(param unsigned[10] rowSize,
+      input unsigned[16] addro, input unsigned[64] inA, input unsigned[64] inB,
+      output unsigned[64] outWord) 
+
+{
+
+
+  state only(addro,inA,inB): {
+    
+    unsigned[3] idx;
+    unsigned[4] macRow;
+    unsigned[1] top;
+    unsigned[64] up,down;
+
+    // macRow = ((addro/rowSize)%16);
+    macRow =  DIV(addro,rowSize)%16;
+    idx = (macRow%8);
+    top = macRow[3];
+    if (top==1) {
+      up = inB; down = inA;
+    } else {
+      up = inA; down = inB;
+    }
+    // I remember there being something bad about using variable
+    // bitIndexes
+    if (idx==0) {
+      outWord = up;
+    } else if (idx==1) {
+      outWord = cat(up[55:0],down[63:56]);
+    } else if (idx==2) {
+      outWord = cat(up[47:0],down[63:48]);
+    } else if (idx==3) {
+      outWord = cat(up[39:0],down[63:40]);
+    } else if (idx==4) {
+      outWord = cat(up[31:0],down[63:32]);
+    } else if (idx==5) {
+      outWord = cat(up[23:0],down[63:24]);
+    } else if (idx==6) {
+      outWord = cat(up[15:0],down[63:16]);
+    } else if (idx==7) {
+      outWord = cat(up[7:0],down[63:8]);
+    }
+
+  }
+
+
+}

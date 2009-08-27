@@ -1,0 +1,73 @@
+From eylon@chameleonsystems.com Wed Jan 15 08:58:34 2003
+Date: Tue, 14 Jan 2003 20:02:27 -0800
+From: Eylon Caspi <eylon@chameleonsystems.com>
+To: eylon@cs.berkeley.edu
+Subject: TDF version 2
+
+TDF version 2, new features:
+
+  - stream type:  $stream for first token, stream[N] for Nth token
+                  ($ like C *, declared:  "elemtype $stream;")
+  - output parameters
+  - unified operator kind:  SFSM where state can expand into a graph
+  - tuples, tuple assignment  [optional]
+
+
+(bool $o, bool oparam)
+myOp (bool $i, bool iparam)
+{
+  bool scalar      = val;
+  bool $stream     = { val, val, ... };
+  bool array[1000] = { val, val, ... };
+
+  state one ($i) :		// consume from i
+    $o = $i | i[1];		// access i and previous i tokens, emit to o
+    goto state two;
+
+  state two (i[2]) :		// consume 2 tokens from i
+    $o = [$i, i[1]];		// emit 2 tokens to o, from i and previous i
+    goto three;
+
+  state three () :
+    stream     = foo(i,iparam);		// connect i-->foo--(stream)-->bar-->o
+    (o,scalar) = bar(stream,iparam);	// collect scalar output from bar
+					// when subgraph is "done"
+    if (scalar==true)
+      goto four;
+    else {
+      oparam = scalar;			// set output parameter & terminate,
+      done();				// without closing streams
+    }
+
+  state four () : {
+    bool scalar2, $stream2;
+    (stream2,scalar2) = bar(i,iparam);	// error, stream2 not bound?
+    if (scalar2==true)
+      goto five;
+    else {
+      o = stream2;			// where can we store stream2 contents
+      oparam = scalar2;			// while deciding whether to copy to o?
+      done();
+    }
+
+  state five ($i) :			// read from i
+    $o = $i;				// emit to o
+    if ($i==true) {
+      stream     = foo(i,iparam);	// conditionally expand into subgraph
+      (o,scalar) = bar(stream,iparam);	//   i-->foo--(stream)-->bar-->o
+					// can compiler recognize subgraph creation?
+      $o = true;			// emit more to o
+      $o = false;			// emit more to o
+      done();
+    }
+    else
+      goto six;
+
+  state six () :
+      $o = true;			// what does the following mean?
+      stream     = foo(i,iparam);	// error, stream not bound?
+      $o = true;
+      (o,scalar) = bar(stream,iparam);
+      $o = true;
+      goto one;
+}

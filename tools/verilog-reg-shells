@@ -1,0 +1,41 @@
+#!/bin/csh
+#
+# verilog-reg-shells
+#
+# Emit Verilog I/O register shell modules
+# and corresponding Synplify project files
+# for every Verilog file in this directory (except base queues)
+#
+# Call this after "tdfc -synplify"
+# Assume that Synplify project files are in directory "proj"
+#
+# Usage:  verilog-reg-shells
+#
+# Eylon Caspi, 1/21/04
+
+set toolpath = ${0:h}
+
+foreach modulev (*.v)
+  if (`head -1 $modulev | egrep -i "// Verilog .*base .*queue"`    != "") \
+     continue
+  if (`head -1 $modulev | egrep -i "// Verilog .*register.*shell"` != "") \
+     continue
+
+  set module = ${modulev:r}
+
+  # Create Verilog module
+  $toolpath/verilog-reg-shell $modulev > ${module}_ior.v
+
+  # Create Synplify project dir
+  if (-d proj/$module) then
+    mkdir proj/${module}_ior
+    perl -npe "s/${module}/${module}_ior/g" proj/${module}/${module}.prj \
+				      > proj/${module}_ior/${module}_ior.prj
+    perl -npe "s/${module}/${module}_ior/g" proj/${module}/${module}.prd \
+				      > proj/${module}_ior/${module}_ior.prd
+    foreach rev (proj/$module/rev*)
+      set revt = ${rev:t}
+      mkdir proj/${module}_ior/$revt
+    end
+  endif
+end

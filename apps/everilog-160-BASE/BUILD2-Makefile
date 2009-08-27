@@ -1,0 +1,113 @@
+# - Build apps using synplify + xilinx
+# - Invoke this after TDFC-APPS, XILINX-DIRS-APPS
+# - Eylon Caspi 3/1/05
+
+# PREFIX      = qsubwaitcsh
+# PREFIX_MPEG = qsubwaitcsh
+
+PREFIX        = qsubwaitcsh
+PREFIX_MPEG   = qsubwaitcsh5
+
+APPS = $(shell cat APPS)
+
+.PHONY:	${APPS} all
+
+all:	${APPS}
+
+${APPS}:	PREFIX_APP=$(if $(filter mpeg%,$@),${PREFIX_MPEG},${PREFIX})
+${APPS}:
+	cd $@ && ${MAKE} PREFIX="${PREFIX_APP}" -f ../BUILD2-Makefile-APP ${TARGET}
+
+
+################################################################
+
+
+# - ${TARGET} is used to pass an arbitrary target to the appl-level makefile
+#             (e.g. targets ``report''), but it is normally empty
+
+.PHONY:	syn xil appl pages synappl xilappl synpages xilpages info
+.PHONY:	report synreport xilreport cleanreport syncleanreport xilcleanreport
+.PHONY: reportappl synreportappl xilreportappl
+.PHONY:	del xildel
+.PHONY: clean reallyclean synclean synreallyclean xilclean xilreallyclean
+
+syn:    	TARGET=syn
+syn:    	${APPS}
+
+xil:    	TARGET=xil
+xil:    	${APPS}
+
+appl:   	TARGET=appl
+appl:   	${APPS}
+
+pages:  	TARGET=pages
+pages:  	${APPS}
+
+synappl:	TARGET=synappl
+synappl:	${APPS}
+
+xilappl:	TARGET=xilappl
+xilappl:	${APPS}
+
+synpages:	TARGET=synpages
+synpages:	${APPS}
+
+xilpages:	TARGET=xilpages
+xilpages:	${APPS}
+
+synpages_noior:	TARGET=synpages_noior
+synpages_noior:	${APPS}
+
+info:   	TARGET=info
+info:   	${APPS}
+
+report: 	TARGET=report
+report: 	${APPS}
+
+synreport: 	TARGET=synreport
+synreport: 	${APPS}
+
+xilreport: 	TARGET=xilreport
+xilreport: 	${APPS}
+
+reportappl: 	TARGET=reportappl
+reportappl: 	${APPS}
+
+synreportappl: 	TARGET=synreportappl
+synreportappl: 	${APPS}
+
+xilreportappl: 	TARGET=xilreportappl
+xilreportappl: 	${APPS}
+
+cleanreport: 	TARGET=cleanreport
+cleanreport: 	${APPS}
+
+syncleanreport:	TARGET=syncleanreport
+syncleanreport:	${APPS}
+
+xilcleanreport:	TARGET=xilcleanreport
+xilcleanreport:	${APPS}
+
+del:    	TARGET=del
+del:    	${APPS}
+
+xildel: 	TARGET=xildel
+xildel: 	${APPS}
+
+clean:    	TARGET=clean
+clean:    	${APPS}
+
+reallyclean:	TARGET=reallyclean
+reallyclean:	${APPS}
+
+synclean:    	TARGET=synclean
+synclean:    	${APPS}
+
+synreallyclean:	TARGET=synreallyclean
+synreallyclean:	${APPS}
+
+xilclean:    	TARGET=xilclean
+xilclean:    	${APPS}
+
+xilreallyclean:	TARGET=xilreallyclean
+xilreallyclean:	${APPS}

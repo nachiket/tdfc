@@ -1,0 +1,520 @@
+From eylon@eecs.berkeley.edu Fri Apr  1 16:33:26 2005
+Date: Fri, 1 Apr 2005 16:33:26 -0800 (PST)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: John Wawrzynek <johnw@eecs.berkeley.edu>, Andre' DeHon <andre@acm.org>
+Subject: Interconnect effects in TDF
+
+Hi all,
+
+I have spent the last couple of weeks trying to understand why our
+large apps are slow after PAR (two MPEGs, 30K and 60K LUTs).
+As I wrote in the MICRO report:
+(1) their individual pages map to >100MHz, before and after PAR
+(2) the MPEG applications map to ~100MHz before PAR
+(3) the MPEG applications map to 30-70MHz after PAR.
+By the time of the report, I was already experimenting with relaxed
+area constraints, but they did not help the MPEGs very much.
+
+Additional investigation revealed the following.
+
+(1) My SRL queue included a data output register
+     designed to reduce the queue's clock-to-data-out delay.
+     That register was marked as ``retimable'',  and it was
+     being retimed forward into the SFSM datapath.
+     The good news is that it made pages faster, when compiled
+     individually.  The bad news is that there was a combinational
+     path from the input stream to this register, and retiming it
+     forward created a larger setup time requirement for the stream.
+     Consequently it added combinational delay to stream links.
+     I hypothesized that this was causing PAR-ed designs to be slow,
+     when stream links had to traverse large distances.
+
+     (A simple solution might have been to pipeline stream links
+      a la interconnect pipelining, but this costs additional area,
+      and it turned out to not help the clock rate).
+
+(2) I redesigned the SRL queue to have non-retimable registers for
+     data output and input stream back-pressure output
+     This was intended to eliminate combinational delay on stream
+     links and thus make system speed as fast as page speed
+     (I should probably do the same for queue valid output,
+      since it too has a combinational path from the stream input).
+
+     One consequence of this change was that the queue data output
+     register was no longer available to be retimed forward into
+     SFSM datapaths, and thus all pages became slower.
+     Unfortunately, one SFSM became unreasonably slow  (70MHz
+     for proc_end in MPEG), and no amount of output-side pipelining
+     and retiming would help.  This SFSM demanded input-side pipelining,
+     and in fact it got to 180MHz with multiple stages of input-side
+     pipelining (which is unfortunatley not functionally correct).
+     I was unsure whether this was another Synplify retiming bug
+     or a genuine limitation of the SFSM structure
+     (e.g. due to feedback between the FSM and datapath).
+     I had been using vanilla delays for output-side logic pipelining,
+     so instead, I tried using enabled delays.  Lo and behold, it worked.
+     Now this sounds like another Synplify retiming bug -- vanilla output
+     registers do not retime backwards, but enabled output registers do.
+
+     This led me down a new line of thought.
+
+     I had actually used not mere enabled registers, but an enabled
+     register queue, which consists of an enabled register for data
+     and an AND gate for flow control.  In the past, Synplify  had been
+     unable to retime enabled registers very well, so I never explored
+     them much.  But I now realized that using an enabled register queue
+     as a retimable pipeline stage has an advantage over vanilla
+     pipeline registers -- it does not create stale flow control signals.
+     Consequently, (1) it does not require a modified downstream queue
+     with reserved empty slots (saving some area, especially when we
+     get to queue sizing and want to remove the SRL queue entirely),
+     and (2) it can be used as input-side pipelining, i.e. between a
+     page input queue and an SFSM datapath, without violating correctness.
+     The latter use as input-side pipelining should improve performance by:
+     (a) serving the function previously served by the
+         retimable queue data output register,
+     (b) exploiting previously unavailable pipelining topologies, and
+     (c) hopefully overcoming Synplify retiming bugs.
+     The price of such input-side pipelining is added combinational delay
+     of flow control signals due to one AND gate per stage
+     (the AND being part of the enabled register queue).
+
+(3) I have started characterizing the SCORE apps with a new
+     queue combination.  A stream connection now contains:
+
+        [Producer SFSM]
+     -> output-side logic pipelining (vanilla registers or enabled register Q)
+     -> interconnect pipelining
+     -> SRL queue  (with non-retimable data output register)
+     -> input-side logic pipelining  (enabled register Q)
+     -> [Consumer SFSM]
+
+     We should see a performance improvement from:
+     (a) input-side logic pipelining and
+     (b) decoupling pages via non-retimable queue registers,
+
+     but we may see performance degradation from:
+     (c) combinational delay in flow control due to AND gates
+         in the enabled register queues used for input-side pipelining.
+
+     The question is which one wins.
+
+
+I hope that this will be the last bit of design space exploration
+for stream implementation, since I am short on time for completing
+the dissertation.  For completeness, I would still need to implement
+RAM-based queues for large stream buffers (e.g. image line buffers).
+
+Your comments are welcome.
+
+Have a good weekend,
+- Eylon.
+
+
+Eylon Caspi                     University of California, Berkeley
+eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>
+
+
+
+
+
+
+
+
+From eylon@eecs.berkeley.edu Wed Apr 20 12:12:38 2005
+Date: Wed, 20 Apr 2005 12:12:37 -0700 (PDT)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: John Wawrzynek <johnw@eecs.berkeley.edu>, Andre' DeHon <andre@acm.org>
+Cc: Michael Wrighton <wrighton@cs.caltech.edu>
+Subject: SCORE app characterization update
+
+Hi all,
+
+for the last week+, I have been running a design-space exploration
+of the SCORE apps using a new, parameterized stream implementation:
+
+
+--> [Q] --> [Li] --> [SFSM] --> [Lo] --> [W] -->
+
+      |       |         |         |        |
+      +----------------------------------------- SRL queue w/non-retimable
+              |         |         |        |       interface registers
+              |         |         |        |
+              +--------------------------------- Logic input-side pipelining
+                        |         |        |       by relaying thru retimable,
+                        |         |        |       ``enabled register'' queue
+                        |         |        |
+                        +----------------------- TDF operator
+                                  |        |
+                                  +------------- Logic output-side pipelining
+                                           |       using either vanilla regs
+                                           |       or relaying thru retimable
+                                           |       ``enabled register'' queue
+                                           |
+                                           +---- Wire (interconnect) pipelining
+
+
+The characterizations are still running, but I have some early results.
+
+This is a summary and continuation of a discussion I started
+with John W on Monday.  All discussion pertains to the results
+of Synplify only, before PAR  (PAR is only about 1/3 done).
+Characterizations use Synplify 8.0, device XC2VP70 -7.
+
+First, a reminder.  The SRL queues now have non-retimable interface
+registers for output data, output valid, and input back-pressure.
+This change was intended to reduce input stream setup times.
+Previously, the queue registers in question were being retimed into
+the operator datapath, leaving a longer combinational delay
+on the queue's input stream side.  The added delay sometimes reduced
+application performance when pages were composed.
+
+
+Phase I of the new characterization was to compile monolithic apps
+in Synplify, ranging over the entire parameter space.
+
+Phase I Observations:
+
+
+(1)  All apps can achieve over 100MHz using appropriate pipelining.
+      Some apps achieve 160-180Mhz.
+
+
+(2)  Adding pipelining registers does NOT always yield a faster result.
+
+      This non-monotonicity is the same old problem we have been seeing
+      in Synplify for months.  However, some cases are truly inexplicable.
+      For instance, for a particular parameterization of MPEG with B frames
+      (1 level input side logic relaying, 2 levels output side logic
+      pipelining), using 1 level of interconnect pipelining yields 119MHz,
+      but using 2 levels of interconnect pipelining yields 99MHz.
+      These interconnect pipelining registers are NOT retimable,
+      so adding a second level should not affect the opportunity for
+      retiming.  Yet Synplify optimizes differently.  I do not know why.
+
+
+(3)  Input side logic relaying, on its own, is insufficient.
+      It fails to speed up certain SFSMs.
+
+      I would accept this as a limitation of our circuit topology.
+
+
+(4)  Output side logic pipelining, on its own, is insufficient.
+      It fails to speed up certain SFSMs.
+
+      This looks like a limitation of Synplify, because output side
+      logic relaying, on its own, retimes those SFSMs just fine.
+      The difference is that pipelining uses vanilla delays for data,
+      while relaying uses enabled delays for data.
+
+
+(5)  There are 2 simplified parameter trends that work,
+      i.e. that yield (mostly) monotonically higher speed
+      for each additional level of pipelining:
+
+      (a) N-deep output side logic relaying, and
+
+      (b) N-deep output side logic pipelining with
+          1-deep  input side logic relaying
+
+      Neither method consistently achieves the maximum attainable
+      speed of the applications.  For instance, JPEG Encode pipelines
+      to 137MHz in method (a) but is limited to 113MHz in method (b)
+      regardless of pipelining depth.  On the other hand,
+      method (a) is slower than (b) for JPEG Decode.
+
+
+(6)  For methods (a) and (b), application speed is improved by adding
+      1 level of interconnect pipelining.
+
+      This is expected and is presumably due to the setup times of
+      queue inputs -- they eat up timing slack when not using
+      interconnect pipelining.
+
+
+(7)  For methods (a) and (b), application speed is REDUCED
+      by adding a second level of interconnect pipelining.
+
+      This makes no sense to me.  It is NOT due to routing speed,
+      since it appears in the output of Synplify, before PAR.
+      It seems to be a limitation of Synplify.
+
+
+Phase II of the new characterization was to compile, using Synplify,
+all pages and page components for parameter trends (a) and (b)
+(which are defined in (5) above).
+
+Phase II Observations:
+
+
+(8)  Application speed is only marginally closer to the
+      minimum page speed.
+
+      The speed ratio (application speed / min page speed)
+      now ranges 89%-109% with one outlier at 123%.
+      Previously, with retimable queue interface registers,
+      the speed ratio ranged 84%-111%, with one outlier at 137%.
+      I would have expected the ratio to be closer to 100%.
+      I hypothesize that global optimizations (across pages)
+      are to blame, speeding up the application when they work,
+      and slowing down the application when they don't work
+      (more on that in (10) below).
+
+
+(9)  Pipelined pages are slower than before.
+
+      Some amount of slowdown was to be expected, since pages
+      previously benefited from the retiming of the queue data output
+      register like a level of logic input side pipelining.
+      I had tried to make up for the loss by adding one level of
+      logic input side relaying.  But it does not always work.
+      For example, MPEG's ``sumi'' operator is limited to 120MHz
+      in every parameter combination I have tried, but is 165MHz
+      if we make the queue interface registers retimable.
+      At 120MHz, this operator is the critical limiter for the app.
+      I also find that the max page speed is lower, across all
+      parameter combinations.  We used to have the fastest 1/3
+      of all pages span 200-300MHz in uniform distribution
+      (depth-2 logic pipelining).  Now they span 200-228MHz.
+
+      It seems logical to ask whether we would see higher
+      application performance by making the queue interface
+      registers retimable again (to get faster pages),
+      and by overcoming the higher stream setup times with a level
+      of interconnect pipelining.  The answer is apparently NO.
+      This approach runs into Synplify retiming problems, where
+      composition and/or adding registers makes things slower, not faster.
+      I witnessed that several weeks ago, before deciding to try
+      non-retimable queue interface registers  (though I now know
+      of one thing that might have obfuscated retiming in that case).
+      Also, I just tried it manually with MPEG, using depth-2
+      logic input-side relaying -- the slowest page is 135MHz,
+      but the application is 111MHz, or worse, 97MHz with inter-page
+      optimization restricted by ``synthesis syn_hier="flatten,hard"''.
+      The application's critical path is reported to be in a DCT page,
+      which compiles separately to a much faster 140MHz.
+      In other words, retiming is still broken.  If pages are
+      separated by a level of non-retimable interconnect registers,
+      then composing them together should NOT reduce system performance
+      or affect opportunities for retiming.  And yet it does in Synplify.
+      I should send it in as a bug report.
+
+      To summarize this aside, reverting queues to have retimable
+      interface registers and making up for it with non-retimable
+      interconnect registers will (1) speed up pages but (2) slow down
+      the application (due to problems in Synplify).
+
+
+All of the above issues pertain to clock rate, which we might be able
+to say is ``good enough'' even if it is sub-optimal.
+But there is an additional problem with area.
+
+
+(10)  Application area can be significantly smaller than
+       total page area (from separately compiled pages).
+       The disparity grows with pipelining depth.
+
+       E.g. for MPEG with B frames, the ratio
+       (application area / total page area) ranges from 54K/55K
+       for no pipelining to 56K/77K (73%) for depth-3 logic
+       output side relaying.
+
+       The disparity is larger with logic output side relaying than with
+       logic output side pipelining.  It is particularly bad for the
+       MPEGs (with relaying as well as pipelining),
+       but it can be significant for other apps as well (10%-20%).
+
+       I can understand why area would grow with deeper pipelining, and
+       particularly with deeper relaying.  More registers cannot be moved
+       by retiming, so they require resources where they are instantiated.
+       Relay queues cannot be entirely swallowed by retiming, since their
+       enabled registers are technically feedback loops -- the more we
+       add, the more area they take.  Page area bears this out.
+
+       The interesting thing, which I cannot understand, is that
+       compiling the applications monolithically makes the relay queues
+       nearly vanish.  E.g., for the MPEG with B frames I mentioned
+       above, the area overhead of logic output side relaying is nearly
+       nil -- 54K LUTs without relaying, 56K LUTs with 3-deep relaying.
+       In this particular case, logic relaying (56K) is actually smaller
+       than pipelining (60K).  How can that be?  It seems to say that
+       Synplify can, through global optimizations, make relay queues
+       disappear more efficiently than retiming registers.
+       I have checked for funny-business, like stream mis-wiring
+       causing logic to be culled out of the application, but I can
+       find no such problems.  This looks like another idiosyncracy
+       of Synplify.
+
+       Whatever the cause may be, there is another consequence:
+       the area disparity throws off my calculation of queue area.
+       I normally calculate queue area from separate compilation as
+       (total queue area) = (total page area) minus (total SFSM area).
+       Now, with deeper pipelining/relaying, (total page area) grows,
+       while (total SFSM area) stays the same.  Result: queue area grows.
+       But the area of the monolithically compiled application does NOT
+       grow that much with deeper pipelining.  So queue area from
+       separate compilation does NOT accurately represent queue area
+       from application compilation.
+
+       Should I instead approximate:
+       (total queue area) = (application area) minus (total SFSM area) ?
+       Andre' and I had this discussion before (at Cafe' Borrone).
+       This approximation is inaccurate, or at least impure,
+       because it mixes ``total SFSM area'' comes from separate
+       compilation with ``application area'' from monolithic compilation.
+       When compiling the whole application, the area of SFSMs would be
+       different due to global optimizations (partial evaluation,
+       propagation of don't-cares, etc.).
+
+       It would be more correct to say:
+       (total queue area) = (application area) minus
+                            (total SFSM area in monolithic compilation).
+       The SFSM area can (almost) be modeled by compiling the application
+       with every queue replaced by a non-retimable register (what I
+       called a ``nil queue'').  That would remove the area of queues.
+       However, it would introduce a different set of global optimizations.
+       So it still cannot isolate the correct area of queues.
+
+       At this point, I do not have a good answer to deal with the
+       area disparity between pages and applications.
+       It seems that our choices are to take queue area as being either:
+       (a)  (total page area) minus (total SFSM area),
+              which is pure but inaccurate, or
+       (b)  (application area) minus (total SFSM area),
+              which is impure but perhaps more accuate.
+
+
+(11)  Question:  are our problems with speed and area
+       aggravated by giving all streams the same pipelining depth?
+
+       With uniform pipelining depths, some pages are over-pipelined,
+       incurring extra area, and perhaps confusing Synplify's
+       optimizations.  If every page were pipelined independently,
+       we might avoid a lot of unnecessary registers and/or relay queues.
+
+       I tried to answer this question from the existing results of
+       separately compiled pages.  The answer seems to be YES.
+       Specifically, I considered choosing one logic pipelining depth
+       per page, and pipelining all of that page's output streams
+       identically.  I tried it for both pipelining trends (a) and (b)
+       (defined in (5) above).  Possible choices for pipeline depth are:
+
+       (a) the depth that yields max page speed
+             (this is not necessarily the greatest depth,
+              due to Synplify's retiming problems)
+       (b) the least depth s.t. (depth+1) makes the page
+             slower instead of faster
+       (c) the least depth that yields page speed > 200MHz
+       (d) the least depth that yields page speed > 150MHz
+
+       Every variant yielded, approximately, the total page area of
+       depth-1 uniform pipelining with the minimum (critical) page
+       speed of depth-3 uniform pipelining.  That is a big area saving.
+
+       The disparity between total page area and application area
+       was still non-zero -- roughly 10% comparing pages having optimal
+       pipelining to applications having depth-1 uniform pipelining
+       (that is, 10% agregate across all apps, all pages).
+
+       The interesting question is, what would be the application area
+       if it were compiled monolithically with pages optimally pipelined?
+       Answering that is non-trivial.  It would require regenerating and
+       recompiling the Verilog files with different pipelining parameters
+       for each stream, and setting each stream queue to accomodate the
+       staleness from pipelining its upstream producer.  It might take
+       a week or so, which I don't have right now.  For the dissertation,
+       I hope it will suffice to demonstrate pipeline-optimal separate
+       compilation but not pipeline-optimal monolithic compilation.
+
+
+Phase III of the new characterization is PAR for all apps and pages.
+This is still in progress.
+
+Phase III observations:
+
+
+(12)  The disk (/scratch/icfast/) will probably fill up
+       before Phase III is done.
+
+       If the disk fills up, I will have to run Phase III in 2 halves,
+       deleting the first half's files before going on to the next half.
+       I think I have exceeded 100GB, even after compressing
+       intermediate results.
+
+
+Your comments are welcome,
+   thanks,
+     - Eylon.
+
+
+Eylon Caspi                     University of California, Berkeley
+eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>
+
+
+
+
+
+
+
+
+From eylon@eecs.berkeley.edu Thu Apr 21 20:26:13 2005
+Date: Thu, 21 Apr 2005 20:26:13 -0700 (PDT)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: John Wawrzynek <johnw@eecs.berkeley.edu>, Andre' DeHon <andre@acm.org>
+Cc: Michael Wrighton <wrighton@cs.caltech.edu>
+Subject: Re: SCORE app characterization update
+
+On Wed, 20 Apr 2005, Eylon Caspi wrote:
+
+>     It seems logical to ask whether we would see higher
+>     application performance by making the queue interface
+>     registers retimable again (to get faster pages),
+>     and by overcoming the higher stream setup times with a level
+>     of interconnect pipelining.  The answer is apparently NO.
+>     This approach runs into Synplify retiming problems, where
+>     composition and/or adding registers makes things slower, not faster.
+>     I witnessed that several weeks ago, before deciding to try
+>     non-retimable queue interface registers  (though I now know
+>     of one thing that might have obfuscated retiming in that case).
+>     Also, I just tried it manually with MPEG, using depth-2
+>     logic input-side relaying -- the slowest page is 135MHz,
+>     but the application is 111MHz, or worse, 97MHz with inter-page
+>     optimization restricted by ``synthesis syn_hier="flatten,hard"''.
+>     The application's critical path is reported to be in a DCT page,
+>     which compiles separately to a much faster 140MHz.
+>     In other words, retiming is still broken.  If pages are
+>     separated by a level of non-retimable interconnect registers,
+>     then composing them together should NOT reduce system performance
+>     or affect opportunities for retiming.  And yet it does in Synplify.
+>     I should send it in as a bug report.
+
+
+ 	Following up on the manual MPEG experiment,
+ 	I just tried another way to compile the application --
+ 	as a netlist of page EDIFs, where each page was compiled
+ 	separately.  This is intended to prevent Synplify from
+ 	doing global optimizations (across pages).
+ 	The resulting application speed is 121MHz.
+ 	That's faster than monolithic compilation (111MHz)
+ 	but still 10% below the slowest separately compiled page
+ 	(135MHz).  The application's critical path (121MHz)
+ 	is reported to be in a page that was compiled separately
+ 	to EDIF at 136MHz.  I wondered whether Synplify was
+ 	applying optimizations to the pre-compiled EDIFs,
+ 	so I turned off everything I could find.
+ 	No help, the app was still 121MHz.
+
+ 	I am not sure what is going on here.  The composition
+ 	of EDIFs, separated by non-retimable registers,
+ 	is 10-20% slower than the slowest EDIF.
+ 	Could it be an idiosyncracy in timing analysis?
+
+ 	Take care,
+ 	- Eylon
+
+
+Eylon Caspi                     University of California, Berkeley
+eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>

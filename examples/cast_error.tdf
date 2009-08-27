@@ -1,0 +1,27 @@
+// casting examples
+
+unsigned[3] casting (input unsigned[8] a,
+		     input unsigned[8] b)
+{
+  state only(a,b): casting=(signed[3])a+(unsigned[3])b;
+}
+
+unsigned[n] casting2 (param unsigned[8] n,
+		      input unsigned[n] a,
+		      input unsigned[n] b)
+{
+  state only(a,b):
+    if ((signed[2])a==(unsigned[3])b)
+      casting2=a+(signed[8])b;
+}
+
+casting3 (param  unsigned[4] p,
+	  input  unsigned[4] i,
+	  output   signed[8] o)
+{
+  state only(i):
+    o=i;
+    o=(signed)i;
+    o=(signed[8])i;
+    o=(signed[8])((signed)p*i);
+}

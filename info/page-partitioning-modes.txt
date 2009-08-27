@@ -1,0 +1,35 @@
+4 Page Partitioning modes:
+
+(1) no partitioning (single page)
+
+     * flatten
+     * treat top composition as page
+
+
+(2) "-pp1" op per page
+       [ Extracted pipelines get own page ]
+
+     * flatten
+     * wrap ops in compositions
+     * Verilog emit 2nd level
+
+(3) "-pp" automatic partitioning
+
+     * flatten
+     * compute partitions
+     * wrap partitions in compositions
+     * Verilog emit 2nd level
+
+(4) "-ppm" manual page partitioning
+        [ Extracted pipelines remain in original partition ]
+
+     * flatten
+     * wrap orig. partitions in compositions
+          (problem: associating extracted pipelines)
+     * Verilog emit 2nd level
+     
+     or
+     
+     * flatten all but top level composition
+          (problem: buried segments)
+     * Verilog emit 2nd level

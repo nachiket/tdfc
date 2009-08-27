@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+#
+# - Print <number of used grid slots> / <number of available grid slots>
+# - Distinguish online, offline, total machines
+# - Eylon Caspi, 10/21/04 3/8/05
+
+$used    = 0;
+$total   = 0;
+$used_offline  = 0;
+$total_offline = 0;
+open(QSTAT,"qstat -f |");
+while (<QSTAT>) {
+    if (m{\s(\d+)/(\d+)\s})      { $used+=$1; $total+=$2; }
+    if (m{\s(\d+)/(\d+)\s+-NA-}) { $used_offline+=$1; $total_offline+=$2; }
+}
+close(QSTAT);
+$used_online  = $used  - $used_offline;
+$total_online = $total - $total_offline;
+print "$used_online/$total_online online,  $used_offline/$total_offline offline,  $used/$total total\n";

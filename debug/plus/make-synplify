@@ -1,0 +1,48 @@
+#!/bin/csh
+#
+# make-synplify
+# - run:  tdfc -xc ...
+#         tdfc -synplify      ...
+#         tdfc -synplify -pp1 ...
+# - Eylon Caspi, 9/30/04 3/1/05 4/11/05
+
+################################################################
+
+set tdfc = (../../../tdfc -DAPPROX_DIV -DMODULO_COUNTER)
+
+set qi = (-qim Q_lowqli_in  -qid 16 -qili 0 -qilo 0 -qiw 0)
+set ql = (-qlm Q_lowqli     -qld 16 -qlli 0 -qllo 0 -qlw 0)
+set qo = (-qom Q_lowqli_out -qod 16 -qoli 0 -qolo 0 -qow 0)
+
+set syntech   = (-syntech VIRTEX2P-XC2VP70-FF1704-7)
+
+set tdfxcsrcs = ()
+
+set tdfsrcs   = (plus.tdf)
+
+################################################################
+
+# command line option "-n" prevents cmd execution, print only
+set execute = 1
+if ($#argv > 0) then
+  if ($argv[1] == "-n") then
+    set execute = 0
+  else
+    echo "Usage:  $0 [-n]"
+    exit
+  endif
+endif
+
+foreach tdfxcsrc ($tdfxcsrcs)
+  set cmd = ($tdfc -xc $tdfxcsrc > ${tdfxcsrc}.xc)
+  echo $cmd
+  if ($execute) eval $cmd
+end
+
+# set cmd = ($tdfc      -synplify $syntech $qi $ql $qo $tdfsrcs)
+# echo $cmd
+# if ($execute) eval $cmd
+
+set cmd = ($tdfc -pp1 -synplify $syntech $qi $ql $qo $tdfsrcs)
+echo $cmd
+if ($execute) eval $cmd

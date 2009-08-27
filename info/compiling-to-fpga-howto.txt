@@ -1,0 +1,246 @@
+------------------------------
+Compiling TDF to FPGA - How To			Eylon Caspi, 2005
+------------------------------
+
+
+- Write synthesizable TDF
+
+    (1) No division or modulo by non-powers-of-two
+
+    (2) Inlined calls and read-write arrays in a behavioral operator
+          (SFSM) must be exlined (hoisted out to a separate operator)
+          either manually or using ``-xc''.
+          Note, ``-xc'' also serializes states into pseudo-basic-blocks,
+          which yields inefficient implementations.  Manual is better.
+
+    (3) The top level TDF operator ``op.tdf'' must have an
+          instance specification file ``op.fuser''.
+          This is also the place to specify param values for ``op''.
+
+
+- Compile TDF to Verilog using ``tdfc -synplify''
+
+    This creates a hierarchy of Verilog module files, with ``op.v''
+    at the top.  It also creates a ``proj'' directory for subsequent
+    compilation with Synplify 7/8.
+    
+    Optionally specify the target FPGA using tdfc option ``-syntech''
+    to guide the creation of Synplify project files
+    (default: ``VIRTEX2-XC2V40-CS144-6'').
+    
+    If you intend to use a Verilog compiler other than Synplify 7/8,
+    then use ``tdfc -everilog'', which omits the ``proj'' directory.
+
+
+- Locate tdfc tools directory:  $tools = .../tdfc/tools
+
+
+- Optionally create register shell modules using ``$tools/verilog-reg-shells''
+
+    Xilinx ISE 6 static timing analysis does not properly analyze
+    combinational input-to-output paths.  A work-around for this problem
+    is to embed each module in a shell of I/O boundary registers.
+    The script ``verilog-reg-shells'' creates, for each module ``<module>'',
+    a register shell ``<module>_ior'' in file ``<module>_ior.v''
+    and a Synplify build directory ``proj/<module>_ior/''.
+
+
+- Compile Verilog with Synplify 7/8
+
+    (1) cd proj
+
+    (2) cd <module>
+
+    (3) synplify_pro *.prj                             ( GUI ), OR
+        synplify_pro -batch -impl rev_<revname> *.prj  (batch)
+        
+        Note:  rev_1__speed    - targets 500MHz, all optimizations
+               rev_2__area     - targets   0MHz, all optimizations
+               rev_3__no_optim - targets   0MHz, no  optimizations
+               rev_4__200mhz   - targets 200MHz, all optimizations
+
+    (4) If using register shells, repeat (2) and (3) for ``<module>_ior''.
+
+    (5) To separately compile every module, replace (2)-(4) by:
+          cp -p $tools/synplify-makefile-all-77 .
+          ln -s        synplify-makefile-all-77 Makefile
+          make -j <numberofjobs>
+          
+        Makefile is configured to use Sun Grid Engine (SGE) 6.0u3:
+          make -j <numberofjobs> PREFIX=$tools/qsubwaitcsh
+
+
+- Optionally generate tab-delimited pre-PAR area/time report using:
+
+    ``$tools/synplify-pp1+dpq-summary3-rev4''       (for all modules),
+    ``$tools/synplify-pp1+dpq-summary3-appl-rev4''  (top level module only),
+    ``$tools/xls-to-html''            (convert tab-delimited to HTML table)
+
+
+- Create Xilinx ISE 6.3i build directory  ``proj-xilinx''
+
+    (1) cd <directory containing .tdf + .v>
+
+    (2) $tools/xilinx-dirs-63i <optional list of floorplan expansion factors>
+
+    (3) If you wish to omit modules from the build directory,
+          simply hide the relevant Verilog files
+          by  preceding (2) with:  ``mv      <module>.v /tmp''
+          and following (2) with:  ``mv /tmp/<module>.v .   ''
+
+
+- Place and route using Xilinx ISE 6.3i
+
+    (1) cd proj-xilinx
+    
+    (2) cd <module>      (without register shell)
+        cd <module>_ior  (with    register shell)
+
+    (3) cd rev_area_<expansion>
+    
+    (4) ./make
+    
+    (5) To compile all available revisions of a module, replace (3)-(4) by:
+          make -j <numberofjobs>  (parallel make)  OR
+          ./make                  (serial   make)
+
+    (6) To compile all available modules, replace (2)-(4) by:
+          make -j <numberofjobs>  (parallel make)  OR
+          ./make                  (serial   make)
+
+        Makefile in (5)+(6) is configured to use Sun Grid Engine (SGE) 6.0u3:
+          make -j <numberofjobs> PREFIX=$tools/qsubwaitcsh
+
+
+- Optionally generate tab-delimited post-PAR area/time report using:
+
+    ``$tools/xilinx-pp1+dpq-summary3''       (for all modules),
+    ``$tools/xilinx-pp1+dpq-summary3-appl''  (top level module only),
+    ``$tools/xls-to-html''     (convert tab-delimited to HTML table)
+
+
+----------------------------------------------------------------
+
+
+Directory structure for steps above:
+
+(scripts in $tools rely on this structure)
+
+
++ tools/
++ ...
++ application/
+     + <op>.tdf
+     + ...
+
+     + <module1>.v
+     + <module2>.v
+     + <module3>.v
+     + ...
+
+     + proj/                             (Synplify Pro 8.0 build directory)
+         + <module1>/                    (core module)
+             + <module1>.prj
+             + <module1>.prd
+             + rev_1__speed/             (Synplify implementations/revisions
+             + rev_2__area/                 with different options)
+             + rev_3__no_optim/
+             + rev_4__200mhz/
+                 + <module>.edf          (EDIF generated by Synplify)
+         + <module1>_ior/                (I/O register shell module)
+             + (same)
+         + <module2>/
+         + <module2>_ior/
+         + <module3>/
+         + <module3>_ior/
+         + ...
+         + synplify-makefile-all-77
+         + Makefile -> synplify-makefile-all-77
+         + tools    -> $tools
+
+     + proj-xilinx/                      (Xilinx ISE 6.3i build directory)
+         + <module1>_ior/                (I/O register shell module)
+             + rev_area_1.0              (PAR with area expansion 1.0x)
+             + rev_area_1.1              (PAR with area expansion 1.1x)
+             + rev_area_1.2              (PAR with area expansion 1.2x)
+                 + make  (***)
+                 + Makefile -> ../../xilinx-makefile-63i
+                 + tools    -> ../../tools
+             + ...
+             + rev_area_unconstrained    (PAR with no area constraint)
+             + make
+             + Makefile -> ../xilinx-makefile-revs-63i
+         + <module2>_ior/
+         + <module3>_ior/
+         + ...
+         + make
+         + Makefile -> xilinx-makefile-all-63i
+         + tools    -> $tools
+         + xilinx-makefile-63i
+         + xilinx-makefile-all-63i
+         + xilinx-makefile-revs-63i
+
+
+(***) ``make'' is script (generated by $tools/xilinx-dirs-63i)
+      that invokes the local makefile with a few parameters, e.g.:
+
+	make \
+	     MODULE=foo_ior                                \
+	     EDIF_DIR=../../../proj/foo_ior/rev_4__200mhz  \
+	     CORE_MODULE=foo                               \
+	     CORE_EDIF_DIR=../../../proj/foo/rev_4__200mhz \
+	     AREA_EXPANSION=1.2  $*
+
+
+----------------------------------------------------------------
+
+
+Scripts of interest in $tools:
+
+
+xilinx-area-constraints
+
+	Generate a ``.ucf'' constraint file for a
+	centered square area constraint in Xilinx ISE 6.3i.
+
+
+xilinx-timing-constraints
+
+	Generate a ``.ucf'' constraint file for a
+	clock period constraint in Xilinx ISE 6.3i.
+
+
+xilinx-makefile-63i
+
+	Makefile for iterating PAR under area + timing constraints,
+	roughly following my presentation slide.
+	It has been modified since the slide to do an initial,
+	max compaction run (ngdbuild + map -c 1),
+	then automatically generate a constraint file
+	with 20% larger area and compile again.
+	The ``.ucf'' constraint file is generated by concatenating
+	the result of the two scripts above.
+	Iteration is done by adding one row or column to the floorplan
+	and calling ``make'' again.
+	You can make intermediate targets (ngdbuild, map, par, etc.)
+	or everything with plain ``make''.
+	This makefile expects an EDIF file to already exist (see below).
+
+
+verilog-reg-shells
+
+	For each ``.v'' verilog file, wrap it in a shell module
+	containing I/O registers.  Those registers are not functional,
+	but they are necessary for ``trce'' to do proper static
+	timing analysis whenever there are combinational paths
+	from primary input to primary output.
+	The area constraint above only constrains the core module,
+	not the shell's registers.  PAR will pack shell registers
+	into the floorplan if area/timing permits, or otherwise
+	expell them to the periphery if area is too tight.
+	Shells are optional for the makefile above -- it will recognize
+	and special-case an I/O register shell module if it is named
+	``<module>_ior''.
+
+
+----------------------------------------------------------------

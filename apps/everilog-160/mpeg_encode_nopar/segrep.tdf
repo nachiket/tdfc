@@ -1,0 +1,44 @@
+#include "div.txt"
+
+segrep(param unsigned[10] origRow, input unsigned[16] in, 
+       output unsigned[14] A, output unsigned[14] B, output unsigned[14] C,
+       output unsigned[14] D, output unsigned[14] E, output unsigned[14] F,
+       output unsigned[14] G, output unsigned[14] H, 
+       input boolean wr, output unsigned[14] rep) 
+
+{
+
+
+  state only(in,wr): {
+
+    unsigned[10] rowCount; unsigned[8] rowMod;
+    unsigned[3] colMod; unsigned[5] colInd;
+
+    #ifndef APPROX_DIV
+    rowCount = in/origRow;
+    rowMod   = in%origRow;
+    #else
+    rowCount = DIV(in,origRow);
+    rowMod   = in - rowCount*origRow;
+    #endif
+    colInd = rowCount>>3;
+    colMod = rowCount%8;
+
+    A = ((colInd+((0<colMod) ? 1:0))*origRow+rowMod);
+    B = ((colInd+((1<colMod) ? 1:0))*origRow+rowMod);
+    C = ((colInd+((2<colMod) ? 1:0))*origRow+rowMod);
+    D = ((colInd+((3<colMod) ? 1:0))*origRow+rowMod);
+    E = ((colInd+((4<colMod) ? 1:0))*origRow+rowMod);
+    F = ((colInd+((5<colMod) ? 1:0))*origRow+rowMod);
+    G = ((colInd+((6<colMod) ? 1:0))*origRow+rowMod);
+    H = ((colInd+((7<colMod) ? 1:0))*origRow+rowMod);
+
+    if (!wr) {
+      rep = in;
+    }
+
+  }
+
+
+}
+

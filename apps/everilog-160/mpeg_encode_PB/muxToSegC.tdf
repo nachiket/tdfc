@@ -1,0 +1,60 @@
+muxToSegC(param unsigned[20] noTokens,
+	  input unsigned[64] p_0, 
+	  output unsigned[64] p_A, output unsigned[64] p_C)
+{
+
+  unsigned[20] index = 0;
+  unsigned[4] stat = 3;
+
+  state init(p_0): 
+    {
+      p_A = p_0;
+      index = index+1;
+      
+      if (index==noTokens) {
+	index = 0;
+	goto outCD;
+      }
+    }
+
+  state outAB(p_0):
+    {
+      p_A = p_0; 
+      index = index+1;
+
+      if (index==noTokens) {
+        index = 0; stat = stat+1;
+	goto wait;
+      }
+    }
+
+  state outCD(p_0):
+    {
+      p_C = p_0; 
+      index = index+1;
+
+      if (index==noTokens) {
+        index = 0; stat = stat+1;
+        goto wait;
+      }
+    }
+
+  state wait(p_0):
+    {
+      index = index+1;
+
+      if (index==noTokens) {
+	index = 0; stat = stat+1;
+	if (stat== 6) {
+	  stat = 0;
+	  goto outAB;
+	} else if (stat == 3) {
+	  goto outCD;
+	} 
+      }
+    }
+
+}
+
+  
+  

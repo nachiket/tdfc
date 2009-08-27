@@ -1,0 +1,199 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.2 $
+// $Date: 2001/02/28 20:55:24 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// Forward Loeffler-Ligtenberg-Moschytz implementation of DCT
+// interesting to see how this would be split up into different
+// operators
+
+#if 0
+
+#define FIX0293631336  2446
+#define FIX0541196100  4433
+#define FIX1175875602  9633
+#define FIX1847759065  15137   
+#define FIX1961570560  16069      
+#define FIX2053119869  16819      
+#define FIX2562915447  20995      
+#define FIX3072711026  25172      
+#define FIX0765366865  6270
+#define FIX0390180644  3196
+#define FIX0899976223  7373
+#define FIX1501321110  12299
+
+
+illm(param unsigned[8] inWidth, param unsigned[8] outWidth,
+     input signed[inWidth] a0, input signed[inWidth] a1,
+     input signed[inWidth] a2, input signed[inWidth] a3,
+     input signed[inWidth] a4, input signed[inWidth] a5,
+     input signed[inWidth] a6, input signed[inWidth] a7,
+     output signed[outWidth] b0, output signed[outWidth] b1,
+     output signed[outWidth] b2, output signed[outWidth] b3,
+     output signed[outWidth] b4, output signed[outWidth] b5,
+     output signed[outWidth] b6, output signed[outWidth] b7,
+     param unsigned[8] descale)
+     
+{
+
+  state start(a0,a1,a2,a3,a4,a5,a6,a7):
+    {	  
+	signed[inWidth+15] z1_; signed[inWidth+16] tmp2;
+	signed[inWidth+16] tmp3; 
+	signed[inWidth+14] tmp0; signed[inWidth+14] tmp1; 
+	signed[inWidth+17] tmp10; signed[inWidth+17] tmp13; 
+	signed[inWidth+17] tmp11; signed[inWidth+17] tmp12;
+	signed[inWidth+1] z1; signed[inWidth+1] z2; signed[inWidth+1] z3;
+	signed[inWidth+1] z4; signed[inWidth+17] z5;
+	signed[inWidth+13] tmp0_; signed[inWidth+16] tmp1_;
+	signed[inWidth+16] tmp2_; signed[inWidth+15] tmp3_;
+	signed[inWidth+14] z1__; signed[inWidth+16] z2_;
+	signed[inWidth+15] z3_; signed[inWidth+13] z4_;
+	signed[inWidth+18] z3__; signed[inWidth+18] z4__;
+	signed[inWidth+20] tmp0__; signed[inWidth+20] tmp1__;
+	signed[inWidth+20] tmp2__; signed[inWidth+20] tmp3__;
+	
+       	z1_ = (a2+a6)*FIX0541196100; // iW+1+14
+	tmp2 = z1_ - (a6*FIX1847759065); // iW+16
+	tmp3 = z1_ + (a2*FIX0765366865); // iW+16
+	tmp0 = (a0+a4)<<13; // iW+14
+	tmp1 = (a0-a4)<<13; // iW+14
+
+	tmp10 = tmp0+tmp3; tmp13 = tmp0-tmp3; //iW+17
+	tmp11 = tmp1+tmp2; tmp12 = tmp1-tmp2; //iW+17
+	
+	z1 = a7+a1; z2 = a5+a3; //iW+1
+	z3 = a7+a3; z4 = a5+a1; //iW+1
+
+	z5 = (z3+z4)*FIX1175875602; //iW+2+15
+	// quite here 
+	tmp0_ = a7*FIX0293631336; //iW+13
+	tmp1_ = a5*FIX2053119869; //iW+16
+	tmp2_ = a3*FIX3072711026; //iW+16
+	tmp3_ = a1*FIX1501321110; //iW+15
+	z1__ = -z1*FIX0899976223; z2_ = -z2*FIX2562915447;
+	z3_ = -z3*FIX1961570560; z4_ = -z4*FIX0390180644;
+	//iW+14  iW+16  iW+15  iW+13
+
+	z3__ = z3_+z5; // iW+18
+	z4__ = z4_+z5; // iW+18
+	
+	tmp0__ = tmp0_ + z1__ + z3__; //iW+20
+	tmp1__ = tmp1_ + z2_ + z4__; //iW+20
+	tmp2__ = tmp2_ + z2_ + z3__; //iW+20
+	tmp3__ = tmp3_ + z1__ + z4__; //iW+20
+
+	b0 = (tmp10+tmp3__)>>(13+descale);
+	b7 = (tmp10-tmp3__)>>(13+descale);
+	b1 = (tmp11+tmp2__)>>(13+descale);
+	b6 = (tmp11-tmp2__)>>(13+descale);
+	b2 = (tmp12+tmp1__)>>(13+descale);
+	b5 = (tmp12-tmp1__)>>(13+descale);
+	b3 = (tmp13+tmp0__)>>(13+descale);
+	b4 = (tmp13-tmp0__)>>(13+descale);
+
+
+        stay;
+
+    }
+
+}
+
+
+#endif
+
+
+#define FIX_1_082392200  277	
+#define FIX_1_414213562  362	
+#define FIX_1_847759065  473	
+#define FIX_2_613125930  669	
+
+illm(param unsigned[8] inWidth, param unsigned[8] outWidth,
+     input signed[inWidth] a0, input signed[inWidth] a1,
+     input signed[inWidth] a2, input signed[inWidth] a3,
+     input signed[inWidth] a4, input signed[inWidth] a5,
+     input signed[inWidth] a6, input signed[inWidth] a7,
+     output signed[outWidth] b0, output signed[outWidth] b1,
+     output signed[outWidth] b2, output signed[outWidth] b3,
+     output signed[outWidth] b4, output signed[outWidth] b5,
+     output signed[outWidth] b6, output signed[outWidth] b7,
+     param unsigned[8] descale)
+     
+{
+
+  state start(a0,a1,a2,a3,a4,a5,a6,a7):
+    {	  
+
+	signed[inWidth+1] tmp10; signed[inWidth+1] tmp13; 
+	signed[inWidth+1] tmp11; signed[inWidth+3] tmp12;
+
+	signed[inWidth+2] tmp0; signed[inWidth+2] tmp3; 
+	signed[inWidth+4] tmp1; signed[inWidth+4] tmp2; 
+
+	signed[inWidth+1] z13; signed[inWidth+1] z10; 
+	signed[inWidth+1] z11; signed[inWidth+1] z12;
+
+	signed[inWidth+2] tmp7; signed[inWidth+2] tmp11_;
+	signed[inWidth+2] z5;
+
+	signed[inWidth+2] tmp10_; signed[inWidth+3] tmp12_; 
+	signed[inWidth+4] tmp6; signed[inWidth+5] tmp5;
+	signed[inWidth+6] tmp4;
+
+	tmp10 = a0+a4; tmp13 = a2+a6; 
+	tmp11 = a0-a4; tmp12 = (((a2-a6)*FIX_1_414213562)>>8)-tmp13;
+	
+	tmp0 = tmp10+tmp13; tmp3 = tmp10-tmp13;
+	tmp1 = tmp11+tmp12; tmp2 = tmp11-tmp12;
+
+	z13 = a5+a3; z10 = a5-a3; z11 = a1+a7; z12 = a1-a7;
+	
+	tmp7 = z11+z13; tmp11_ = (((z11-z13)*FIX_1_414213562)>>8);
+	z5 = ((z10+z12)*FIX_1_847759065)>>8;
+	
+	tmp10_ = ((z12*FIX_1_082392200)>>8)-z5;
+	tmp12_ = z5-((z10*FIX_2_613125930)>>8);
+	
+	tmp6 = tmp12_ - tmp7;	/* phase 2 */
+	tmp5 = tmp11_ - tmp6;
+	tmp4 = tmp10_ + tmp5;
+
+	b0 = (tmp0+tmp7)>>(descale);
+	b7 = (tmp0-tmp7)>>(descale);
+	b1 = (tmp1+tmp6)>>(descale);
+	b6 = (tmp1-tmp6)>>(descale);
+	b2 = (tmp2+tmp5)>>(descale);
+	b5 = (tmp2-tmp5)>>(descale);
+	b4 = (tmp3+tmp4)>>(descale);
+	b3 = (tmp3-tmp4)>>(descale);
+
+
+        stay;
+
+    }
+
+}
+
+

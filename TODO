@@ -1,0 +1,76 @@
+- language changes:
+    * embedded C++ operators
+    * new exceptions (remove "attn", scoped operators)
+    * initial values for input-stream history
+    * bit subscript should on arbitrary expressions
+    * nweaver:  allow explicit narrowing casts?
+    * [defunct: operator instances in behavioral operators]
+
+- tdfc internals:
+    * stream-cat built-ins for compositional operators
+    * representation of single-bit subscript (x[y])
+	must avoid side-effects (do NOT represent as x[y:y])
+    * -xc lifting of locals into regs can lead to erroneous initialization,
+	should NOT lift initialization
+
+- lexer changes:
+    * [see language changes]
+
+- parser changes:
+    * error handling
+    * precedence of unary operators?
+    * [see language changes]
+
+- semantic analyses:
+    * streams inside compositional operator must have 2 endpoints
+    * verify param consistency of ExprCall args (beta-rename in type-check)
+    * no recursive inlined calls
+    * no recursive type definitions (via parameterized width)
+    * single assignment per symbol per state eval
+    * single use per symbol in state input sensitivity
+    * state with eos(x) in sig does not reach any state with x or eos(x)
+	(naive reachability analysis is too constraining;
+	 for code reuse, want to allow a shared intermediate state
+	 that can be reached before and after input eos,
+	 provided it has a data-dependent branch to avoid reaching
+	 a consuming state after eos;  that looks illegal on traditional,
+	 value-agnostic reachability analysis;  maybe can use forward
+	 value analysis on branch decision variables, then backwards
+	 reachability analysis from consuming states to eos states;
+	 maybe can consolidate in one context-sensitive analysis)
+    * no dynamic type-widths
+    * consistency among multiple signatures per state
+    * identify sequential array access patterns
+    * determine required input-stream history size
+    * determine maximum number of emitted tokens ("produces")
+    * no dynamic array assignment
+    * no side-effects in inlined calls
+	(inlined call exprs must not have output streams)
+	(better: disallow operators with return stream and output streams)
+
+- transformations:
+    * xform X?Y:Z to if-then-else when Y,Z have side-effects
+    * assignment to narrower var --> explicit subscript
+    * multiple token consumption --> break states for indiv. tokens
+    * bit-selection/concat in compositional operators --> xform receiver i/o
+    * constant propagation  [done during operator instantiation]
+    * operator coagulation
+    * page decomposition
+    * register (re)allocation
+	- every write to a register costs a multiplexer input
+	- mux cost is a step fn in inputs (2:1=1 LUT, 4:1=3 LUTs, 8:1=7 LUTs)
+	- so splitting 1 reg into 2 for separate lifetimes may save LUTs
+
+- miscellanea:
+    * compute binding times
+    * disallow executing cpp/g++ in relative path that is not in $PATH (access)
+
+- "programming score" doc:
+    * initial values for stream history
+    * multiple decls per line
+
+- runtime:
+    * catch writes to read-stream / reads to write-stream
+
+- Verilog emission:
+    * implement segment operators  (black box for now)

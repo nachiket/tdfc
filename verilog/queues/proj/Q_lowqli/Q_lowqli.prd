@@ -1,0 +1,12 @@
+#-- Synplicity, Inc.
+#-- Version 7.1
+#-- Project file proj/Q_lowqli/Q_lowqli.prd
+#-- Emitted by ../../../tdfc version 1.159, Sat Apr  9 23:20:42 2005
+#
+### Watch Implementation type ###
+#
+watch_impl -active
+#
+### Watch Implementation properties ###
+#
+watch_prop -clear

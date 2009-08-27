@@ -1,0 +1,111 @@
+// schedc 1.3, Jul 29 2001 13:00:59
+// filename = jpeg_decode_nopar/new_sched/jpeg_decode_nopar_12.template
+//
+// ---- SCHEDULE HEADER BEGIN ----
+// Schedule generation options:
+//    minIO clustering: false
+//    ratefile name: jpeg_decode_nopar/jpeg_decode_nopar.ratefile
+//    traversal type: exh
+// 
+//  0| 10, 9, 11, 15, 6, 14, 8, 5, 7, 12, 13, 4, 0, 1, 2, 3, 16, 17, 18, 19, 20, 21, 22, 23, 24, |use cp=1.00, cmb=0.81|utl cp=0.30|ave cp=0.30|drain=2.97
+// 
+// ave|use cp=1.00, cmb=0.81|utl cp=0.30|ave cp=0.30
+// 
+// w_ave|utl cp=0.30
+// ---- SCHEDULE HEADER END ----
+
+array {
+   CPs: 12;
+   CMBs: 16;
+   CMB Partitions:
+    B0 (B0, B1, B2, B3, B4, B5, B6) :
+    null (B7, B8, B9, B10, B11);
+}
+design {
+    visual: "something";
+    0: page (8, 8) "illm in illm.tdf" : 0.output0 => 1.input0, 0.output1 => 1.input1, 0.output2 => 1.input2, 0.output3 => 1.input3, 0.output4 => 1.input4, 0.output5 => 1.input5, 0.output6 => 1.input6, 0.output7 => 1.input7 ;
+    1: page (8, 8) "tpose in tpose.tdf" : 1.output0 => 2.input0, 1.output1 => 2.input1, 1.output2 => 2.input2, 1.output3 => 2.input3, 1.output4 => 2.input4, 1.output5 => 2.input5, 1.output6 => 2.input6, 1.output7 => 2.input7 ;
+    2: page (8, 8) "illm in illm.tdf" : 2.output0 => 3.input0, 2.output1 => 3.input1, 2.output2 => 3.input2, 2.output3 => 3.input3, 2.output4 => 3.input4, 2.output5 => 3.input5, 2.output6 => 3.input6, 2.output7 => 3.input7 ;
+    3: page (8, 8) "bl in bl.tdf" : 3.output0 => cpu.input0, 3.output1 => cpu.input1, 3.output2 => cpu.input2, 3.output3 => cpu.input3, 3.output4 => cpu.input4, 3.output5 => cpu.input5, 3.output6 => cpu.input6, 3.output7 => cpu.input7 ;
+    4: page (2, 8) "distrib in distrib.tdf" : 4.output0 => 0.input0, 4.output1 => 0.input1, 4.output2 => 0.input2, 4.output3 => 0.input3, 4.output4 => 0.input4, 4.output5 => 0.input5, 4.output6 => 0.input6, 4.output7 => 0.input7 ;
+    5: page (1, 4) "read_seg in read_seg.tdf" : 5.output0 => 12.input0, 5.output1 => 13.input0, 5.output2 => 12.input2, 5.output3 => 13.input2 ;
+    6: page (0, 1) "zigzag in zigzag.tdf" : 6.output0 => 5.input0 ;
+    7: page (1, 2) "demuxer in demuxer.tdf" : 7.output0 => 12.input1, 7.output1 => 13.input1 ;
+    8: page (2, 2) "jdquant_noinline in jdquant.tdf.xc" : 8.output0 => 7.input0, 8.output1 => 14.input0 ;
+    9: page (3, 1) "DecHuff in DecHuff.tdf" : 9.output0 => 10.input0, cpu.output0 => 9.input0 ;
+    10: page (2, 4) "DecSym in DecSym.tdf" : 10.output0 => 9.input2, 10.output1 => 9.input1, 10.output2 => 8.input0, 10.output3 => 11.input0 ;
+    11: page (2, 2) "ftabmod_noinline in ftabmod.tdf.xc" : 11.output0 => 10.input1, 11.output1 => 15.input0 ;
+    12: segment (3, 1) "Segment" : 12.output0 => 4.input0 ;
+    13: segment (3, 1) "Segment" : 13.output0 => 4.input1 ;
+    14: segment (1, 1) "Segment" : 14.output0 => 8.input1 ;
+    15: segment (1, 1) "Segment" : 15.output0 => 11.input1 ;
+    insert stitch segment 16 between 3.output0 and cpu;
+    insert stitch segment 17 between 3.output1 and cpu;
+    insert stitch segment 18 between 3.output2 and cpu;
+    insert stitch segment 19 between 3.output3 and cpu;
+    insert stitch segment 20 between 3.output4 and cpu;
+    insert stitch segment 21 between 3.output5 and cpu;
+    insert stitch segment 22 between 3.output6 and cpu;
+    insert stitch segment 23 between 3.output7 and cpu;
+    insert stitch segment 24 between cpu.output0 and 9;
+}
+schedule {
+    pre {
+        CP0( ; 10.config -> CMB13[1][11], 10.state -> CMB13[1][11], 10.fifos -> CMB13[1][11], CMB13[1][11] -> CP0.config, CMB13[1][11] -> CP0.state, CMB13[1][11] -> CP0.fifos; nop);
+        CP1( ; 9.config -> CMB14[1][11], 9.state -> CMB14[1][11], 9.fifos -> CMB14[1][11], CMB14[1][11] -> CP1.config, CMB14[1][11] -> CP1.state, CMB14[1][11] -> CP1.fifos; nop);
+        CP2( ; 11.config -> CMB15[1][11], 11.state -> CMB15[1][11], 11.fifos -> CMB15[1][11], CMB15[1][11] -> CP2.config, CMB15[1][11] -> CP2.state, CMB15[1][11] -> CP2.fifos; nop);
+        CP3( ; 6.config -> CMB0[1][10], 6.state -> CMB0[1][10], 6.fifos -> CMB0[1][10], CMB0[1][10] -> CP3.config, CMB0[1][10] -> CP3.state, CMB0[1][10] -> CP3.fifos; nop);
+        CP4( ; 8.config -> CMB1[1][10], 8.state -> CMB1[1][10], 8.fifos -> CMB1[1][10], CMB1[1][10] -> CP4.config, CMB1[1][10] -> CP4.state, CMB1[1][10] -> CP4.fifos; nop);
+        CP5( ; 5.config -> CMB2[1][10], 5.state -> CMB2[1][10], 5.fifos -> CMB2[1][10], CMB2[1][10] -> CP5.config, CMB2[1][10] -> CP5.state, CMB2[1][10] -> CP5.fifos; nop);
+        CP6( ; 7.config -> CMB3[1][10], 7.state -> CMB3[1][10], 7.fifos -> CMB3[1][10], CMB3[1][10] -> CP6.config, CMB3[1][10] -> CP6.state, CMB3[1][10] -> CP6.fifos; nop);
+        CP7( ; 4.config -> CMB4[1][10], 4.state -> CMB4[1][10], 4.fifos -> CMB4[1][10], CMB4[1][10] -> CP7.config, CMB4[1][10] -> CP7.state, CMB4[1][10] -> CP7.fifos; nop);
+        CP8( ; 0.config -> CMB5[1][10], 0.state -> CMB5[1][10], 0.fifos -> CMB5[1][10], CMB5[1][10] -> CP8.config, CMB5[1][10] -> CP8.state, CMB5[1][10] -> CP8.fifos; nop);
+        CP9( ; 1.config -> CMB6[1][10], 1.state -> CMB6[1][10], 1.fifos -> CMB6[1][10], CMB6[1][10] -> CP9.config, CMB6[1][10] -> CP9.state, CMB6[1][10] -> CP9.fifos; nop);
+        CP10( ; 2.config -> CMB7[1][10], 2.state -> CMB7[1][10], 2.fifos -> CMB7[1][10], CMB7[1][10] -> CP10.config, CMB7[1][10] -> CP10.state, CMB7[1][10] -> CP10.fifos; nop);
+        CP11( ; 3.config -> CMB8[1][10], 3.state -> CMB8[1][10], 3.fifos -> CMB8[1][10], CMB8[1][10] -> CP11.config, CMB8[1][10] -> CP11.state, CMB8[1][10] -> CP11.fifos; nop);
+        CMB0( ; ; nop, 15.data -> CMB0[0][0], CMB0.active = CMB0[0][0] as 15, 15.fifos -> CMB0[1][11], CMB0[1][11] -> CMB0.fifos);
+        CMB1( ; ; nop, 14.data -> CMB1[0][0], CMB1.active = CMB1[0][0] as 14, 14.fifos -> CMB1[1][11], CMB1[1][11] -> CMB1.fifos);
+        CMB2( ; ; nop, 12.data -> CMB2[0][0], CMB2.active = CMB2[0][0] as 12, 12.fifos -> CMB2[1][11], CMB2[1][11] -> CMB2.fifos);
+        CMB3( ; ; nop, 13.data -> CMB3[0][0], CMB3.active = CMB3[0][0] as 13, 13.fifos -> CMB3[1][11], CMB3[1][11] -> CMB3.fifos);
+        CMB4( ; ; nop, 16.data -> CMB4[0][0], CMB4.active = CMB4[0][0] as 16, 16.fifos -> CMB4[1][11], CMB4[1][11] -> CMB4.fifos);
+        CMB5( ; ; nop, 17.data -> CMB5[0][0], CMB5.active = CMB5[0][0] as 17, 17.fifos -> CMB5[1][11], CMB5[1][11] -> CMB5.fifos);
+        CMB6( ; ; nop, 18.data -> CMB6[0][0], CMB6.active = CMB6[0][0] as 18, 18.fifos -> CMB6[1][11], CMB6[1][11] -> CMB6.fifos);
+        CMB7( ; ; nop, 19.data -> CMB7[0][0], CMB7.active = CMB7[0][0] as 19, 19.fifos -> CMB7[1][11], CMB7[1][11] -> CMB7.fifos);
+        CMB8( ; ; nop, 20.data -> CMB8[0][0], CMB8.active = CMB8[0][0] as 20, 20.fifos -> CMB8[1][11], CMB8[1][11] -> CMB8.fifos);
+        CMB9( ; ; nop, 21.data -> CMB9[0][0], CMB9.active = CMB9[0][0] as 21, 21.fifos -> CMB9[1][11], CMB9[1][11] -> CMB9.fifos);
+        CMB10( ; ; nop, 22.data -> CMB10[0][0], CMB10.active = CMB10[0][0] as 22, 22.fifos -> CMB10[1][11], CMB10[1][11] -> CMB10.fifos);
+        CMB11( ; ; nop, 23.data -> CMB11[0][0], CMB11.active = CMB11[0][0] as 23, 23.fifos -> CMB11[1][11], CMB11[1][11] -> CMB11.fifos);
+        CMB12( ; ; nop, 24.data -> CMB12[0][0], CMB12.active = CMB12[0][0] as 24, 24.fifos -> CMB12[1][11], CMB12[1][11] -> CMB12.fifos);
+    }
+    timeslice 0 {
+        CP0(10 ; start(CP0), connect(CP0.output0, CP1.input2), connect(CP0.output1, CP1.input1), connect(CP0.output2, CP4.input0), connect(CP0.output3, CP2.input0); nop);
+        CP1(9 ; start(CP1), connect(CP1.output0, CP0.input0); nop);
+        CP2(11 ; start(CP2), connect(CP2.output0, CP0.input1), connect(CP2.output1, CMB0.input0); nop);
+        CP3(6 ; start(CP3), connect(CP3.output0, CP5.input0); nop);
+        CP4(8 ; start(CP4), connect(CP4.output0, CP6.input0), connect(CP4.output1, CMB1.input0); nop);
+        CP5(5 ; start(CP5), connect(CP5.output0, CMB2.input0), connect(CP5.output1, CMB3.input0), connect(CP5.output2, CMB2.input2), connect(CP5.output3, CMB3.input2); nop);
+        CP6(7 ; start(CP6), connect(CP6.output0, CMB2.input1), connect(CP6.output1, CMB3.input1); nop);
+        CP7(4 ; start(CP7), connect(CP7.output0, CP8.input0), connect(CP7.output1, CP8.input1), connect(CP7.output2, CP8.input2), connect(CP7.output3, CP8.input3), connect(CP7.output4, CP8.input4), connect(CP7.output5, CP8.input5), connect(CP7.output6, CP8.input6), connect(CP7.output7, CP8.input7); nop);
+        CP8(0 ; start(CP8), connect(CP8.output0, CP9.input0), connect(CP8.output1, CP9.input1), connect(CP8.output2, CP9.input2), connect(CP8.output3, CP9.input3), connect(CP8.output4, CP9.input4), connect(CP8.output5, CP9.input5), connect(CP8.output6, CP9.input6), connect(CP8.output7, CP9.input7); nop);
+        CP9(1 ; start(CP9), connect(CP9.output0, CP10.input0), connect(CP9.output1, CP10.input1), connect(CP9.output2, CP10.input2), connect(CP9.output3, CP10.input3), connect(CP9.output4, CP10.input4), connect(CP9.output5, CP10.input5), connect(CP9.output6, CP10.input6), connect(CP9.output7, CP10.input7); nop);
+        CP10(2 ; start(CP10), connect(CP10.output0, CP11.input0), connect(CP10.output1, CP11.input1), connect(CP10.output2, CP11.input2), connect(CP10.output3, CP11.input3), connect(CP10.output4, CP11.input4), connect(CP10.output5, CP11.input5), connect(CP10.output6, CP11.input6), connect(CP10.output7, CP11.input7); nop);
+        CP11(3 ; start(CP11), connect(CP11.output0, CMB4.input0), connect(CP11.output1, CMB5.input0), connect(CP11.output2, CMB6.input0), connect(CP11.output3, CMB7.input0), connect(CP11.output4, CMB8.input0), connect(CP11.output5, CMB9.input0), connect(CP11.output6, CMB10.input0), connect(CP11.output7, CMB11.input0); nop);
+        CMB0(15 in this[0][0] ; start(CMB0), connect(CMB0.output0, CP2.input1); nop);
+        CMB1(14 in this[0][0] ; start(CMB1), connect(CMB1.output0, CP4.input1); nop);
+        CMB2(12 in this[0][0] ; start(CMB2), connect(CMB2.output0, CP7.input0); nop);
+        CMB3(13 in this[0][0] ; start(CMB3), connect(CMB3.output0, CP7.input1); nop);
+        CMB4(16 in this[0][0] ; CMB4.mode = seqsrcsink, detect_full(CMB4), start(CMB4); nop);
+        CMB5(17 in this[0][0] ; CMB5.mode = seqsrcsink, detect_full(CMB5), start(CMB5); nop);
+        CMB6(18 in this[0][0] ; CMB6.mode = seqsrcsink, detect_full(CMB6), start(CMB6); nop);
+        CMB7(19 in this[0][0] ; CMB7.mode = seqsrcsink, detect_full(CMB7), start(CMB7); nop);
+        CMB8(20 in this[0][0] ; CMB8.mode = seqsrcsink, detect_full(CMB8), start(CMB8); nop);
+        CMB9(21 in this[0][0] ; CMB9.mode = seqsrcsink, detect_full(CMB9), start(CMB9); nop);
+        CMB10(22 in this[0][0] ; CMB10.mode = seqsrcsink, detect_full(CMB10), start(CMB10); nop);
+        CMB11(23 in this[0][0] ; CMB11.mode = seqsrcsink, detect_full(CMB11), start(CMB11); nop);
+        CMB12(24 in this[0][0] ; CMB12.mode = seqsrcsink, detect_empty(CMB12), start(CMB12), connect(CMB12.output0, CP1.input0); nop);
+        CMB13( ; ; nop);
+        CMB14( ; ; nop);
+        CMB15( ; ; nop);
+    }
+
+}

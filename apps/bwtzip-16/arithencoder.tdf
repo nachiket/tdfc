@@ -1,0 +1,123 @@
+arithencoder(input  unsigned[9]  in,
+             output unsigned[2]  isupdate,
+             output unsigned[9]  sendsymbol,
+             input  unsigned[32] getcfreq,
+             output unsigned[2]  out) {
+
+    unsigned[9]  sym;
+    unsigned[32] range;
+    unsigned[32] cfreqzero;
+	unsigned[1]  bit;
+    unsigned[32] low;
+    unsigned[32] high;
+    unsigned[32] fbits;
+
+    state onetrue(): {
+        low = 0;
+        high = 65535;
+        fbits = 0;
+
+        goto encodesymbol;
+    }
+
+    state encodesymbol(in): {
+        if (in == 300) {
+            fbits = fbits + 1;
+
+            if (low < 16384) {
+                bit = 0;
+            } else {
+                bit = 1;
+            }
+
+            out = bit;
+            goto reversebits_eos;
+        } else {
+            sym = in;
+            range = high - low + 1;
+            isupdate = 0;
+            sendsymbol = 0;
+
+            goto foozle;
+        }
+    }
+
+    state foozle(): {
+        isupdate = 0;
+        sendsymbol = sym;
+        goto foozle2;
+    }
+
+    state foozle2(): {
+        isupdate = 0;
+        sendsymbol = sym + 1;
+        goto getcfreqzero;
+    }
+
+    state reversebits_eos(): {
+        if (fbits != 0) {
+            out = 1 - bit;
+            fbits = fbits - 1;
+        } else {
+            out = 2;
+            isupdate = 2;
+            goto onetrue;
+        }
+    }
+
+    state getcfreqzero(getcfreq): {
+        cfreqzero = getcfreq;
+        goto assignhigh;
+    }
+
+    state assignhigh(getcfreq): {
+        high = low + (range * getcfreq) / cfreqzero - 1;
+        goto assignlow;
+    }
+
+    state assignlow(getcfreq): {
+        low  = low + (range * getcfreq) / cfreqzero;
+        goto infiniteforloop;
+    }
+
+    state infiniteforloop(): {
+        if (high < 32768) {
+            bit = 0;
+            goto bitplusfollow;
+        } else if (low >= 32768) {
+            low = low - 32768;
+            high = high - 32768;
+            bit = 1;
+            goto bitplusfollow;
+        } else if ((low >= 16384) && (high < 49152)) {
+            fbits = fbits + 1;
+            low = low - 16384;
+            high = high - 16384;
+            goto updatelowhigh;
+        } else {
+            isupdate = 1;
+            sendsymbol = sym;
+            goto encodesymbol;
+        }
+    }
+
+    state updatelowhigh(): {
+        low = 2 * low;
+        high = 2 * high + 1;
+        goto infiniteforloop;
+    }
+
+    state bitplusfollow(): {
+        out = bit;
+        goto reversebits;
+    }
+
+    state reversebits(): {
+        if (fbits != 0) {
+            out = 1 - bit;
+            fbits = fbits - 1;
+        } else {
+            goto updatelowhigh;
+        }
+    }
+}

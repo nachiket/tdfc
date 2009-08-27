@@ -1,0 +1,39 @@
+#!/bin/csh
+#
+# Synplify every behavioral module family (top, FSM, DP)
+#   in this directory, every implementation / revision thereof
+# Fork <numprocessors> simultaneous jobs
+#
+# Usage:  synplify-all-multiproc <numprocessors>
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Synplify 7.1
+# Eylon Caspi, 5/8/03
+
+set toolpath = ${0:h}
+
+set topmodules = `find . -maxdepth 1 -mindepth 1 -type d -print | perl -npe 's{.*/}{}; s{_fsm$}{}; s{_dp$}{};' | sort | uniq | egrep -v '^_page_'`
+
+if ($#argv < 1) then
+  echo "Usage:  synplify-all-multiproc <numprocessors>"
+  exit
+endif
+set numprocessors = $argv[1]
+
+@ job = 0
+while ($job < $numprocessors)
+  @ modnumlow = (($#topmodules * ($job    )) / $numprocessors    ) + 1
+  @ modnumhi  = (($#topmodules * ($job + 1)) / $numprocessors - 1) + 1
+  set jobtopmodules = ($topmodules[${modnumlow}-${modnumhi}])
+  echo "Starting job $job for module families $modnumlow - $modnumhi :"
+  echo "  { $jobtopmodules }"
+  ${toolpath}/synplify-family $jobtopmodules &
+  @ job = $job + 1
+end
+
+wait

@@ -1,0 +1,151 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.2 $
+// $Date: 2002/05/14 01:59:53 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// still need to put in afterweights
+
+proc_end(input unsigned[64] inlum,
+	 output unsigned[16] sumerr, param unsigned[5] precycle,
+	 param unsigned[5] totalcycle, input unsigned[64] search)
+
+{
+
+  unsigned[16] runningsum;
+  unsigned[5] postcycle;
+  unsigned[5] cycles;
+  unsigned[6] matchindex;
+  boolean sumstate;
+
+  state start(): {
+    postcycle = (totalcycle-1) - precycle; // used to be 15
+    goto init;
+  }
+
+  state init(): { 
+    sumstate = false;
+    runningsum = 0;
+    matchindex = 0;
+    if (precycle == 0) {goto first16;} 
+    else {cycles = precycle; goto cyclout;}
+  }
+
+  state cyclout(search): {
+
+    unsigned[5] tmcycle;
+    tmcycle = cycles - 1; cycles = tmcycle;
+    if (tmcycle == 0) {goto first16;}
+    else {stay;}
+
+  }
+
+  state first16(inlum,search):
+
+    {
+      unsigned[5] tmindex;
+
+      signed[9] inresa;  signed[9] inresb; signed[9] inresc; signed[9] inresd;
+      signed[9] inrese;  signed[9] inresf; signed[9] inresg; signed[9] inresh; 
+      //unsigned[16] trsum = 0;
+
+      tmindex = matchindex+1; matchindex = tmindex;
+      // distribute the input
+
+      inresa = ((signed[9])(inlum[63:56])) - ((signed[9])(search[63:56]));
+      inresb = ((signed[9])(inlum[55:48])) - ((signed[9])(search[55:48]));
+      inresc = ((signed[9])(inlum[47:40])) - ((signed[9])(search[47:40]));
+      inresd = ((signed[9])(inlum[39:32])) - ((signed[9])(search[39:32]));
+      inrese = ((signed[9])(inlum[31:24])) - ((signed[9])(search[31:24]));
+      inresf = ((signed[9])(inlum[23:16])) - ((signed[9])(search[23:16]));
+      inresg = ((signed[9])(inlum[15:8])) - ((signed[9])(search[15:8]));
+      inresh = ((signed[9])(inlum[7:0])) - ((signed[9])(search[7:0]));
+
+      runningsum = runningsum + bitsof((inresa<0) ? (-inresa) : inresa)
+  	+ bitsof((inresb<0) ? (-inresb) : inresb)
+  	+ bitsof((inresc<0) ? (-inresc) : inresc)
+  	+ bitsof((inresd<0) ? (-inresd) : inresd)
+  	+ bitsof((inrese<0) ? (-inrese) : inrese)
+  	+ bitsof((inresf<0) ? (-inresf) : inresf)
+  	+ bitsof((inresg<0) ? (-inresg) : inresg)
+  	+ bitsof((inresh<0) ? (-inresh) : inresh);
+
+      //runningsum = runningsum+trsum;
+
+      if (tmindex == 16) {
+
+	if (!sumstate) {
+	  // first16
+	  if (postcycle == 0) {
+	    goto intermed;
+	  } else {
+	    cycles = postcycle;
+	    goto cyclefinish;
+	  }      
+	} else {
+	  // second 16
+	  sumerr = runningsum;
+	  if (postcycle == 0) {
+	    goto init;
+	  } else {
+	    cycles = postcycle;
+	    goto cyclefinish2;
+	  }
+	}
+
+      }
+
+    }
+
+  state cyclefinish(search): {
+    unsigned[5] tmcycle;
+    tmcycle = cycles - 1; cycles = tmcycle;
+    if (tmcycle == 0) {goto intermed;}
+    else {stay;}
+  }
+
+  state intermed(): {
+    matchindex = 0;
+    sumstate = true;
+    if (precycle == 0) {goto first16;}
+    else {cycles = precycle; goto cyclout2;}
+  }
+
+  state cyclout2(search): {
+    unsigned[5] tmcycle;
+    tmcycle = cycles - 1; cycles = tmcycle;
+    if (tmcycle == 0) {goto first16;}
+    else {stay;}
+  }
+
+  state cyclefinish2(search): {
+    unsigned[5] tmcycle;
+
+    tmcycle = cycles - 1; cycles = tmcycle;
+    if (tmcycle == 0) {goto init;}
+    else {stay;}
+  }
+
+  
+
+}

@@ -1,0 +1,92 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.2 $
+// $Date: 2002/05/14 01:59:53 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+// implementation inspired by Sanz et.al 
+// "FPGA Implementation of the Block-Matching Algorithm for
+//  Motion Estimation in Image Coding"  FPL '95 (?)
+
+// fun with preprocessors
+
+motion(param unsigned[6] searchRange, output unsigned[16] maxErr, 
+       output signed[6] xVout, output signed[6] yVout,
+       input unsigned[64] ingroup, input unsigned[64] sgroup)
+
+{
+  // Plan is to have the motion estimator smart enough to 
+  // figure out the actual search range given boundary conditions
+  // 64 registers of internal state for best residual
+
+  unsigned[4] toerrcmp;
+
+  unsigned[16] sumerrA; unsigned[16] sumerrB; unsigned[16] sumerrC;
+  unsigned[16] sumerrD; unsigned[16] sumerrE; unsigned[16] sumerrF;
+  unsigned[16] sumerrG; unsigned[16] sumerrH; unsigned[16] sumerrI;
+  unsigned[16] sumerrJ; unsigned[16] sumerrK; unsigned[16] sumerrL;
+  unsigned[16] sumerrM; unsigned[16] sumerrN; unsigned[16] sumerrO;
+  unsigned[16] sumerrP; unsigned[16] lerr;
+
+  unsigned[64] sgroup0,sgroup1,sAgroup,sBgroup,sCgroup,sDgroup;
+
+  // need to rearrange subblock order
+  
+  distribute(sgroup,sgroup0,sgroup1,31,8);
+  distribute(sgroup0,sAgroup,sBgroup,23,4);
+  distribute(sgroup1,sCgroup,sDgroup,23,4);
+
+  proc_end(ingroup,sumerrA, 0,4,sAgroup);
+  proc_end(ingroup,sumerrB, 1,4,sAgroup);
+  proc_end(ingroup,sumerrC, 2,4,sAgroup);
+  proc_end(ingroup,sumerrD, 3,4,sAgroup);
+
+  proc_end(ingroup,sumerrE, 0,4,sBgroup);
+  proc_end(ingroup,sumerrF, 1,4,sBgroup);
+  proc_end(ingroup,sumerrG, 2,4,sBgroup);
+  proc_end(ingroup,sumerrH, 3,4,sBgroup);
+
+  proc_end(ingroup,sumerrI, 0,4,sCgroup);
+  proc_end(ingroup,sumerrJ, 1,4,sCgroup);
+  proc_end(ingroup,sumerrK, 2,4,sCgroup);
+  proc_end(ingroup,sumerrL, 3,4,sCgroup);
+
+  proc_end(ingroup,sumerrM, 0,4,sDgroup);
+  proc_end(ingroup,sumerrN, 1,4,sDgroup);
+  proc_end(ingroup,sumerrO, 2,4,sDgroup);
+  proc_end(ingroup,sumerrP, 3,4,sDgroup);
+
+  choose8(sumerrA,sumerrB,sumerrC,sumerrD,sumerrE,sumerrF,sumerrG,sumerrH,
+	  sumerrI,sumerrJ,sumerrK,sumerrL,sumerrM,sumerrN,sumerrO,sumerrP,
+	  toerrcmp,lerr);
+  
+  error_cmp(toerrcmp,lerr,xVout, yVout, maxErr,16,8);
+  //  controller();  // really necessary?
+
+}
+
+
+
+
+

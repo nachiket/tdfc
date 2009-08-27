@@ -1,0 +1,12 @@
+op (input boolean i, output boolean o)
+{
+  state only(i): o=i;
+}
+
+compos (input boolean ii, output boolean oo)
+{
+  // boolean s={1,2,3};
+  boolean[3] a={1,2,3};
+
+  op(ii,oo);
+}

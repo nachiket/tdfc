@@ -1,0 +1,70 @@
+// static 1:1
+add8(input signed[8] a, input signed[8] b, output signed[9] sum)
+ {
+  state only(a,b): sum = a+b;
+ }  
+
+// static 2:1
+downsample(input signed[8] in, output signed[8] out)
+
+{
+ state first(in):
+   goto second;
+ state second(in):
+   {
+     out=in;
+     goto first;
+   }
+}
+
+// static 2:1 ... smarter
+
+antialias_and_downsample(input signed[8] in, output signed[8] out)
+ {
+  state first(in):
+    goto second;
+  state second(in):
+    {
+      out=(in+in@1)>>1;  // @ like Silage, means previous sample
+      goto first;
+    }
+ }  
+
+// static 2:1 syntactic sugar
+
+antialias_and_downsample_v2(input signed[8] in, output signed[8] out)
+ {
+  state only(in#2): // require two inputs
+       out=(in@0+in@1)>>1;  // address inputs
+ }  
+
+// static 1:2
+upsample_and_interpolate(input signed[8] in, output signed[8] out)
+ {
+  state new(in):
+    {
+      out=(in+in@1)>>1; 
+      goto continue;
+    }
+  state continue(): // wait on and consume no input
+    {
+      out=in; 
+      goto new;
+    }
+ }  
+
+// less smart 1:2
+
+upsample(input signed[8] in, output signed[8] out)
+{
+ state new(in):
+   {
+     out=in; 
+     goto continue;
+   }
+ state continue():
+   { 
+     out=0; 
+     goto new;
+   }
+}

@@ -1,0 +1,233 @@
+TDF generators in C++
+
+(Inspired by Michael Delorimier's generators)
+
+- Add C types for TDF ops, streams, vars, etc.
+- Constructors of ops, streams, vars, etc.,
+    and evaluation of overloaded primitive operations on them (+, *, etc.),
+    build TDF structures
+- Easy for compositional operators;
+    C control flow visits all stmts in sequence to generate TDF stmts
+- Harder for behavioral operators;
+    C control flow may not visit every state / stmt,
+    unless we form C as straight-line code with "fake" TDF control flow
+    (i.e. "IF", "ELSE", "FOR", etc.)
+
+
+--------
+
+template<class T>
+class TDF_Scalar {	// - scalar type, e.g. const or variable
+private:
+  T value;
+public:
+  TDF_Scalar (T value_) ;
+  T operator= ()  { return value; }
+};
+
+template<class T>
+class TDF_Stream {	// - I/O stream for operator, or stream in composition
+public:
+  TDF_Stream ();
+  TDF_Scalar<T> get ();
+  void          put (TDF_Scalar<T> x);
+};
+
+template<class T>
+class TDF_Var {		// - Reg or local var in behavioral operator
+private:
+  TDF_Scalar initval;
+public:
+  TDF_Var (TDF_Scalar initval);
+  TDF_Scalar operator= ();
+};
+
+
+--------
+
+select (TDF_StreamIn<bool> s, TDF_StreamIn<int> t, TDF_StreamIn<int> f,
+	TDF_StreamOut<int> o) {
+  IF (s.get())
+    o.put(t.get());
+  ELSE
+    o.put(f.get());
+}
+
+- get begins a new state
+- IF/ELSE translates to a TDF if/else
+- put is TDF emission
+
+
+--------
+
+class select : TDF_Operator {
+  select (TDF_StreamIn<bool> s, TDF_StreamIn<int> t, TDF_StreamIn<int> f,
+	  TDF_StreamOut<int> o) ;
+  TDF_Operator define () { code here }
+}
+
+
+--------
+
+SAMPLE COMPOSITIONAL OPERATOR: AXPY
+
+AXPY_compose (TDF_Param<int> a, TDF_StreamIn<int> x, TDF_StreaIn<int> y,
+	      TDF_StreamOut<int> o) {
+  o = a*x + y;
+  // infer operators (pages) *, +
+}
+
+
+--------
+
+SAMPLE BEHAVIORAL OPERATOR: AXPY
+
+AXPY_behav (TDF_Param<int> a, TDF_StreamIn<int> x, TDF_StreaIn<int> y,
+	    TDF_StreamOut<int> o) {
+  o.put( a*x.get() + y.get() );
+  // - x.get() infers:            "state S1(x)"
+  // - a*x.get() infers S1 code:  "tmp1=a*x" and register "tmp1"
+  // - y.get() infers:            "state S2(y)" and S1 code "goto S2"
+  // - + infers S2 code:          "tmp2=tmp1+y" and register "tmp2"
+  // - o.put() infers S2 code:    "o=tmp2;"
+  // - exist infers S2 code:      "goto S1;"
+  // - tdfc optimizations:  (1) privatize "tmp2" into S2 local
+  //                        (2) merge S1, S2 into "S12(x,y)"
+}
+
+
+--------
+
+VARIABLE SIZE COMPOSITION:  N-TAP FIR FILTER
+
+filtertap (TDF_param<int> coef, TDF_StreamIn  d_i, TDF_StreamIn  a_i,
+				TDF_StreamOut d_o, TDF_StreamOut a_o) {
+  // - this is behavioral
+
+  // d_i, d_o is delay chain input, output;         d_o = D(d_i)
+  // a_i, a_o is accumulation chain input, output;  a_o = a_i + coef*d_i
+
+  di.get();
+  ai.get();
+  do.put(di[1]);
+  ao.put(di[0]*coef + ai[0]);
+}
+
+filter (int n, int* coeff, TDF_StreamIn i, TDF_StreamOut o) {
+  // - this is compositional
+
+  // - n = number of taps
+  // - coeffs = array of tap coefficient, n-deep
+
+  // - construct intermediate streams for i delay chain, o accumulation chain
+  // - composition of n filter taps:  (XX = filtertap)
+  //   -d[0]->  X  -d[1]->  X  -d[2]->  ...  -d[n]->
+  //   -a[0]->  X   a[1]->  X  -a[2]->  ...  -a[n]->
+
+  TDF_Streams streams_delay* = new TDF_Stream[n+1];
+  TDF_Streams streams_acc*   = new TDF_Stream[n+1];
+
+  streams_delay[0] = i;
+  streams_acc[0]   = 0;		// - input to acc chain is const "0" generator
+
+//streams_delay[n] = /dev/null	// - output of delay chain is ignored
+  streams_acc[n]   = o;
+
+  for (int j=0; j<n; j++)
+    filtertap(coeff[j], streams_delay[j], streams_acc[j],
+			streams_delay[j+1], streams_acc[j+1]);
+}
+
+
+INSTANTIATION:
+
+TDF_StreamIn  i;
+TDF_StreamOut o;
+int[3] coeffs = {111,222,333};
+filter(3,coeffs,i,o);
+
+
+RESULTING TDF:
+
+filter (input signed[32] i, output signed[32] o) {
+  signed[32] streams_delay_0, streams_delay_1, streams_delay_2;
+  signed[32] streams_acc_0,   streams_acc_1,   streams_acc_2;
+  streams_delay_0 = i;
+  streams_acc_0   = 0;
+//streams_delay_3 = IGNORED
+  streams_acc_3   = o;
+  filtertap(111, streams_delay_0, streams_acc_0,
+		 streams_delay_1, streams_acc_1);
+  filtertap(222, streams_delay_1, streams_acc_1,
+		 streams_delay_2, streams_acc_2);
+  filtertap(333, streams_delay_2, streams_acc_2,
+		 streams_delay_3, streams_acc_3);
+}
+
+
+--------
+
+class TDF_Stream {
+  TDF_Stream ();			// - declare stream var in composeop
+  TDF_Stream& operator= (TDF_Expr e);	// - builds TDF asst
+}
+
+
+--------
+
+myop (TDF_StreamIn<int> i, TDF_StreamOut<int> j, TDF_StreamOut<int> o) {
+
+  LABEL("start");
+  IF (i.get()>0) {
+    o.put(i[0]);
+    GOTO("start");
+  ELSE
+    GOTO("other");
+
+  LABEL("other");
+  bound = j.get();
+  FOR (k=1; k<bound; i++) {
+    o=k;
+  }
+  GOTO("start");
+}
+
+
+RESULTING TDF:
+
+myop (input signed[32] i, input signed[32] j, output signed[32] o) {
+  signed[32] bound;
+  signed[32] k;
+
+  state start() :		// - empty state
+    goto S1;
+
+  state S1 (i) :
+    if (i>0) {
+      o = i;
+      goto start;
+    }
+    else
+      goto other;
+
+  state other () :		// - empty state
+    goto S2;
+
+  state S2 (j) :
+    bound = j;
+    k = 1;
+    goto LOOP_CHECK;
+
+  state LOOP_CHECK () :
+    if (k<bound)
+      goto LOOP_BODY;
+    else
+      goto LOOP_END;
+
+  state LOOP_BODY () :
+    o = k;
+    goto LOOP_CHECK;
+
+  state LOOP_END () :		// - empty state
+    goto start;
+}

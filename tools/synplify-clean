@@ -1,0 +1,12 @@
+#!/bin/csh
+#
+# Remove all implementation files from all projects in this directory
+#
+# Synplify 7.1
+# Eylon Caspi, 5/8/03
+
+set modules = `find . -maxdepth 1 -mindepth 1 -type d -print`
+
+foreach module ($modules)
+  rm -f $module/rev*/*
+end

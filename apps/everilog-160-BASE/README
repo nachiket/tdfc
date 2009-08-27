@@ -1,0 +1,24 @@
+This directory is for characterizing SCORE applications
+on VirtexII using tdfc 1.158 / 1.159.
+
+To build, do the following:
+
+(1) Create application subdirectories, and list their names in "APPS"
+      e.g. from CVS:  cvs co `cat APPS`
+
+(2) Copy "EXAMPLE-make-synplify" into each application subdirectory
+      and edit the variables "tdfxcsrcs" "tdfsrcs" to list TDF sources
+
+(3) source DOIT-APPS  (to build)
+      Note, the default build uses Sun Grid Engine to parallelize
+      Synplify tasks 6x and Xilinx ISE tasks 40x (for CalTech IC cluster).
+      To build locally, edit or invoke BUILD-Makefile with:  PREFIX=
+
+(4) source DOIT2-APPS  (to verify)
+
+(5) if step (4) reveals an incomplete or erroneous build, then:
+      - Repeat Synplify and Xilinx build:  ./BUILD-APPS
+      - Repeat verification step (4)
+      - Rebuild Excel reports:
+          ./BUILD-APPS cleanreport
+          ./BUILD-APPS synreport xilreport

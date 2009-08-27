@@ -1,0 +1,97 @@
+From eylon@eecs.berkeley.edu Tue Oct 28 13:29:38 2003
+Date: Tue, 28 Oct 2003 13:27:17 -0800 (PST)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: John Wawrzynek <johnw@eecs.berkeley.edu>
+Cc: Randy Huang <rhuang@cs.berkeley.edu>,
+     "score-list@CS. Berkeley. EDU" <score-list@cs.berkeley.edu>
+Subject: Re: jpeg synthesis results
+
+Comparing Randy's JPEG Encode to Joe's (SCORE) JPEG Encode is
+apples to oranges for the following reasons:
+
+  (1) We don't know how the feature sets compare
+  (2) Randy compiled to "slow Virtex", I compile to fast VirtexII -6
+  (3) I do not account for array memory storage, e.g. Huffman tables
+
+But for your edification, the numbers are below.
+
+Each TDF operator gets a depth-2 input queue plus output registers
+(as per Randy's suggestion that the output queue can be replaced
+ by an interconnect pipelining stage, provided the downstream
+ input queue is large enough).  I list groups of TDF operators to
+match Randy's break-down of the app components.
+
+
+		Randy			Joe (SCORE)
+----------------------------------------------------------------
+Component	MHz	LUTs		MHz	LUT/FF pairs
+----------------------------------------------------------------
+2D DCT *	113	11420		101.6	2536
+zigzag		127	  757		185.8	 398
+quantize	117	  432		120.7	 128
+RLE (ZLE)	115	  128		123.5	 496
+Huffman	**	87	  900		175.7	 634
+----------------------------------------------------------------
+Min / Total	87	13637		101.6	4192
+
+
+ *  2D DCT  = fllm, tpose, fllm
+**  Huffman = repeater, repeater, MixToHuff, Huffmachine, CheckZero
+
+
+It looks like the SCORE implementation is somewhat faster,
+probably owing to the faster speed grade.
+
+It looks like the SCORE DCT is substantially smaller.  There is
+some missing area because Joe's "tpose" needs depth-8 queues instea
+of the default depth-2 queues that I used, but the area overhead
+with SRL16s is negligible.  So the difference in DCT size is
+probably due to Joe's choice of an efficient approximation
+algorithm, LLM.
+
+Randy, you list much smaller "dct_16" and "dct_9" -- are those
+approximation algorithms?  If so, then your dct_16 based encoder
+would have about the same area as the SCORE encoder.
+
+That sounds good for us, but again, we don't know the feature sets.
+Your encoder may do more than the SCORE encoder.
+
+-Eylon.
+
+
+On Tue, 28 Oct 2003, John Wawrzynek wrote:
+
+> Eylon-
+>
+> How does this compare?
+>
+> -JohnW
+>
+>
+> Randy Huang wrote:
+>
+> >We were talking about Eylon's synthesis results yesterday and wanted to
+> >understand more about the overhead. About a year ago I downloaded a
+> >verilog-version of jpeg encoder and synthesize it using Synplify. This is
+> >the result from that experiment (selecting one of the slowest speed grade
+> >Virtex, without place and route):
+> >
+> >
+> >        MHz     LUTs
+> >dct     113     11420
+> >zigzag  127     757
+> >quant   117     432
+> >rle     115     128
+> >huffman  87     900
+> >
+> >dct_16  25      1908
+> >dct_9   26      1524
+> >
+> >
+> >
+>
+>
+
+Eylon Caspi                     University of California, Berkeley
+eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>

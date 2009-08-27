@@ -1,0 +1,46 @@
+feedbackStage (param unsigned[5] inWidth, param unsigned[5] hS, param signed[12] h1, param signed[12] h2, input signed[inWidth] inStream, output signed[inWidth] outStream)
+{
+  unsigned[12] index=0;
+  signed[inWidth] reg1=0;
+  signed[inWidth] reg2=0;
+  signed[inWidth] reg3=0;
+  signed[inWidth] reg4=0;
+  signed[inWidth] reg5=0;
+  signed[inWidth] reg6=0;
+  signed[inWidth] reg7=0;
+  signed[inWidth] reg8=0;
+
+  state start (inStream) :
+    {
+      reg8=reg7;
+      reg7=reg6;
+      reg6=reg5;
+      reg5=reg4;
+      reg4=reg3;
+      reg3=reg2;
+      reg2=reg1;
+      reg1=inStream;
+      index=index+1;
+      if (index==8)
+        {
+          index=0;
+          goto steady;
+        }
+    }
+
+  state steady (inStream) :
+    {
+      signed[inWidth] outToken;
+      outToken=(inStream-(((h1*reg4)+1)>>hS))-(((h2*reg8)+1)>>hS);
+      outStream=outToken;
+      reg8=reg7;
+      reg7=reg6;
+      reg6=reg5;
+      reg5=reg4;
+      reg4=reg3;
+      reg3=reg2;
+      reg2=reg1;
+      reg1=outToken;
+    }
+}
+

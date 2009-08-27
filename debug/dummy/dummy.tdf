@@ -1,0 +1,4 @@
+dummy (input boolean i, output boolean o)
+{
+  state only(i): o=i;
+}

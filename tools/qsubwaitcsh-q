@@ -1,0 +1,4 @@
+#!/bin/csh
+# Usage:  qsubwaitcsh-q qlist cmd
+
+qsubwait -cwd -j y -q ${argv[1]:q} ~/bin/csh-eval2 ${argv[2-]:q}

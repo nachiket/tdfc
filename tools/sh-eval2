@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo Your job $JOB_ID '("'$JOB_NAME $*'")' has started on $HOSTNAME
+
+eval $*
+
+echo Your job $JOB_ID '("'$JOB_NAME $*'")' has completed

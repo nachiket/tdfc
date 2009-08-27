@@ -1,0 +1,46 @@
+#!/bin/csh
+#
+# Compile a given behavioral module family (top, FSM, DP),
+#   given implementation / revision,
+#   from EDIF to Xilinx Virtex II
+#
+# Usage:  xilinx-impl topmodule impl
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Xilinx ISE 5.2i
+# Eylon Caspi, 8/5/03
+
+if ($#argv<2) then
+  echo "Compile a given behavioral module family (top, FSM, DP)"
+  echo "and given implementation from EDIF to Xilinx Virtex II"
+  echo ""
+  echo "Usage:  $0 topmodule impl"
+  exit
+endif
+
+set topmodule = $argv[1]
+set rev       = $argv[2]
+
+set fsmmodule = ${topmodule}_fsm
+set dpmodule  = ${topmodule}_dp
+
+echo "--- Cleaning Up ${topmodule}, ${fsmmodule}, ${dpmodule} / Implementation $rev"
+sh -c "cd ${topmodule}/${rev}; ./make reallyclean"
+sh -c "cd ${fsmmodule}/${rev}; ./make reallyclean"
+sh -c "cd ${dpmodule}/${rev};  ./make reallyclean"
+
+echo "--- Synthesizing Top Module $topmodule / Implementation $rev"
+sh -c "cd ${topmodule}/${rev}; ./make 2>&1 | tee make.out"
+
+echo "--- Synthesizing FSM Module $fsmmodule / Implementation $rev"
+sh -c "cd ${fsmmodule}/${rev}; ./make 2>&1 | tee make.out"
+
+echo "--- Synthesizing DP Module $dpmodule / Implementation $rev"
+sh -c "cd ${dpmodule}/${rev};  ./make 2>&1 | tee make.out"
+
+echo "--- Done"

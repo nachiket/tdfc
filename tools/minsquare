@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+#
+# Given $n and bounds $xsize, $ysize (which may be infinite)
+# - Find the smallest pseudo-square box of size $x * $y s.t.
+#     (1) $x * $y >= $n
+#     (2) $x <= $xsize
+#     (3) $y <= $ysize
+#     (4) if ($x < $xsize), ($y < $ysize), then (0 <= $y-$x <= 1)
+#            (i.e. grow $y before $x, but never by more than 1)
+# - If succeed, print "$x $y" to stdout
+# - If fail,    print ""      to stdout and error msg to stderr
+#
+# Eylon Caspi, 2/23/05
+
+
+########  Subroutines  ########
+
+use POSIX;	# - floor(), ceil()
+
+# sub max {
+#   my $maxval = shift(@_);
+#   foreach $x (@_) { if ($maxval<x) {$maxval=$x;} }
+#   return $maxval
+# }
+
+sub min {
+  my $minval = shift(@_);
+  foreach $x (@_) { if ($minval>x) {$minval=$x;} }
+  return $minval
+}
+
+sub usage {
+  my $name = $0;
+  $name =~ s{.*/}{};
+  $namespaces =  $name;
+  $namespaces =~ s/./ /g;
+  die "$name:  find minimum pseudo-square box surrounding n units,\n" .
+       $namespaces . "   print as ``X Y''\n" .
+      "Usage:  $name [-x xsize] [-y ysize] [-xy xsize ysize] n\n" .
+      "        xsize = max size in x dimension  (>0)\n" .
+      "        ysize = max size in y dimension  (>0)\n" .
+      "        n     = number of units to fit\n";
+}
+
+sub fail {
+  my $prod = $xsize * $ysize;
+  die "Cannot fit $n into ($xsize x $ysize = $prod)\n";
+}
+
+sub succeed {
+  $x=shift(@_);
+  $y=shift(@_);
+  print "$x $y\n";
+  exit;
+}
+
+
+########  Cmd line  ########
+
+$xsize=-1;	# - max size in x dimension  (-1 = infinite)
+$ysize=-1;	# - max size in y dimension, (-1 = infinite)
+$n=-1;		# - number of units to fit
+
+if ($#ARGV<0) { usage(); }
+
+while ($#ARGV >= 0) {
+  $arg = shift(@ARGV);
+  if    ($arg eq "-x" ) { $xsize=shift(@ARGV); }
+  elsif ($arg eq "-y" ) { $ysize=shift(@ARGV); }
+  elsif ($arg eq "-xy") { $xsize=shift(@ARGV); $ysize=shift(@ARGV); }
+  elsif ($arg =~ /^-/)  { usage(); }
+  else                  { $n=$arg; }
+}
+
+if ($xsize==0 || $ysize==0 || $n<0) { usage(); }
+
+# print "xsize=$xsize ysize=$ysize n=$n\n";
+
+
+#########  Compute Box  ########
+
+$root = floor(sqrt($n));
+# print "root=$root\n";
+
+if ($xsize>=0 && $root>=$xsize) {	# - reached x bound
+  # print "reached x bound\n";
+  $x=$xsize;
+  $y=ceil($n/$x);
+  if ($ysize>=0 && $y>$ysize) { fail() }
+  succeed($x,$y);
+}
+
+elsif ($ysize>=0 && $root>=$ysize) {	# - reached y bound
+  # print "reached y bound\n";
+  $y=$ysize;
+  $x=ceil($n/$y);
+  if ($xsize>=0 && $x>$xsize) { fail() }
+  succeed($x,$y);
+}
+
+else {					# - did not reach bounds, make square
+  # print "did not reach bounds\n";
+  $x=$root;
+  $y=$root;
+  if ($x*$y<$n) {$y++}
+  if ($x*$y<$n) {$x++}
+  succeed($x,$y);
+}

@@ -1,0 +1,379 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+DecJPEGHuff(param unsigned[8] tokenLen, input unsigned[tokenLen] filebyte,
+	    //	    output signed[16] decToken, param unsigned[125][8] ftable)
+	    output signed[16] decToken, output unsigned[8] ftabind,
+	    input unsigned[8] ftabval)
+{
+
+  unsigned[8] marker=0;
+  unsigned[8] rs;
+  unsigned[4] run; 
+  unsigned[4] ssss;
+  unsigned[32] intermed=0;
+  unsigned[32] curraddr=328;
+  unsigned[5] switcher = 0;
+  unsigned[20] macInd = 0;
+  unsigned[8] coeffCnt;
+  unsigned[4] dcLen;
+  unsigned[1] ONE = 1;
+  signed[16] lastDC = 0;
+  boolean nolevel;
+  boolean end=false;
+  // attempt without explicit segments
+
+  // tokenLen is assumed to be greater than 3
+
+  state middle(filebyte): {
+    curraddr = curraddr+1; // for debugging only
+    intermed = (intermed<<tokenLen)+filebyte;
+    marker = marker+tokenLen;
+    if (filebyte != 0xff) {
+      if (switcher == 0) {
+	goto DecDC;
+      } else if (switcher == 1) {
+	goto DecDCLen;
+      } else if (switcher == 2) {
+	goto DecAC1;
+      } else if (switcher == 3) {
+	goto DecACLen;
+      } else if (switcher == 4) {
+	goto DecAC2;
+      }
+    } else {
+      goto waitZero;
+    }
+  }
+
+  state waitZero(filebyte): {
+    curraddr = curraddr+1; // for debugging only
+    if (switcher == 0) {
+      goto DecDC;
+    } else if (switcher == 1) {
+      goto DecDCLen;
+    } else if (switcher == 2) {
+      goto DecAC1;
+    } else if (switcher == 3) {
+      goto DecACLen;
+    } else if (switcher == 4) {
+      goto DecAC2;
+    }
+    
+  }
+
+  state middle(eos(filebyte)): {
+    end = true;
+    if (switcher == 0) {
+      goto DecDC;
+    } else if (switcher == 1) {
+      goto DecDCLen;
+    } else if (switcher == 2) {
+      goto DecAC1;
+    } else if (switcher == 3) {
+      goto DecACLen;
+    } else if (switcher == 4) {
+      goto DecAC2;
+    }
+  }
+
+  state DecDC():
+    {
+      unsigned[16] val;
+      boolean bterm00; boolean bterm01; boolean bterm02; boolean bterm03;
+      boolean bterm04; boolean bterm05; boolean bterm06; boolean bterm07;
+      boolean bterm08; boolean bterm09; boolean bterm10; boolean bterm11;
+      boolean bo4;
+      unsigned[4] dcLentmp;
+
+      switcher = 0;
+      
+      if (macInd == 4096) {
+	done();
+      } 
+
+      if ((marker < 9) && (!end)) {
+	goto middle;
+      } else {
+	// eventually replace with masking
+	// can that automatically be done?
+	//val = intermed[(marker-1):(marker-9)];
+	val = (intermed>>(marker-9))&(511);
+	bterm00 = (val[8:7]==0); bterm01 = (val[8:6]==2);
+	bterm02 = (val[8:6]==3); bterm03 = (val[8:6]==4);
+	bterm04 = (val[8:6]==5); bterm05 = (val[8:6]==6);
+	bterm06 = (val[8:5]==14); bterm07 = (val[8:4]==30);
+	bterm08 = (val[3] == 0); bterm09 = (val[3:2]==2);
+	bterm10 = (val[3:1] == 6); bterm11 = (val[3:0]==14);
+	bo4 = (val[8:4]==31);
+
+	if (bterm00) { 
+	  dcLen = 0; decToken = lastDC;
+	  coeffCnt = 1; marker = marker-2; goto DecAC1;
+	} else {
+	  // this logic isn't minimized yet.....
+
+	  dcLentmp=0;
+	  dcLentmp[0] = (((bterm01||bterm03||bterm05||bterm07)
+			  ||(bo4&&(bterm09||bterm11)))?1:0);
+	  dcLentmp[1] = (((bterm02||bterm03||bterm06||bterm07)
+			  ||(bo4&&(bterm10||bterm11)))?1:0);
+	  dcLentmp[2] = ((bterm04||bterm05||bterm06||bterm07)?1:0);
+	  dcLentmp[3] = (bo4?1:0);
+	  dcLen = dcLentmp;
+	  //printf("HEY! DcLen is %llu\n",dcLen);
+	  if (dcLentmp < 6) {
+	    marker = marker-3;
+	  } else {
+	    marker = marker-(dcLentmp-2);
+	  }
+	  goto DecDCLen;
+	}
+
+      }
+    }
+
+  state DecDCLen(): 
+    {
+      unsigned[12] temp;
+      signed[16] currToken;
+      switcher = 1;
+      if ((marker < dcLen) && (!end)) { 
+	goto middle; 
+      } else {
+	// temp = intermed[(marker-1):(marker-dcLen)]; 
+	temp = (intermed>>(marker-dcLen))&((1<<dcLen)-1);
+	if (temp >= (ONE<<(dcLen-1))) {currToken = (signed[13]) temp;}
+	else { currToken = ((signed[13])temp) - ((1<<dcLen)-1); }
+	decToken = currToken+lastDC;
+	//printf("HEY! DecDCLen dectoken %d\n",currToken+lastDC);
+	lastDC = currToken+lastDC;
+	marker = marker - dcLen;
+	coeffCnt = 1;
+	goto DecAC1;
+      }
+    }
+
+
+  state DecAC1(): 
+    {
+      
+      unsigned[8] val; 
+      boolean bool01; boolean bool02; boolean bool03; boolean bool00;
+      boolean bool04; boolean bool11; boolean bool05; boolean bool12;
+      boolean bool21; boolean bool31; boolean bool41; boolean bool06;
+      boolean bool13; boolean bool51; boolean bool61; boolean bool07;
+      boolean bool22; boolean bool71; 
+
+      unsigned[20] tabInd;
+      unsigned[8] incr=0;
+      switcher = 2;
+ 
+      if ((marker < 8) && (!end)) {
+	goto middle;
+      } else {
+	// val = intermed[(marker-1):(marker-8)];
+	val = (intermed>>(marker-8))&(255);
+	bool01 = (val[7:6]==0); bool02 = (val[7:6]==1); bool03 = (val[7:5]==4);
+	bool00 = (val[7:4]==10); bool04 = (val[7:4]==11); bool11 = (val[7:4]==12);
+	bool05 = (val[7:3]==26); bool12 = (val[7:3]==27); bool21 = (val[7:3]==28);
+	bool31 = (val[7:2]==58); bool41 = (val[7:2]==59); bool06 = (val[7:1]==120);
+	bool13 = (val[7:1]==121); bool51 = (val[7:1]==122); bool61 = (val[7:1]==123);
+	bool07 = (val[7:0]==248); bool22 = (val[7:0]==249); bool71 = (val[7:0]==250);
+
+	if ((val[7:3]==31)&&(val[2:0]>2)) {
+	  goto DecAC2;
+	} else {
+	  rs = 0;	  
+	  //printf("HEY! AC1: bool02 is %llu\n",bool02);
+	  rs = (bool01?(0x01):rs); rs = (bool02?(0x02):rs); rs = (bool03?(0x03):rs);
+	  rs = (bool04?(0x04):rs); rs = (bool11?(0x11):rs);
+	  rs = (bool05?(0x05):rs); rs = (bool12?(0x12):rs); rs = (bool21?(0x21):rs);
+	  rs = (bool31?(0x31):rs); rs = (bool41?(0x41):rs); rs = (bool06?(0x06):rs);
+	  rs = (bool13?(0x13):rs); rs = (bool51?(0x51):rs); rs = (bool61?(0x61):rs);
+	  rs = (bool07?(0x07):rs); rs = (bool22?(0x22):rs); rs = (bool71?(0x71):rs);
+	  incr[0] = ((bool03||bool05||bool12||bool21||bool06||bool13||bool51||bool61)?1:0);
+	  incr[1] = ((bool01||bool02||bool03||bool31||bool41||bool06||bool13||bool51||bool61)?1:0);
+	  incr[2] = ((bool00||bool04||bool11||bool05||bool12||bool21||bool31||bool41||bool06||bool13||bool51||bool61)?1:0);
+	  incr[3] = ((bool07||bool22||bool71)?1:0);
+
+	  //	  printf("HEY! AC1: bool02 is %d\n",bool02);
+	  //printf("HEY! AC1: val is %llu, rs is %llu, incr is %llu\n",val,rs,incr); 
+
+	  marker = marker-incr;
+	  goto DecRS;
+	}
+
+
+      }
+
+    }
+
+  state DecAC2(): {
+
+    unsigned[16] val;
+    boolean bool14; boolean bool32; boolean bool81; boolean bool91; boolean boola1; 
+    boolean bool08; boolean bool23; boolean bool42; boolean boolb1; boolean boolc1; 
+    boolean bool15; boolean bool52; boolean boold1; boolean boolf0; boolean bool24; 
+    boolean bool33; boolean bool62; boolean bool72; boolean bool82; 
+    unsigned[20] tabInd;
+    unsigned[8] incr=0;
+    switcher = 4;
+
+    if ((marker < 16) && (!end)) {
+      goto middle;
+    } else {
+      //val = intermed[(marker-6):(marker-16)];
+      val = (intermed>>(marker-16))&(2047);
+      if (((val[10]==1)||(val[9]==0)||(val[8]==0))&&
+	  ((val[10]==0)||((val[9:7]==7)&&(val[6:1]>0)))) {
+	tabInd = val - 130946 + (63*2048);
+	marker = marker-16;
+	ftabind = tabInd;
+	//printf("HEY! going to DecRS_\n");
+	goto DecRS_;
+      } else {
+	
+	bool14 = (val[10:7] == 6); bool32 = (val[10:7] == 7);
+	bool81 = (val[10:7] == 8); bool91 = (val[10:7] == 9);
+	boola1 = (val[10:7] == 10); bool08 = (val[10:6] == 22);
+	bool23 = (val[10:6] == 23); bool42 = (val[10:6] == 24);
+	boolb1 = (val[10:6] == 25); boolc1 = (val[10:6] == 26);
+	bool15 = (val[10:5] == 54); bool52 = (val[10:5] == 55);
+	boold1 = (val[10:5] == 56); boolf0 = (val[10:5] == 57);
+	bool24 = (val[10:4] == 116); bool33 = (val[10:4] == 117);
+	bool62 = (val[10:4] == 118); bool72 = (val[10:4] == 119);
+	bool82 = (val[10:1] == 960);
+
+	rs[0] = ((bool81||bool91||boola1||bool23||boolb1||boolc1||bool15||
+		  boold1||bool33)?1:0);
+	rs[1] = ((bool32||bool23||bool42||bool52||bool33||bool62||bool72||bool82)?1:0);
+	rs[2] = ((bool14||bool15||bool24)?1:0);
+	rs[3] = (bool08?1:0);
+	rs[4] = ((bool14||bool32||bool91||boolb1||bool15||bool52||boold1||
+		  boolf0||bool33||bool72)?1:0);
+	rs[5] = ((bool32||boola1||bool23||boolb1||boolf0||bool24||bool33||
+		  bool62||bool72)?1:0);
+	rs[6] = ((bool42||boolc1||bool52||boold1||boolf0||bool62||bool72)?1:0);
+	rs[7] = ((bool81||bool91||boola1||boolb1||boolc1||boold1||boolf0||bool82)?1:0);
+	incr[0] = ((bool08||bool23||bool42||boolb1||boolc1||bool24||bool33||
+		    bool62||bool72)?1:0);
+	incr[1] = ((bool15||bool52||boold1||boolf0||bool24||bool33||bool62||
+		    bool72||bool82)?1:0);
+	incr[2] = (bool82?1:0);
+
+	//printf("HEY! AC2: rs is %llu, incr is %llu\n",rs,incr);  
+
+	marker = marker-9-incr;
+	goto DecRS;
+
+      }
+	
+    }
+  }
+
+  state DecRS(): 
+    {
+//       if (rs == 0) {
+// 	run = 64-coeffCnt;
+// 	nolevel = true;
+// 	goto spitZero;
+//       } else if (rs == 0xf0) {
+// 	run = 16;
+// 	nolevel = true;
+// 	goto spitZero;
+//       } 
+      if ((rs==0)||(rs==0xf0)) {
+	run = ((rs==0)?(64-coeffCnt):16);
+	nolevel = true;
+	goto spitZero;
+      } else {
+	nolevel = false;
+	run = rs[7:4];
+	ssss = rs[3:0];
+	if (run == 0) {
+	  goto DecACLen;
+	} else {
+	  goto spitZero;
+	}
+      }
+    }
+
+  state DecRS_(ftabval):
+    {
+      nolevel = false;
+      run = ftabval[7:4];
+      ssss = ftabval[3:0];
+      if (run == 0) {
+	goto DecACLen;
+      } else {
+	goto spitZero;
+      }
+     
+    }
+  
+  state spitZero(): 
+    {
+      if (run == 0) {
+	if (nolevel) {
+	  if (coeffCnt == 64) {
+	    macInd = macInd+1; goto DecDC;
+	  } else {
+	    goto DecAC1;
+	  }
+	} else {
+	  goto DecACLen;
+	}
+      } else {
+	decToken = 0;
+	coeffCnt = coeffCnt + 1;
+	run = run - 1;
+      } 
+      
+    }
+
+  state DecACLen(): 
+    {
+      unsigned[15] temp;
+      switcher = 3;
+      if ((marker < ssss) && (!end)) {
+	goto middle;
+      } else {
+
+	temp = (intermed>>(marker-ssss))&((1<<ssss)-1);
+// 	if (temp >= (ONE<<(ssss-1))) {decToken = (signed[16]) temp;}
+// 	else {decToken = ((signed[16])temp) - ((1<<ssss)-1); }
+	decToken = ((temp >= (ONE<<(ssss-1)))?((signed[16]) temp):
+		    (((signed[16])temp) - ((1<<ssss)-1)));
+	marker = marker - ssss;
+	// coeffCnt = coeffCnt + 1;
+	if (coeffCnt == 63) {
+	  macInd = macInd+1; goto DecDC;
+	} else {
+	  coeffCnt = coeffCnt + 1; goto DecAC1;
+	}
+      }
+    }
+}
+

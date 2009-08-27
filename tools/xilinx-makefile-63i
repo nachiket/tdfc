@@ -1,0 +1,650 @@
+###############################################################
+#
+#  Makefile to compile EDIF to Xilinx Virtex II
+#  Ultimate target:  ".twr" timing report
+#
+#  Notes:  (1) "map -c" compaction is superceded by area constraint
+#          (2) "map -cf area" and "-cf speed" yield same result
+#          (3) "trce" cannot analyze LUT-to-LUT paths or purely
+#                combinational circuits; must use register I/O shell
+#	   (4) "make area"           shows #LUTs used for logic + route-thru,
+#	       "make area_floorplan" shows #LUTs in floorplan
+#          (5) initial area/period target is now based on results of
+#                "map -c 1" maximal slice compaction, not Synplify estimates
+#
+#  Synplify 7.1 / 8.0
+#  Xilinx ISE 6.1i / 6.3i
+#  Eylon Caspi, 12/4/03 3/9/05 4/4/05
+#
+###############################################################
+
+
+###############################################################
+#  User options
+
+# Path to additional tools
+TOOLPATH = tools
+
+# Module to compile
+MODULE = name_of_module
+
+# Location of EDIF source file  (Synplify revision directory)
+EDIF_DIR = ../../../proj/${MODULE}/rev_4__200mhz
+
+# Location of Verilog source file  (Verilog emitted by "tdfc -everilog")
+VERILOG_DIR = ../../..
+
+# If $MODULE is an I/O register shell around some core module,
+# then area/time constraints will be based on core module;  define:
+#   (1) name             of core module
+#   (2) location         of core module EDIF    source file
+#   (3) location         of core module Verilog source file
+#   (4) slice margin around core module during place-and-route
+# Otherwise, leave blank
+CORE_MODULE      = 
+CORE_EDIF_DIR    = ../../../proj/${CORE_MODULE}/rev_4__200mhz
+CORE_VERILOG_DIR = ../../..
+CORE_MARGIN      = 2
+
+# Target device
+# 
+# - Virtex II  (150nm)
+#DEVICE = xc2v40-fg256-6	###    8x8   CLB =   512 LUTs  (   576)
+#DEVICE = xc2v80-fg256-6	###   16x8   CLB =  1024 LUTs  (  1152)
+#DEVICE = xc2v250-fg256-6	###   24x16  CLB =  3072 LUTs  (  3456)
+#DEVICE = xc2v500-fg256-6	###   32x24  CLB =  6144 LUTs  (  6912)
+#DEVICE = xc2v1000-fg256-6	###   40x32  CLB = 10240 LUTs  ( 11520)
+#DEVICE = xc2v1500-ff896-6	###   48x40  CLB = 15360 LUTs  ( 17280)
+#DEVICE = xc2v2000-ff896-6	###   56x48  CLB = 21504 LUTs  ( 24192)
+#DEVICE = xc2v3000-ff1152-6	###   64x56  CLB = 28672 LUTs  ( 32256)
+#DEVICE = xc2v4000-ff1152-6	###   80x72  CLB = 46080 LUTs  ( 51840)
+#DEVICE = xc2v6000-ff1152-6	###   96x88  CLB = 67584 LUTs  ( 76032)
+#DEVICE = xc2v8000-ff1152	###  112x104 CLB = 93184 LUTs  (104832)  NO -6
+# 
+# - Virtex II Pro  (130nm)
+#DEVICE = xc2vp2-fg672-7	###   16x22  CLB,   2816 LUT-FFs   (3168)
+#DEVICE = xc2vp4-fg672-7	###   40x22  CLB,   6016 LUT-FFs   (6768)
+#DEVICE = xc2vp7-fg672-7	###   40x34  CLB,   9856 LUT-FFs  (11088)
+#DEVICE = xc2vp20-ff1152-7	###   56x46  CLB,  18560 LUT-FFs  (20880)
+#DEVICE = xc2vp30-ff1152-7	###   80x46  CLB,  27392 LUT-FFs  (30816)
+#DEVICE = xc2vp40-ff1152-7	###   88x58  CLB,  38784 LUT-FFs  (43632)
+#DEVICE = xc2vp50-ff1152-7	###   88x70  CLB,  47232 LUT-FFs  (53136)
+DEVICE = xc2vp70-ff1704-7	###  104x82  CLB,  66176 LUT-FFs  (74448)
+#DEVICE = xc2vp100-ff1704-7	###  120x94  CLB,  88192 LUT-FFs  (99216)
+# 
+# - Virtex 4  (90nm)
+#DEVICE = xc4vlx15-ff668-11	###   64x24  CLB,   12288 LUT-FFs   (13824)
+#DEVICE = xc4vlx25-ff668-11	###   96x28  CLB,   21504 LUT-FFs   (24192)
+#DEVICE = xc4vlx40-ff1148-11	###  128x36  CLB,   36864 LUT-FFs   (41472)
+#DEVICE = xc4vlx60-ff1148-11	###  128x52  CLB,   53248 LUT-FFs   (59904)
+#DEVICE = xc4vlx80-ff1148-11	###  160x56  CLB,   71680 LUT-FFs   (80640)
+#DEVICE = xc4vlx100-ff1148-11	###  192x64  CLB,   98304 LUT-FFs  (110592)
+#DEVICE = xc4vlx160-ff1148-11	###  192x88  CLB,  135168 LUT-FFs  (152064)
+#DEVICE = xc4vlx200-ff1513-11	###  192x116 CLB,  178176 LUT-FFs  (200448)
+# 
+# - Spartan 3  (90nm)
+#DEVICE = xc3s50-pq208-5	###   16x12  CLB,   1536 LUT-FFs   (1728)
+#DEVICE = xc3s200-pq208-5	###   24x20  CLB,   3840 LUT-FFs   (4320)
+#DEVICE = xc3s400-fg456-5	###   32x28  CLB,   7168 LUT-FFs   (8064)
+#DEVICE = xc3s1000-fg456-5	###   48x40  CLB,  15360 LUT-FFs  (17280)
+#DEVICE = xc3s1500-fg456-5	###   64x52  CLB,  26624 LUT-FFs  (29952)
+#DEVICE = xc3s2000-fg900-5	###   80x64  CLB,  40960 LUT-FFs  (46080)
+#DEVICE = xc3s4000-fg900-5	###   96x72  CLB,  55296 LUT-FFs  (62208)
+#DEVICE = xc3s5000-fg900-5	###  104x80  CLB,  66560 LUT-FFs  (74880)
+
+# Floorplanning area expansion factor
+#   - how many slices to target, relative to maximal slice compaction
+#   - leave blank to disable area constraint / floorplanning
+AREA_EXPANSION = 1.0
+
+# Maximum slice compaction
+#   - set non-blank to maximally compact slices (map -c 1)
+#                                (overrides AREA_EXPANSION)
+#   - leave   blank to compact slices in accordance with area floorplan
+# MAXCOMPACT = 1
+MAXCOMPACT = 
+
+# Slice compaction, 0..100  (% of device area targetted by map)
+#   - superceded by area floorplanning
+# COMPACTION = 1
+
+# Place and route overall effort level, 1..5
+#   - level 4 suggested by Synplify 8 User Guide for ISE integration
+PAR_EFFORT = 4
+
+# Name of WINE executable;  leave blank to not use wine
+# WINE = wine --
+WINE = 
+
+# Name of output filter for xilinx tools;  leave blank to not use filter
+# The following filter kills a xilinx tool if it emits junk in infinite loop
+# OUTFILTER = 2>&1 | tr -d '\r\33' | perl -npe \
+#	      'if ($$prev eq $$_) { if (++$$n>=100) { die "TERMINATED\n" } } \
+#	       else             { $$prev=$$_; $$n=0; }'
+OUTFILTER = 
+
+# Extra options for Xilinx tools:  (define on make command line)
+EXTRA_NGDBUILD_OPTIONS	=
+EXTRA_MAP_OPTIONS	=
+EXTRA_PAR_OPTIONS	=
+EXTRA_TRCE_OPTIONS	=
+
+
+################################################################
+#  Top level
+
+all:	PERIOD_SYNPLIFY LUTFFS_SYNPLIFY ROUTEFRAC_SYNPLIFY	\
+	TIME_SYNPLIFY	TIME_SYNPLIFY_NOFSMEXPLORER		\
+	PERIOD_PAR      ROUTEFRAC_MAP   ROUTEFRAC_PAR		\
+	TIME_P          TIME_PAR
+
+
+################################################################
+#  Sym-link to EDIF source(s)
+
+EDF_SRC           = ${MODULE}.edf
+EDF_ORIG_SRC      = ${EDIF_DIR}/${MODULE}.edf
+
+CORE_EDF_SRC      = ${CORE_MODULE}.edf
+CORE_EDF_ORIG_SRC = ${CORE_EDIF_DIR}/${CORE_MODULE}.edf
+
+  ifeq (${CORE_MODULE},)
+  # No core module
+
+${EDF_SRC}:		${EDF_ORIG_SRC}
+	ln -f -s $<
+
+edf:	${EDF_SRC}
+
+edif:	${EDF_SRC}
+
+  else
+  # Use core module
+
+${EDF_SRC}:		${EDF_ORIG_SRC} ${CORE_EDF_SRC}
+	ln -f -s $<
+
+${CORE_EDF_SRC}:	${CORE_EDF_ORIG_SRC}
+	ln -f -s $<
+
+edf:	${EDF_SRC} ${CORE_EDF_SRC}
+
+edif:	${EDF_SRC} ${CORE_EDF_SRC}
+
+  endif
+
+
+################################################################
+#  Area, Time Reporting
+#  (used to generate constraints and to retry on failure)
+
+  ifeq (${CORE_MODULE},)
+SRR_SRC     = ${EDIF_DIR}/${MODULE}.srr		   # Synplify report for module
+  else
+SRR_SRC     = ${CORE_EDIF_DIR}/${CORE_MODULE}.srr  # Synplify report for core
+  endif
+
+CONSTRAINTS = constraints.ucf
+
+.DELETE_ON_ERROR:	PERIOD_SYNPLIFY PERIOD_MAP PERIOD_PAR		    \
+			LUTFFS_SYNPLIFY SLICES_MAXCOMPACT PERIOD_MAXCOMPACT \
+			SLICES_DESIRED  SLICES_FLOORPLAN SLICES_MAP	    \
+			ROUTEFRAC_SYNPLIFY ROUTEFRAC_MAP ROUTEFRAC_PAR	    \
+			ROUTEFRAC_MAXCOMPACT TIME_P TIME_PAR		    \
+			TIME_SYNPLIFY TIME_SYNPLIFY_NOFSMEXPLORER
+
+# ROUTEFRAC_MAXCOMPACT file = routing delay as fraction of critical path after map -c 1
+#                             maximal slice compaction w/o area expansion
+ROUTEFRAC_MAXCOMPACT:	SLICES_MAXCOMPACT
+
+# PERIOD_MAXCOMPACT file = clock period (ns) after Xilinx ISE map -c 1,
+#                          maximal slice compaction w/o area expansion
+PERIOD_MAXCOMPACT:	SLICES_MAXCOMPACT
+
+# SLICES_MAXCOMPACT file = #slices packed by Xilinx ISE map -c 1,
+#                          maximal slice compaction w/o area expansion
+# Implemented by recursive call + clean-up intermediate files
+SLICES_MAXCOMPACT:	${SRR_SRC}
+	echo "### Starting max compaction pass";			\
+	./make MAXCOMPACT=1 SLICES_MAP PERIOD_MAP ROUTEFRAC_MAP;	\
+	mv -f    SLICES_MAP    SLICES_MAXCOMPACT;			\
+	mv -f    PERIOD_MAP    PERIOD_MAXCOMPACT;			\
+	mv -f ROUTEFRAC_MAP ROUTEFRAC_MAXCOMPACT;			\
+	rm -f ${CONSTRAINTS} ${CONSTRAINTS_PHYS} SLICES_FLOORPLAN;	\
+	./make clean_ngdbuild clean_map;				\
+	echo "### Finished max compaction pass";
+
+# PERIOD_SYNPLIFY file = clock period (ns) estimated by Synplify
+PERIOD_SYNPLIFY:	${SRR_SRC}
+	perl -e 'while (<>) {						\
+		   if (/(clock|system)\s+(\d+(\.\d+)?)\s+MHz\s+(\d+(\.\d+)?)/i) \
+		     { if ($$speed==0 || $$speed>$$4) { $$speed=$$4 } }	\
+		 }							\
+		 $$period = ($$speed==0) ? "" : (1000./$$speed);	\
+		 print "$$period\n";'					\
+		 $< > $@
+
+# LUTFFS_SYNPLIFY file = LUT-FF pair count estimated by Synplify
+LUTFFS_SYNPLIFY:	${SRR_SRC}
+	perl -e 'while (<>) {						\
+		   if (/^Total +LUTs: (\d+)/i)				\
+		     { if ($$area==0 || $$area<$$1) { $$area = $$1 } }	\
+		   if (/^Register bits not including I\/Os: +(\d+)/i)	\
+		     { if ($$regs==0 || $$regs<$$1) { $$regs = $$1 } }	\
+		 }							\
+		 $$max = ($$area>$$regs) ? $$area : $$regs;		\
+		 print "$$max\n";'					\
+		 $< > $@
+
+# SLICES_DESIRED file = #slices around which to floorplan a minimum size box;
+#                       file contents may be increased by remap, repar
+#                       (meaningless if not using area constraint)
+#
+# SLICES_DESIRED:	LUTFFS_SYNPLIFY
+#	echo $$(((`cat $<` + 1) / 2)) > $@
+#
+SLICES_DESIRED:	SLICES_MAXCOMPACT
+	cp -fp $< $@
+
+# SLICES_FLOORPLAN file = #slices in floorplan,
+#                         computed as minimum size box around SLICES_DESIRED;
+#                         (meaningless if not using area constraint)
+SLICES_FLOORPLAN:	${CONSTRAINTS}
+	perl -e 'while (<>) {						\
+		   if (/SLICE_X(\d+)Y(\d+):SLICE_X(\d+)Y(\d+)/)		\
+		     { $$sbox = ($$3-$$1+1)*($$4-$$2+1); last; } }	\
+		 print "$$sbox\n";'					\
+		 $< > $@
+
+# SLICES_MAP file = #slices packed by Xilinx ISE map
+SLICES_MAP:	${MODULE}_map.mrp
+  ifeq (${AREA_EXPANSION},)
+	# No area constraint
+	perl -e 'while (<>) {						\
+		   if (/occupied slices:\s+([\d,]+)/i)			\
+		     { $$sused = $$1; $$sused =~ s/,//g; last; } }	\
+		 print "$$sused\n";'					\
+		 $< > $@
+  else
+	# Use area constraint
+	perl -e 'while (<>) {						\
+		   if (/AREA_GROUP/)					\
+		     { $$ready = 1; }					\
+		   if (/occupied slices:\s+([\d,]+)/i && $$ready)	\
+		     { $$sused = $$1; $$sused =~ s/,//g; last; } }	\
+		 print "$$sused\n";'					\
+		 $< > $@
+  endif
+
+# PERIOD_MAP file = clock period after map, without routing delay
+PERIOD_MAP:	${MODULE}_map.twr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/(Minimum\s+period|Maximum\s+path\s+delay).*:\s+(\d+(\.\d+)?)ns/i) \
+	       { if ($$period==0 || $$period<$$2) { $$period=$$2 } }	\
+	   }								\
+	   print "$$period\n";'						\
+	   $< > $@
+
+# PERIOD_PAR file = clock period after par
+PERIOD_PAR:	${MODULE}.twr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/(Minimum\s+period|Maximum\s+path\s+delay).*:\s+(\d+(\.\d+)?)ns/i) \
+	       { if ($$period==0 || $$period<$$2) { $$period=$$2 } }	\
+	   }								\
+	   print "$$period\n";'						\
+	   $< > $@
+
+# ROUTEFRAC_SYNPLIFY file = routing delay as fraction of critical path,
+#                           estimated by Synplify
+ROUTEFRAC_SYNPLIFY:	${SRR_SRC}
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/\((\d+(\.\d+)?)\%\)\s+logic.+\((\d+(\.\d+)?)\%\)\s+route/i) \
+	       { if ($$routefrac==0) { $$routefrac=$$3; last } }	\
+	   }								\
+	   print "$$routefrac%\n";'					\
+	   $< > $@
+
+# ROUTEFRAC_MAP file = routing delay as fraction of critical path after map
+ROUTEFRAC_MAP:	${MODULE}_map.twr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/(\d+(\.\d+)?)\%\s+logic,\s+(\d+(\.\d+)?)\%\s+route/i)	\
+	       { if ($$routefrac==0) { $$routefrac=$$3; last } }	\
+	   }								\
+	   print "$$routefrac%\n";'					\
+	   $< > $@
+
+# ROUTEFRAC_PAR file = routing delay as fraction of critical path after par
+ROUTEFRAC_PAR:	${MODULE}.twr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/(\d+(\.\d+)?)\%\s+logic,\s+(\d+(\.\d+)?)\%\s+route/i)	\
+	       { if ($$routefrac==0) { $$routefrac=$$3; last } }	\
+	   }								\
+	   print "$$routefrac%\n";'					\
+	   $< > $@
+
+# TIME_SYNPLIFY file = total CPU time for synplify
+TIME_SYNPLIFY:	${SRR_SRC}
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/^Process took.* ((\d+)d\:)?((\d+)h\:)?((\d+)m\:)?((\d+)s) +cputime/i) \
+	       { $$time=(((($$2)*24+$$4)*60+$$6)*60+$$8);		\
+		 $$cumutime+=$$time; }					\
+	   }								\
+	   print "$$cumutime\n";'					\
+	   $< > $@
+
+# TIME_SYNPLIFY_NOFSMEXPLORER file = total CPU time for synplify w/o FSM Explorer
+TIME_SYNPLIFY_NOFSMEXPLORER:	${SRR_SRC}
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/^FSM Explorer successful/i)				\
+	       { $$explorer=1 }						\
+	     if (/^####/i)						\
+	       { $$explorer=0 }						\
+	     if (/^Process took.* ((\d+)d\:)?((\d+)h\:)?((\d+)m\:)?((\d+)s) +cputime/i) \
+	       { $$time=(((($$2)*24+$$4)*60+$$6)*60+$$8);		\
+		 if (! $$explorer) { $$cumutime+=$$time } }		\
+	   }								\
+	   print "$$cumutime\n";'					\
+	   $< > $@
+
+# TIME_P file = total CPU time for par placement
+TIME_P:	${MODULE}.par
+	perl -e								\
+	  'foreach (<>) {						\
+             if (/^Total CPU time to Placer completion: +((\d+) days *)?((\d+) hrs *)?((\d+) mins *)?((\d+) secs)?/i) \
+               { $$ptime=(((($$2)*24+$$4)*60+$$6)*60+$$8) }		\
+	   }								\
+	   print "$$ptime\n";'						\
+	   $< > $@
+
+# TIME_PAR file = total CPU time for par placement + routing (w/o timing analysis)
+TIME_PAR:	${MODULE}.par
+	perl -e								\
+	  'foreach (<>) {						\
+             if (/^Total CPU time to Router completion: +((\d+) days *)?((\d+) hrs *)?((\d+) mins *)?((\d+) secs)?/i) \
+               { $$rtime=(((($$2)*24+$$4)*60+$$6)*60+$$8) }		\
+	   }								\
+	   print "$$rtime\n";'						\
+	   $< > $@
+
+
+################################################################
+#  Create constraints files
+
+CONSTRAINTS          = constraints.ucf
+CONSTRAINTS_PHYS     = ${MODULE}.pcf		# Before map
+CONSTRAINTS_PHYS_MAP = ${MODULE}_map.pcf	# After  map
+
+  ifeq (${CORE_MODULE},)
+VERILOG_SRC = ${VERILOG_DIR}/${MODULE}.v	    # Verilog for module
+  else
+VERILOG_SRC = ${CORE_VERILOG_DIR}/${CORE_MODULE}.v  # Verilog for core module
+  endif
+
+# Device base name:  get name "X" from code "X-Y-Z"
+DEVICENAME = $(shell echo ${DEVICE} | perl -npe 's/-.*//')
+
+.DELETE_ON_ERROR:	CONSTRAINTS CONSTRAINTS_PHYS CONSTRAINTS_PHYS_MAP
+
+ifneq (${MAXCOMPACT},)
+
+# Constraints file for maximum slice compaction
+${CONSTRAINTS}:	PERIOD_SYNPLIFY
+	${TOOLPATH}/xilinx-area-constraints-maxcompact	\
+	    $(if ${COREMODULE},-i ${COREMODULE}_,) > $@
+	${TOOLPATH}/xilinx-timing-constraints		\
+	    ${VERILOG_SRC} `cat PERIOD_SYNPLIFY` >> $@
+
+else	# ifneq (${MAXCOMPACT},)
+
+# Constraints for slice compaction based on area expansion (normal)
+${CONSTRAINTS}:	SLICES_DESIRED PERIOD_MAXCOMPACT
+  ifeq (${AREA_EXPANSION},)
+	# No area constraint
+	rm -f $@
+	touch $@
+  else
+  ifeq (${CORE_MODULE},)
+	# Use area constraint,
+	# minimum size box to contain Synplify's area estimate
+	${TOOLPATH}/xilinx-area-constraints		\
+	    -d ${DEVICENAME}  -e ${AREA_EXPANSION}	\
+	    $$((`cat $<` * 2)) > $@
+  else
+	# Use core module,
+	# Use area constraint,
+	# minimum size box to contain Synplify's area estimate of core
+	${TOOLPATH}/xilinx-area-constraints		\
+	    -d ${DEVICENAME}  -e ${AREA_EXPANSION}	\
+	    -m ${CORE_MARGIN} -i ${CORE_MODULE}_	\
+	    $$((`cat $<` * 2)) > $@
+  endif
+  endif
+	${TOOLPATH}/xilinx-timing-constraints		\
+	    ${VERILOG_SRC} `cat PERIOD_MAXCOMPACT` >> $@
+
+endif	# ifneq (${MAXCOMPACT},)
+
+# Empty physical constraints
+# ${CONSTRAINTS_PHYS}:
+#	touch $@
+
+${CONSTRAINTS_PHYS}:	${MODULE}_map.ncd
+
+# Physical constraints file targetting map clock instead of Synplify clock
+#   (par emits error if target Synplify clock that is smaller than map clock)
+${CONSTRAINTS_PHYS_MAP}:	${CONSTRAINTS_PHYS} PERIOD_MAP
+	perl -e								\
+	  '$$period = `cat PERIOD_MAP`;					\
+	   chomp($$period);						\
+	   while (<>) {							\
+	     if (/PERIOD\s+TIMEGRP\s+"clock"/i)				\
+	       { s/\d+(\.\d+)?\s+(mS|nS|pS)/$$period nS/i; }		\
+	     print;							\
+	   }'								\
+	   $< > $@
+
+
+################################################################
+#  Build
+#
+#  File flow:	.edf --(ngdbuild)-->     .ngd
+#		     --(map     )--> _map.ncd + _map.mrp
+#		     --(par     )-->     .ncd +     .par
+#		     --(trce    )-->                .twr
+
+NGDBUILD_OPTIONS = -p ${DEVICE} -dd _ngo -uc ${CONSTRAINTS} -u
+
+MAP_OPTIONS	 = -p ${DEVICE} -cm area -detail -pr b -u -k 4 -tx off	\
+		   $(if ${MAXCOMPACT},-c 1,)				\
+#		   -c ${COMPACTION}
+
+PAR_OPTIONS	 = -w -ol ${PAR_EFFORT} \
+#		   -t 1 -x
+
+TRCE_OPTIONS	 = -v
+
+
+### Automatic build targets
+
+.PRECIOUS:	%.ngd %_map.ncd %_map.mrp %.remap %.ncd %.par %.repar %.twr
+
+%.ngd:	%.edf ${CONSTRAINTS}
+	${WINE} ngdbuild ${NGDBUILD_OPTIONS} ${EXTRA_NGDBUILD_OPTIONS} $< $@ ${OUTFILTER}
+
+%_map.ncd %_map.mrp:	%.ngd
+	${WINE} map ${MAP_OPTIONS} ${EXTRA_MAP_OPTIONS} -o ${MODULE}_map.ncd $< ${CONSTRAINTS_PHYS} ${OUTFILTER}
+
+# Rule to expand floorplan and remap if map packed too many slices
+%.remap:	%_map.mrp SLICES_FLOORPLAN SLICES_MAP
+  ifneq (${MAXCOMPACT},)
+	# Max slice compaction
+	echo done > $@
+  else
+  ifeq (${AREA_EXPANSION},)
+	# No area constraint
+	echo done > $@
+  else
+	# Use area constraint
+	# - area expansion may be necessary if initially targeted Synplify area
+	# - area expansion not    necessary if initially targeted map -c 1 area
+	echo "### Floorplanned `cat SLICES_FLOORPLAN` slices," \
+	     "used `cat SLICES_MAP` slices"
+	if ((`cat SLICES_MAP` > `cat SLICES_FLOORPLAN`)); then		\
+	  echo "### Expand floorplan and map again";			\
+	  rm -f SLICES_DESIRED;						\
+	  cp -f SLICES_MAP SLICES_DESIRED;				\
+	  rm -f ${CONSTRAINTS} ${CONSTRAINTS_PHYS} SLICES_FLOORPLAN;	\
+	  ./make clean_ngdbuild clean_map;				\
+	  ./make AREA_EXPANSION=1.0 remap;				\
+	else								\
+	  echo done > $@;						\
+	fi
+  endif
+  endif
+
+%_map.twr:	%_map.ncd ${CONSTRAINTS_PHYS} %.remap
+	${WINE} trce ${TRCE_OPTIONS} ${EXTRA_TRCE_OPTIONS} -xml $* $< -o $@ ${CONSTRAINTS_PHYS} ${OUTFILTER}
+
+%.ncd %.par:	%_map.ncd ${CONSTRAINTS_PHYS_MAP} %.remap
+	- ${WINE} par ${PAR_OPTIONS} ${EXTRA_PAR_OPTIONS} $< $*.ncd ${CONSTRAINTS_PHYS_MAP} ${OUTFILTER}
+	# Makefile ignores exit value of par, then repar checks success of par
+
+# Rule to expand floorplan and repar if par failed
+%.repar:	%.par SLICES_FLOORPLAN
+  ifeq (${AREA_EXPANSION},)
+	# No area constraint
+	echo done > $@
+  else
+	# Use area constraint
+	if [[ `egrep -i 'Design is not completely routed|Unroutable design' $<` != "" ]]; then \
+	  echo "### Expand floorplan and par again";			\
+	  rm -f SLICES_DESIRED;						\
+	  echo $$((`cat SLICES_FLOORPLAN` + 1)) > SLICES_DESIRED;	\
+	  rm -f ${CONSTRAINTS} ${CONSTRAINTS_PHYS}			\
+	        ${CONSTRAINTS_PHYS_MAP} SLICES_FLOORPLAN;		\
+	  ./make clean_ngdbuild clean_map clean_par;			\
+	  ./make AREA_EXPANSION=1.0 repar;				\
+	else								\
+	  echo done > $@;						\
+	fi
+  endif
+
+%.twr:	%.ncd ${CONSTRAINTS_PHYS_MAP} %.repar
+	${WINE} trce ${TRCE_OPTIONS} ${EXTRA_TRCE_OPTIONS} -xml $* $< -o $@ ${CONSTRAINTS_PHYS_MAP} ${OUTFILTER}
+
+
+### Explicit build targets
+
+ngdbuild:	${MODULE}.ngd
+
+map:		${MODULE}_map.ncd ${MODULE}_map.mrp
+
+remap:		${MODULE}.remap
+
+trce_map:	${MODULE}_map.twr
+
+par:		${MODULE}.ncd ${MODULE}.par
+
+repar:		${MODULE}.repar
+
+trce:		${MODULE}.twr
+
+
+################################################################
+#  Clean
+
+clean_ngdbuild:
+	rm -f  ${MODULE}.bld ${MODULE}.log ${MODULE}.ngd ${MODULE}.nav
+	rm -rf _ngo
+
+clean_map:	clean_remap
+	rm -f ${MODULE}_map.mrp ${MODULE}_map.ncd ${MODULE}_map.ngm
+
+clean_trce_map:	clean_map
+	rm -f ${MODULE}_map.twr ${MODULE}_map.twx
+
+clean_remap:
+	rm -f *.remap
+
+clean_par:	clean_repar
+	rm -f ${MODULE}.dly ${MODULE}.ncd ${MODULE}.pad \
+	      ${MODULE}.par ${MODULE}.xpi ${MODULE}_pad.csv ${MODULE}_pad.txt
+
+clean_repar:
+	rm -f ${MODULE}.repar
+
+clean_trce:
+	rm -f ${MODULE}.twr ${MODULE}.twx
+
+clean:	clean_ngdbuild clean_map clean_trce_map clean_par clean_trce
+
+reallyclean:	clean
+	rm -f ${MODULE}.edf  ${CORE_MODULE}.edf
+	rm -f ${CONSTRAINTS} ${CONSTRAINTS_PHYS} ${CONSTRAINTS_PHYS_MAP}
+	rm -f LUTFFS_SYNPLIFY SLICES_MAXCOMPACT PERIOD_MAXCOMPACT
+	rm -f SLICES_DESIRED SLICES_FLOORPLAN SLICES_MAP
+	rm -f PERIOD_SYNPLIFY PERIOD_MAP PERIOD_PAR
+	rm -f ROUTEFRAC_SYNPLIFY ROUTEFRAC_MAP ROUTEFRAC_PAR ROUTEFRAC_MAXCOMPACT
+	rm -f TIME_SYNPLIFY TIME_SYNPLIFY_NOFSMEXPLORER TIME_P TIME_PAR
+	rm -f make.OUT
+
+
+################################################################
+#  More Reporting
+
+area_synplify:	${EDIF_DIR}/${MODULE}.srr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/^Total\s+LUTs:\s(\d+)/i)				\
+	       { if ($$area==0 || $$area<$$1)  { $$area=$$1 } }		\
+	   }								\
+	   print "$$area LUTs\n" ' $<
+
+area:	${MODULE}_map.mrp
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/Total\s+Number\s+4\s+input\s+LUTs:\s+(\d+)/i)		\
+	       { if ($$area==0 || $$area<$$1) { $$area=$$1 } }		\
+	   }								\
+	   print "$$area LUTs\n" ' $<
+
+area_floorplan:	${CONSTRAINTS}
+	perl -ne							\
+	  'if (/RANGE = SLICE_X(\d+)Y(\d+)\:SLICE_X(\d+)Y(\d+)/) {	\
+	     $$area = ($$3-$$1+1)*($$4-$$2+1)*2;			\
+	     print "$$area LUTs\n";					\
+	   } ' $<
+
+clock_synplify:	${EDIF_DIR}/${MODULE}.srr
+	perl -e								  \
+	  'foreach (<>) {						  \
+	     if (/(clock|system)\s+(\d+(\.\d+)?)\s+MHz\s+(\d+(\.\d+)?)/i) \
+	       { if ($$speed==0 || $$speed>$$4) { $$speed=$$4 } }	  \
+	   }								  \
+	   print "$$speed MHz\n" ' $<
+
+clock_map:	${MODULE}_map.twr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/(Minimum\s+period|Maximum\s+path\s+delay).*:\s+(\d+(\.\d+)?)ns/i) \
+	       { if ($$delay==0 || $$delay<$$2) { $$delay=$$2 } }	\
+	   }								\
+	   $$speed=1000.0/$$delay;					\
+	   print "$$speed MHz\n" ' $<
+
+clock:	${MODULE}.twr
+	perl -e								\
+	  'foreach (<>) {						\
+	     if (/(Minimum\s+period|Maximum\s+path\s+delay).*:\s+(\d+(\.\d+)?)ns/i) \
+	       { if ($$delay==0 || $$delay<$$2) { $$delay=$$2 } }	\
+	   }								\
+	   $$speed=1000.0/$$delay;					\
+	   print "$$speed MHz\n" ' $<
+

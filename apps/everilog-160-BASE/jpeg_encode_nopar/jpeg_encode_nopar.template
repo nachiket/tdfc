@@ -1,0 +1,31 @@
+array {
+   CPs: 16;
+   CMBs: 16;   // CMB size = 262144
+   CMB_size: 262144;
+   DefaultSegment_size: 131072;
+   DefaultConfig_size: 20480;
+   CMB Partitions:
+   //L0 (L1, ...)
+   B0 (B0, B1, B2, B3, B4, B5, B6) :
+   null (B7, B8, B9, B10, B11);
+}
+
+design {
+   visual: "something";
+   0: page (8, 8) "fllm in fllm.tdf" : 0.output0 ={16}=> 1.input0 , 0.output1 ={16}=> 1.input1 , 0.output2 ={16}=> 1.input2 , 0.output3 ={16}=> 1.input3 , 0.output4 ={16}=> 1.input4 , 0.output5 ={16}=> 1.input5 , 0.output6 ={16}=> 1.input6 , 0.output7 ={16}=> 1.input7 , cpu.output0 ={9}=> 0.input0, cpu.output1 ={9}=> 0.input1, cpu.output2 ={9}=> 0.input2, cpu.output3 ={9}=> 0.input3, cpu.output4 ={9}=> 0.input4, cpu.output5 ={9}=> 0.input5, cpu.output6 ={9}=> 0.input6, cpu.output7 ={9}=> 0.input7;
+   1: page (8, 8) "tpose in tpose.tdf" : 1.output0 ={16}=> 2.input0 , 1.output1 ={16}=> 2.input1 , 1.output2 ={16}=> 2.input2 , 1.output3 ={16}=> 2.input3 , 1.output4 ={16}=> 2.input4 , 1.output5 ={16}=> 2.input5 , 1.output6 ={16}=> 2.input6 , 1.output7 ={16}=> 2.input7 ;
+   2: page (8, 8) "fllm in fllm.tdf" : 2.output0 ={16}=> 3.input0 , 2.output1 ={16}=> 3.input1 , 2.output2 ={16}=> 3.input2 , 2.output3 ={16}=> 3.input3 , 2.output4 ={16}=> 3.input4 , 2.output5 ={16}=> 3.input5 , 2.output6 ={16}=> 3.input6 , 2.output7 ={16}=> 3.input7 ;
+   3: page (8, 1) "zigzag_ in zigzag_.tdf" : 3.output0 ={16}=> 4.input0 ;
+   4: page (2, 2) "jquant_noinline in jquant.tdf.xc" : 4.output0 ={16}=> 5.input0 , 4.output1 ={32}=> 11.input0 ;
+   5: page (1, 5) "JZLE in JZLE.tdf" : 5.output0 ={4}=> 6.input0 , 5.output1 ={8}=> 7.input0 , 5.output2 ={16}=> 8.input1 , 5.output3 ={16}=> 8.input2 , 5.output4 ={4}=> 8.input0 ;
+   6: page (1, 2) "repeater_a in repeater_a.tdf" : 6.output0 ={4}=> 12.input0 , 6.output1 ={4}=> 13.input0 ;
+   7: page (1, 2) "repeater_x in repeater_x.tdf" : 7.output0 ={8}=> 14.input0 , 7.output1 ={8}=> 15.input0 ;
+   8: page (7, 2) "MixToHuff in MixToHuff.tdf" : 8.output0 ={16}=> 9.input0 , 8.output1 ={8}=> 9.input1 ;
+   9: page (2, 1) "HuffMachine in HuffMachine.tdf" : 9.output0 ={8}=> 10.input0 ;
+   10: page (1, 1) "CheckZero in CheckZero.tdf" : 10.output0 ={8}=> cpu.input0 ;
+   11: segment<64x64> (1, 1) "Segment" : 11.output0 ={64}=> 4.input1 ;
+   12: segment<12x8> (1, 1) "Segment" : 12.output0 ={8}=> 8.input3 ;
+   13: segment<12x16> (1, 1) "Segment" : 13.output0 ={16}=> 8.input4 ;
+   14: segment<256x8> (1, 1) "Segment" : 14.output0 ={8}=> 8.input5 ;
+   15: segment<256x16> (1, 1) "Segment" : 15.output0 ={16}=> 8.input6 ;
+}

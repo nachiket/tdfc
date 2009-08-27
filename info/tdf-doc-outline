@@ -1,0 +1,152 @@
+----------------------------------------------------------------
+TDF Language Specification
+----------------------------------------------------------------
+
+
+OVERVIEW
+
+ - dynamic data flow
+ - processor-side code to create/connect dynamic DFG
+ - operators (processor or array) to compute
+ - compiler+OS responsible for operator specialization & scheduling
+
+
+STREAMS
+
+ - "SCORE_Stream" class for C++?
+ - xmits n-bit data tokens b/w operators
+ - logically a queue with out-of-band EOS token
+ - has associated storage  (on array: network regs + input-retiming regs)
+ - operators normally die when their input streams close
+
+
+OPERATORS
+
+ - "SCORE_Operator" class for C++?
+ - i/o thru streams + attention signals
+ - operators normally "fire" (compute+output) in response to
+     input token availability
+ - non-inputting operators also possible (e.g. random number generator)
+ - operator lifetime is typically determined by input streams.
+     * on EOS, normally flush pipeline & die  (see TDF section below)
+     * explicit EOS handling also possible    (see TDF section below)
+ - parameterizable, specializable
+     * requires compiler/runtime-support to "instantiate" operator
+       (given run-time parameters/constants)
+     * support multiple instances/implementations
+     * support versions for array and processor
+ - written in TDF with C++ exception handler
+     * TDF generates static DFG
+     * exception handler can generate dynamic DFG (processor code)
+
+
+PROCESSOR-CODE
+
+ - written in C++
+     * in main code
+     * in operator exception handler
+ - generating dynamic DFG  (new streams/ops)
+     * new SCORE_Stream     (?)
+     * new SCORE_Operator   (?)
+ - read/write data
+     * SCORE_Stream::read   (?)  (token/block forms)
+     * SCORE_Stream::write  (?)  (token/block forms)
+ - close/query streams
+     * SCORE_Stream::close  (?)
+     * SCORE_Stream::eos    (?)
+ - SCORE_Stream and SCORE_Operator objects destroyed on EOS (both destroyed?)
+
+
+TDF
+
+ - language for SCORE operators
+     * combo of RTL HDL and HLL expressions (C-like)
+     * typed down to bit-width
+         o boolean:      boolean
+         o integer:      unsigned[n]    (raw)
+                         signed[n]      (2's complement, leading bit is sign)
+         o fixed-point:  unsigned[n.m]  (raw)
+                         signed[n.m]    (2's complement, leading bit is sign)
+ - operator prototypes
+     * formals:  "input"  stream,
+                 "output" stream,
+                 "param"  (operator-construction-time constant)
+     * optional return stream
+     * e.g.:  boolean myOp (input boolean i, output boolean o, param boolean p)
+ - 2 flavors
+     * compositional:  wire-up other ops (a` la Verilog)
+     * behavioral:     state-machine with C-like stmts/exprs for state code
+ - Compositional Operators
+     * wire-up other operators (static DFG)
+     * local variables name streams for static DFG
+     * e.g.
+ - Behavioral Operators
+     * finite state machine
+     * state signatures
+         o each state has "signature" denoting when to "fire" (exec actions),
+           specifying how many tokens are needed from which input streams
+         o end-of-stream appears as an input token (arrives once)
+         o e.g.:  state myState (a,b,eos(c))
+         o EOS on input with no eos() signatures closes operator:
+             - HW pipeline flush
+	     - attn(ATTN_DONE);
+         o back-end pipelining may generate multiple signatures per state
+     * variables
+         o lexically scoped (associated with blocks)
+             - operator-scope variables are registers (persistent)
+             - block-scope variables inside states ("locals", "temps")
+               are temporary names (no storage)
+         o declared at top of operator/blocks as:  type name[width] = initial;
+         o array variables / CMBs / ROMs?  initial values?
+     * state actions
+         o "fire" (exec) when FSM is in correct state and signature is matched
+           (i.e. a complete set of input tokens arrives)
+         o parallel semantics
+             - order of independent statments is irrelevant
+             - BUT data dependencies imply sequencing
+             - reading regs gets old value
+               (no dependence implied; writes occur on next clock edge)
+             - reading locals gets present value
+               (dependence implied; value assigned in same state action)
+         o state transitions using "goto" or "stay"  (default: "stay")
+         o statments:
+             - state transition:         -  'goto' stateName ';'
+                                         -  'stay' ';'
+             - assignment:               -  a '=' b;
+             - builtin:                  -  'close' '(' outputStream ')' ';'
+                                         -  'attn'  '(' signalCode   ')' ';'
+             - inlined operator call:
+               (non-returning operator)  -  opName '(' {expr{,expr}} ')' ';'
+             - conditional:              -  'if' '(' expr ')' stmt
+                                            { 'else' 'if' '(' expr ')' stmt }
+                                            'else' stmt
+             - block:                    -  '{' {stmt} '}'
+         o expressions:
+             - immediate values:         -  integer (non-negative)
+                                         -  fixed-point (non-negative)
+                                         -  boolean: 'true' 'false'
+             - lvalues:                  -  variable id
+                                         -  output-stream
+             - output-stream:            -  stream id, optional bit subrange
+             - input-stream:             -  stream id, optional bit subrange,
+                                            optional retime (previous token)
+                                         -  e.g.:  x[3,2]@1
+             - conditional:              -  expr ? expr : expr
+             - binary operation:         -  + - * / % & | ^ && ||.
+                                            < > <= >= == !=
+             - unary operation:          -  + - ! ~
+             - type cast:                -  '(' type ')' expr
+             - builtin:                  -  'cat'     '(' {expr{,expr}} ')'
+                                         -  'widthof' '(' expr ')'
+                                         -  'bitsof'  '(' expr ')'
+             - inlined operator call:
+               (returning operator)      -  opName '(' {expr{,expr}} ')'
+     * attention signals
+         o halts operator
+         o sends (operator-id, signal-id) to processor
+         o triggers exception code (specific to operator, signal)
+         o resume after handler?
+     * exceptions
+         o C++ code enclosed in:  %{ %}
+         o same priveleges as processor code?  (create dynamic DFG, comm, etc.)
+         o access to own operator/streams?     (SCORE_Operator, SCORE_Stream)

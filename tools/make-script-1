@@ -1,0 +1,17 @@
+# Page partitioning:
+make PARSERFLAGS="-xc -xa -ecl -mix 1" >& mix=1.out
+
+# Note, we leave the "-epn" netlist emission option for later,
+#   since at this point, the operator is an instance with a mangled name
+
+# To check the maximum #streams per page:  (must be <64)
+#   csh ../../Tools/make-gplot-streams-max.cmd
+#   cat results-streams-max.gplot
+
+# To recover post-partitioned TDF:
+#   (1) edit mix=1.out
+#   (2) crop to keep only the post-partition TDF code (after "RESULTS")
+#   (3) modify the top-level operator name back to its base form (no scoretmp)
+#   (4) save as mix=1.out.tdf
+
+# Continued in make-script-2

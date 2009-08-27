@@ -1,0 +1,74 @@
+#!/bin/csh
+#
+# Synplify a given compositional module family (page, noin, qin, q),
+#   given implementation / revision
+#
+# Usage:  synplify-pages-impl topmodule impl [omit_queues]
+#
+# Note, qin + q modules are not compiled if pass arg "omit_queues" (any value)
+#
+# Assume separate project directories for top/page, noin, queue modules,
+#            each project directory named after its module
+#   - top (i.e. page)     is named "<topmodule>"
+#   - input queue         is named "<topmodule>_qin"
+#   - output/local queue  is named "<topmodule>_q"
+#   - ops w/o input queue is named "<topmodule>_noin"
+#
+# Note, tdfc -pp1 names compositional top module "_page_<basemodule>"
+# 
+# Synplify 7.1
+# Eylon Caspi, 10/16/03
+
+set synplify = "synplify_pro"
+
+if ($#argv<2) then
+  echo "Synplify a given compositional module family (top/page, noin, qin, q)"
+  echo "  and given implementation"
+  echo "Usage:  $0 topmodule impl [do_queues]"
+# echo "setenv SYNPLIFY <your synplify binary>"
+  exit
+endif
+
+set topmodule   = $argv[1]
+set rev         = $argv[2]
+@   omitqueues  = ($#argv == 3)	    # any 3rd arg value disables queue compile
+
+set noinmodule  = ${topmodule}_noin
+set qinmodule   = ${topmodule}_qin
+set qmodule     = ${topmodule}_q
+
+echo "--- Cleaning Up ${topmodule}, ${noinmodule} / Implementation $rev"
+rm -f ${topmodule}/$rev/*
+rm -f ${noinmodule}/$rev/*
+if (! $omitqueues) then
+  echo "--- Cleaning Up ${qinmodule}, ${qmodule} / Implementation $rev"
+  rm -f ${qinmodule}/$rev/*
+  rm -f ${qmodule}/$rev/*
+endif
+
+echo "--- Synthesizing Top/Page Module $topmodule / Implementation $rev"
+$synplify -batch -impl $rev -log $topmodule/$rev/synplify.log $topmodule/*prj
+
+echo "--- Copying FSM Explorer results to No-in project"
+set origsdc = $topmodule/$rev/${topmodule}_fsm.sdc
+if (-r $origsdc) then
+  if (-d ${noinmodule}/$rev) then
+    set newsdc = ${noinmodule}/$rev/${noinmodule}_fsm.sdc
+    set cmd = (cp -p $origsdc $newsdc)
+    echo $cmd
+    eval $cmd
+  endif
+endif
+
+echo "--- Synthesizing No-in Module $noinmodule / Implementation $rev"
+$synplify -batch -impl $rev -log $noinmodule/$rev/synplify.log $noinmodule/*prj
+
+if (! $omitqueues) then
+  echo "--- Synthesizing Input Queue Module $qinmodule / Implementation $rev"
+  $synplify -batch -impl $rev -log $qinmodule/$rev/synplify.log $qinmodule/*prj
+
+  echo "--- Synthesizing Output/Local Module $qmodule / Implementation $rev"
+  $synplify -batch -impl $rev -log $qmodule/$rev/synplify.log $qmodule/*prj
+endif
+
+echo "--- Done"

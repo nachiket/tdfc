@@ -1,0 +1,58 @@
+#!/bin/csh
+#
+# Create Xilinx project directories
+# for compiling behavioral module families (top, FSM, DP)
+# from EDIF to Xilinx Virtex II
+#
+# Usage:  xilinx-dirs
+#
+# Run this from the directory containing ".v" verilog sources.
+# Xilinx build depends on existing "proj" directory with Synplify build.
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Xilinx ISE 5.2i
+# Eylon Caspi, 8/5/03
+
+set toolpath = ${0:h}
+
+set synplify_projdir = proj		# Synplify project dir
+set   xilinx_projdir = proj-xilinx	# Xilinx   project dir created here
+
+mkdir ${xilinx_projdir}
+
+cp -f -p ${toolpath}/xilinx-makefile           ${xilinx_projdir}
+cp -f -p ${toolpath}/xilinx-area-constraints   ${xilinx_projdir}
+cp -f -p ${toolpath}/xilinx-timing-constraints ${xilinx_projdir}
+
+foreach modulev (*.v)
+  set module = ${modulev:r}
+  mkdir ${xilinx_projdir}/${module}
+  foreach areaexp (1.0 1.1 1.2 1.5 2.0)
+    set revdir = ${xilinx_projdir}/${module}/rev_area_${areaexp}
+    mkdir ${revdir}
+    ln -f -s ../../xilinx-makefile           ${revdir}/Makefile
+    ln -f -s ../../xilinx-area-constraints   ${revdir}/xilinx-area-constraints
+    ln -f -s ../../xilinx-timing-constraints ${revdir}/xilinx-timing-constraints
+    echo "make -f ../../xilinx-makefile	\\
+	  MODULE=${module}		\\
+	  EDIF_DIR=../../../${synplify_projdir}/${module}/rev_1__speed \\
+	  AREA_EXPANSION=${areaexp} " '$*' > ${revdir}/make
+    chmod +x ${revdir}/make
+  end
+  echo	'#\!/bin/csh						\
+	 foreach rev (rev*)					\
+	   sh -c "cd $rev; ./make $* 2>&1 | tee make.out"	\
+	 end' > ${xilinx_projdir}/${module}/make
+  chmod +x ${xilinx_projdir}/${module}/make
+end
+
+echo '#\!/bin/csh			\
+      foreach mod (*)			\
+	sh -c "cd $mod; ./make $*"	\
+      end' > ${xilinx_projdir}/make
+chmod +x ${xilinx_projdir}/make

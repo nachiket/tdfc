@@ -1,0 +1,115 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+LiftWaveV(param unsigned[10] rowLen, param unsigned[10] colLen, 
+	  param unsigned[8] inWidth, param unsigned[8] outWidth, 
+	  input signed[inWidth] a, output signed[outWidth] s,
+	  output signed[outWidth] d, input signed[outWidth] s_bufi,
+	  output signed[outWidth] s_bufo, input signed[outWidth] d_bufi,
+	  output signed[outWidth] d_bufo, input signed[outWidth] dmbufi,
+	  output signed[outWidth] dmbufo)
+
+  {
+      unsigned[20] count = 0;
+      unsigned[20] index = 0;
+      signed[outWidth] sum;          signed[outWidth] diff;
+      signed[outWidth] sumplus1;     signed[outWidth] diffminus1;
+      signed[outWidth] d_buf_mem;    signed[outWidth] s_buf_mem;
+      signed[outWidth] dmbuf_mem;      
+      
+      state start(a): // fill in s_buffer
+	{
+	    unsigned[21] t_index;
+	    // s_buf_mem[index] = a; 
+	    s_bufo = a;
+	    index = index+1; t_index = index+1; 
+	    if (t_index == rowLen) {index = 0; goto init1;}
+	    else {stay;}
+	}
+
+      state init1(a): // fill in d_buffer
+	{
+	    unsigned[21] t_index;
+	    // d_buf_mem[index] = a;
+	    d_bufo = a;
+	    index = index+1; t_index = index+1; 
+	    if (t_index == rowLen) {index = 0; count = count+1; goto middle00;}
+	    else {stay;}
+	}
+      
+      state middle00(a,d_bufi,s_bufi):
+	{
+	    unsigned[21] t_index;
+	    sumplus1 = a;
+	    d_buf_mem = d_bufi; s_buf_mem = s_bufi;
+	    diff = d_buf_mem*2-s_buf_mem-sumplus1;
+	    sum = s_buf_mem + diff/4;
+	    s = sum; d = diff;
+	    dmbufo = diff;
+	    s_bufo = sumplus1;
+	    t_index = index+1; index = index+1; 
+	    if (t_index == rowLen) {index = 0; goto middle01;}
+	    else {stay;}
+	}
+
+      state middle01(a):
+	{
+	    unsigned[21] t_index; unsigned[21] t_count;
+	    d_bufo = a;
+	    t_index = index+1; index = index+1; 
+	    if (t_index == rowLen) {
+		t_count = count+1; count = count+1;
+		if (t_count == colLen) {index = 0; goto final; }
+		else {index = 0; goto middle10;}
+	    }
+	    else {stay;}      
+	}
+
+      state middle10(a,d_bufi,s_bufi,dmbufi):
+	{
+	    unsigned[21] t_index;
+	    sumplus1 = a;
+	    d_buf_mem = d_bufi; s_buf_mem = s_bufi; dmbuf_mem = dmbufi;
+	    diff = d_buf_mem*2-s_buf_mem-sumplus1;
+	    sum = s_buf_mem + (diff+dmbuf_mem)/8;
+	    s = sum; d = diff;
+	    dmbufo = diff;
+	    s_bufo = sumplus1;
+	    index = index+1; t_index = index+1;
+	    if (t_index == rowLen) {index = 0; goto middle01;}
+	    else {stay;}
+	}
+
+      state final(d_bufi,s_bufi,dmbufi):
+	{
+	    unsigned[21] t_index;
+	    d_buf_mem = d_bufi; s_buf_mem = s_bufi; dmbuf_mem = dmbufi;
+	    diff = (d_buf_mem-s_buf_mem)*2;
+	    sum = s_buf_mem + (diff+dmbuf_mem)/8;
+	    s = sum; d = diff;
+	    index = index+1; t_index = index+1;
+	    if (t_index == rowLen) {index = 0; count = 0; goto start;}
+	    else {stay;}
+	} 
+  }
+

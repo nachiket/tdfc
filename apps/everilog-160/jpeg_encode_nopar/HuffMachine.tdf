@@ -1,0 +1,153 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// customized for JPEG with 1's padding
+
+HuffMachine(input unsigned[16] bi, input unsigned[8] nbi, 
+	    output unsigned[8] huffout) 
+
+{
+
+    unsigned[8] result=0; // where temporary result is kept and modified
+                          // until it is ready to output
+    unsigned[8] index=0;  // bit position in current word
+    unsigned[16] bits;    // current data to be transmitted
+    unsigned[8] nbits;    // current length of data
+    unsigned[8] bits_left; // bits left in current byte
+
+    state start(bi,nbi): {
+	
+	bits = bi;
+	nbits = nbi;
+	goto initcode;
+
+    }
+
+    state start(eos(bi),eos(nbi)): {
+	close(huffout);
+	done();
+    }
+
+    state initcode(): { 
+	// we enter this state if we are starting to encode on a new
+	// byte boundary
+	unsigned[16] tbits;
+	unsigned[8] tnbits;
+	unsigned[16] a;
+	unsigned[16] b;
+	unsigned[16] c;
+	unsigned[8] nbytes;
+	unsigned[8] rt_shift;
+	unsigned[8] lt_shift; unsigned[8] tbits_left;
+
+	if (nbits>=8) {
+	  // a = 1<<8; b = a-1; // create mask of eight 1's
+	  //  huffout = bits & b; // put out Least Sig Byte
+	  a = nbits-8; // no sign problems
+	  huffout = (bits >> a)&255; // output most significant 8 bits
+	  if (nbits>8) {
+	    //tbits = bits >> 8;
+	    b = 1<<a; c = b-1;
+	    tbits = bits & c;	    bits = tbits; 
+	    // excise most sig. 8 bits from variable
+	    tnbits = nbits - 8;	    nbits = tnbits;
+	    goto initcode;
+	  } else {  // nbits is 8
+	    goto start;
+	  }
+	} else { // nbits < 8
+	  tbits_left = 8-nbits;
+	  bits_left = 8-nbits;
+	  result = bits<<tbits_left;  //intermediate result
+	  goto intercode1;
+	} 
+
+    }
+
+    state intercode1(bi,nbi): {
+
+      bits = bi;
+      nbits = nbi;
+      goto intercode2;
+
+    }
+
+    state intercode1(eos(bi),eos(nbi)): {
+      
+      unsigned[16] a;
+      unsigned[16] b;
+      a = 1<<bits_left; b = a-1;
+      huffout = (result|b)&255; //pad with ones
+      close(huffout);
+      done();
+    }
+
+    state intercode2(): {
+        // we enter this state if we are in the middle of making
+        // up a byte - result and bits_left need to be set
+ 	unsigned[16] tbits; unsigned[16] tresult;
+	unsigned[8] tbits_left;
+	unsigned[16] a; unsigned[16] temp1;
+	unsigned[16] b; unsigned[16] temp2;
+	unsigned[16] c; unsigned[16] d;
+	unsigned[8] nbytes;
+	unsigned[8] rt_shift;
+	unsigned[8] lt_shift;
+
+	if (nbits >= bits_left) {
+
+// 	    a = 1 << bits_left; b = a-1;
+// 	    temp1 = bits & b;
+// 	    temp2 = temp1 << (8 - bits_left);
+// 	    huffout = result | temp2;
+
+	    a = nbits - bits_left;
+	    huffout = (result | (bits >> a))&255;
+	    
+	  if (nbits > bits_left) {
+	    nbits = a;
+	    // tbits = bits >> bits_left;
+	    b = 1<<a; c = b-1; 
+	    tbits = bits & c; bits = tbits; // keep remaining bits of word
+	    result = 0; // new byte boundary
+	    // b = a-1;
+	    // tbits = bits | b;
+	    goto initcode;
+	  } else {
+	      result = 0; 
+	      goto start;
+	  }
+	} else { // nbits strictly less than bits_left
+	    // lt_shift = 8-nbits;
+	    tbits_left = bits_left - nbits;
+	    d = bits << tbits_left;  
+	    tresult = result | d; result = tresult;
+	    // bits_left = lt_shift;
+	    bits_left = tbits_left;
+	    goto intercode1;
+	}      
+      
+    }
+
+}
+

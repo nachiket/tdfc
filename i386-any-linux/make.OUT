@@ -1,0 +1,103 @@
+bison -v -d -t  ../src/parse_tdf.y -o parse_tdf.tab.cc
+test -f parse_tdf.tab.cc.h && mv parse_tdf.tab.cc.h parse_tdf.tab.h || \
+test -f parse_tdf.tab.hh   && mv parse_tdf.tab.hh   parse_tdf.tab.h
+/usr/bin/flex ../src/tokenize_tdf.l
+mv lex.yy.c tokenize_tdf.cc
+rm -f Makefile.dep
+/usr/bin/g++ -M -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/tdfc.cc ../src/tree.cc ../src/suite.cc ../src/operator.cc ../src/state.cc ../src/stmt.cc ../src/expr.cc ../src/symbol.cc ../src/type.cc ../src/misc.cc ../src/file.cc ../src/ops.cc ../src/gc.cc ../src/instance.cc ../src/feedback.cc ../src/bindvalues.cc ../src/ccbody.cc ../src/ccheader.cc ../src/ccinstance.cc ../src/cccase.cc ../src/cccopy.cc ../src/cceval.cc ../src/ccmem.cc ../src/ccprep.cc ../src/ccrename.cc ../src/ccstmt.cc ../src/cctype.cc ../src/rateTable.cc ../src/rateInstance.cc ../src/ribody.cc ../src/linux_meminfo.cc ../src/canonical.cc ../src/mincut.cc ../src/clusterstates.cc ../src/feedback_fsm.cc ../src/ir_graph.cc ../src/ir_analyze_registers.cc ../src/ir_arch_dep.cc ../src/ir_bindtimearea.cc ../src/ir_create_dfg.cc ../src/ir_create_newrep.cc ../src/ir_create_ofg.cc ../src/ir_create_sfg.cc ../src/dismantle.cc ../src/pagedfg.cc ../src/pagenetlist.cc ../src/pagenetlistdot.cc ../src/blockdfg.cc ../src/streamdepth.cc ../src/synplify.cc ../src/dummypages.cc ../src/pipeext.cc ../src/everilog_symtab.cc ../src/everilog.cc ../src/everilog_compose.cc parse_tdf.tab.cc tokenize_tdf.cc > Makefile.dep
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/tdfc.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/tree.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/suite.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/operator.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/state.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/stmt.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/expr.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/symbol.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/type.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/misc.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/file.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ops.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/gc.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/instance.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/feedback.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/bindvalues.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccbody.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccheader.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccinstance.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/cccase.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/cccopy.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/cceval.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccmem.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccprep.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccrename.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ccstmt.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/cctype.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/rateTable.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/rateInstance.cc
+../src/rateTable.cc: In method `RateTable::RateTable (const leda_string 
+&, Operator *)':
+../src/rateTable.h:67: warning: member initializers for 
+`leda_array<int> RateTable::isInput'
+../src/rateTable.h:65: warning:   and `leda_array2<Pair> 
+RateTable::rates'
+../src/rateTable.cc:66: warning:   will be re-ordered to match 
+declaration order
+../src/rateTable.cc: In method `Pair RateTable::calculateState (int, 
+int, State *)':
+../src/rateTable.cc:168: warning: unused variable `Pair stateResult'
+../src/rateTable.cc:168: warning: unused variable `Pair lastStateResult
+'
+../src/rateTable.cc:169: warning: unused variable `int first'
+../src/rateTable.cc:170: warning: unused variable `int dynamic'
+../src/rateTable.cc:179: warning: no return statement in function 
+returning non-void
+../src/rateTable.cc: In method `Pair RateTable::calculateStateCase 
+(int, int, StateCase *)':
+../src/rateTable.cc:244: warning: no return statement in function 
+returning non-void
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ribody.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/linux_meminfo.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/canonical.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/mincut.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/clusterstates.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/feedback_fsm.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_graph.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_analyze_registers.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_arch_dep.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_bindtimearea.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_create_dfg.cc
+../src/ir_bindtimearea.cc: In function `void PrintSchedule (SCCell *, 
+GRAPH<DFNode *, DFEdge *> *)':
+../src/ir_bindtimearea.cc:79: warning: unused variable `int step'
+../src/ir_bindtimearea.cc: In function `void ScheduleandExtract 
+(node_struct *)':
+../src/ir_bindtimearea.cc:305: warning: unused variable `OFNode 
+*pipe_ofn'
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_create_newrep.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_create_ofg.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/ir_create_sfg.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/dismantle.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/pagedfg.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/pagenetlist.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/pagenetlistdot.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/blockdfg.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/streamdepth.cc
+../src/blockdfg.cc: In function `void reformBlockDFGs (BlockDFG *, 
+leda_array<leda_set<node_struct *> > *, leda_array<BlockDFG> *, 
+leda_set<SymbolVar *> *)':
+../src/blockdfg.cc:1728: warning: unused variable `Expr *e'
+../src/blockdfg.cc:1525: warning: unused variable `edge_struct *e'
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/synplify.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/dummypages.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/pipeext.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/everilog_symtab.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/everilog.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall ../src/everilog_compose.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall parse_tdf.tab.cc
+/usr/bin/g++ -c -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall tokenize_tdf.cc
+lex.yy.c:1451: warning: `void yyunput (int, char *)' defined but not 
+used
+rm -f tdfc
+/usr/bin/g++ -o tdfc -I. -I../src -I/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/incl -L/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96 -DCXX=\"/usr/bin/g++\" -DTDFC_VERSION=\"1.160\"  -g -Wall tdfc.o tree.o suite.o operator.o state.o stmt.o expr.o symbol.o type.o misc.o file.o ops.o gc.o instance.o feedback.o bindvalues.o ccbody.o ccheader.o ccinstance.o cccase.o cccopy.o cceval.o ccmem.o ccprep.o ccrename.o ccstmt.o cctype.o rateTable.o rateInstance.o ribody.o linux_meminfo.o canonical.o mincut.o clusterstates.o feedback_fsm.o ir_graph.o ir_analyze_registers.o ir_arch_dep.o ir_bindtimearea.o ir_create_dfg.o ir_create_newrep.o ir_create_ofg.o ir_create_sfg.o dismantle.o pagedfg.o pagenetlist.o pagenetlistdot.o blockdfg.o streamdepth.o synplify.o dummypages.o pipeext.o everilog_symtab.o everilog.o everilog_compose.o parse_tdf.tab.o tokenize_tdf.o  -lfl -lG -lL -lstdc++
+/project/cs/brass/a/tools/free/LEDA-3.7.1/LEDA-3.7.1-i386-linux-g++-2.96/libL.a(_file.o)(.text+0x689): In function `tmp_file_name(void)':
+: the use of `tmpnam' is dangerous, better use `mkstemp'

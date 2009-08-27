@@ -1,0 +1,154 @@
+// - Segment operator implementations for Xilinx Virtex II BlockRAMs
+//
+// - BlockRAM synchronous read + write, must register address and write data
+// - Array accesses are to be translated into Verilog verbatim, not extracted
+//
+// - RAM addr/data regs are written only when firing, which infers
+//     enabled registers.  More efficient implementations are possible
+//     that write addr + data regs on every cycle, to infer non-enabled,
+//     but that is beyond TDF syntax.  See ``segmentops-verilog-ext.tdf''
+//
+// - Eylon Caspi 12/9/04
+
+
+////////////////////////////////////////////////////////////////
+
+SegmentR	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] data)
+{
+  unsigned[awidth] addrreg;
+
+  state start  (addr) :                          addrreg=addr; goto steady;
+  state steady (addr) : data=contents[addrreg] ; addrreg=addr; goto steady;
+  state steady ()     : data=contents[addrreg] ;               goto start;
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 input  unsigned[dwidth] data)
+{
+  unsigned[awidth] addrreg;
+  unsigned[dwidth] datareg;
+
+  state start  (addr,data) : addrreg=addr; datareg=data; goto steady;
+  state steady (addr,data) : contents[addrreg]=datareg;
+			     addrreg=addr; datareg=data; goto steady;
+  // OPTIONAL:
+  state steady ()          : contents[addrreg]=datareg;  goto start; 
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentRW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] dataR,
+		 input  unsigned[dwidth] dataW,
+		 input  boolean          write) 	// r/w mode
+{
+  // - Static rate implementation
+  //     dataW is consumed on every firing, even for read
+
+  unsigned[awidth] addrreg;
+  unsigned[dwidth] datareg;
+  boolean          writereg;
+
+  state start  (addr,dataW,write) :
+    addrreg=addr; datareg=dataW; writereg=write; goto steady;
+
+  state steady (addr,dataW,write) :
+    if (writereg) contents[addrreg]=datareg;
+    else          dataR=contents[addrreg];
+    addrreg=addr; datareg=dataW; writereg=write; goto steady;
+    goto steady;
+
+  state steady () :
+    if (writereg) contents[addrreg]=datareg;
+    else          dataR=contents[addrreg];
+    goto start;
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentRW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] dataR,
+		 input  unsigned[dwidth] dataW,
+		 input  boolean          write) 	// r/w mode
+{
+  // - Dynamic rate implementation
+  //     dataW is consumed only on write firing, when write==1
+  // - Uses value guards, which are not implemented in TDF
+  //     (non-value-guarded implementation is much more convoluted)
+
+  unsigned[awidth] addrreg;
+  unsigned[dwidth] datareg;
+  boolean          writereg;
+
+  state start  (addr,dataW,write==1) :
+    addrreg=addr; datareg=dataW; writereg=1; goto steady;
+
+  state start  (addr,dataR,      write==0) :
+    addrreg=addr;                writereg=0; goto steady;
+
+  state steady (addr,dataW,write==1) :
+    if (writereg) contents[addrreg]=datareg;
+    else          dataR=contents[addrreg];
+    addrreg=addr; datareg=dataW; writereg=1; goto steady;
+
+  state steady (addr,      write==0) :
+    if (writereg) contents[addrreg]=datareg;
+    else          dataR=contents[addrreg];
+    addrreg=addr;                writereg=0; goto steady;
+
+  state steady () :
+    if (writereg) contents[addrreg]=datareg;
+    else          dataR=contents[addrreg];
+    goto start;
+
+  state steady () :
+    if (writereg) contents[addrreg]=datareg;
+    else          dataR=contents[addrreg];
+    goto start;
+}
+
+////////////////////////////////////////////////////////////////
+
+SegmentSeqR	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 output unsigned[dwidth] data);
+
+////////////////////////////////////////////////////////////////
+
+SegmentSeqW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[dwidth] data);
+
+////////////////////////////////////////////////////////////////
+
+SegmentSeqRW	(param  unsigned[7]      dwidth,	// data width
+		 param  unsigned[7]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// max words
+		 param  unsigned[nwords][dwidth] contents,
+		 output unsigned[dwidth] dataR,
+		 input  unsigned[dwidth] dataW);
+
+////////////////////////////////////////////////////////////////

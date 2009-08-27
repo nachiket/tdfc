@@ -1,0 +1,24 @@
+nfxor(param unsigned[6] n, input unsigned[n] a, 
+      input unsigned[n] b,output unsigned[n] o)
+{
+  state only(a,b): o=a^b;
+}
+xor_shell2(param unsigned[6] n, input unsigned[n] q, 
+      input unsigned[n] r,output unsigned[n] s)
+
+{
+  nfxor(n,q,r,s);
+}
+xor_shell_nf(param unsigned[6] n, input unsigned[n] q, 
+      input unsigned[n] r,output unsigned[n] s)
+
+{
+  xor_shell2(n,q,r,s);
+}
+unsigned[n] xor3g(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b, input unsigned[n] c)
+{ 
+  unsigned [n] tmp;
+  xor_shell_nf(n,a,b,tmp);
+  xor_shell_nf(n,tmp,c,xor3g);
+}

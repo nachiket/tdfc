@@ -1,0 +1,25 @@
+fork (input  unsigned[0] reqLeft,  input  unsigned[0] reqLeft,
+      output unsigned[0] passLeft, output unsigned[0] passLeft,
+      input  unsigned[0] retLeft,  input  unsigned[0] retLeft)
+{
+  state untouched (reqLeft)  : passLeft=0;  goto waitLeft;
+  state untouched (reqRight) : passRight=0; goto waitRight;
+
+  state waitLeft  (retLeft)  : goto untouched;
+  state waitRight (retRight) : goto untouched;
+}
+
+philo (input unsigned[0]  recvLeft, input  unsigned[0] recvRight,
+       output unsigned[0] reqLeft,  output unsigned[0] reqRight,
+       output unsigned[0] retLeft,  output unsigned[0] retRight)
+{
+  state reqForks () : reqLeft=0; reqRight=0; goto hungry;
+
+  state hungry (recvLeft)  : goto eatLeft;
+  state hungry (recvRight) : goto eatRight;
+
+  state eatLeft  () : if (rand()) { goto eatLeft; }
+                      else        { retLeft=0;  goto reqForks; }
+  state eatRight () : if (rand()) { goto eatRight; }
+                      else        { retRight=0; goto reqForks; }
+}

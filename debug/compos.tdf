@@ -1,0 +1,30 @@
+op (input unsigned[8] i, output unsigned[8] o) {
+  state only (i) :
+    o = i+1;
+}
+
+unsigned[8] retval (input unsigned[8] i) {
+  state only (i) :
+    retval = i+1;
+}
+
+unsigned[8] cat_ (input unsigned[4] i1, input unsigned[4] i2) {
+  state only (i1,i2) :
+    cat_ = cat(i1,i2);
+}
+
+compos (input unsigned[4] i1, input unsigned[4] i2, output unsigned[8] o) {
+// compos (input unsigned[8] i, output unsigned[8] o) {
+  // unsigned[8] i;
+  // i = cat(i1,i2);  --  syntax error
+  // op(cat(i1,i2),o);  --  dlink runtime error
+  // op(retval(i),o);
+  unsigned[8] i;
+  i = cat_(retval(i1),retval(i2)); 
+  op(i,o);
+}
+
+
+// CONCLUSION:  to support "cat" in composition, need
+                (1) elaboration of cat into behavioral cat_, like copy
+		(2) maybe fix Andre's "not handling calls in expr"

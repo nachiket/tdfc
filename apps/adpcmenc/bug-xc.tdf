@@ -1,0 +1,41 @@
+DiffSign (input  signed[16]   inVal,
+	  input  signed[16]   inValPred,
+	  output unsigned[16] outDiff,
+	  output boolean      outSign_ValPred,
+	  output boolean      outSign_MuxNibbles)
+{
+  // betweenFirings(2);
+  // betweenOutputs(6);
+
+  state fire   (inVal,inValPred):	goto delay1;
+  state delay1 ():			goto delay2;
+  state delay2 ():			goto delay3;
+  state delay3 ():			goto delay4;
+  state delay4 ():			goto delay5;
+  state delay5 ():
+  {
+    signed[17] diff = inVal-inValPred;
+    if (diff>0)
+    {
+      {
+	// outDiff=(unsigned[16])bitsof(diff);
+        unsigned[17] tmp=bitsof(diff);
+        outDiff=tmp[15:0];
+      }
+      outSign_ValPred=false;
+      outSign_MuxNibbles=false;
+    }
+    else
+    {
+      {
+        // outDiff=(unsigned[16])bitsof(-diff);
+	unsigned[17] tmp=bitsof(-diff);
+        outDiff=tmp[15:0];
+      }
+      outSign_ValPred=true;
+      outSign_MuxNibbles=true;
+    }
+    if (inVal==0x7fff)
+      done();
+  }
+}

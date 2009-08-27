@@ -1,0 +1,41 @@
+SegmentR	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width 
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 output unsigned[dwidth] data);
+
+SegmentW	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 input  unsigned[dwidth] data);
+
+SegmentRW	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[awidth] addr,
+		 input  unsigned[dwidth] data_in,
+		 output unsigned[dwidth] data_out,
+		 input  boolean          write);	// r/w mode
+
+SegmentSeqR	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 output unsigned[dwidth] data);
+
+SegmentSeqW	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// no. of words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[dwidth] data);
+
+SegmentSeqRW	(param  unsigned[6]      dwidth,	// data width
+		 param  unsigned[6]      awidth,	// addr width
+		 param  unsigned[awidth] nwords,	// max words
+		 param  unsigned[nwords][dwidth] contents,
+		 input  unsigned[dwidth] data_in,
+		 output unsigned[dwidth] data_out);

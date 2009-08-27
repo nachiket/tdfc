@@ -1,0 +1,9 @@
+Application		Ops	Segs	Ins	Locals	Outs	FBs	Largest SCC
+
+IIR             	  8	 0	1	 7	1	 0	0
+jpeg_decode_nopar	  9	 1	1	 41	8	14	3 op, 1 seg
+jpeg_encode_nopar	 11	 4	8	 42	1	 0	0
+mpeg_encode_nopar	 80	16	6	231	1	 8	1 op, 1 seg
+mpeg_encode_PB  	114	17	3	313	1	16	1 op, 1 seg
+wavelet         	 30	 6	1	 50	7	18	2 op
+wavelet_decode  	 27	 6	7	 49	1	46	1 op, 1 seg

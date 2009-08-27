@@ -1,0 +1,24 @@
+// inlined calls with empty argument list      (e.g.: myOp())
+// pass implicit 0-width synchronization token (-->   myOp(0))
+
+myOp (input unsigned[0] i)
+{
+  state only(i):
+    done();
+    op0();
+    op0(0);
+    op0(1);
+    op1();
+    op1(0);
+    op1(1);
+}
+
+op0 (input unsigned[0] i)
+{
+  state only(i) : {}
+}
+
+op1 (input unsigned[1] i)
+{
+  state only(i) : {}
+}

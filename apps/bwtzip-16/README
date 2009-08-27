@@ -1,0 +1,35 @@
+From stl@cs.caltech.edu Tue Sep 23 11:50:35 2003
+Date: Tue, 23 Sep 2003 04:58:41 -0700
+From: Stephan T. Lavavej <stl@cs.caltech.edu>
+To: 'Eylon Caspi' <eylon@cs.berkeley.edu>,
+     'Andre' DeHon' <andre@cs.caltech.edu>,
+     'Yury Markovskiy' <yurym@eecs.berkeley.edu>
+Subject: SCORE Problem
+
+Hi,
+
+I tried to test my parallelized compression program, but SCORE failed with
+an error message that I've never seen before.  I didn't expect that there
+would be any problems while parallelizing this...
+
+My application is located here:
+http://www.cs.caltech.edu/~stl/bwtzip-16/
+
+twain.txt is the file it's supposed to be run on; twain.bwt-1 is the output
+it should produce.  The application is compiled with "make" and run with
+"myapp twain.txt name_of_output_file"
+
+The error message I get is:
+
+[09/23/2003 Tue 04:49.33 AM stl@matrix11@CS ~/work/bwtzip-16]
+> myapp twain.txt twain.bwt-16
+ERROR: No available entry available in dataPtrTable: No such file or
+directory
+       due to implementation limitation: Illegal seek
+
+Is this happening because this application uses a /lot/ of streams and
+segments?
+
+Thanks,
+Stephan
+

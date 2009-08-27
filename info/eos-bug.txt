@@ -1,0 +1,30 @@
+From andre@acm.org Wed Mar 31 17:57:32 2004
+Date: Wed, 23 Jul 2003 16:31:25 -0700
+From: Andre' DeHon <andre@acm.org>
+To: Eylon Caspi <eylon@cs.berkeley.edu>
+Cc: Stephan T. Lavavej <stl@ugcs.caltech.edu>
+Subject: ccinstance and done
+
+
+Eylon,
+
+    Stephan has a case where he matches eos in the signature,
+writes a final (special) word to a stream and then calls done().
+
+    He is apparently losing that final word in many cases.
+
+    I looked at the instance code generated and noted that there's a possiblity
+that the this could happen if the output stream is full.  The explicit/user
+state
+cases are all guarded with &&!STREAM_FULL(...), but the extra, default
+EOS case is not so guarded.   So, I think it's possible to skip the user's
+EOS statecase and run the default one instead.
+    Fix for that is, I believe, obvious (just add STREAMFULL to the default
+case).   ...since I haven't touched tdfc in a while I'll leave that to you.
+
+    However, simply fixing this (by editing the generated code) was not enough
+to make Stephan's problem go away, so there may be another problem lurking
+somewhere behind here.
+
+                                            Andre'
+

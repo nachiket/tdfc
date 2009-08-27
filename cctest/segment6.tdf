@@ -1,0 +1,5 @@
+segment6(output unsigned[8] dout)
+{
+  unsigned[16][8] array={23,45,12,43,243,197,87,94,52,167,211,34,0,154,12,1};
+  segment_seq_r (4,8,16,array,dout);
+}

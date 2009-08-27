@@ -1,0 +1,53 @@
+widthof1(output unsigned[8] out, input unsigned[4] in)
+{
+
+  state one():
+    {
+      out=widthof(1);
+      goto two;
+    }
+
+  state two():
+    {
+      out=widthof(in);
+      goto three;
+    }
+           
+
+  state three():
+    {
+      out=widthof(in<<1);
+      goto four;
+    }
+
+  state four():
+    {
+      out=widthof(in>>1);
+      goto five;
+    }
+
+  state five():
+    {
+      out=widthof(in+in);
+      goto six;
+    }
+
+  state six():
+    {
+      out=widthof(cat(in,in));
+      goto seven;
+    }
+           
+
+  state seven():
+    {
+      goto last;
+    }
+
+
+  state last():
+    {
+      done();
+    }
+
+}

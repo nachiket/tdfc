@@ -1,0 +1,233 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.3 $
+// $Date: 2000/01/08 00:12:38 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+
+write_seg(input signed[16] inA, input signed[16] inB, input signed[16] inC,
+	  input signed[16] inD, input signed[16] inE, input signed[16] inF,
+	  input signed[16] inG, input signed[16] inH,
+	  output unsigned[6] addr_a, output signed[16] data_a,
+	  output unsigned[6] addr_b, output signed[16] data_b,
+	  output boolean write_a, 
+	  output boolean write_b, input unsigned[6] zindex)
+
+{
+
+  unsigned[8] index=0;
+  unsigned[8] bigIndex=0;
+  boolean phase = true;
+  boolean init = true;
+
+  state uno(inA,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inA; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inA; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto dos;
+    }
+  state dos(inB,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inB; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inB; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto tres;
+    }
+  state tres(inC,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inC; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inC; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto cuatro;
+    }
+  state cuatro(inD,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inD; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inD; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto cinco;
+    }
+  state cinco(inE,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inE; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inE; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto seis;
+    }
+  state seis(inF,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inF; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inF; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto siete;
+    }
+  state siete(inG,zindex):
+    {
+      if (phase) {
+	addr_a = index; data_a = inG; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inG; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      index = index+1;
+      goto ocho;
+    }
+  state ocho(inH,zindex):
+    {
+      unsigned[8] tbigIndex;
+      unsigned[8] tindex;
+      if (phase) {
+	addr_a = index; data_a = inH; write_a = true;
+	if (init == false) {
+	  addr_b = zindex; write_b = false;
+	}
+      } else {
+	addr_b = index; data_b = inH; write_b = true;
+	addr_a = zindex; write_a = false;
+      }
+      if (index == 63) { // finished a macroblock?
+	tindex = 0;
+	index = 0;
+	if (phase) {
+	  phase = false;
+	} else {
+	  phase = true;
+	}
+	init = false;
+	tbigIndex = bigIndex+1;
+	bigIndex = bigIndex+1;	
+      } else {
+	tindex = index+1;
+	index = index+1;
+      }
+      if ((tindex == 0) && (tbigIndex == 4096)) {
+	goto yi;
+      } else {
+	goto uno;
+      }
+    }
+
+  state yi(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto er;
+  }
+
+  state er(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto san;
+  }
+
+  state san(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto si;
+  }
+
+  state si(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto wu;
+  }
+  
+  state wu(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto liu;
+  }
+
+  state liu(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto qi;
+  }
+  
+  state qi(zindex): {
+    addr_b = zindex; write_b = false;
+    index = index+1;
+    goto ba;
+  }
+
+  state ba(zindex): {
+    addr_b = zindex; write_b = false;
+
+    if (index==63) {
+      bigIndex = 0; index = 0;
+      goto uno;
+    } else {
+      index = index+1;
+      goto yi;
+    }
+  }
+
+}
+	  
+
+

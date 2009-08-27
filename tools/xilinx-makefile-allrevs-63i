@@ -1,0 +1,38 @@
+# Makefile to run Xilinx tools on all modules, all revs
+#
+# - Use this after verilog-reg-shells, synplify, xilinx-dirs-63i,
+#                                                xilinx-dirs-63i-RELAXAREA
+# - Use this inside "proj-xilinx" directory
+#
+# - Xilinx ISE 6.1i / 6.3i
+# - Eylon Caspi, 2/18/05
+
+################################################################
+
+# - Uncomment the following line to precede every xilinx command by $PREFIX
+# PREFIX = echo
+# PREFIX = qsubwaitcsh
+
+################################################################
+
+REVS = $(patsubst ./%,%,$(shell find . -mindepth 2 -maxdepth 2 -name rev_\*))
+
+.PHONY:	       ${REVS} ${REVS_CLEAN} ${REVS_REALLYCLEAN}
+
+all:	       ${REVS}
+
+info:
+	echo REVS = ${REVS}
+
+${REVS}:
+	cd $@ && rm -f DOIT && echo './make 2>&1 | tee make.OUT' > DOIT && ${PREFIX} sh DOIT
+
+clean:  	$(patsubst %,%_CLEAN,${REVS})
+
+reallyclean:	$(patsubst %,%_REALLYCLEAN,${REVS})
+
+%_CLEAN:
+	cd $* && ./make clean
+
+%_REALLYCLEAN:
+	cd $* && ./make reallyclean

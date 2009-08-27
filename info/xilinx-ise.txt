@@ -1,0 +1,49 @@
+Notes on Xilinx ISE 5.2i
+------------------------
+
+
+--- FILE TYPES ---
+
+.bld	Translation Report,	    from"ngdbuild"
+
+.mrp	Map Report,		    from "map"	(count FF, LUTs, slices)
+
+.par	Place & Route Report,	    from "par"	(avg, max delays)
+
+.dly	Asynchronous Delay Report,  from "par"	(worst net delays)
+
+.twr	Post Place & Route Report,  from "trce"	(use -a if no constaints)
+						(more detail in GUI "timingan")
+
+constraints.ucf  (_fplan.ucf ?)
+	Floorplanning constraints,  from "floorplanner" (GUI)
+
+
+--- IMPLEMENTATION PROPERTIES ---
+
+  - (user constraints)	Do NOT use timing constraints
+
+  - translate:		(none)
+
+  - map:		Do NOT trim unconnected signals
+			Command-line option "-c" <%area_target> for packing
+
+  - place & route:	Highest overall effort,
+			Do NOT use timing constraints,
+			Generate post-PAR static timing
+
+  - post-PAR timing:	-a (compare to automatic constraints), -v (verbose)
+
+
+--- COMMANDS ---
+
+ngdbuild -quiet -dd f:\brass\tdfc\apps\everilog-155\mpeg_encode_nopar\proj-xilinx\segc_manage_d1_scoretmp867\segc_manage_d1_scoretmp867/_ngo -uc constraints.ucf  -p xc2v40-cs144-6 segc_manage_d1_ScOrEtMp867.edf segc_manage_d1_ScOrEtMp867.ngd
+
+map -quiet -p xc2v40-cs144-6 -cm area -detail -pr b -u -k 4 -c 100 -tx off -o segc_manage_d1_ScOrEtMp867_map.ncd segc_manage_d1_ScOrEtMp867.ngd segc_manage_d1_ScOrEtMp867.pcf
+
+par -w -ol 5 -t 1 -x segc_manage_d1_ScOrEtMp867_map.ncd segc_manage_d1_ScOrEtMp867.ncd segc_manage_d1_ScOrEtMp867.pcf
+
+trce -quiet -e 3 -l 3 -xml segc_manage_d1_ScOrEtMp867 segc_manage_d1_ScOrEtMp867.ncd -o segc_manage_d1_ScOrEtMp867.twr segc_manage_d1_ScOrEtMp867.pcf
+
+  ("trce" needs "-a" instead of empty constraint file ".pcf")
+

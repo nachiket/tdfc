@@ -1,0 +1,14 @@
+matchfixed(input unsigned[8] a, param unsigned[8] match, 
+           output boolean res)
+  {
+    state only(a):
+      if (a==match) res=true; 
+      else res=false;
+  }
+
+addn(param unsigned[8] n, input unsigned[n] a, input unsigned[n] b, 
+			  output unsigned[n+1] o)
+  {
+    state only(a,b): o=a+b;
+  }
+

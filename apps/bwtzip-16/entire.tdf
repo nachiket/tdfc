@@ -1,0 +1,159 @@
+entire(input  unsigned[8]       in,
+
+       param  unsigned[5001][9] v1,       param  signed[5001][32]  pos1,       param  signed[5001][32]  prm1,
+       param  signed[5001][32]  count1,   param  boolean[5002]     bh1,        param  boolean[5002]     b2h1,
+       param  unsigned[256][8]  stack1,   param  unsigned[257][32] freq1,      param  unsigned[258][32] cfreq1,
+
+       param  unsigned[5001][9] v2,       param  signed[5001][32]  pos2,       param  signed[5001][32]  prm2,
+       param  signed[5001][32]  count2,   param  boolean[5002]     bh2,        param  boolean[5002]     b2h2,
+       param  unsigned[256][8]  stack2,   param  unsigned[257][32] freq2,      param  unsigned[258][32] cfreq2,
+
+       param  unsigned[5001][9] v3,       param  signed[5001][32]  pos3,       param  signed[5001][32]  prm3,
+       param  signed[5001][32]  count3,   param  boolean[5002]     bh3,        param  boolean[5002]     b2h3,
+       param  unsigned[256][8]  stack3,   param  unsigned[257][32] freq3,      param  unsigned[258][32] cfreq3,
+
+       param  unsigned[5001][9] v4,       param  signed[5001][32]  pos4,       param  signed[5001][32]  prm4,
+       param  signed[5001][32]  count4,   param  boolean[5002]     bh4,        param  boolean[5002]     b2h4,
+       param  unsigned[256][8]  stack4,   param  unsigned[257][32] freq4,      param  unsigned[258][32] cfreq4,
+
+       param  unsigned[5001][9] v5,       param  signed[5001][32]  pos5,       param  signed[5001][32]  prm5,
+       param  signed[5001][32]  count5,   param  boolean[5002]     bh5,        param  boolean[5002]     b2h5,
+       param  unsigned[256][8]  stack5,   param  unsigned[257][32] freq5,      param  unsigned[258][32] cfreq5,
+
+       param  unsigned[5001][9] v6,       param  signed[5001][32]  pos6,       param  signed[5001][32]  prm6,
+       param  signed[5001][32]  count6,   param  boolean[5002]     bh6,        param  boolean[5002]     b2h6,
+       param  unsigned[256][8]  stack6,   param  unsigned[257][32] freq6,      param  unsigned[258][32] cfreq6,
+
+       param  unsigned[5001][9] v7,       param  signed[5001][32]  pos7,       param  signed[5001][32]  prm7,
+       param  signed[5001][32]  count7,   param  boolean[5002]     bh7,        param  boolean[5002]     b2h7,
+       param  unsigned[256][8]  stack7,   param  unsigned[257][32] freq7,      param  unsigned[258][32] cfreq7,
+
+       param  unsigned[5001][9] v8,       param  signed[5001][32]  pos8,       param  signed[5001][32]  prm8,
+       param  signed[5001][32]  count8,   param  boolean[5002]     bh8,        param  boolean[5002]     b2h8,
+       param  unsigned[256][8]  stack8,   param  unsigned[257][32] freq8,      param  unsigned[258][32] cfreq8,
+
+       param  unsigned[5001][9] v9,       param  signed[5001][32]  pos9,       param  signed[5001][32]  prm9,
+       param  signed[5001][32]  count9,   param  boolean[5002]     bh9,        param  boolean[5002]     b2h9,
+       param  unsigned[256][8]  stack9,   param  unsigned[257][32] freq9,      param  unsigned[258][32] cfreq9,
+
+       param  unsigned[5001][9] v10,       param  signed[5001][32]  pos10,       param  signed[5001][32]  prm10,
+       param  signed[5001][32]  count10,   param  boolean[5002]     bh10,        param  boolean[5002]     b2h10,
+       param  unsigned[256][8]  stack10,   param  unsigned[257][32] freq10,      param  unsigned[258][32] cfreq10,
+
+       param  unsigned[5001][9] v11,       param  signed[5001][32]  pos11,       param  signed[5001][32]  prm11,
+       param  signed[5001][32]  count11,   param  boolean[5002]     bh11,        param  boolean[5002]     b2h11,
+       param  unsigned[256][8]  stack11,   param  unsigned[257][32] freq11,      param  unsigned[258][32] cfreq11,
+
+       param  unsigned[5001][9] v12,       param  signed[5001][32]  pos12,       param  signed[5001][32]  prm12,
+       param  signed[5001][32]  count12,   param  boolean[5002]     bh12,        param  boolean[5002]     b2h12,
+       param  unsigned[256][8]  stack12,   param  unsigned[257][32] freq12,      param  unsigned[258][32] cfreq12,
+
+       param  unsigned[5001][9] v13,       param  signed[5001][32]  pos13,       param  signed[5001][32]  prm13,
+       param  signed[5001][32]  count13,   param  boolean[5002]     bh13,        param  boolean[5002]     b2h13,
+       param  unsigned[256][8]  stack13,   param  unsigned[257][32] freq13,      param  unsigned[258][32] cfreq13,
+
+       param  unsigned[5001][9] v14,       param  signed[5001][32]  pos14,       param  signed[5001][32]  prm14,
+       param  signed[5001][32]  count14,   param  boolean[5002]     bh14,        param  boolean[5002]     b2h14,
+       param  unsigned[256][8]  stack14,   param  unsigned[257][32] freq14,      param  unsigned[258][32] cfreq14,
+
+       param  unsigned[5001][9] v15,       param  signed[5001][32]  pos15,       param  signed[5001][32]  prm15,
+       param  signed[5001][32]  count15,   param  boolean[5002]     bh15,        param  boolean[5002]     b2h15,
+       param  unsigned[256][8]  stack15,   param  unsigned[257][32] freq15,      param  unsigned[258][32] cfreq15,
+
+       param  unsigned[5001][9] v16,       param  signed[5001][32]  pos16,       param  signed[5001][32]  prm16,
+       param  signed[5001][32]  count16,   param  boolean[5002]     bh16,        param  boolean[5002]     b2h16,
+       param  unsigned[256][8]  stack16,   param  unsigned[257][32] freq16,      param  unsigned[258][32] cfreq16,
+
+       output unsigned[8]       out) {
+
+    unsigned[9] splitter_wholesingle1;
+    unsigned[9] splitter_wholesingle2;
+    unsigned[9] splitter_wholesingle3;
+    unsigned[9] splitter_wholesingle4;
+    unsigned[9] splitter_wholesingle5;
+    unsigned[9] splitter_wholesingle6;
+    unsigned[9] splitter_wholesingle7;
+    unsigned[9] splitter_wholesingle8;
+    unsigned[9] splitter_wholesingle9;
+    unsigned[9] splitter_wholesingle10;
+    unsigned[9] splitter_wholesingle11;
+    unsigned[9] splitter_wholesingle12;
+    unsigned[9] splitter_wholesingle13;
+    unsigned[9] splitter_wholesingle14;
+    unsigned[9] splitter_wholesingle15;
+    unsigned[9] splitter_wholesingle16;
+
+    unsigned[9] wholesingle_joiner1;
+    unsigned[9] wholesingle_joiner2;
+    unsigned[9] wholesingle_joiner3;
+    unsigned[9] wholesingle_joiner4;
+    unsigned[9] wholesingle_joiner5;
+    unsigned[9] wholesingle_joiner6;
+    unsigned[9] wholesingle_joiner7;
+    unsigned[9] wholesingle_joiner8;
+    unsigned[9] wholesingle_joiner9;
+    unsigned[9] wholesingle_joiner10;
+    unsigned[9] wholesingle_joiner11;
+    unsigned[9] wholesingle_joiner12;
+    unsigned[9] wholesingle_joiner13;
+    unsigned[9] wholesingle_joiner14;
+    unsigned[9] wholesingle_joiner15;
+    unsigned[9] wholesingle_joiner16;
+
+    unsigned[8] loop;
+
+    splitter(in,
+        splitter_wholesingle1,
+        splitter_wholesingle2,
+        splitter_wholesingle3,
+        splitter_wholesingle4,
+        splitter_wholesingle5,
+        splitter_wholesingle6,
+        splitter_wholesingle7,
+        splitter_wholesingle8,
+        splitter_wholesingle9,
+        splitter_wholesingle10,
+        splitter_wholesingle11,
+        splitter_wholesingle12,
+        splitter_wholesingle13,
+        splitter_wholesingle14,
+        splitter_wholesingle15,
+        splitter_wholesingle16
+    );
+
+    wholesingle(splitter_wholesingle1, v1, pos1, prm1, count1, bh1, b2h1, stack1, freq1, cfreq1, wholesingle_joiner1);
+    wholesingle(splitter_wholesingle2, v2, pos2, prm2, count2, bh2, b2h2, stack2, freq2, cfreq2, wholesingle_joiner2);
+    wholesingle(splitter_wholesingle3, v3, pos3, prm3, count3, bh3, b2h3, stack3, freq3, cfreq3, wholesingle_joiner3);
+    wholesingle(splitter_wholesingle4, v4, pos4, prm4, count4, bh4, b2h4, stack4, freq4, cfreq4, wholesingle_joiner4);
+    wholesingle(splitter_wholesingle5, v5, pos5, prm5, count5, bh5, b2h5, stack5, freq5, cfreq5, wholesingle_joiner5);
+    wholesingle(splitter_wholesingle6, v6, pos6, prm6, count6, bh6, b2h6, stack6, freq6, cfreq6, wholesingle_joiner6);
+    wholesingle(splitter_wholesingle7, v7, pos7, prm7, count7, bh7, b2h7, stack7, freq7, cfreq7, wholesingle_joiner7);
+    wholesingle(splitter_wholesingle8, v8, pos8, prm8, count8, bh8, b2h8, stack8, freq8, cfreq8, wholesingle_joiner8);
+    wholesingle(splitter_wholesingle9, v9, pos9, prm9, count9, bh9, b2h9, stack9, freq9, cfreq9, wholesingle_joiner9);
+    wholesingle(splitter_wholesingle10, v10, pos10, prm10, count10, bh10, b2h10, stack10, freq10, cfreq10, wholesingle_joiner10);
+    wholesingle(splitter_wholesingle11, v11, pos11, prm11, count11, bh11, b2h11, stack11, freq11, cfreq11, wholesingle_joiner11);
+    wholesingle(splitter_wholesingle12, v12, pos12, prm12, count12, bh12, b2h12, stack12, freq12, cfreq12, wholesingle_joiner12);
+    wholesingle(splitter_wholesingle13, v13, pos13, prm13, count13, bh13, b2h13, stack13, freq13, cfreq13, wholesingle_joiner13);
+    wholesingle(splitter_wholesingle14, v14, pos14, prm14, count14, bh14, b2h14, stack14, freq14, cfreq14, wholesingle_joiner14);
+    wholesingle(splitter_wholesingle15, v15, pos15, prm15, count15, bh15, b2h15, stack15, freq15, cfreq15, wholesingle_joiner15);
+    wholesingle(splitter_wholesingle16, v16, pos16, prm16, count16, bh16, b2h16, stack16, freq16, cfreq16, wholesingle_joiner16);
+
+    joiner(
+        wholesingle_joiner1,
+        wholesingle_joiner2,
+        wholesingle_joiner3,
+        wholesingle_joiner4,
+        wholesingle_joiner5,
+        wholesingle_joiner6,
+        wholesingle_joiner7,
+        wholesingle_joiner8,
+        wholesingle_joiner9,
+        wholesingle_joiner10,
+        wholesingle_joiner11,
+        wholesingle_joiner12,
+        wholesingle_joiner13,
+        wholesingle_joiner14,
+        wholesingle_joiner15,
+        wholesingle_joiner16,
+    loop, loop, out);
+}

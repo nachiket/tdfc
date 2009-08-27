@@ -1,0 +1,33 @@
+liftdecl (input boolean a, input boolean b,
+	  input boolean c, input boolean d, output boolean o)
+{
+  boolean regone,regtwo,regthree,regfour;
+
+  state one (a) : {
+    boolean dummy;		// lift me
+    dummy=a;
+    if (true) {} else {}
+    regone=dummy;
+  }
+
+  state two (b) : {
+    boolean dummy;		// lift me
+    dummy=b;
+    if (true) {} else {}
+    regtwo=dummy;
+  }
+
+  state three (c) : {
+    boolean dummy;		// do NOT lift me
+    dummy=c;
+    // if (true) {} else {}
+    regthree=dummy;
+  }
+
+  state four (d) : {
+    boolean dummy;		// lift me
+    dummy=d;
+    if (true) {} else {}
+    regfour=dummy;
+  }
+}

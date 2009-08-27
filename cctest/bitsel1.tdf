@@ -1,0 +1,67 @@
+bitsel1(param unsigned [8] v,  // 23 = 0x17
+        param unsigned[3] h,   // 5
+        param unsigned[3] l,   // 2
+        input unsigned[8] in, 
+        output unsigned[8] out,
+        output unsigned[8] out2)
+{
+
+  state s0(in):
+      {
+        out=in[h:l];
+        out2=(in>>2) & 15;
+        goto s1;
+      }
+  state s1(in):
+      {
+        out=in[5:3];
+        out2=(in>>3) & 7;
+        goto s2;
+      }
+  state s2(in):
+      {
+        out=in[h:3];
+        out2=(in>>3) & 7;
+        goto s3;
+      }
+  state s3(in):
+      {
+        out=in[6:l];
+        out2=(in>>2) & 31;
+        goto s4;
+      }
+  state s4(in):
+      {
+        out=in[(h-l):0];
+        out2=in & 15;
+        goto s5;
+      }
+  state s5(in):
+      {
+        out=v[h:l];
+        out2=5;
+        goto s6;
+      }
+  state s6(in):
+      {
+        out=v[h:1];
+        out2=11;
+        goto s7;
+      }
+  state s7(in):
+      {
+        out=v[6:l];
+        out2=5;
+        goto s8;
+      }
+  state s8(in):
+      {
+        out=v[6:1];
+        out2=11;
+        goto s9;
+      }
+  state s9():
+      {
+         done();
+      }
+}

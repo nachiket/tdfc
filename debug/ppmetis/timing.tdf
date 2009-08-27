@@ -1,0 +1,10 @@
+timing (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  timing_(a,b,o);
+}
+
+timing_ (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  state foo (a) :  o=a+1; goto bar;
+  state bar (b) :  o=b*3; goto foo;
+}

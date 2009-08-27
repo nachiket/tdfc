@@ -1,0 +1,48 @@
+#!/bin/csh
+#
+# Run Q_srl_*.v through synplify with different depth/width parameters
+#
+# Synplify 7.1
+# Eylon Caspi,  9/18/03
+
+set verilog_input  = Q_srl_test_template.v
+set verilog_output = Q_srl_test.v
+set module         = Q_srl_test
+
+foreach verilog (Q_srl_prenone.v Q_srl_prefull.v Q_srl_prezero.v Q_srl_preboth.v)
+  foreach depth (2 4 8 16 32 64 128 256)
+    foreach width (1 2 4 8 16 32 64)		# 128, 256 too slow
+      echo "Testing  { $verilog $depth $width }  --  forming $verilog_output"
+      perl -npe "s/include "\"".*"\""/include "\""$verilog"\""/;	\
+		 s/parameter depth = .*;/parameter depth = $depth;/;	\
+		 s/parameter width = .*;/parameter width = $width;/; "	\
+		< $verilog_input > $verilog_output
+      foreach rev (rev_1__speed rev_2__area rev_3__no_optim)
+	echo "Testing  { $verilog $depth $width }  --  compiling $rev"
+	set synplify_dir = proj/$module
+	set cmd = "synplify_pro -batch $synplify_dir/*.prj -impl $rev"
+	echo $cmd
+	$cmd
+	echo "Testing  { $verilog $depth $width }  --  results $rev"
+	perl -e								    \
+	  'while (<>) {							    \
+	     if (/^(clock|system) +(\d+(.\d+)?) MHz +(\d+(.\d)?)/i)	    \
+	       { if ($speed==0 || $speed>$4) { $speed=$4; } }		    \
+	     elsif (/^Total +LUTs: (\d+)/i)				    \
+	       { if ($area==0  || $area<$1)  { $area=$1;  } }		    \
+	     elsif (/^Output Ports:/)					    \
+	       { if (\!$do_outs && \!$done_outs) { $do_outs=1;    } }	    \
+	     elsif (/^i_b[^\d]+(\d+(\.\d+)?)/)				    \
+	       { if (  $do_outs && \!$done_outs) { $delay_i_b=$1; } }	    \
+	     elsif (/^o_v[^\d]+(\d+(\.\d+)?)/)				    \
+	       { if (  $do_outs && \!$done_outs) { $delay_o_v=$1; } }	    \
+	     elsif (/^========/)					    \
+	       { if (  $do_outs && \!$done_outs) { $done_outs=1;  } }	    \
+	   }								    \
+	   print "$speed MHz	$area LUTs		" .		    \
+		 "$delay_i_b ns i_b	$delay_o_v ns o_v\n" '		    \
+	   $synplify_dir/$rev/${module}.srr
+      end
+    end
+  end
+end

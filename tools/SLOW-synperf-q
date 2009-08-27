@@ -1,0 +1,27 @@
+#!/bin/csh
+# - Distill synthesis results from Synplify 7 .srr file -- QUEUES
+# - $clock MHz	$luts LUTs	$ffs FFs	$lutffs LUT-FFs
+#				$i_b ns	i_b	$o_v ns o_v
+
+	  perl -e							    \
+	    'while (<>) {						    \
+	       if (/(clock|system) +(\d+(.\d+)?) +MHz +(\d+(.\d)?)/i)	    \
+	         { if ($speed==0 || $speed>$4) { $speed=$4; } }		    \
+	       elsif (/^Total +LUTs: +(\d+)/i)				    \
+	         { if ($luts==0  || $luts<$1)  { $luts=$1;  } }		    \
+	       elsif (/^Register bits not including I\/Os: +(\d+)/i)	    \
+	         { if ($ffs==0  || $ffs<$1)  { $ffs=$1;  } }		    \
+	       elsif (/^Output Ports:/)					    \
+	         { if (\!$do_outs && \!$done_outs) { $do_outs=1;    } }	    \
+	       elsif (/^i_b +.*\) +((\d+(\.\d+)?)|NA) +(\d+(\.\d+)?)/)      \
+	         { if (  $do_outs && \!$done_outs) { $delay_i_b=$4; } }	    \
+	       elsif (/^o_v +.*\) +((\d+(\.\d+)?)|NA) +(\d+(\.\d+)?)/)      \
+	         { if (  $do_outs && \!$done_outs) { $delay_o_v=$4; } }	    \
+	       elsif (/^========/)					    \
+	         { if (  $do_outs && \!$done_outs) { $done_outs=1;  } }	    \
+	     }								    \
+	     $lutffs = ($luts>$ffs) ? $luts : $ffs;			    \
+	     print "$speed MHz	$luts LUTs	$ffs FFs	" .	    \
+		   "$lutffs LUT-FFs	" .				    \
+		   "$delay_i_b ns i_b	$delay_o_v ns o_v\n" '		    \
+	     $*

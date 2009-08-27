@@ -1,0 +1,16 @@
+pluscore (param  unsigned[6]   w,
+          input  unsigned[w]   a,
+          input  unsigned[w]   b,
+          output unsigned[w+1] o)
+{
+  state only (a,b) : o=a+b;
+}
+
+plus2    (param  unsigned[6]     w,
+          input  unsigned[w]     a,
+          input  unsigned[w]     b,
+          input  unsigned[w*2]   c,
+          output unsigned[w*2+1] o)
+{
+  pluscore(w*2,cat(a,b),c,o);
+}

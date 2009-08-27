@@ -1,0 +1,78 @@
+muxToI(param unsigned[10] noMB,
+       input unsigned[64] a, input unsigned[64] b, 
+       input unsigned[64] c, input unsigned[64] d,
+       input unsigned[64] Ua, input unsigned[64] Uc, 
+       output unsigned[64] toI)
+{
+
+  unsigned[10] index=0;
+  unsigned[10] macIndex=0;
+
+  state steadyYa(a): {
+    toI = a;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto steadyYb;
+    }
+  }
+
+  state steadyYb(b): {
+    toI = b;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto steadyUa;
+    }
+  }
+
+  state steadyUa(Ua): {
+    toI = Ua;
+    index = index+1;
+    if (index == 16) { // 2 color components
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0;
+	goto steadyYc;
+      } else {
+	goto steadyYa;
+      }
+    }
+  }
+
+  state steadyYc(c): {
+    toI = c;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto steadyYd;
+    }
+  }
+
+  state steadyYd(d): {
+    toI = d;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto steadyUc;
+    }
+  }
+
+  state steadyUc(Uc): {
+    toI = Uc;
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      macIndex = macIndex+1;
+      if (macIndex == noMB) {
+	macIndex = 0;
+	goto steadyYa;
+      } else {
+	goto steadyYc;
+      }
+    }
+  }
+   
+
+}

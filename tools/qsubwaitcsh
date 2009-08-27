@@ -1,0 +1,1 @@
+qsubwait -cwd -j y ~/bin/csh-eval2 $*

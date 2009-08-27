@@ -1,0 +1,6 @@
+unsigned[n] xor3(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b, input unsigned[n] c)
+{ 
+	xor3=xor(n,xor(n,a,b),c);
+}
+

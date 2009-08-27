@@ -1,0 +1,117 @@
+
+
+pattDetect(param unsigned[20] ITokens, input signed[16] inToken, 
+	   output boolean isSkip, output unsigned[6] pattern) 
+
+{
+
+
+  unsigned[14] index=0;
+  unsigned[6] pattTmp=0;
+  boolean allZero = true;
+
+  state waitForI(inToken): {
+
+    index = index+1;
+
+    if (index == ITokens) {
+      index = 0;
+      goto block0;
+    }
+  }
+
+  state block0(inToken): {
+
+    if (inToken!=0) {allZero = false;}
+    index = index+1;
+
+    if (index == 64) {
+      index = 0;
+      if (!allZero) { pattTmp = 32;}
+      allZero = true;
+      goto block1;
+    }       
+  }
+
+  state block1(inToken): {
+
+    if (inToken!=0) {allZero = false;}
+    index = index+1;
+
+    if (index == 64) {
+      index = 0;
+      if (!allZero) { pattTmp = pattTmp+16;}
+      allZero = true;
+      goto block2;
+    }       
+  }
+
+  state block2(inToken): {
+
+    if (inToken!=0) {allZero = false;}
+    index = index+1;
+
+    if (index == 64) {
+      index = 0;
+      if (!allZero) { pattTmp = pattTmp+8;}
+      allZero = true;
+      goto block3;
+    }       
+  }
+
+  state block3(inToken): {
+
+    if (inToken!=0) {allZero = false;}
+    index = index+1;
+
+    if (index == 64) {
+      index = 0;
+      if (!allZero) { pattTmp = pattTmp+4;}
+      allZero = true;
+      goto block4;
+    }       
+  }
+
+  state block4(inToken): {
+
+    if (inToken!=0) {allZero = false;}
+    index = index+1;
+
+    if (index == 64) {
+      index = 0;
+      if (!allZero) { pattTmp = pattTmp+2;}
+      allZero = true;
+      goto block5;
+    }       
+  }
+
+  state block5(inToken): {
+
+    if (inToken!=0) {allZero = false;}
+    index = index+1;
+
+    if (index == 64) {
+      index = 0;
+      if (!allZero) { pattTmp = pattTmp+1;}
+      allZero = true;
+      if (pattTmp!=0) {
+	isSkip = false;
+	pattern = pattTmp;
+#if 0
+	printf("HEY pattern is %lld\n",pattTmp);
+#endif
+      }
+      else {
+	isSkip = true;
+#if 0
+	printf("HEY pattern skip\n");
+#endif
+      }
+	
+      pattTmp = 0;
+      goto block0;
+    }       
+  }
+
+
+}

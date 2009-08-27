@@ -1,0 +1,39 @@
+segWrap(param unsigned[10] dataSize, param unsigned[10] addrSize, 
+	input unsigned[addrSize] addr, 
+	output unsigned[dataSize] outToken, input unsigned[dataSize] inToken,
+	input boolean writer,
+	output unsigned[addrSize] addr_, 
+	input unsigned[dataSize] outToken_,
+	output unsigned[dataSize] inToken_,
+	output boolean writer_)
+
+{
+
+  state getAddr(addr,writer): {
+
+    addr_ = addr; writer_ = writer;
+
+    if (writer) {
+      printf("HEY Writing Address: %llu\t",addr);
+      goto writeData;
+    } else {
+      printf("HEY Reading Address: %llu\t",addr);
+      goto readData;
+    }
+
+  }
+
+  state writeData(inToken): {
+    inToken_ = inToken;
+    printf("%llu\n",inToken);
+    goto getAddr;
+  }
+
+  state readData(outToken_): {
+    outToken = outToken_;
+    printf("%llu\n",outToken_);
+    goto getAddr;
+  }
+ 
+
+}

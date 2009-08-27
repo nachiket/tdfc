@@ -1,0 +1,4 @@
+/usr/bin/time ./TDFC-APPS                    | & tee TDFC-APPS.OUT
+/usr/bin/time ./XILINX-DIRS-APPS             | & tee XILINX-DIRS-APPS.OUT
+/usr/bin/time ./BUILD-APPS -j 40 synapplonly | & tee BUILD-APPS-synapplonly.OUT
+/usr/bin/time ./BUILD-APPS       pipelined   | & tee BUILD-APPS-pipelined.OUT

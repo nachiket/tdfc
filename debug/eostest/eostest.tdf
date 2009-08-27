@@ -1,0 +1,6 @@
+eostest (input boolean a, input boolean b, input boolean c, output boolean o)
+{
+  state ab (a,b)      :  o = a&&b; goto c;
+  state ab (a,eos(b)) :  o = a&&b; goto c;
+  state c  (c)        :  o = c;    goto ab;
+}

@@ -1,0 +1,70 @@
+
+
+distrib(input signed[16] in1, input signed[16] in2,
+	output signed[16] a0, output signed[16] a1, output signed[16] a2,
+	output signed[16] a3, output signed[16] a4, output signed[16] a5,
+	output signed[16] a6, output signed[16] a7)
+
+{
+
+  unsigned[8] index=0;
+
+  state one(in1): 
+    {
+      unsigned[4] subind;
+      subind = index%8;
+      if (subind==0) {
+	a0 = in1;
+      } else if (subind==1) {
+	a1 = in1;
+      } else if (subind==2) {
+	a2 = in1;
+      } else if (subind==3) {
+	a3 = in1;
+      } else if (subind==4) {
+	a4 = in1;
+      } else if (subind==5) {
+	a5 = in1;
+      } else if (subind==6) {
+	a6 = in1;
+      } else if (subind==7) {
+	a7 = in1;
+      }
+      index = index+1;
+      if (index==64) {
+	index = 0;
+	goto two;
+      }
+      
+    }
+
+  state two(in2):
+    {
+      unsigned[4] subind;
+      subind = index%8;
+      if (subind==0) {
+	a0 = in2;
+      } else if (subind==1) {
+	a1 = in2;
+      } else if (subind==2) {
+	a2 = in2;
+      } else if (subind==3) {
+	a3 = in2;
+      } else if (subind==4) {
+	a4 = in2;
+      } else if (subind==5) {
+	a5 = in2;
+      } else if (subind==6) {
+	a6 = in2;
+      } else if (subind==7) {
+	a7 = in2;
+      }
+      index = index+1;
+      if (index==64) {
+	index = 0;
+	goto one;
+      }
+    }
+
+
+}

@@ -1,0 +1,172 @@
+----------------------------------------------------------------
+mpeg_encode_nopar
+----------------------------------------------------------------
+
+makefile / make-synplify
+- remove:  breakupY.tdf muxer.tdf write_seg.tdf debugSegment_rw.tdf segWrap.tdf
+
+topAll
+- rowpix	16 --> 10
+
+segyBank
+- outA, outB	 8 --> 64
+- segSize	13 --> 16  (min 14)
+- addro		13 --> 16  (14 approved by Joe)
+
+segyMref
+- otA, otB	 8 --> 64
+- segSize	10 --> 16  (min 14)
+- addro		13 --> 16  (approved by Joe)
+
+segcBank
+- outA  	 8 --> 64  (enclose in #ifdef OLD; see CalTech file)
+- oA, oB	 8 --> 64  ( " " )
+- inAa, inAb	 8 --> 64  ( " " )
+- segSize	10 --> 16  (min 14)
+- addro		14 --> 16  (kind of approved by Joe)
+
+IModule
+- asign		 1 --> 2
+- pattInd        9 --> 6  (I think this is right)
+
+ISub
+- mode  	 4 --> 5
+
+MZLE
+- toAC  	 8 --> 7  (approved by Joe)
+
+MixToHuff
+- Asign 	 1 --> 2
+
+unify
+- addro		13 --> 16  (14 approved by Joe)
+
+seg_manage
+- segSize	15 --> 16  (min 14)
+- addr  	14 --> 16  (approved by Joe)
+
+segRefManage
+- segSize	15 --> 16  (min 14)
+- addr  	14 --> 16  (approved by Joe)
+
+segrepY
+- rep		14 --> 16  (approved by Joe)
+
+segrepC
+- addro		14 --> 16  (approved by Joe)
+
+unifyc
+- addro		13 --> 16  (approved by Joe)
+
+HuffMachine
+- bi		32 --> 16
+
+
+----------------------------------------------------------------
+mpeg_encode_PB
+----------------------------------------------------------------
+
+makefile / make-synplify
+- remove:  breakupY.tdf muxer.tdf write_seg.tdf debugSegment_rw.tdf segWrap.tdf
+
+segc_manage
+- index		20 --> 7  (should have been done already, to match _nopar)
+
+topAll
+- rowpix	16 --> 10
+
+segyBank
+- outA, outB	 8 --> 64
+- segSize	13 --> 16  (min 14)
+- addro		13 --> 16  (14 approved by Joe)
+
+segyMref
+- otA, otB	 8 --> 64
+- segSize	10 --> 16  (min 14)
+- addro		13 --> 16  (approved by Joe)
+
+segcBank
+- outA  	 8 --> 64  (enclose in #ifdef OLD; see CalTech file)
+- oA, oB	 8 --> 64  ( " " )
+- inAa, inAb	 8 --> 64  ( " " )
+- segSize	10 --> 16  (min 14)
+- addro		14 --> 16  (kind of approved by Joe)
+
+IModule
+- asign		 1 --> 2
+- pattInd        9 --> 6  (I think this is right)
+- ierr   	64 --> 16
+
+ISub
+- [ mode  	 4 --> 5 ]  --  NO CHANGE, ALREADY DONE
+
+MZLE
+- toAC  	 8 --> 7  (approved by Joe)
+
+MixToHuff
+- Asign 	 1 --> 2
+
+unify
+- addro		13 --> 16  (14 approved by Joe)
+
+seg_manage
+- segSize	15 --> 16  (min 14)
+- [ addr  	14 --> 16 ]  --  NO CHANGE, ALREADY DONE
+
+segRefManage
+- segSize	15 --> 16  (min 14)
+- addr  	14 --> 16  (approved by Joe)
+
+segrepY
+- rep		14 --> 16  (approved by Joe)
+
+segrepC
+- rep		14 --> 16  (approved by Joe)
+
+unifyc
+- addro		13 --> 16  (approved by Joe)
+
+HuffMachine
+- bi		32 --> 16
+
+
+----------------------------------------------------------------
+wavelet
+----------------------------------------------------------------
+
+compWaveHuff
+- MAX		15 --> 10
+- ZERO_MARK	10 --> 5
+- v2out 	12 --> 14
+
+LiftWaveVD
+- inWidth	10 --> 8
+- outWidth	10 --> 8
+- s_bufi	outWidth --> inWidth  (approved by Joe)
+- d_bufi	outWidth --> inWidth  (approved by Joe)
+
+VWave
+- s_bufi	outWidth --> inWidth  (approved by Joe)
+- d_bufi	outWidth --> inWidth  (approved by Joe)
+
+LiftWaveV
+- inWidth	10 --> 8
+- outWidth	10 --> 8
+
+InWave
+- inWidth       10 --> 8
+
+
+----------------------------------------------------------------
+wavelet_decode
+----------------------------------------------------------------
+
+compDecoder
+- ZERO_MARK	10 --> 8
+- CANCELLED CHANGE:
+  3 calls have inWidth/outWidth params in reverse order  (approved by Joe)
+    DecWaveHD(rowLen,9,12,a,h1out);                  -->  12,9
+    DecWaveVD(rowLen/2,colLen,12,14,h1out,v2out,
+              v2sb1,v2sb2,v2sb1,v2sb2,v2sb3,v2sb3);  -->  14,12
+    DecWaveH(rowLen/2,14,16,v2out,h2outs,h2outd);    -->  16,14
+

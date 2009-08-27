@@ -1,0 +1,39 @@
+// - tests built-in segment (CMB) operators
+
+myOp (input unsigned[8] i, output unsigned[8] o)
+{
+  unsigned[4] addrBus_r;
+  unsigned[4] addrBus_w;
+  unsigned[4] addrBus_rw;
+
+  unsigned[8] dataBus_r;
+  unsigned[8] dataBus_w;
+  unsigned[8] dataBus_in;
+  unsigned[8] dataBus_out;
+  unsigned[8] dataBus_seq_r;
+  unsigned[8] dataBus_seq_w;
+  unsigned[8] dataBus_seq_in;
+  unsigned[8] dataBus_seq_out;
+
+  boolean     modeBus;
+  unsigned[10][8] array={0,10,20,30,40,50,60,70,80,90};
+
+  segment_r (4,8,10,array,addrBus_r, dataBus_r);
+  segment_w (4,8,10,array,addrBus_w, dataBus_w);
+  segment_rw(4,8,10,array,addrBus_rw,dataBus_in,dataBus_out,modeBus);
+
+  segment_seq_r (4,8,10,array,dataBus_seq_r);
+  segment_seq_w (4,8,10,array,dataBus_seq_w);
+  segment_seq_rw(4,8,10,array,dataBus_seq_in,dataBus_seq_out);
+}
+
+myOp2 (input unsigned[8] i, output unsigned[8] o)
+{
+  unsigned[4] addrBus_r;
+  unsigned[8] dataBus_r;
+  boolean     modeBus;
+  unsigned[10][8] array={0,10,20,30,40,50,60,70,80,90};
+
+  // state only (i):
+  segment_w (4,8,10,array,addrBus_r, dataBus_r);        
+}

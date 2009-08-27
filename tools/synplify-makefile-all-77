@@ -1,0 +1,220 @@
+# Makefile to run Synplify on all modules, ONE implementation (revision),
+#          using two processors (-j 2) for everything
+#          except application (top) composition
+#
+# - Use this after verilog-reg-shells
+# - Use this inside "proj" directory
+# - Recursive, must be named "Makefile"
+#
+# - Synplify 7.7
+# - Eylon Caspi, 10/1/04 3/1/05
+
+# "make"             - build applonly        and pages_noq
+# "make smart"       - build applonly (-j 1) and pages_noq (-j 2)
+#
+# "make applonly"    - build            application (top) composition
+# "make appl"        - build modules of application (top) composition
+# "make pages"       - build modules of pages
+# "make pages_q"     - build modules of pages, only   page queues
+# "make pages_noq"   - build modules of pages, except page queues
+# 
+# "make clean"       - erase module builds, except .edf, .srr, application .sdc
+# "make reallyclean" - erase module builds
+
+################################################################
+
+SYNREV   = rev_4__200mhz
+SYNPLIFY = synplify_pro
+SYNCMD   = $(SYNPLIFY) -batch -impl $(SYNREV)
+
+# - Set to non-empty to propagate application FSM exploration to all modules
+USE_APPL_FSMS = true
+
+# - Uncomment the following line to precede every synplify command by "echo"
+# PREFIX = echo
+
+################################################################
+
+# All modules
+MODULES = $(notdir $(shell find . -mindepth 1 -maxdepth 1 -type d))
+
+# TDF name of application (top) composition
+APPL1   = $(strip $(patsubst %_noin,%,\
+		  $(filter %_noin,     $(filter-out _page_%, $(MODULES)))))
+APPL2   = $(strip $(patsubst %_noin_ior,%,\
+		  $(filter %_noin_ior, $(filter-out _page_%, $(MODULES)))))
+APPL    = $(if $(APPL1),$(APPL1),$(APPL2))
+
+# Modules for application (top) composition
+MODULES_APPL = $(filter     $(APPL)%,$(MODULES))
+
+# Modules for pages
+MODULES_PAGE = $(filter-out $(APPL)%,$(MODULES))
+
+# Modules for pages, split into {page queues} and {everything else}
+MODULES_PAGE_Q   = $(filter     %_qin %_qin_ior %_q %_q_ior,$(MODULES_PAGE))
+MODULES_PAGE_NOQ = $(filter-out %_qin %_qin_ior %_q %_q_ior,$(MODULES_PAGE))
+
+# Application-level FSM Exploration results file to propagate, or empty
+APPL_FSMS = $(if $(USE_APPL_FSMS),$(APPL)/$(SYNREV)/$(APPL)_fsm.sdc,)
+
+# Dummy EDIF target name for each module
+EDIF = dummy.edf
+
+# All dummy EDIF targets for all modules
+EDIFS = $(patsubst %,%/$(SYNREV)/$(EDIF),$(MODULES))
+
+# Dummy EDIF targets for top-level and everything else
+EDIF_APPL  = $(filter     $(APPL)/%,$(EDIFS))
+EDIFS_MORE = $(filter-out $(APPL)/%,$(EDIFS))
+
+.PHONY:	all smart modules applonly appl pages pages_q pages_noq $(MODULES)
+
+all:	applonly pages_noq
+
+smart:
+	$(MAKE) -j 1 applonly
+	$(MAKE) -j 2 pages_noq
+
+modules:	$(MODULES)
+
+applonly:	$(filter $(APPL) $(APPL)_ior,$(MODULES_APPL))
+
+appl:		$(MODULES_APPL)
+
+pages:		$(MODULES_PAGE)
+
+pages_q:	$(MODULES_PAGE_Q)
+
+pages_noq:	$(MODULES_PAGE_NOQ)
+
+$(MODULES):	%:	%/$(SYNREV)/$(EDIF)
+
+
+#### Rules case 1: propagate application-level FSM exploration to all modules
+
+ifneq ($(APPL_FSMS),)
+
+#### Rules case 1a:  application-level FSM exploration already present
+
+ifneq ($(wildcard $(APPL_FSMS)),)
+
+showrule:
+	echo Rules case 1a: .sdc already present
+
+$(EDIF_APPL):
+	$(PREFIX) $(SYNCMD) $(APPL)/*.prj
+	if [ -f $(APPL)/$(SYNREV)/*.edf ] ; then touch $@ ; fi
+
+$(EDIFS_MORE):	$(APPL_FSMS)
+	cp -p $(APPL_FSMS) \
+	        $(patsubst %/$(EDIF),%,$@)/$(patsubst %/$(SYNREV)/$(EDIF),%,$@)_fsm.sdc
+	$(PREFIX) $(SYNCMD) $(patsubst %/$(SYNREV)/$(EDIF),%,$@)/*.prj
+	if [ -f $(patsubst %/$(EDIF),%,$@)/*.edf ] ; then touch $@ ; fi
+
+#### Rules case 1b:  application-level FSM exploration not yet present
+
+else
+
+showrule:
+	echo Rules case 1b: .sdc not yet present
+
+$(EDIF_APPL):	$(APPL_FSMS)
+	if [ -f $(APPL)/$(SYNREV)/*.edf ] ; then touch $@ ; fi
+
+$(APPL_FSMS):
+	$(PREFIX) $(SYNCMD) $(APPL)/*.prj
+	# - Verify that Synplify completed, else stop build
+	if [ ! -f        $(APPL)/$(SYNREV)/*.srr ] ; then exit 1 ; fi
+	if [ ! "`tail -1 $(APPL)/$(SYNREV)/*.srr | grep '####'`" ] ; then exit 1 ; fi
+	# - Create empty .sdc if Synplify did not create one
+	if [ ! -f $(APPL_FSMS) ] ; then touch $(APPL_FSMS) ; fi
+
+$(EDIFS_MORE):	$(APPL_FSMS)
+	cp -p $(APPL_FSMS) \
+	        $(patsubst %/$(EDIF),%,$@)/$(patsubst %/$(SYNREV)/$(EDIF),%,$@)_fsm.sdc
+	$(PREFIX) $(SYNCMD) $(patsubst %/$(SYNREV)/$(EDIF),%,$@)/*.prj
+	if [ -f $(patsubst %/$(EDIF),%,$@)/*.edf ] ; then touch $@ ; fi
+
+endif
+
+#### Rules case 2: Independent FSM exploration in each module (no propagate)
+
+else
+
+showrule:
+	echo Rules case 2: independent .sdc
+
+$(EDIFS):
+	$(PREFIX) $(SYNCMD) $(patsubst %/$(SYNREV)/$(EDIF),%,$@)/*.prj
+	if [ -f $(patsubst %/$(EDIF),%,$@)/*.edf ] ; then touch $@ ; fi
+
+endif
+
+################################################################
+
+.PHONY:	showappl
+
+showappl:
+	echo $(APPL)
+
+################################################################
+
+.PHONY:	clean_applonly clean_appl clean_pages				\
+	clean_pages_q  clean_pages_noq clean				\
+	reallyclean_applonly reallyclean_appl reallyclean_pages		\
+	reallyclean_pages_q  reallyclean_pages_noq reallyclean
+
+clean_applonly:
+	for m in $(APPL) ; do \
+	  ls -1d $$m/$(SYNREV)/* | egrep -v "($$m)\.(edf|srr|sdc)" | xargs $(PREFIX) rm -rf ; \
+	done
+
+clean_appl:
+	for m in $(MODULES_APPL) ; do \
+	  ls -1d $$m/$(SYNREV)/* | egrep -v "($$m)\.(edf|srr|sdc)" | xargs $(PREFIX) rm -rf ; \
+	done
+
+clean_pages:
+	for m in $(MODULES_PAGE) ; do \
+	  ls -1d $$m/$(SYNREV)/* | egrep -v "($$m)\.(edf|srr)" | xargs $(PREFIX) rm -rf ; \
+	done
+
+clean_pages_q:
+	for m in $(MODULES_PAGE_Q) ; do \
+	  ls -1d $$m/$(SYNREV)/* | egrep -v "($$m)\.(edf|srr)" | xargs $(PREFIX) rm -rf ; \
+	done
+
+clean_pages_noq:
+	for m in $(MODULES_PAGE_NOQ) ; do \
+	  ls -1d $$m/$(SYNREV)/* | egrep -v "($$m)\.(edf|srr)" | xargs $(PREFIX) rm -rf ; \
+	done
+
+clean:	clean_appl clean_pages
+
+reallyclean_applonly:
+	for m in $(APPL) ; do \
+	  ls -1d $$m/$(SYNREV)/* | xargs $(PREFIX) rm -rf ; \
+	done
+
+reallyclean_appl:
+	for m in $(MODULES_APPL) ; do \
+	  ls -1d $$m/$(SYNREV)/* | xargs $(PREFIX) rm -rf ; \
+	done
+
+reallyclean_pages:
+	for m in $(MODULES_PAGE) ; do \
+	  ls -1d $$m/$(SYNREV)/* | xargs $(PREFIX) rm -rf ; \
+	done
+
+reallyclean_pages_q:
+	for m in $(MODULES_PAGE_Q) ; do \
+	  ls -1d $$m/$(SYNREV)/* | xargs $(PREFIX) rm -rf ; \
+	done
+
+reallyclean_pages_noq:
+	for m in $(MODULES_PAGE_NOQ) ; do \
+	  ls -1d $$m/$(SYNREV)/* | xargs $(PREFIX) rm -rf ; \
+	done
+
+reallyclean:	reallyclean_appl reallyclean_pages

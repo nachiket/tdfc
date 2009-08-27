@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+#
+# Generate filtered Excel results  (DP.xls, FSM.xls, etc.)
+# from Excel results of "synplify-summary" or "xilinx-summary"
+#
+# Synplify 7.1
+# Xilinx ISE 5.2i
+# Eylon Caspi, 10/19/03
+
+if (@ARGV<2) {
+  print "usage: $0 <summary.xls> <topmodule> [<destdir>]\n";
+  exit;
+}
+
+$xls       = $ARGV[0];		# - name of Excel summary file
+$topmodule = $ARGV[1];		# - name of page (top) module; prefix suffices
+$destdir   = (@ARGV>2) ?
+	      $ARGV[2] : ".";	# - destination dir for new files
+
+system("mkdir -p $destdir");
+
+open(XLS, "<$xls")                || die;
+
+open(FSM, ">${destdir}/FSM.xls" ) || die;  # - behavioral FSM
+open(DP,  ">${destdir}/DP.xls"  ) || die;  # - behavioral data-path
+open(SFSM,">${destdir}/SFSM.xls") || die;  # - behavioral FSM + DP
+open(QIN, ">${destdir}/QIN.xls" ) || die;  # - compos input queues
+open(Q,   ">${destdir}/Q.xls"   ) || die;  # - compos local/output queues
+open(NOIN,">${destdir}/NOIN.xls") || die;  # - compos local/output queues + ops
+open(PAGE,">${destdir}/PAGE.xls") || die;  # - compos page (top)
+
+while (<XLS>) {
+  if (/^\w.*\t/) {
+    # - data line
+    if (/^(_page|$topmodule)/) {		# - compositional op component
+      if    (  /_qin\b/)       { print QIN  $_ }
+      elsif (  /_q\b/)         { print Q    $_ }
+      elsif (  /_noin\b/)      { print NOIN $_ }
+      elsif (! /(_dp|_fsm)\b/) { print PAGE $_ }    # - kludge!
+						    # - there is no <page>_fsm
+    }
+    else {					# - behavioral op component
+      if    (  /_dp\b/)        { print DP   $_ }
+      elsif (  /_fsm\b/)       { print FSM  $_ }
+      else                     { print SFSM $_ }
+    }
+  }
+  else {
+    # - informational line / blank line
+    print QIN  $_;
+    print Q    $_;
+    print NOIN $_;
+    print PAGE $_;
+    print DP   $_;
+    print FSM  $_;
+    print SFSM $_;
+  }
+}

@@ -1,0 +1,38 @@
+ADPCM Encoder hand-clustering
+-----------------------------
+
+- This directory contains versions of the ADPCM encoder,
+    hand-clustered for efficient execution on small physical resources
+- Modify AdpcmEnc_instance.cc with new "page_group" values
+- Eylon Caspi, 4/11/00
+
+
+8cp	Fully-spatial
+
+
+7cp	DFG loops are completely in hardware
+
+	0: DiffSign, DivMul2, DivMul1, DivMul0, ValPredUpdate,
+	   IndexOffsetTable, (StepTable), copy_unsigned_3
+	1: MuxNibbles
+
+
+5cp	DFG loops are partially in hardware; 2 time-slices per sample
+
+	0: DiffSign, DivMul2, DivMul1, DivMul0, ValPredUpdate
+	1: IndexOffsetTable, (StepTable), copy_unsigned_3, MuxNibbles
+
+	(requires 8 CMBs due to fanout from DivMul in cluster 0
+	 to MuxNibbles and IndexOffsetTable in cluster 1;
+	 could be shrunk to 5 CMBs by making MuxNibbles feed IndexOffsetTable)
+
+
+3cp	DFG loops are partially in hardware; 3 time-slices per sample
+
+	0: DiffSign, ValPredUpdate
+	1: DivMul2, DivMul1, DivMul0
+	2: IndexOffsetTable, (StepTable), copy_unsigned_3, MuxNibbles
+
+	(requires 8 CMBs due to fanout from DivMul in cluster 1
+	 to MuxNibbles and IndexOffsetTable in cluster 2;
+	 could be shrunk to 5 CMBs by making MuxNibbles feed IndexOffsetTable)

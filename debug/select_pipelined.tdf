@@ -1,0 +1,18 @@
+#define BRANCH	if (s) goto T; else goto T;
+
+
+select (input  boolean s,
+	input  signed[16] t,
+	input  signed[16] f,
+	output signed[16] o)
+{
+  state S (s)		:      BRANCH
+
+  state T (t)		: o=t; goto S;
+  state T (t,s)		: o=t; BRANCH
+  state T (t,eos(s))	: o=t; done();
+
+  state F (f)		: o=f; goto S;
+  state F (f,s)		: o=f; BRANCH
+  state F (f,eos(s))	: o=f; done();
+}

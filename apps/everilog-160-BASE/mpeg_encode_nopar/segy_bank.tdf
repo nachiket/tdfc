@@ -1,0 +1,48 @@
+// #include "seg_manage.tdf"
+// #include "segrep.tdf"
+// #include "unify.tdf"
+
+segy_bank(param unsigned[13] segSize, param unsigned[10] rowSize,
+	  input unsigned[64] inBigA, input unsigned[64] inBigB, 
+	  input signed[6] xRef, input signed[6] yRef, // the motion vector
+	  param unsigned[segSize][8] tabA, param unsigned[segSize][8] tabB,
+	  param unsigned[segSize][8] tabC, param unsigned[segSize][8] tabD,
+	  param unsigned[segSize][8] tabE, param unsigned[segSize][8] tabF,
+	  param unsigned[segSize][8] tabG, param unsigned[segSize][8] tabH,
+	  output unsigned[64] out)
+{
+
+  //boolean writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH;
+  
+  boolean wrt;
+
+  unsigned[14] addr;
+  unsigned[14] addrA,addrB,addrC,addrD,addrE,addrF,addrG,addrH,addro;
+
+  //  unsigned[8] intAa,intAb,intAc,intAd,intAe,intAf,intAg,intAh;
+
+  unsigned[8] outA,outB,outC,outD,outE,outF,outG,outH;
+  unsigned[8] inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh;
+
+  breakupY(rowSize,inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh,inBigA,inBigB);
+
+  seg_manage(segSize,rowSize,addr,xRef,yRef,wrt);
+	     //inAa,inAb,inAc,inAd,inAe,inAf,inAg,inAh,
+	     //intAa,intAb,intAc,intAd,intAe,intAf,intAg,intAh,
+  //writeA,writeB,writeC,writeD,writeE,writeF,writeG,writeH,wrt);
+
+  segrep(rowSize,addr,addrA,addrB,addrC,addrD,addrE,addrF,addrG,addrH,
+	 wrt,addro);
+
+  segment_rw(8,14,segSize,tabA,addrA,outA,inAa,wrt);
+  segment_rw(8,14,segSize,tabB,addrB,outB,inAb,wrt);
+  segment_rw(8,14,segSize,tabC,addrC,outC,inAc,wrt);
+  segment_rw(8,14,segSize,tabD,addrD,outD,inAd,wrt);
+  segment_rw(8,14,segSize,tabE,addrE,outE,inAe,wrt);
+  segment_rw(8,14,segSize,tabF,addrF,outF,inAf,wrt);
+  segment_rw(8,14,segSize,tabG,addrG,outG,inAg,wrt);
+  segment_rw(8,14,segSize,tabH,addrH,outH,inAh,wrt);
+
+  unify(rowSize,addro,outA,outB,outC,outD,outE,outF,outG,outH,out);
+
+}

@@ -1,0 +1,70 @@
+PIPELINE EXTRACTION
+
+(1) simple:  extract single use inputs
+(2) better:  extract inputs appearing in multiple, identical exprs (CSE)
+(3) best:    extract inputs that fanout to multiple expressions,
+               at cost of adding more SFSM inputs
+
+----
+
+(1) simple:  extract single use inputs (no CSE)
+
+    Def.  an expr is extractable if???
+    
+    To extract an extractable expression "e" that uses inputs ("i1".."in"):
+      - add input stream "ie" to SFSM  (precomputed "e")
+      - add consumption of "ie" to state containing "e"
+      - remove input streams ("i1".."in") from SFSM
+      - remove input consumption of ("i1".."in") from inputs live at "e"
+          (those should be the _only_ inputs)
+      - replace "e" by ExprLValue "ie"
+      - create pipeline SFSM "p" that inputs ("i1".."in"), emits "ie"
+      - connect "p" to SFSM inputs
+
+    To extract an extractable expression "e" that defines output "o":
+      - add output stream "oe" to SFSM (post-computed "e")
+      - remove output stream "o" from SFSM
+      - remove output emission "o=..."
+      - add    output emission "oe=e" in place of "o=..."
+      - create pipeline SFSM "p" that inputs defs of "e", emits "oe"
+      - connect "p" to SFSM output "oe"
+    
+    To extract an extractable set of expressions "e1..en"
+    that define output "o":
+      - e.g. x=i+1; y=j*2; o=x+y;
+      - add output stream "o1..on" to SFSM (post-computed "e")
+      - remove output stream "o"
+      - remove output emission "o=..."
+      - add output emission "o1=..." .. "on=..."
+          for each source def of "e" cone (e.g. i, j above)
+      - create pipeline SFSM "p" that inputs "o1..on",
+          emits "oe", computes "e" cone
+          (q: lift stmts?  or reconstruct as single stmt?
+              it might be a dag, e.g. x=i+1; o=x+x;)
+      - connect "p" to SFSM outputs "o1..on"
+
+----
+
+Topics to work out
+
+(1)  synthesizing pipelines  (simplified control?  valid bit per stage?)
+(2)  simulating multiple SFSMs per page
+(3)  define pipeline extraction
+(4)  intermediate representation
+
+----
+
+Kinds of dataflow nodes:
+
+Definitions:
+  * StmtAssign (assign lvalue)
+  * ExprCall   (assign outputs)
+  * StmtCall   (assign outputs)
+  * InputSpec  (input consumption, assign history regs)
+
+Uses
+  * ExprLValue  (rvalue)  -->  hidden
+
+Compute
+  * ExprBop, ExprUop, ExprCond, ExprCast, ExprBitSel
+

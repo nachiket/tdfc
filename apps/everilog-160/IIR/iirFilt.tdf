@@ -1,0 +1,10 @@
+iirFilt (param unsigned[5] inWidth, param unsigned[5] feedS, param signed[12] feed1, param signed[12] feed2, param unsigned[5] compS, param signed[12] comp1, param signed[12] comp2, param unsigned[5] firS, param signed[12] fir0, param signed[12] fir1, param signed[12] fir2, input signed[inWidth] inStream, output signed[inWidth] outStream)
+{
+  signed[inWidth] interStream1;
+  signed[inWidth] interStream2;
+
+  feedbackStage(inWidth,feedS,feed1,feed2,inStream,interStream1);
+  compStage(inWidth,compS,comp1,comp2,interStream1,interStream2);
+  firFilt(inWidth,firS,fir0,fir1,fir2,interStream2,outStream);
+}
+

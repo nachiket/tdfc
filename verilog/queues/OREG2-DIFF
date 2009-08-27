@@ -1,0 +1,13 @@
+//  - Queue output valid (state!=state__empty) is precomputed for next cycle
+//      (necessary since SRL data output reg requires non-boolean state)
+
+   wire      o_v_reg_;		    // - true iff state_empty   on NEXT cycle
+   reg       o_v_reg; 		    // - true iff state_empty
+
+   assign o_v_reg_   = (state_!=state_empty); // - output valid if non-empty
+
+   assign o_v = o_v_reg;                      // - output valid if non-empty
+
+	 o_v_reg   <= 0;
+
+	 o_v_reg   <= o_v_reg_;

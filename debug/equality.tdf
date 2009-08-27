@@ -1,0 +1,5 @@
+op (input boolean b, input unsigned[8] u, output boolean o)
+{
+  state foo (b,u):
+    o=(b==u);
+}

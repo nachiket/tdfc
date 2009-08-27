@@ -1,0 +1,53 @@
+# Makefile to build all Xilinx modules in this directory,
+#   all revisions thereof
+#   (except queue modules ``%_q_ior'' ``%_qin_ior'')
+#
+# - Invoke inside Xilinx project directory  ``.../proj-xilinx/''
+#
+# - Xilinx ISE 6.1i / 6.3i
+# - Eylon Caspi 3/1/05
+
+################################################################
+
+# - Uncomment the following line to precede every xilinx command by $PREFIX
+# PREFIX = echo
+# PREFIX = qsubwaitcsh
+
+################################################################
+
+MODS_ALL = $(patsubst ./%,%,$(shell find . -mindepth 1 -maxdepth 1 -type d))
+MODS     = $(filter-out "%_qin_ior %_q_ior",${MODS_ALL})
+
+NOINMODS = $(filter %_noin_ior,${MODS})
+APPLMOD1 = $(patsubst %_noin_ior,%_ior,$(filter-out _page_%,${NOINMODS}))
+APPLMOD  = $(if ${APPLMOD1},${APPLMOD1},${NOINMODS})
+PAGEMODS = $(filter-out ${APPLMOD},${MODS})
+
+.PHONY:	${MODS} ${MODS_CLEAN} ${MODS_REALLYCLEAN} appl pages clean reallyclean 
+
+all:	${MODS}
+
+appl:	${APPLMOD}
+
+pages:	${PAGEMODS}
+
+${MODS}:
+	cd $@ && ${MAKE} PREFIX=${PREFIX}
+
+
+################################################################
+
+MODS_CLEAN       = $(patsubst %,%_CLEAN,${MODS})
+MODS_REALLYCLEAN = $(patsubst %,%_REALLYCLEAN,${MODS})
+
+.PHONY: 	${MODS_CLEAN} ${MODS_REALLYCLEAN} appl pages clean reallyclean 
+
+clean:  	${MODS_CLEAN}
+
+reallyclean:	${MODS_REALLYCLEAN}
+
+${MODS_CLEAN}:
+	cd $(patsubst %_CLEAN,%,$@)       && ${MAKE} PREFIX=${PREFIX} clean
+
+${MODS_REALLYCLEAN}:
+	cd $(patsubst %_REALLYCLEAN,%,$@) && ${MAKE} PREFIX=${PREFIX} reallyclean

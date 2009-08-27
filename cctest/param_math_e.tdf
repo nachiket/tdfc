@@ -1,0 +1,28 @@
+sigma_e(param unsigned[6] w, param unsigned[10] wo, 
+      param unsigned [16] size,
+      input unsigned[w] in, output unsigned[wo] out)
+{
+  unsigned[wo] sum=0;
+  unsigned[16] cnt=0;
+  state start(in):
+    {
+      sum=sum+in;
+      cnt=cnt+1;
+      if (cnt==size)
+	goto finish;
+      else
+	goto start;
+    }
+  state finish():
+    {
+      out=sum;
+      done();
+    }
+
+}
+
+
+param_math_e(input unsigned[8] in, output unsigned[15] out)
+{
+	sigma_e(8,12,100,in,out);
+}

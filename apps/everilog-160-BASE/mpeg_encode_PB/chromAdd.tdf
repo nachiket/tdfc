@@ -1,0 +1,72 @@
+
+chromAdd(input unsigned[64] a, 
+	  output unsigned[64] uOut) 
+
+{
+
+  unsigned[10] atemp,btemp,ctemp,dtemp,etemp,ftemp,gtemp,htemp;
+  unsigned[8] aout,bout,cout,dout,eout,fout,gout,hout;
+
+  //unsigned[16] index=0;
+
+#if 0
+
+  state init(a): {
+    aout = a; bout = b; cout = c; dout = d; eout = e; fout = f; gout = g; hout = h;
+    uOut = (aout<<56)+(bout<<48)+(cout<<40)+(dout<<32)+
+      (eout<<24)+(fout<<16)+(gout<<8)+hout;
+    index = index+1;
+    if (index==segSize) {
+      index = 0;
+      goto first;
+    }
+  }
+
+#endif
+
+  state first(a): {
+    atemp = a[63:56]; btemp = a[55:48]; ctemp = a[47:40];
+    dtemp = a[39:32]; etemp = a[31:24]; ftemp = a[23:16]; 
+    gtemp = a[15:8]; htemp = a[7:0];
+    goto second;
+  }
+
+  state second(a): {
+    atemp = atemp+a[63:56]; btemp = btemp+a[55:48];
+    ctemp = ctemp+a[47:40]; dtemp = dtemp+a[39:32];
+    etemp = etemp+a[31:24]; ftemp = ftemp+a[23:16];
+    gtemp = gtemp+a[15:8]; htemp = htemp+a[7:0];
+    goto third;
+  }
+
+  state third(a): {
+    atemp = atemp+a[63:56]; btemp = btemp+a[55:48];
+    ctemp = ctemp+a[47:40]; dtemp = dtemp+a[39:32];
+    etemp = etemp+a[31:24]; ftemp = ftemp+a[23:16];
+    gtemp = gtemp+a[15:8]; htemp = htemp+a[7:0];
+    goto fourth;
+  }
+
+  state fourth(a): {
+    aout = (atemp+a[63:56])/4; bout = (btemp+a[55:48])/4;
+    cout = (ctemp+a[47:40])/4; dout = (dtemp+a[39:32])/4;
+    eout = (etemp+a[31:24])/4; fout = (ftemp+a[23:16])/4;
+    gout = (gtemp+a[15:8])/4; hout = (htemp+a[7:0])/4;
+    //uOut = (aout<<56)+(bout<<48)+(cout<<40)+(dout<<32)+
+    //(eout<<24)+(fout<<16)+(gout<<8)+a[7:0]out;
+    uOut = cat(aout,bout,cout,dout,eout,fout,gout,hout);
+    goto first;
+
+#if 0
+    index = index+1;
+    if (index == segSize) {
+      index = 0;
+      goto init;
+    } else {
+      goto first;
+    }
+#endif
+
+  }
+
+}

@@ -1,0 +1,6 @@
+unsigned[a+b] param_math_a(param unsigned[4] a, param unsigned[4] b, 
+                  input unsigned[a] p1, input unsigned[b] p2)
+{
+  state only(p1,p2):
+    param_math_a=p1*p2;
+}

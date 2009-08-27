@@ -1,0 +1,27 @@
+#!/bin/csh
+#
+# - Convert results of "synplify-pp1-summary.xls"
+#     into tab-delimited form with operator per line
+#     (PAGE QIN Q NOIN SFSM FSM DP)
+# - Call inside "EXCEL/ORIG" results directory
+#
+# Synplify 7.1
+# Eylon Caspi, 11/1/03
+
+set toolpath = ${0:h}
+
+set filter = ${toolpath}/synplify-filter-summary
+
+$filter IIR.xls         	iirTop  	../FILTERED/PARTS/IIR
+$filter jpeg_decode_nopar.xls	JPEG_dec	../FILTERED/PARTS/jpeg_decode_nopar
+$filter jpeg_encode_nopar.xls	JPEG_mod	../FILTERED/PARTS/jpeg_encode_nopar
+$filter mpeg_encode_nopar.xls	topAll  	../FILTERED/PARTS/mpeg_encode_nopar
+$filter mpeg_encode_PB.xls	topAll  	../FILTERED/PARTS/mpeg_encode_PB
+$filter wavelet_decode.xls	compDecoder	../FILTERED/PARTS/wavelet_decode
+$filter wavelet.xls     	compWaveHuff	../FILTERED/PARTS/wavelet
+
+foreach app (../FILTERED/PARTS/*)
+  paste $app/PAGE.xls $app/QIN.xls  $app/Q.xls  	\
+        $app/NOIN.xls $app/SFSM.xls $app/FSM.xls	\
+        $app/DP.xls > ../FILTERED/${app:t}.xls
+end

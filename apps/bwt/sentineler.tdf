@@ -1,0 +1,12 @@
+sentineler(input  unsigned[8] in, 
+           output unsigned[9] out) {
+
+    state only(in): {
+        out = in;
+    }
+
+    state only(eos(in)): {
+        out = 256;
+        done();
+    }
+}

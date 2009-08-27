@@ -1,0 +1,35 @@
+switchoff8s(input unsigned[64] inA, input unsigned[64] inB,
+	    output unsigned[64] out)
+{
+
+  unsigned[16] index = 0;
+  unsigned[16] bigIndex = 0;
+
+  state first(inA): { // for I frame
+
+    out = inA; 
+
+    index = index+1;
+    if (index == 32) {
+      index = 0;
+      goto second;
+    } 
+
+  }
+
+  state second(inB): { // for chroma
+
+    out = inB; 
+
+#if 0
+    printf("HEY inB is %llu\n",inB);
+#endif
+
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      goto first;
+    }
+  }
+
+}

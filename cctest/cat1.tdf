@@ -1,0 +1,7 @@
+unsigned[a+b+c] cat1(param unsigned [4] a, input unsigned [a] va,
+                     param unsigned [4] b, input unsigned [b] vb,
+                     param unsigned [4] c, input unsigned [c] vc)
+{
+   state only(va,vb,vc):
+      cat1=cat(va,vb,vc);
+}	

@@ -1,0 +1,78 @@
+warning: preprocess static.tdf...
+static.tdf:28: at "=": warning: assignment from type signed[9] to type signed[8] may lose information
+static.tdf:38: at "=": warning: assignment from type signed[9] to type signed[8] may lose information
+static.tdf:46: at "=": warning: assignment from type signed[9] to type signed[8] may lose information
+// operator add8
+// operator downsample
+// operator antialias_and_downsample
+// operator antialias_and_downsample_v2
+// operator upsample_and_interpolate
+// operator upsample
+
+add8 (input signed[8] a, input signed[8] b, output signed[9] sum)
+{
+  state only (a,b) :
+    sum=a+b;
+}
+
+downsample (input signed[8] in, output signed[8] out)
+{
+  state first (in) :
+    goto second;
+
+  state second (in) :
+    {
+      out=in;
+      goto first;
+    }
+}
+
+antialias_and_downsample (input signed[8] in, output signed[8] out)
+{
+  state first (in) :
+    goto second;
+
+  state second (in) :
+    {
+      out=(in+in@1)>>1;
+      goto first;
+    }
+}
+
+antialias_and_downsample_v2 (input signed[8] in, output signed[8] out)
+{
+  state only (in#2) :
+    out=(in+in@1)>>1;
+}
+
+upsample_and_interpolate (input signed[8] in, output signed[8] out)
+{
+  state new (in) :
+    {
+      out=(in+in@1)>>1;
+      goto continue;
+    }
+
+  state continue () :
+    {
+      out=in;
+      goto new;
+    }
+}
+
+upsample (input signed[8] in, output signed[8] out)
+{
+  state new (in) :
+    {
+      out=in;
+      goto continue;
+    }
+
+  state continue () :
+    {
+      out=0;
+      goto new;
+    }
+}
+
+warning: Exiting...

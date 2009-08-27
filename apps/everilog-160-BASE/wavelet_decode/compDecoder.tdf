@@ -1,0 +1,148 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#if 0
+#include "DQuant_DC.tdf"
+#include "DQuant.tdf"
+#include "__DZLE.tdf"
+#include "DecWaveH.tdf"
+#include "DecWaveV.tdf"
+#include "DecWaveHD.tdf"
+#include "DecWaveVD.tdf"
+#include "__DecHuffByte.tdf"
+#endif
+
+compDecoder(param unsigned[10] rowLen, param unsigned[10] colLen, 
+	    param unsigned[15] MAX, param unsigned[8] ZERO_MARK, 
+	    output signed[9] a, input unsigned[5] DCs, input unsigned[8] AC1,
+	    input unsigned[8] AC2, input unsigned[8] AC3, 
+	    input unsigned[8] AC4, input unsigned[8] AC5,
+	    input unsigned[8] AC6, 
+	    param unsigned[65536][8] huftab1,param unsigned[65536][8] huftab2,
+	    param unsigned[65536][8] huftab3,param unsigned[65536][8] huftab4,
+	    param unsigned[65536][8] huftab5,param unsigned[65536][8] huftab6)
+     
+{
+
+    signed[12] dump1;    signed[14] dump2; 
+    signed[12] h1out;    signed[14] v2out; 
+
+    signed[16] h2outs;    signed[16] h2outd; 
+    signed[16] v3aouts;    signed[16] v3aoutd; 
+    signed[16] v3bouts;    signed[16] v3boutd; 
+
+    signed[16] h4outs;    signed[16] h4outd; 
+    signed[16] v5aouts;    signed[16] v5aoutd; 
+    signed[16] v5bouts;    signed[16] v5boutd; 
+
+    unsigned[5] q1; unsigned[5] q2; unsigned[5] q3; 
+    unsigned[5] q4; unsigned[5] q5; unsigned[5] q6; 
+
+    unsigned[8] zl1; unsigned[8] zl2; unsigned[8] zl3;
+    unsigned[8] zl4; unsigned[8] zl5; unsigned[8] zl6;
+
+    // FIFO's for Vertical Wavelets
+
+    signed[14] v2sb1; signed[14] v2sb2; signed[14] v2sb3;
+    //    signed[16] v3asb1; signed[16] v3asb2; signed[16] v3asb3; 
+    signed[16] v3adb; signed[16] v3admb;
+    // signed[16] v3bsb1; signed[16] v3bsb2; signed[16] v3bsb3; 
+    signed[16] v3bdb; signed[16] v3bdmb;
+
+    // signed[16] v5asb1; signed[16] v5asb2; signed[16] v5asb3;
+    signed[16] v5adb; signed[16] v5admb;
+    // signed[16] v5bsb1; signed[16] v5bsb2; signed[16] v5bsb3; 
+    signed[16] v5bdb; signed[16] v5bdmb;
+
+    unsigned[16] decSegAddr1; unsigned[16] decSegAddr2;
+    unsigned[16] decSegAddr3; unsigned[16] decSegAddr4;
+    unsigned[16] decSegAddr5; unsigned[16] decSegAddr6;
+
+    unsigned[8] SegIn1; unsigned[8] SegIn2; unsigned[8] SegIn3;
+    unsigned[8] SegIn4; unsigned[8] SegIn5; unsigned[8] SegIn6;
+
+    DecWaveHD(rowLen,9,12,a,h1out);
+    DecWaveVD(rowLen/2,colLen,12,14,h1out,v2out,
+	      v2sb1,v2sb2,v2sb1,v2sb2,v2sb3,v2sb3);
+
+    DecWaveH(rowLen/2,14,16,v2out,h2outs,h2outd);
+    DecWaveV(rowLen/4,colLen/2,16,16,h2outs,v3aouts,v3aoutd,
+	     v3adb,v3adb,v3admb,v3admb);
+    DecWaveV(rowLen/4,colLen/2,16,16,h2outd,v3bouts,v3boutd,
+	     v3bdb,v3bdb,v3bdmb,v3bdmb);
+    
+    DecWaveH(rowLen/4,16,16,v3aouts,h4outs,h4outd);
+    DecWaveV(rowLen/8,colLen/4,16,16,h4outs,v5aouts,v5aoutd,
+	     v5adb,v5adb,v5admb,v5admb);
+    DecWaveV(rowLen/8,colLen/4,16,16,h4outd,v5bouts,v5boutd,
+	     v5bdb,v5bdb,v5bdmb,v5bdmb);
+    /*
+      DQuant_DC(param unsigned[8] outWidth, input unsigned[5] a, 
+                output signed[outWidth] dq)
+     */
+    DQuant_DC(16,DCs,v5aouts); 
+
+    /*
+      DQuant(param unsigned[8] outWidth, param unsigned[15] max, 
+             param unsigned[10] zerothresh,
+	     output signed[outWidth] a, input unsigned[5] q)
+    */
+
+/*    DQuant(16,512,39,v5bouts,q1);    DQuant(16,512,27,v5aoutd,q2); 
+    DQuant(16,2048,104,v5boutd,q3);  DQuant(16,512,79,v3bouts,q4); 
+    DQuant(16,512,50,v3aoutd,q5);    DQuant(16,1024,191,v3boutd,q6); */
+
+    DQuant(16,512,27,v5bouts,q1);    DQuant(16,512,39,v5aoutd,q2); 	
+    DQuant(16,2048,104,v5boutd,q3);  DQuant(16,512,50,v3bouts,q4); 	
+    DQuant(16,512,79,v3aoutd,q5);    DQuant(16,1024,191,v3boutd,q6);
+
+    /*
+      DZLE(param unsigned[8] ZERO_MARK,output unsigned[5] a, input unsigned[8] in)
+    */
+    __DZLE(ZERO_MARK,4096,q1,zl1); __DZLE(ZERO_MARK,4096,q2,zl2);
+    __DZLE(ZERO_MARK,4096,q3,zl3); __DZLE(ZERO_MARK,16384,q4,zl4);
+    __DZLE(ZERO_MARK,16384,q5,zl5); __DZLE(ZERO_MARK,16384,q6,zl6);
+
+    segment_r(8,16,65536,huftab1,decSegAddr1,SegIn1);
+    segment_r(8,16,65536,huftab2,decSegAddr2,SegIn2);
+    segment_r(8,16,65536,huftab3,decSegAddr3,SegIn3);
+    segment_r(8,16,65536,huftab4,decSegAddr4,SegIn4);
+    segment_r(8,16,65536,huftab5,decSegAddr5,SegIn5);
+    segment_r(8,16,65536,huftab6,decSegAddr6,SegIn6);
+
+    /*
+      DecHuffByte(param unsigned[8] tokenLen, input unsigned[tokenLen] filebyte,
+                  output unsigned[16] decSegAddr, output unsigned[8] decToken,
+		  input unsigned[8] segInput)
+     */
+    __DecHuffByte(8,AC1,decSegAddr1,zl1,SegIn1);
+    __DecHuffByte(8,AC2,decSegAddr2,zl2,SegIn2);
+    __DecHuffByte(8,AC3,decSegAddr3,zl3,SegIn3);
+    __DecHuffByte(8,AC4,decSegAddr4,zl4,SegIn4);
+    __DecHuffByte(8,AC5,decSegAddr5,zl5,SegIn5);
+    __DecHuffByte(8,AC6,decSegAddr6,zl6,SegIn6);
+
+}
+    
+
+    

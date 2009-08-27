@@ -1,0 +1,27 @@
+CONTROL FLOW + DATA FLOW ANALYSES
+
+Stmt / BB has:
+  - CFGI    set of predecessor stmts  (CFG in edges)
+  - CFGO    set of successor   stmts  (CFG out edges)  (only if has > 1)
+  - VD      set of variables defined by stmt
+  - VU      set of variables used    by stmt
+  - LI, LO  set of variables live on entry, on exit
+  - RD      set of reaching defs  (defs from CFGI paths)
+  - RU      set of reached  uses  (uses by   CFGO paths)
+  - AE      set of available exprs  (exprs computed before entry; useful?)
+  - DFG     data flow DAG annotated with
+              * PI  nodes for externally defined, used vars (subset of RD)
+              * PO  nodes for locally defined vars (subset of RU + dead defs)
+              * DFI nodes = def-use chain inputs  == PI
+              * DFO nodes = def-use chain outputs == PO intersect RU
+
+A def-use edge from Stmt s1 to s2 is converted to a stream by:
+  * s1 --> { s1, emit def }
+  * s2 --> { consume use, s2 }
+
+A def-use edge s1->s2 may be converted to a stream only if
+  each execution of s1 implies a corresponding execution of s2
+  before any subsequent execution of s2.
+Necessary but not sufficient condition:
+  (s1 dominates s2) AND (s2 reverse-dominates s1)
+  does not account for s1 looping or s2 looping (maybe split s1, s2)

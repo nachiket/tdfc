@@ -1,0 +1,3 @@
+/usr/bin/time ./TDFC-APPS                 | & tee TDFC-APPS.OUT
+/usr/bin/time ./XILINX-DIRS2-APPS 1.0 1.2 | & tee XILINX-DIRS2-APPS.OUT
+/usr/bin/time ./BUILD2-APPS -j 4 PREFIX=  | & tee BUILD2-APPS.OUT

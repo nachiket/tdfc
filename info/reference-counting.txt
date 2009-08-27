@@ -1,0 +1,77 @@
+TDF Reference Counts & Associated Bugs			Eylon Caspi
+--------------------------------------			3/27/03
+
+
+class Tree {
+...
+  int refs;
+}
+
+Tree::refs = Number of references to this tree node in other tree nodes.
+             Normally 1 (e.g. number of instances of expression a+b).
+	     Greater than 1 for symbols, TDF operators.
+
+Uses:	     - catch shared nodes  (e.g. during tree construction)
+
+Ref count should be managed by Tree routines for
+construction, modification, destruction of Tree nodes.
+
+  - construction    e.g.:	create asst stmt --> ref lvalue & rvalue expr.
+		    problems:	need copy constructors, op=
+
+  - modification    e.g.:	change asst stmt lvalue --> lose ref + add ref
+		    problems:	direct modification of stmt lists,
+				argument lists, symtab dictionaries, etc.;
+				map2 replaces nodes
+  - destruction	    e.g.:	destroy asst stmt
+		    problems:	we don't destroy everything
+  - garbage collection  (i.e. automatic destruction)
+
+Should parent pointers constitute references?
+  - if yes, then #references to a node depends on # of its children (yuck)
+  - if no?
+
+--------
+
+Tree::removeChild (Tree *t)
+  - dissociate child t of this  (e.g. t = left side of binary op expr)
+  - how
+      (0) verify that this points to t  (have to find which child is t)
+      (1) set this's t pointer to NULL
+      (2) verify that t->parent == this
+      (3) set t's parent pointer to NULL
+  - uses:  facilitates bugs during "frankenstein" code moving
+
+
+Tree::replaceChild (Tree *t, Tree *c)
+  - dissociate child t of this, reassociate with new child c
+  - uses:  facilitates bugs during "frankenstein" code moving,
+           safe version of direct manipulation or overwrite
+	     (e.g. blockdfg.cc does HACK overwrites of children in place)
+
+--------
+
+Tree::duplicate (int deep=1)
+  - duplicate AST tree
+  - shallow duplicates root only, increases childrens' reference counts
+  - deep    duplicates all subtrees, fixes parent pointers & ref counts,
+            but may leave unlinked symbols
+	    (e.g. duplicate expression tree contains symbol references,
+		  but symbol table is not part of duplicated tree)
+	    (e.g. duplicate stmt block containing local symbols;
+	          could relink local symbols, but others remain unlinked;
+		  for consistency, link nothing)
+
+Tree::link () ... ?
+
+--------
+
+Simpler:  consistent parent pointers, no ref counts
+
+  - define AST as a true tree, i.e. every child has exactly 1 parent
+  - CallExpr::op and LValue::sym are back-edges, not children;
+      a node may have arbitrarily many back-edges pointing to it
+  - modify setParent() to:
+      (1) dissociate from previous parent  (parent->removeChild())
+      (2) reassociate with new parent      (parent = newparent)
+  - how to copy a node?  (erase its parent?  erase children too?)

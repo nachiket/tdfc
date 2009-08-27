@@ -1,0 +1,18 @@
+#if 0
+#include "InWave.tdf"
+#include "VWave.tdf"
+#endif
+
+LiftWaveVD(param unsigned[10] rowLen, param unsigned[10] colLen,
+	   param unsigned[8] inWidth, param unsigned[8] outWidth,
+	   input signed[inWidth] a, output signed[outWidth] s)
+
+{
+
+  signed[inWidth] ain(1000); signed[inWidth] s_bufi(1000); signed[inWidth] d_bufi(1000);
+  signed[outWidth] dout(1000); 
+
+  InWave(rowLen,colLen,inWidth,a, ain, s_bufi, d_bufi);
+  VWave(rowLen,colLen,inWidth,outWidth,ain,s,dout,s_bufi,d_bufi,dout);
+
+}

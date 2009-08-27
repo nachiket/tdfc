@@ -1,0 +1,25 @@
+op (input  boolean a,
+    input  boolean b,
+    input  boolean c,
+    input  boolean d,
+    input  boolean e,
+    output boolean o)
+{
+//  state only (a,b,     c)   : o=a;
+  state only (c,a,eos(b))   : o=c;
+  state only (d,c,b,a)      : o=a; o=d;
+  state only (e,c,b,a)      : o=a; o=e;
+}
+
+
+op2 (input  boolean a,
+     input  boolean b,
+     input  boolean c,
+     input  boolean d,
+     input  boolean e,
+     output boolean o)
+{
+  state only (a,b,c,d)           : o=a;
+  state only (eos(a),b,c,d)      : o=b;
+  state only (a,eos(b),eos(c),d) : o=d;
+}

@@ -1,0 +1,10 @@
+# PREFIX = qsubwaitcsh
+
+APPS = $(shell cat APPS)
+
+.PHONY:	$(APPS)
+
+all:	$(APPS)
+
+$(APPS):
+	cd $@; $(PREFIX) ../BUILDREVS

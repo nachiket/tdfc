@@ -1,0 +1,157 @@
+acm(input  unsigned[2]  isupdate,
+    input  unsigned[9]  in,
+
+    output unsigned[32] freqaddr,
+    input  unsigned[32] freqdatar,
+    output unsigned[32] freqdataw,
+    output boolean      freqwrite,
+
+    output unsigned[32] cfreqaddr,
+    input  unsigned[32] cfreqdatar,
+    output unsigned[32] cfreqdataw,
+    output boolean      cfreqwrite,
+
+    output unsigned[32] out) {
+
+    unsigned[9]     sym;
+    unsigned[32]    cum;
+    unsigned[9]     i;
+    unsigned[32]    freqi;
+    unsigned[9]     k;
+
+    state onetrue(): {
+        sym         = 0;
+        cum         = 0;
+        i           = 0;
+        freqi       = 0;
+        k           = 0;
+
+        goto init;
+    }
+
+    state init(): {
+        cfreqaddr = 257;
+        cfreqdataw = 0;
+        cfreqwrite = true;
+
+        goto initloop;
+    }
+
+    state initloop(): {
+        if (k == 257) {
+            goto dispatch;
+        } else {
+            freqaddr = k;
+            freqdataw = 1;
+            freqwrite = true;
+            cfreqaddr = k;
+            cfreqdataw = 257 - k;
+            cfreqwrite = true;
+            k = k + 1;
+        }
+    }
+
+    // Wait to be told what to do next
+    state dispatch(isupdate): {
+        if (isupdate == 2) {
+            goto onetrue;
+        } else if (isupdate == 1) {
+            goto update;
+        } else {
+            goto getcfreq;
+        }
+    }
+
+    state getcfreq(in): {
+        cfreqaddr  = in;    // Ask to read cfreq[in]
+        cfreqwrite = false; // Ask to READ
+        goto waitforcfreqdatar;
+    }
+
+    state waitforcfreqdatar(cfreqdatar): {
+        out = cfreqdatar;   // Return cfreq[in]
+        goto dispatch;      // Wait to be told what to do next
+    }
+
+    state update(in): {
+        sym = in;
+        // First, we must test whether cfreq[0] >= 16383 or not
+        cfreqaddr = 0;      // Ask to read cfreq[0]
+        cfreqwrite = false; // Ask to READ
+        goto waitforcfreqzero;
+    }
+
+    state waitforcfreqzero(cfreqdatar): {
+        if (cfreqdatar >= 16383) {
+            goto rescale;
+        } else {
+            goto doupdate;
+        }
+    }
+
+    state rescale(): {
+        cum = 0;
+        cfreqaddr = 257;   // Ask to write at cfreq[257]
+        cfreqdataw = 0;    // Ask to write 0
+        cfreqwrite = true; // Ask to WRITE
+        i = 257 - 1;
+        goto rescaleloop;
+    }
+
+    state rescaleloop(): {
+        freqaddr = i;       // Ask to read freq[i]
+        freqwrite = false;  // Ask to READ
+        goto waitforfreqi;
+    }
+
+    state waitforfreqi(freqdatar): {
+        freqi = (freqdatar + 1) / 2;
+        freqaddr = i;       // Ask to write at freq[i]
+        freqdataw = freqi;  // Ask to write (freq[i] + 1) / 2
+        freqwrite = true;   // Ask to WRITE
+        cum = cum + freqi;
+        cfreqaddr = i;      // Ask to write at cfreq[i]
+        cfreqdataw = cum;   // Ask to write cum
+        cfreqwrite = true;  // Ask to WRITE
+
+        if (i == 0) {
+            goto doupdate;
+        } else {
+            i = i - 1;
+            goto rescaleloop;
+        }
+    }
+
+    state doupdate(): {
+        freqaddr = sym;     // Ask to read freq[sym]
+        freqwrite = false;  // Ask to READ
+        goto waitforfreqsym;
+    }
+
+    state waitforfreqsym(freqdatar): {
+        freqaddr = sym;             // Ask to write freq[sym]
+        freqdataw = freqdatar + 32; // Ask to write freq[sym] + 32
+        freqwrite = true;           // Ask to WRITE
+        i = sym;
+        goto updateloop;
+    }
+
+    state updateloop(): {
+        cfreqaddr = i;      // Ask to read cfreq[i]
+        cfreqwrite = false; // Ask to READ
+        goto waitforcfreqi;
+    }
+
+    state waitforcfreqi(cfreqdatar): {
+        cfreqaddr = i;  // Ask to write cfreq[i]
+        cfreqdataw = cfreqdatar + 32; // Ask to write cfreq[i] + 32
+        cfreqwrite = true;  // Ask to WRITE
+
+        if (i == 0) {
+            goto dispatch;  // We are done, wait to be told what to do next
+        } else {
+            i = i - 1;
+            goto updateloop;
+        }
+    }
+}

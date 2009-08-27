@@ -1,0 +1,107 @@
+----------------------------------------------------------------
+TDF BNF grammar
+----------------------------------------------------------------
+
+  ::=  denotes a rewrite rule
+  <x>  is a non-terminal (defined by rule)
+  'x'  is a terminal (literal)
+  [x]  is optional
+  {x}  is repeated 0 or more times
+   |   separates mutually-exclusive choices
+
+----------------------------------------------------------------
+
+<suite>		::= {<operator>}
+
+<operator>	::= [<type>] <opSignature> <opBody> [<exception>]
+
+<type>		::= 'boolean'
+		  | <sign> '[' <expr> ']'
+
+<sign>		::= 'unsigned' | 'signed'
+
+<opSignature>	::= <id> '(' <ioDeclList> ')'
+
+<ioDeclList>	::= { <ioDecl> {',' <ioDecl> } }
+
+<ioDecl>	::= <ioKind> <type> <id>
+
+<ioKind>	::= 'input' | 'output' | 'param'
+
+<exception>	::= '%{' <C++ code> '%}'
+
+<opBody>	::= '{' {<typeDecl>} {<state>} '}'
+		  | '{' {<typeDecl>} {<callOrAssign>} '}'
+
+<typeDecl>	::= <type> <id> [ '=' <expr> ] ';'
+
+<callOrAssign>	::= <call> ';'
+		  | <lvalue> '=' <call>   ';'
+		  | <lvalue> '=' <lvalue> ';'
+
+<state>		::= 'state' <id> '(' <inputList> ')' ':' {<stmt>}
+
+<inputList>	::= { <input> {',' <input>} }
+
+<input>		::= <id>
+		  | <id> '#' <expr>
+		  | 'eos' '(' <id> ')'
+
+<stmt>		::= 'if' '(' <expr> ')' <stmt> {'else' <stmt>}
+		  | 'goto' <id> ';'
+		  | 'stay' ';'
+		  | <lvalue> '=' <expr> ';'
+		  | <builtinStmt> ';'
+		  | <call> ';'
+		  | '{' {typeDecl} {stmt} '}'
+
+<builtinStmt>	::= 'attn'  '(' <expr> ')'
+		  | 'close' '(' <id>   ')'
+
+<call>		::= 'id' '(' <exprList> ')'
+
+<exprList>	::= { <expr> {',' <expr>} }
+
+<expr>		::= <condExpr>
+		  | <bopExpr>
+		  | <uopExpr>
+		  | <castExpr>
+		  | <builtinExpr>
+		  | <call>
+		  | <lvalue>
+		  | <lvalue> '@' <expr>
+		  | <immed>
+		  | '(' <expr> ')'
+
+<condExpr>	::= <expr> '?' <expr> ':' <expr>
+
+<bopExpr>	::= <expr> <bop> <expr>
+
+<bop>		::= '&&' | '||' |
+		  | '&'  | '|'  | '^'
+		  | '==' | '!='
+		  | '<=' | '>=' | '<' | '>'
+		  | '<<' | '>>'
+		  | '+'  | '-'
+		  | '*'  | '/'  | '%'
+		  | '.'
+
+<uopExpr>	::= <uop> <expr>
+
+<uop>		::= '+' | '-' | '!' | '~'
+
+<castExpr>	::= '(' <type> ')' <expr>
+		  | '(' <sign> ')' <expr>
+
+<immed>		::= <int>
+		  | <int> '.' <int>
+		  | true
+		  | false
+
+<lvalue>	::= <id>
+		  | <id> '[' <expr> ']'
+		  | <id> '[' <expr> ':' <expr> ']'
+
+<builtinExpr>	::= 'cat'     '(' <exprList> ')'
+		  | 'widthof' '(' <expr>     ')'
+		  | 'bitsof'  '(' <expr>     ')'

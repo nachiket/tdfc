@@ -1,0 +1,127 @@
+#include "modulo_counter.txt"
+
+#ifdef MODULO_COUNTER
+  #define INCREMENT_INDEX {						\
+    indexDivRowSize = INCRMOD_CARRY(indexModRowSize,rowSize) + indexDivRowSize; \
+    indexModRowSize = INCRMOD(indexModRowSize,rowSize);			\
+  }
+  #define SET_INDEX(CONST) {			\
+    indexDivRowSize = (CONST)/rowSize;		\
+    indexModRowSize = (CONST)%rowSize;		\
+  }
+  #define INCREMENT_GETMACIND {						\
+    getMacIndDiv22 = INCRMOD_CARRY(getMacIndMod22,22) + getMacIndDiv22;	\
+    getMacIndMod22 = INCRMOD(getMacIndMod22,22);			\
+  }
+  #define SET_GETMACIND(CONST) {		\
+    getMacIndDiv22 = (CONST)/22;		\
+    getMacIndMod22 = (CONST)%22;		\
+  }
+#else
+  #define INCREMENT_INDEX      {}
+  #define SET_INDEX(CONST)     {}
+  #define INCREMENT_GETMACIND  {}
+  #define SET_GETMACIND(CONST) {}
+#endif
+
+
+seg_manage(param unsigned[16] segSize, param unsigned[10] rowSize,
+	   output unsigned[16] addr, // now represents full address in image
+	   input signed[6] xRef, input signed[6] yRef,
+	   output boolean w)
+{
+
+  unsigned[20] index = 0;
+  #ifdef MODULO_COUNTER
+  unsigned[widthof(rowSize)] indexModRowSize = 0;
+  unsigned[widthof(index)]   indexDivRowSize = 0;
+  #endif
+  unsigned[8] picInd = 0;
+  unsigned[20] getMacInd = 0;
+  #ifdef MODULO_COUNTER
+  unsigned[widthof(22)]                    getMacIndMod22 = 0;
+  unsigned[widthof(getMacInd)-widthof(22)] getMacIndDiv22 = 0;
+  #endif
+  unsigned[14] initaddr;
+
+  state writin(): {
+    unsigned[10] rowInd;
+    unsigned[10] rowMod;
+    //a = true; b = true; c = true; d = true;
+    //e = true; f = true; g = true; h = true; 
+    w = true;
+    //outA = inA; outB = inB; outC = inC; outD = inD;
+    //outE = inE; outF = inF; outG = inG; outH = inH;
+
+    #ifdef MODULO_COUNTER
+    rowInd = indexDivRowSize;
+    rowMod = indexModRowSize;
+    #else
+    rowInd = index/rowSize;
+    rowMod = index%rowSize;
+    #endif
+
+    addr = (rowSize*8*rowInd)+rowMod;
+    index = index+1;
+    INCREMENT_INDEX;
+    if (index == segSize) {
+      index = 0;
+      SET_INDEX(0);
+      goto getmatch;
+    }
+  }
+
+  state getmatch(xRef,yRef): {
+
+    unsigned[10] macRow; unsigned[10] macMod;
+    // mean different things than in previous state
+   
+    #ifdef MODULO_COUNTER
+    macRow = getMacIndDiv22;
+    macMod = getMacIndMod22;
+    #else
+    macRow = getMacInd/22;
+    macMod = getMacInd%22;
+    #endif
+    
+    initaddr = 16*(rowSize*macRow+macMod);
+    // initaddr = bitsof(initaddr+(rowSize*yRef/2));
+    // initaddr = bitsof(initaddr+xRef/2);
+    initaddr = bitsof(initaddr+(rowSize*yRef));
+    initaddr = bitsof(initaddr+xRef);
+
+    goto getting;
+
+  }
+
+  state getting(): {
+
+    //a = false; b = false; c = false; d = false;
+    //e = false; f = false; g = false; h = false; 
+    w = false;
+
+    if (index < 16) {
+      addr = initaddr+index;
+    } else {
+      addr = initaddr+(rowSize*8)+(index-16);
+    }
+    index = index+1;
+    INCREMENT_INDEX;
+    if (index == 32) {
+      index = 0;
+      SET_INDEX(0);
+      getMacInd = getMacInd+1;
+      INCREMENT_GETMACIND;
+      if (getMacInd == segSize/32) {
+	getMacInd = 0;
+	SET_GETMACIND(0);
+	goto writin;
+      } else {
+	goto getmatch;
+      }
+    }
+  
+  }
+}
+
+   

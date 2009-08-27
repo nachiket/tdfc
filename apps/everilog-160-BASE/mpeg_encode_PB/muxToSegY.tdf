@@ -1,0 +1,62 @@
+muxToSegY(param unsigned[20] noTokens,
+	  input unsigned[64] p_0, input unsigned[64] p_1,
+	  output unsigned[64] p_A, output unsigned[64] p_B,
+	  output unsigned[64] p_C, output unsigned[64] p_D)
+{
+
+  unsigned[20] index = 0;
+  unsigned[4] stat = 3;
+
+  state init(p_0,p_1): 
+    {
+      p_A = p_0; p_B = p_1;
+      index = index+1;
+      if (index==1) printf("muxToSegY init\n");
+      
+      if (index==noTokens) {
+	index = 0;
+	goto outCD;
+      }
+    }
+
+  state outAB(p_0,p_1):
+    {
+      p_A = p_0; p_B = p_1;
+      index = index+1;
+      if (index==1) printf("muxToSegY outAB\n");
+      if (index==noTokens) {
+        index = 0; stat = stat+1;
+	goto wait;
+      }
+    }
+
+  state outCD(p_0,p_1):
+    {
+      p_C = p_0; p_D = p_1;
+      index = index+1;
+      if (index==1) printf("muxToSegY outCD\n");
+      if (index==noTokens) {
+        index = 0; stat = stat+1;
+        goto wait;
+      }
+    }
+
+  state wait(p_0,p_1):
+    {
+      index = index+1;
+      if (index==1) printf("muxToSegY wait\n");
+      if (index==noTokens) {
+	index = 0; stat = stat+1;
+	if (stat==6) {
+	  stat = 0;
+	  goto outAB;
+	} else if (stat == 3) {
+	  goto outCD;
+	} 
+      }
+    }
+
+}
+
+  
+  

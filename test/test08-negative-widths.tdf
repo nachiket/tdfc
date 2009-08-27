@@ -1,0 +1,10 @@
+myOp (input unsigned[-1] i)
+{
+  unsigned[-1]    r;
+  unsigned[-1][8] a;
+
+  state only (i):
+  {
+    unsigned[-1] l;
+  }
+}

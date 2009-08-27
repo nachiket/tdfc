@@ -1,0 +1,5 @@
+# - Count number of PAR expansions + restarts due to ``map'' failure
+# - Usage:  xilinx-expansions-map-63i make.OUT
+# - Eylon Caspi 5/4/05
+
+grep '^###.*map again' $* | wc -l

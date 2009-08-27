@@ -1,0 +1,15 @@
+// a specific add
+unsigned[9] add8(input unsigned[8] a, input unsigned[8] b)
+{
+	state only(a,b): add8=a+b;
+}
+
+
+// parameterized add
+//  bit unsure about parameter typing...
+unsigned[n] add(param unsigned[8] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{
+	state only(a,b): add=a+b;
+}
+

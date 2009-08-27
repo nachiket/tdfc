@@ -1,0 +1,17 @@
+// Stream Concatenation (streamcat)
+//  - concatenate 4 streams in sequence
+
+unsigned[n] streamcat4 (param unsigned[8] n,
+			input unsigned[n] a,
+			input unsigned[n] b,
+			input unsigned[n] c,
+			input unsigned[n] d)
+{
+  #define ret streamcat4
+
+  unsigned[n] ab;
+  unsigned[n] abc;
+  ab	= streamcat(n,a,b);
+  abc	= streamcat(n,ab,c);
+  ret	= streamcat(n,abc,d);
+}

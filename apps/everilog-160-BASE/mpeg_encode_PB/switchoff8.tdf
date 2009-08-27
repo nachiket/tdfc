@@ -1,0 +1,52 @@
+switchoff8(input unsigned[64] inA, input unsigned[64] inB,
+	   output unsigned[64] out, output unsigned[64] oM)
+{
+
+  unsigned[16] index = 0;
+  unsigned[16] bigIndex = 0;
+  boolean pframe = false;
+
+  state first(inA): { // for I frame
+
+    out = inA; 
+
+    index = index+1;
+    if (index == 32) {
+      index = 0;
+      goto second;
+    } 
+
+  }
+
+  state second(inB): { // for chroma
+
+    out = inB;
+
+    index = index+1;
+    if (index == 16) {
+      index = 0;
+      bigIndex = bigIndex+1;
+      if (pframe) {
+	goto third;
+      } else if (bigIndex == 396) {
+	pframe = true;
+	goto third;
+      } else {
+	goto first;
+      }
+    }
+  }
+
+  state third(inA): {
+
+    out = inA; oM = inA;
+
+    index = index+1;
+    if (index == 32) {
+      index = 0;
+      goto second;
+    } 
+
+  }
+
+}

@@ -1,0 +1,83 @@
+DecWaveV(param unsigned[10] rowLen, param unsigned[10] colLen,
+	 param unsigned[8] inWidth, param unsigned[8] outWidth,
+	 output signed[outWidth] a, input signed[inWidth] s,
+	 input signed[inWidth] d,
+	 input signed[outWidth] stemp2bufi,
+	 output signed[outWidth] stemp2bufo,
+	 input signed[outWidth] dbufi, output signed[outWidth] dbufo)
+	 // *o is supposed to be connected to *i
+{
+
+  unsigned[20] count = 0;
+  unsigned[20] index = 0;
+
+  unsigned[outWidth] stemp1 = 0;
+  unsigned[outWidth] stemp2 = 0;
+
+  // a is alternately s and d in decomp.c
+
+  // first two lines outside of loop in decomp.c
+  state start(s,d):
+    {
+      unsigned[21] t_index;
+      a = s - (d/4);
+      stemp2bufo = s - (d/4); 
+      dbufo = d;
+      t_index = index+1; index= index+1;
+      if (t_index == (rowLen)) {
+	count = count+1;
+	index = 0;
+	goto init;
+      }
+      else {stay;}
+    }
+
+  state init(s,d,dbufi,stemp2bufi):
+    {
+      unsigned[21] t_index;
+      signed[outWidth] st1buf;
+      st1buf = s -((dbufi+d)/8); // must wait for first d output
+      stemp2bufo = st1buf;
+      t_index = index+1; index = index+1; 
+      dbufo = d;
+      a = (dbufi+st1buf+stemp2bufi)/2;
+      if (t_index == (rowLen)) {
+	count = count+1;
+	index = 0; 
+	goto middle01;
+      }
+      else {stay;}
+    }
+  //
+
+  state middle01(stemp2bufi):
+    {
+      unsigned[21] t_index;
+      a = stemp2bufi;
+      stemp2bufo = stemp2bufi;
+      t_index = index+1; index = index+1; 
+      if (t_index == rowLen) {
+	  index = 0;
+	  if (count == (colLen/2)) {
+	    goto final02;
+	  }
+	  else {
+	    goto init;
+	  }
+      }
+      else {stay;}
+    }
+
+  state final02(stemp2bufi,dbufi):
+    {	
+      unsigned[21] t_index;
+      // a = (d2bufi+stemp2bufi+stemp2bufi)/2;
+      a = (dbufi+stemp2bufi+stemp2bufi)/2;
+      t_index = index+1; index = index+1; 
+      if (t_index == rowLen) {
+	index = 0; goto start; // done with whole image
+      }
+      else {stay;}
+    }
+
+}

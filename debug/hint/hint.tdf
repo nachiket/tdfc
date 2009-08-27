@@ -1,0 +1,17 @@
+comp1 (input unsigned[8] i, output unsigned[8] o)
+{
+  comp2(i,o,33);
+}
+
+comp2 (input unsigned[8] i, output unsigned[8] o, param unsigned[8] p)
+{
+  unsigned[8] w(p+2), w2;
+  behav1(i,w);
+  behav1(w,o);
+}
+
+behav1 (input unsigned[8] i, output unsigned[8] o)
+{
+  state only (i):
+    o=i;
+}

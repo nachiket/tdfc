@@ -1,0 +1,32 @@
+#!/bin/csh
+#
+# Compile the given behavioral module families (top, FSM, DP)
+#   in this directory, every implementation / revision thereof,
+#   from EDIF to Xilinx Virtex II,
+#
+# Usage:  xilinx-family family ...
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Xilinx ISE 5.2i
+# Eylon Caspi, 8/5/03
+
+set toolpath = ${0:h}
+
+if ($#argv<1) then
+  echo Usage:  xilinx-family family ...
+  exit
+endif
+
+set topmodules = ($argv[*])
+
+foreach topmodule ($topmodules)
+  foreach revpath ($topmodule/rev*)
+    set rev = ${revpath:t}
+    $toolpath/xilinx-impl $topmodule $rev
+  end
+end

@@ -1,0 +1,43 @@
+// segop:  test Verilog back-end support for inline arrays (segments)
+
+
+segop_ (input unsigned[4] addr, output unsigned[8] data)
+{
+  unsigned[8]     val = 111;
+//  signed[8]     sgn = -3;
+  unsigned[16][8] rom = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150};
+  unsigned[16][8] ro2 = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,val};
+  state st1 (addr) : data = rom[addr]	; goto st6 ;
+//state st1 (addr) : data = rom[val]	;
+//state st2 (addr) : data = rom[ 3]	;
+//state st3 (addr) : data = rom[-3]	;
+//state st4 (addr) : data = rom[sgn]	;
+//state st5 (addr) : data = addr@(-1)	;
+  state st6 (addr) : data = 1		;
+}
+
+
+segop__ (input unsigned[4] addr, output unsigned[8] data,
+	 param unsigned[16][8] rom__)
+{
+  state st1 (addr) : data = rom__[addr]	; goto st6 ;
+  state st6 (addr) : data = 1		;
+}
+
+
+segop___ (input unsigned[4] addr, output unsigned[8] data,
+	  param unsigned[16][8] rom___)
+{
+  segop__(addr,data,rom___);
+}
+
+
+segop (input unsigned[4] addr, output unsigned[8] data)
+{
+  unsigned[16][8] rom = {0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150};
+//segop_  (addr,data);
+//segop__ (addr,data,rom);
+//segop__ (addr,data,{0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150});
+  segop___(addr,data,rom);
+//segop___(addr,data,{0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150});
+}

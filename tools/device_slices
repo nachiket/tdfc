@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+# - Print slice dimensions ``Y X'' of the given Xilinx device
+# - Eylon Caspi 2/26/05
+
+%dimensions_clb = (
+
+  # - Virtex II  (150nm)
+  "xc2v40",	"8 8",
+  "xc2v80",	"16 8",
+  "xc2v250",	"24 16",
+  "xc2v500",	"32 24",
+  "xc2v1000",	"40 32",
+  "xc2v1500",	"48 40",
+  "xc2v2000",	"56 48",
+  "xc2v3000",	"64 56",
+  "xc2v4000",	"80 72",
+  "xc2v6000",	"96 88",
+  "xc2v8000",	"112 104",
+
+  # - Virtex II Pro  (130nm)
+  "xc2vp2",	"16 22",
+  "xc2vp4",	"40 22",
+  "xc2vp7",	"40 34",
+  "xc2vp20",	"56 46",
+  "xc2vp30",	"80 46",
+  "xc2vp40",	"88 58",
+  "xc2vp50",	"88 70",
+  "xc2vp70",	"104 82",
+  "xc2vp100",	"120 94",
+
+  # - Virtex 4  (90nm)
+  "xc4vlx15",	"64 24",
+  "xc4vlx25",	"96 28",
+  "xc4vlx40",	"128 36",
+  "xc4vlx60",	"128 52",
+  "xc4vlx80",	"160 56",
+  "xc4vlx100",	"192 64",
+  "xc4vlx160",	"192 88",
+  "xc4vlx200",	"192 116",
+
+  # - Spartan 3  (90nm)
+  "xc3s50",	"16 12",
+  "xc3s200",	"24 20",
+  "xc3s400",	"32 28",
+  "xc3s1000",	"48 40",
+  "xc3s1500",	"64 52",
+  "xc3s2000",	"80 64",
+  "xc3s4000",	"96 72",
+  "xc3s5000",	"104 80"
+);
+
+sub usage {
+  my $name = $0;
+  $name =~ s{.*/}{};
+  die "$name:  print slice dimensions ``Y X'' of the given Xilinx device\n" .
+      "Usage:  $name device\n";
+}
+
+if ($#ARGV<0) { usage(); }
+$device = shift(@ARGV);
+$dim = $dimensions_clb{lc($device)};
+if ($dim =~ m/(\d+) (\d+)/) {
+    $dim = ($1*2)." ".($2*2);
+}
+print "$dim\n";

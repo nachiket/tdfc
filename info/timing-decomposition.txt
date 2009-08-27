@@ -1,0 +1,59 @@
+TDF timing decomposition -- decomposing long states into state sequences
+------------------------------------------------------------------------
+
+For each state:
+
+(1) form DFG
+      - symbols --> primitives --> symbols
+
+(2) decompose long primitives
+      - break ripple-carry adders into carry-select components
+          (assume 4 bits of ripple-carry per cycle)
+          (assume 16 bits of carry-select in 4x4:  4add+3mux)
+          rca(a,b,ci,s,co)
+      - break multipliers into 4-row groups of CSA-based mult array
+          w/ripple-carry stage at end
+          ma(p,q,si,ci,so,co) + rpc(...)
+      - break eq/neq into and/or tree of groups of 4-bit carry-chains
+      - break ineq cmps into carry-select components
+          (assume 4-bits of ripple-carry comparison per cycle)
+          (assyme 16 bits of carry-select in 4x4:  4cmp+4mux)
+          [can implement eq/ineq this way for simplicity]
+          rcX(a,b,ci,co)  {rcl, rcg, rcle, rcge, rce, rcne}
+      - parallel logic: const delay
+      - const shift:    zero delay
+      - var shift:      log-depth mux tree;
+      			4-level --> 16-bit shift in cycle
+      			5-level --> 32-bit shift in cycle
+      			shl(val,amt,mag)  shr(v,a,m)
+      - TO DO:
+          * define new built-ins, add typing rules
+          * add code for decomposing DFG node into DAG, per built-in
+          * pass over DFG to identify long nodes that must be decomposed
+
+(3) cut DFG (ASAP)
+      - simple fwd static timing analysis
+
+(4) fix DFG endpoints to form 2 DFGs  (cleanup after (3)
+
+(5) reconstruct state(s) + tmp regs
+
+
+--------
+
+Alternatives:
+
+  (a) merge (2), (3) s.t. decomposition of (2) can be parameterized
+        to a particular breaking point.
+        This is a minor optimization over fixed breaking points
+        for reducing 'temporal fragmentation' of cycles.
+
+  (b) map to LUTs in (2).
+        This avoids 'temporal fragmentation' in (3),
+        but obfuscates code emitted in (5) [hard to recover arith primitives]
+
+  (c) I/O-optimal cut in (3).  See Wong paper.
+        This does not solve having to decompose long primitives.
+
+  (d) BURG scheduling in (3).
+        This does not solve having to decompose long primitives.

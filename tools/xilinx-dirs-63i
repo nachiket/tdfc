@@ -1,0 +1,103 @@
+#!/bin/csh
+#
+# Create Xilinx project directories
+# for compiling module families (top/page, qin, q, noin, op, fsm dp)
+# from EDIF to Xilinx Virtex II
+#
+# Usage:  xilinx-dirs [expansions]
+#
+# Run this from the directory containing ".v" verilog sources.
+# Xilinx build depends on existing "proj" directory with Synplify build.
+#
+# Assume separate project directories for top/page, noin, queue modules,
+#            each project directory named after its module
+#   - compos.    top (i.e. page)     is named "<topmodule>"
+#   - compos.    input queue         is named "<topmodule>_qin"
+#   - compos.    output/local queue  is named "<topmodule>_q"
+#   - compos.    ops w/o input queue is named "<topmodule>_noin"
+#   - behavioral top                 is named "<basemodule>"
+#   - behavioral FSM                 is named "<basemodule>_fsm"
+#   - behavioral DP                  is named "<basemodule>_dp"
+#   - register shell                 is named "<module>_ior"
+#
+# Note, tdfc -pp1 names compositional top module "_page_<basemodule>"
+#
+# Xilinx ISE 6.1i
+# Eylon Caspi, 12/4/03 2/28/05
+
+set toolpath = ${0:h}
+
+set synplify_rev     = rev_4__200mhz	# Synplify revision with EDIF source
+set synplify_projdir = proj		# Synplify project dir
+set   xilinx_projdir = proj-xilinx	# Xilinx   project dir created here
+
+if ($#argv > 0) then
+  set areaexpnames = (${argv})
+else
+# set areaexpnames = (1.0 1.1 1.2 1.5 2.0 unconstrained)
+  set areaexpnames = (1.0)
+endif
+
+mkdir ${xilinx_projdir}
+
+# cp -f -p ${toolpath}/xilinx-makefile-allrevs-63i ${xilinx_projdir}
+cp -f -p ${toolpath}/xilinx-makefile-all-63i     ${xilinx_projdir}
+cp -f -p ${toolpath}/xilinx-makefile-revs-63i    ${xilinx_projdir}
+cp -f -p ${toolpath}/xilinx-makefile-63i         ${xilinx_projdir}
+ln -f -s ${toolpath}                             ${xilinx_projdir}/tools
+ln -f -s             xilinx-makefile-all-63i     ${xilinx_projdir}/Makefile
+
+foreach modulev (*.v)
+  if (`head -1 $modulev | egrep -i '// Verilog .*base .*queue'` != "") \
+    continue
+  set module = ${modulev:r}
+  mkdir ${xilinx_projdir}/${module}
+  if ($module =~ *_ior) then
+    set core_module = ${module:s/_ior//}
+  else
+    set core_module = 
+  endif
+  foreach areaexpname (${areaexpnames})
+    if  ($areaexpname =~ unconstrained*) then
+      set areaexp = 
+    else
+      set areaexp = $areaexpname
+    endif
+    set revdir = ${xilinx_projdir}/${module}/rev_area_${areaexpname}
+    mkdir ${revdir}
+    ln -f -s ../../xilinx-makefile-63i       ${revdir}/Makefile
+    ln -f -s ../../tools                     ${revdir}/tools
+    if (! -f ${revdir}/make) then
+      if ($core_module == "") then
+        echo "make			\\
+	      MODULE=${module}		\\
+	      EDIF_DIR=../../../${synplify_projdir}/${module}/${synplify_rev} \\
+	      AREA_EXPANSION=${areaexp} " '$*' > ${revdir}/make
+      else
+        echo "make			\\
+	      MODULE=${module}		\\
+	      EDIF_DIR=../../../${synplify_projdir}/${module}/${synplify_rev} \\
+	      CORE_MODULE=${core_module}	\\
+	      CORE_EDIF_DIR=../../../${synplify_projdir}/${core_module}/${synplify_rev} \\
+	      AREA_EXPANSION=${areaexp} " '$*' > ${revdir}/make
+      endif
+    endif
+    chmod +x ${revdir}/make
+  end
+  ln -s -f ../xilinx-makefile-revs-63i ${xilinx_projdir}/${module}/Makefile
+  if (! -f ${xilinx_projdir}/${module}/make) then
+    echo  '#\!/bin/csh						\
+	   foreach rev (rev*)					\
+	     sh -c "cd $rev; ./make $* 2>&1 | tee make.OUT"	\
+	   end' > ${xilinx_projdir}/${module}/make
+    chmod +x ${xilinx_projdir}/${module}/make
+  endif
+end
+
+if (! -f ${xilinx_projdir}/make) then
+  echo '#\!/bin/csh					\
+        foreach mod (*)					\
+	  if (-d $mod) sh -c "cd $mod; ./make $*"	\
+        end' > ${xilinx_projdir}/make
+  chmod +x ${xilinx_projdir}/make
+endif

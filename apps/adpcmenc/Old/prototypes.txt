@@ -1,0 +1,49 @@
+DiffSign (input  unsigned[16] inVal,
+	  input  unsigned[16] inValPred,
+	  output unsigned[16] outDiff,
+	  output boolean      outSign_ValPred,
+	  output boolean      outSign_MuxNibbles)
+
+DivMul2 (input  unsigned[16] inDiff,
+	 input  unsigned[8]  inStep,
+	 output boolean      outDelta2_MuxNibbles,
+	 output boolean      outDelta2_Index,
+	 output unsigned[16] outDiffReduced2,
+	 output unsigned[16] outStepZeroed2)
+
+DivMul1 (input  unsigned[16] inDiffReduced2,
+	 input  unsigned[16] inStepZeroed2,
+	 input  unsigned[8]  inStep,
+	 output boolean      outDelta1_MuxNibbles,
+	 output boolean      outDelta1_Index,
+	 output unsigned[16] outDiffReduced1,
+	 output unsigned[16] outStepZeroed1,
+	 output unsigned[16] outVPDiff1)
+
+DivMul0 (input  unsigned[16] inDiffReduced1,
+	 input  unsigned[16] inStepZeroed1,
+	 input  unsigned[8]  inStep,
+	 input  unsigned[16] inVPDiff1,
+	 output boolean      outDelta0_MuxNibbles,
+	 output boolean      outDelta0_Index,
+	 output unsigned[16] outVPDiffAbs)
+
+ValPredUpdate (input  unsigned[16] inVPDiffAbs,
+	       input  boolean      inSign,
+	       output unsigned[16] outValPred)
+
+IndexOffsetTable (input  unsigned[7] inIndex,
+		  input  boolean     inDelta2,
+		  input  boolean     inDelta1,
+		  input  boolean     inDelta0,
+		  output unsigned[7] outIndex_Index,
+		  output unsigned[7] outIndex_StepTable)
+
+MuxNibbles (input  boolean inSign,
+	    input  boolean inDelta2,
+	    input  boolean inDelta1,
+	    input  boolean inDelta0,
+	    output unsigned[4] outAdpcmEnc)
+
+AdpcmEnc (input  unsigned[16] inAdpcm,
+	  output unsigned[4]  outAdpcm)

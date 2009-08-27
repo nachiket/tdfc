@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file -- FSM STYLE
+# - $fsmstyle
+
+while (<>) {
+  if (/^Adding property syn_encoding.*value "([^"]+)"/i)
+    { if (!defined($fsmstyle)) { $fsmstyle=$1; } else { $fsmstyle="MULTI"; } }
+#   { $fsmstyle = $1; }
+}
+print "$fsmstyle\n";

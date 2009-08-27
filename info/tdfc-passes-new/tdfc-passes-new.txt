@@ -1,0 +1,63 @@
+TDFC PASSES
+-----------
+
+- Load files
+
+    * Pre-process
+
+    * Parse
+
+    * Link
+
+    * Type check
+
+	(semantically correct; symbols linked;
+	 no nodes shared (except any/none)
+
+- Canonical Form
+
+    * Lift in-lines to stmt level
+	(in-line calls + memory refs appear as stmts using temps)
+    
+    * Basic blocks
+	(state actions are single block, straight-line code,
+	 with if/goto at end; if branches contain goto only)
+    
+    * Exline
+        (no in-line calls or memory refs)
+    
+    * Dismantle shared reg/stream access (for partitioning)
+        (every original reg+stream is accessed in 1 state,
+         or else in a collection states containing only that access)
+
+    * Infer fanout ops
+        (compositional streams have single reader)
+        
+    * instantiate fanout ops
+        (no "copy" ops, turned into TDF code)
+
+    * Instantiate bit-wise fanin ops  [not implemented]
+	(no bit-level rewiring in composition operators)
+
+- Synthesize
+
+    * Flatten / unique
+        (one compositional op composing behavioral + segment leaves)
+
+    * Coagulation???
+    
+    * Bind Values
+        (no parameters)
+    
+    * Single consumption
+        (no multiple consumption in state input)
+    
+    * Schedule
+        (each state action feasible in 1 cycle)
+
+    * Page Partitioning
+        (limit page size)
+
+- Emit Target
+
+    * Emit target language (ccinstance, TDF, Verilog, etc.)

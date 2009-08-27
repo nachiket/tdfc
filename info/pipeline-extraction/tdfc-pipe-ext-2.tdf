@@ -1,0 +1,49 @@
+Let F be space of SFSMs
+Let f be SFSM
+
+EXTOUTPIPE : F -> F x F
+
+Let f be in basic block form
+
+Let Q be space of streams, i.e. token sequence
+Let q be a stream,         i.e. token sequence
+
+f : Q^n -> Q^m
+
+SFSM: states, start state, ins, outs, in sigs, out sigs, DATAFLOW
+
+
+To output-extract o=e  (expr e)
+  - assume o is produced nowhere else
+  - let R be set of regs/inputs referenced in e  (including history regs)
+  - replace o=e by o1=r1, o2=r2... for each ri in R
+  - create output pipe operator P : (PROD_k ok) -> o
+                              s.t. P(PROD_k rk) = e
+
+To output-extract o=r  (reg/input r)
+  - goal:
+      * move "o=r" assignment back along control-flow path;
+      * if can move it back to assignment to r,
+           then can output-extract definition of r
+  - Let A = set of live assignments to r
+  - If |A|=1
+      * let a\in A be the only live assignment to r
+      * if a is reverse-dominated by "o=r"
+          (i.e. all SFG paths from end back to a pass through r [once]
+          then can move emission back to a:
+          > r=e;  -->  r=e; o=r;  --> r=e; o=e;
+          > now can continue extraction of o=e
+          > r=e may now be dead, if o=r was its only use
+      * if a is not reverse-dominated by "o=r",
+          then there is a join point between a and "o=r"
+          to which "o=r" may be moved;
+          early emission to pipeline is
+            (1) possibly good for pipelining the pipeline,
+                  esp. if it needs inputs staggered in time
+            (2) possibly requires more area,
+                  since pipe output now gets stored in new pipe regs
+                  whereas before it was in "r" in FSM
+  - If |A|>1
+      * if all a\in A are identical,
+          then they can all be pipeline extracted as a common sub-expression;
+          > 

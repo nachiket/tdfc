@@ -1,0 +1,71 @@
+DecHuff(param unsigned[8] tokenLen, input unsigned[tokenLen] filebyte,
+	input unsigned[8] reqSize, input unsigned[8] advance, output
+	unsigned[16] parsedToken) 
+
+{
+
+
+  unsigned[8] currReq;
+  unsigned[8] marker = 0;
+  unsigned[32] intermed = 0;
+
+  state initreq(reqSize): {
+
+    currReq = reqSize;
+    //printf("HEY currReq %llu\n",currReq);
+    goto getData;
+
+
+  }
+
+  state getData(filebyte): {
+
+    intermed = (intermed<<tokenLen)+filebyte;
+    marker = marker+tokenLen;
+    if (filebyte != 0xff) {
+      if (marker >= reqSize) {
+	goto putData;
+      }
+    } else {
+      goto waitZero;
+    }
+
+  }
+
+  state waitZero(filebyte): {
+    if (marker >= reqSize) {
+      goto putData;
+    } else {
+      goto getData;
+    }
+  }
+
+  state putData(): {
+
+    parsedToken = (intermed>>(marker-currReq))&((1<<currReq)-1);
+    goto advancePtr;
+  }
+
+  state advancePtr(advance): {
+
+    //unsigned[8] tmp;
+    
+    //tmp = advance;
+    //printf("HEY advance is %llu\n",tmp);
+    marker = marker-advance;
+    goto req;
+
+  }
+
+  state req(reqSize): {
+
+    currReq = reqSize;
+    // printf("HEY currReq is %llu\n",currReq);
+    if (marker >= reqSize) {
+      goto putData;
+    } else {
+      goto getData;
+    }
+  }
+
+}

@@ -1,0 +1,205 @@
+# - Build 1 app using synplify + xilinx
+# - Invoke this in application directory, NOT in Synplify/Xilinx project dirs
+# - Invoke this after TDFC-APPS, XILINX-DIRS-APPS
+# - Eylon Caspi 3/1/05
+
+PREFIX = qsubwaitcsh
+
+SYNREV = rev_4__200mhz
+# SYNLICENSES = 40
+# XILLICENSES = 40
+# SYNMAKE = ${MAKE} PREFIX="${PREFIX}"
+# XILMAKE = ${MAKE} PREFIX="${PREFIX}"
+
+# Module list
+#  - derived from Xilinx project directories (appl = all minus pages)
+#  - strip _ior suffix
+#  - ignore queue modules (%_q, %_qin)
+#  - ignore appl-level extras (%_noin, %_dpq)
+RAW_MODS       = $(patsubst proj-xilinx/%_ior,%,$(filter %_ior,$(shell find proj-xilinx -mindepth 1 -maxdepth 1 -type d)))
+RAW_NOQMODS    = $(filter-out %_q %_qin,${RAW_MODS})
+#RAW_BEHAVNAMES= $(patsubst _page_%_noin,%,$(filter _page_%_noin,${RAW_NOQMODS}))
+RAW_BEHAVNAMES = $(patsubst        %_fsm,%,$(filter        %_fsm,${RAW_NOQMODS}))
+RAW_PATTERN1   = $(foreach X,${RAW_BEHAVNAMES},_page_${X}%) $(foreach X,${RAW_BEHAVNAMES},${X}%)
+RAW_APPLMODS   = $(filter-out ${RAW_PATTERN1},${RAW_NOQMODS})
+APPLMOD        = $(filter-out %_noin %_dpq,${RAW_APPLMODS})
+PAGEMODS       = $(filter-out ${APPLMOD}%,${RAW_NOQMODS})
+MODS           = ${APPLMOD} ${PAGEMODS}
+
+# Synplify module directories
+SYNMODS     = $(patsubst %,proj/%,${MODS}) $(patsubst %,proj/%_ior,${MODS})
+#               == ${SYNAPPLMOD}  ${SYNMOREMODS}
+#               == ${SYNAPPLMODS} ${SYNPAGEMODS}
+SYNAPPLMOD  = $(patsubst %,proj/%,${APPLMOD})
+SYNAPPLMODS = $(patsubst %,proj/%,${APPLMOD})  $(patsubst %,proj/%_ior,${APPLMOD})
+SYNMOREMODS =                                  $(patsubst %,proj/%_ior,${APPLMOD}) \
+              $(patsubst %,proj/%,${PAGEMODS}) $(patsubst %,proj/%_ior,${PAGEMODS})
+SYNPAGEMODS = $(patsubst %,proj/%,${PAGEMODS}) $(patsubst %,proj/%_ior,${PAGEMODS})
+SYNPAGEMOD  = $(patsubst %,proj/%,${PAGEMODS})
+SYNEDFS     = $(patsubst %,%/${SYNREV}/dummy.edf,${SYNMODS})
+SYNAPPLEDF  = $(patsubst %,%/${SYNREV}/dummy.edf,${SYNAPPLMOD})
+SYNAPPLEDFS = $(patsubst %,%/${SYNREV}/dummy.edf,${SYNAPPLMODS})
+SYNMOREEDFS = $(patsubst %,%/${SYNREV}/dummy.edf,${SYNMOREMODS})
+SYNPAGEEDFS = $(patsubst %,%/${SYNREV}/dummy.edf,${SYNPAGEMODS})
+
+# Xilinx module directories
+XILMODS     = $(patsubst %,proj-xilinx/%_ior,${MODS})
+#               == ${XILAPPLMOD} ${XILPAGEMODS}
+XILAPPLMOD  = $(patsubst %,proj-xilinx/%_ior,${APPLMOD})
+XILPAGEMODS = $(patsubst %,proj-xilinx/%_ior,${PAGEMODS})
+
+.PHONY:	${SYMODS} ${XILMODS}
+.PHONY: all syn xil appl pages synappl xilappl synpages xilpages synpages_noior info
+
+all:	syn xil
+
+syn:	${SYNMODS}
+
+xil:	${XILMODS}
+
+appl:   	synappl xilappl
+
+pages:  	synpages xilpages
+
+synappl:	${SYNAPPLMOD}
+
+xilappl:	${XILAPPLMOD}
+
+synpages:	${SYNPAGEMODS}
+
+xilpages:	${XILPAGEMODS}
+
+synpages_noior:	${SYNPAGEMOD}
+
+info:
+	echo RAW_MODS       = ${RAW_MODS}
+	echo RAW_NOQMODS    = ${RAW_NOQMODS}
+	echo RAW_BEHAVNAMES = ${RAW_BEHAVNAMES}
+	echo RAW_PATTERN1   = ${RAW_PATTERN1}
+	echo RAW_APPLMODS   = ${RAW_APPLMODS}
+	echo APPLMOD        = ${APPLMOD}
+	echo PAGEMODS       = ${PAGEMODS}
+	echo MODS           = ${MODS}
+	echo SYNMODS     = ${SYNMODS}
+	echo SYNAPPLMOD  = ${SYNAPPLMOD}
+	echo SYNAPPLMODS = ${SYNAPPLMODS}
+	echo SYNMOREMODS = ${SYNMOREMODS}
+	echo SYNPAGEMODS = ${SYNPAGEMODS}
+	echo SYNEDFS     = ${SYNEDFS}
+	echo SYNAPPLEDF  = ${SYNAPPLEDF}
+	echo SYNAPPLEDFS = ${SYNAPPLEDFS}
+	echo SYNMOREEDFS = ${SYNMOREEDFS}
+	echo SYNPAGEEDFS = ${SYNPAGEEDFS}
+	echo XILMODS     = ${XILMODS}
+	echo XILAPPLMOD  = ${XILAPPLMOD}
+	echo XILPAGEMODS = ${XILPAGEMODS}
+
+# - The next few rules establish tool-flow order:
+#     (1) {Synplify on appl module} precedes {Synplify on non-appl module}
+#     (2) {Xilinx   on      module} precedes {Synplify on          module}
+
+${SYNEDFS}:
+#	cd proj && ${SYNMAKE} $(patsubst proj/%/${SYNREV}/dummy.edf,%,$@)
+	cd proj && ${MAKE} PREFIX="${PREFIX}" $(patsubst proj/%/${SYNREV}/dummy.edf,%,$@)
+
+${SYNMOREEDFS}:	${SYNAPPLEDF}
+
+${SYNMODS}: %:	%/${SYNREV}/dummy.edf
+
+${XILMODS}: proj-xilinx/%_ior:	proj/% proj/%_ior
+#	cd proj-xilinx && ${XILMAKE} $(*)_ior
+	cd proj-xilinx && ${MAKE} PREFIX="${PREFIX}" $(*)_ior
+
+
+################################################################
+
+
+.PHONY:	del syndel xildel
+.PHONY: clean reallyclean synclean synreallyclean xilclean xilreallyclean
+
+del:	syndel xildel
+	rm -rf *.OUT *.xc *.v
+
+syndel:
+	rm -rf proj proj-DISABLE
+
+xildel:
+	rm -rf proj-xilinx proj-xilinx-DISABLE
+
+clean:  	synclean xilclean
+
+reallyclean:	synreallyclean xilreallyclean
+
+synclean:
+	cd proj && ${MAKE} PREFIX="${PREFIX}" clean
+
+synreallyclean:
+	cd proj && ${MAKE} PREFIX="${PREFIX}" reallyclean
+
+xilclean:
+	cd proj-xilinx && ${MAKE} PREFIX="${PREFIX}" clean
+
+xilreallyclean:
+	cd proj-xilinx && ${MAKE} PREFIX="${PREFIX}" reallyclean
+
+
+################################################################
+
+
+TOOLPATH  = ~/brass/tdfc/tools
+
+SYNREPORT     = ${TOOLPATH}/synplify-pp1+dpq-summary3-rev4
+SYNREPORTAPPL = ${TOOLPATH}/synplify-pp1+dpq-summary3-appl-rev4
+XILREPORT     = ${TOOLPATH}/xilinx-pp1+dpq-summary3
+XILREPORTAPPL = ${TOOLPATH}/xilinx-pp1+dpq-summary3-appl
+XLSTOHTML     = ${TOOLPATH}/xls-to-html
+
+SYNREPORT_NAME = $(notdir ${SYNREPORT})
+XILREPORT_NAME = $(notdir ${XILREPORT})
+
+# - customized below for targets ``report'' or ``reportappl''
+SYNREPORT_EXEC = ${SYNREPORT}
+XILREPORT_EXEC = ${XILREPORT}
+
+.PHONY: 	report     synreport     xilreport \
+		reportappl synreportappl xilreportappl
+
+report: 	synreport     xilreport
+
+reportappl:	synreportappl xilreportappl
+
+synreport:	SYNREPORT_EXEC=${SYNREPORT}
+synreport:	proj/${SYNREPORT_NAME}.xls proj/${SYNREPORT_NAME}.html
+
+synreportappl:	SYNREPORT_EXEC=${SYNREPORTAPPL}
+synreportappl:	proj/${SYNREPORT_NAME}.xls proj/${SYNREPORT_NAME}.html
+
+xilreport:	XILREPORT_EXEC=${XILREPORT}
+xilreport:	proj-xilinx/${XILREPORT_NAME}.xls proj-xilinx/${XILREPORT_NAME}.html
+
+xilreportappl:	XILREPORT_EXEC=${XILREPORTAPPL}
+xilreportappl:	proj-xilinx/${XILREPORT_NAME}.xls proj-xilinx/${XILREPORT_NAME}.html
+
+proj/${SYNREPORT_NAME}.xls:
+	cd ${@D} && ${SYNREPORT_EXEC}-xls 2>&1 > ${@F}
+
+proj-xilinx/${XILREPORT_NAME}.xls:
+	cd ${@D} && ${XILREPORT_EXEC}-xls 2>&1 > ${@F}
+
+%.html:	%.xls
+	${XLSTOHTML} $< 2>&1 > $@
+
+########
+
+.PHONY: 	cleanreport syncleanreport xilcleanreport
+
+cleanreport:	syncleanreport xilcleanreport
+
+syncleanreport:
+	rm -f proj/${SYNREPORT_NAME}.xls proj/${SYNREPORT_NAME}.html
+
+xilcleanreport:
+	rm -f proj-xilinx/${XILREPORT_NAME}.xls proj-xilinx/${XILREPORT_NAME}.html
+
+########
+

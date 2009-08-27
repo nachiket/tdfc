@@ -1,0 +1,12 @@
+g (input unsigned[8] i, output unsigned[8] o)
+{
+  unsigned[8] w;
+  w=f(i);
+  o=f(w);
+}
+
+unsigned[8] f (input unsigned[8] i)
+{
+  state only (i):
+    f=i;
+}

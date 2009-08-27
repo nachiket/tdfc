@@ -1,0 +1,72 @@
+PIPELINE EXTRACTION
+
+Informally, pipeline extraction removes data-path operations from SFSM
+if those ops don't really have to start or end in the specified state.
+
+
+GOALS
+
+  - shrink SFSM  (for page partitioning)
+
+  - speed up SFSM
+
+  - systematically convert module's DP into "pipeline" structure
+      that is easy to make fast + efficient 
+
+  - move DP to be along slow interconnect,
+      where compute time is "free"
+      because pipeline regs would take cycles anyway
+
+
+EFFECTS / TRADE-OFFS
+
+  - For speed:  remove data-path reg-to-reg critical paths,
+                so residual SFSM can have faster clock
+
+  - For speed:  remove data-path area, so residual SFSM is smaller,
+                has shorter wires, runs faster
+
+  - For speed:  remove registers/outputs,
+                so FSM has fewer enables/muxes to drive,
+                so FSM is smaller + faster 
+          BUT:  2nd order effect, since DP usually dominates area and delay
+          BUT:  get opposite effect if residual SFSM has _more_ I/Os
+
+  - Reg tradeoff:  If pipeline takes input set on same cycle
+                   but uses some inputs in later cycles,
+                   then must pipe late inputs through FIFO.
+                   If those inputs come from SFSM regs, then keeping them
+                   in SFSM regs (not extracting) may be more efficient
+                   than extracting + FIFO.  Or need to schedule when
+                   residual SFSM emits those pipe inputs.
+                   Probably need reg lifetime analysis.
+
+  - Area tradeoff:  Can replicate AND extract datapath components
+                    (e.g. assignment to reg whose value feeds pipeline and
+                     also feeds something else in the SFSM;  replicate assign).
+                    Get no savings in critical path of state being extracted
+                    (orig DP is replicated, still there), but get the chance
+                    to extract DP from previous states, where can improve
+                    critical path.  Need intelligent way to decide whether
+                    replicating and chasing data-flow is worthwhile.
+
+
+HOW:
+
+Informally, trace dataflow from each input to downstream operations
+to decide which ops to extract (topological sort from input).
+Similarly, trace dataflow from each output back upstream.
+Take care when tracing past basic-block.
+
+To ``extract'' a data-flow DAG into an output pipeline:
+  - do NOT emit original outputs at bottom of DAG  (or root of cone)
+  - instead, emit nodes at top of DAG  (or leaves of cone)
+  - do not evaluate any expr/asst associated w/extracted nodes
+
+For each output emission, back-trace upstream dataflow in topological order.
+  - data-flow node is extractable if
+      (1) downstream (dependent ops) are all extractable
+            (this immediately fails for assignments to regs
+             that are also used outside the extractable flow)
+      (2) node is const
+      (3) node is in same basic block ...

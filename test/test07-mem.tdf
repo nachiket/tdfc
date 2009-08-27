@@ -1,0 +1,17 @@
+myOp (input boolean i)
+{
+  boolean[5]		myBools = {true,true,false,false,true};
+  unsigned[1024][8]	myMem;
+  //signed[48][6.6]	myFixedArray;
+
+  state only (i):
+    {
+      boolean[20]	myBools2;
+      boolean[0]	myBools3;
+      unsigned[1024][8]	myMem2;
+      unsigned[1024][0]	myMem3;
+      unsigned[0][8]	myMem4;
+      unsigned[0][0]	myMem5;
+      //signed[48][6.6]	myFixedArray2;
+    }
+}

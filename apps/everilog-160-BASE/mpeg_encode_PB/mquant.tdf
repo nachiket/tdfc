@@ -1,0 +1,163 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// - reconstructed from mquant.tdf.xc  (EC 6/29/03)
+
+
+#include "div.txt"
+
+#ifdef APPROX_DIV
+#define QuantStepsShift 14
+#endif
+
+
+mquant (input  signed[16]  inStream,
+	input  unsigned[5] modein,
+	output signed[16]  outStream,
+	param  unsigned[8] exfactor,
+	param  unsigned[64][9] quantSteps)
+{
+  unsigned[5] INTRA=4;
+  unsigned[8] bigIndex=0;
+  unsigned[8] index=0;
+
+  state firstI (inStream) :
+    {
+      #ifndef APPROX_DIV
+      unsigned[8] step;
+      signed[9]  newstep;
+      #else
+      unsigned[12-LOG2(exfactor)] step_inv;
+      // - quantization step inverses are 9 bits with exfactor=8,
+      //     and they are inversely proportional to exfactor
+      #endif
+      signed[2]   twiddle;
+      unsigned[8] tmpindex;
+      twiddle=(inStream>0)?1:(-1);
+      if (inStream==0)
+	twiddle=0;
+      //printf("newstep is %llu\n",newstep);
+
+      #ifndef APPROX_DIV
+        step=quantSteps[index]*exfactor;
+        newstep=(signed[10])step;
+        outStream=((2*inStream)+(twiddle*newstep))/(2*newstep);
+      #else
+        // - Approximate division as mult-and-right-shift, EC 6/29/03
+        // - Instead of dividing by quantizer step,
+        //     we multiply by step's inverse and right-shift by QuantStepsShift
+        // - In this case, QuantSteps array contains step _inverses_
+        //     for multiplication, pre-scaled by "exfactor"
+	// - Round using:  in/newstep = (2*in/newstep+twiddle)/2
+        step_inv=quantSteps[index];
+	outStream = (((inStream*step_inv) >> (QuantStepsShift-1))
+							+ twiddle) >> 1;
+      #endif
+
+      tmpindex=index+1;
+      if (tmpindex==64) {
+	bigIndex=bigIndex+1;
+	index=0;
+	if (bigIndex==(396*6))
+	  goto pgetmode;
+      }
+      else
+	index=index+1;
+      goto firstI;
+    }
+
+  state pgetmode (modein) :
+    {
+      if (modein==INTRA)
+        goto pintra;
+      else
+        goto pnintra;
+    }
+
+  state pintra (inStream) :
+    {
+      unsigned[6] sIndex;
+      #ifndef APPROX_DIV
+      unsigned[8] step;
+      signed[9]   newstep;
+      #else
+      unsigned[12-LOG2(exfactor)] step_inv;	// 9 bits with exfactor=8
+      #endif
+      signed[2]   twiddle;
+      unsigned[8] tmpindex;
+      sIndex=index%64;
+      twiddle=(inStream>0)?1:(-1);
+      if (inStream==0)
+	twiddle=0;
+      //printf("newstep is %llu\n",newstep);
+
+      #ifndef APPROX_DIV
+        step=quantSteps[sIndex]*exfactor;
+        newstep=(signed[9])step;
+        outStream=((2*inStream)+(twiddle*newstep))/(2*newstep);
+      #else
+        step_inv=quantSteps[sIndex];
+	outStream = (((inStream*step_inv) >> (QuantStepsShift-1))
+							+ twiddle) >> 1;
+      #endif
+	
+      tmpindex=index+1;
+      if (tmpindex==(64*6)) {
+	index=0;
+	goto pgetmode;
+      }
+      else {
+	index=index+1;
+	goto pintra;
+      }
+    }
+
+  state pnintra (inStream) :
+    {
+      unsigned[8] step;
+      signed[9]   newstep;
+      unsigned[8] tmpindex;
+      newstep=((signed[9])16)*exfactor;
+	//printf("newstep is %llu\n",newstep);
+
+      #ifndef APPROX_DIV
+        outStream=inStream/newstep;
+      #else
+      //#define POWEROFSHIFT POWEROF2(QuantStepsShift)	// - slow to type-check
+        #define POWEROFSHIFT 0b100000000000000
+        #define INV(x) DIVCONSTS(POWEROFSHIFT,x*exfactor)
+	outStream = (inStream*INV(16)) >> QuantStepsShift;
+      #endif
+
+      tmpindex=index+1;
+      if (tmpindex==(64*6)) {
+	index=0;
+	goto pgetmode;
+      }
+      else {
+	index=index+1;
+	goto pnintra;
+      }
+    }
+
+}

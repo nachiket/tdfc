@@ -1,0 +1,242 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999,2001 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.1 $
+// $Date: 2002/01/10 20:58:35 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#include "constants.txt"
+
+muxtoDCT(param unsigned[16] segSize, input unsigned[5] mode, 
+	 input unsigned[64] inp, input unsigned[64] ref0, input unsigned[64] ref1, 
+	 input signed[9] bA, input signed[9] bB, input signed[9] bC,
+         input signed[9] bD, input signed[9] bE, input signed[9] bF,
+         input signed[9] bG, input signed[9] bH,
+         output signed[9] dA, output signed[9] dB, output signed[9] dC,
+         output signed[9] dD, output signed[9] dE, output signed[9] dF,
+         output signed[9] dG, output signed[9] dH)
+
+
+{
+
+  unsigned[16] index = 0;
+  unsigned[8] macInd = 0; // for debugging purposes
+  unsigned[4] stat = 0;
+
+  // FIXME! need to deal with fact either refStream could be forward ->check
+
+  // initial I-frame
+  state first(inp): {
+
+    dA = ((signed[9])(inp[63:56])); dB = ((signed[9])(inp[55:48]));
+    dC = ((signed[9])(inp[47:40])); dD = ((signed[9])(inp[39:32]));
+    dE = ((signed[9])(inp[31:24])); dF = ((signed[9])(inp[23:16]));
+    dG = ((signed[9])(inp[15:8])); dH = ((signed[9])(inp[7:0]));
+
+    index = index+1;
+    if (index == segSize) {
+      goto choose;
+    } 
+      
+  }
+
+  state choose(mode): {
+
+    index = 0;
+
+    if (macInd == segSize/48) {
+      macInd = 0;
+      stat = stat+1;
+      if (stat == 6) {stat = 0;}
+    }
+    if (mode==INTRA) {
+
+      if (stat==0) {
+	goto intraout0;
+      } else if (stat==3) {
+	goto intraout1;
+      } else {
+	goto intraout;
+      }
+
+    } else if (mode==MOTION_FORWARD) {
+
+      if (stat==0) {
+	goto predRef00;
+      } else if (stat==3) {
+	goto predRef11;
+      } else if ((stat==1)||(stat==2)) {
+	goto predRef0;
+      } else {
+	goto predRef1;
+      }
+
+    } else if (mode==MOTION_BACKWARD) {
+
+      if ((stat==4)||(stat==5)) {
+	goto predRef0;
+      } else {
+	goto predRef1;
+      } 
+
+    } else {
+      goto predBoth;
+    }
+
+  }
+
+  state intraout0(inp,ref0): {
+
+    dA = ((signed[9])(inp[63:56])); dB = ((signed[9])(inp[55:48]));
+    dC = ((signed[9])(inp[47:40])); dD = ((signed[9])(inp[39:32]));
+    dE = ((signed[9])(inp[31:24])); dF = ((signed[9])(inp[23:16]));
+    dG = ((signed[9])(inp[15:8])); dH = ((signed[9])(inp[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+
+  }
+
+  state intraout1(inp,ref1): {
+
+    dA = ((signed[9])(inp[63:56])); dB = ((signed[9])(inp[55:48]));
+    dC = ((signed[9])(inp[47:40])); dD = ((signed[9])(inp[39:32]));
+    dE = ((signed[9])(inp[31:24])); dF = ((signed[9])(inp[23:16]));
+    dG = ((signed[9])(inp[15:8])); dH = ((signed[9])(inp[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+
+  }
+
+
+  state intraout(inp,ref0,ref1,bA,bB,bC,bD,bE,bF,bG,bH): {
+
+    dA = ((signed[9])(inp[63:56])); dB = ((signed[9])(inp[55:48]));
+    dC = ((signed[9])(inp[47:40])); dD = ((signed[9])(inp[39:32]));
+    dE = ((signed[9])(inp[31:24])); dF = ((signed[9])(inp[23:16]));
+    dG = ((signed[9])(inp[15:8])); dH = ((signed[9])(inp[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+
+  }
+
+  state predRef00(inp,ref0): {
+
+    dA = ((signed[9])(inp[63:56]))-((signed[9])(ref0[63:56]));
+    dB = ((signed[9])(inp[55:48]))-((signed[9])(ref0[55:48]));
+    dC = ((signed[9])(inp[47:40]))-((signed[9])(ref0[47:40]));
+    dD = ((signed[9])(inp[39:32]))-((signed[9])(ref0[39:32]));
+    dE = ((signed[9])(inp[31:24]))-((signed[9])(ref0[31:24]));
+    dF = ((signed[9])(inp[23:16]))-((signed[9])(ref0[23:16]));
+    dG = ((signed[9])(inp[15:8]))-((signed[9])(ref0[15:8]));
+    dH = ((signed[9])(inp[7:0]))-((signed[9])(ref0[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+  }
+
+  state predRef0(inp,ref0,ref1,bA,bB,bC,bD,bE,bF,bG,bH): {
+
+    dA = ((signed[9])(inp[63:56]))-((signed[9])(ref0[63:56]));
+    dB = ((signed[9])(inp[55:48]))-((signed[9])(ref0[55:48]));
+    dC = ((signed[9])(inp[47:40]))-((signed[9])(ref0[47:40]));
+    dD = ((signed[9])(inp[39:32]))-((signed[9])(ref0[39:32]));
+    dE = ((signed[9])(inp[31:24]))-((signed[9])(ref0[31:24]));
+    dF = ((signed[9])(inp[23:16]))-((signed[9])(ref0[23:16]));
+    dG = ((signed[9])(inp[15:8]))-((signed[9])(ref0[15:8]));
+    dH = ((signed[9])(inp[7:0]))-((signed[9])(ref0[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+  }
+
+  state predRef11(inp,ref1): {
+
+    dA = ((signed[9])(inp[63:56]))-((signed[9])(ref1[63:56]));
+    dB = ((signed[9])(inp[55:48]))-((signed[9])(ref1[55:48]));
+    dC = ((signed[9])(inp[47:40]))-((signed[9])(ref1[47:40]));
+    dD = ((signed[9])(inp[39:32]))-((signed[9])(ref1[39:32]));
+    dE = ((signed[9])(inp[31:24]))-((signed[9])(ref1[31:24]));
+    dF = ((signed[9])(inp[23:16]))-((signed[9])(ref1[23:16]));
+    dG = ((signed[9])(inp[15:8]))-((signed[9])(ref1[15:8]));
+    dH = ((signed[9])(inp[7:0]))-((signed[9])(ref1[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+  }
+
+  state predRef1(inp,ref0,ref1,bA,bB,bC,bD,bE,bF,bG,bH): {
+
+    dA = ((signed[9])(inp[63:56]))-((signed[9])(ref1[63:56]));
+    dB = ((signed[9])(inp[55:48]))-((signed[9])(ref1[55:48]));
+    dC = ((signed[9])(inp[47:40]))-((signed[9])(ref1[47:40]));
+    dD = ((signed[9])(inp[39:32]))-((signed[9])(ref1[39:32]));
+    dE = ((signed[9])(inp[31:24]))-((signed[9])(ref1[31:24]));
+    dF = ((signed[9])(inp[23:16]))-((signed[9])(ref1[23:16]));
+    dG = ((signed[9])(inp[15:8]))-((signed[9])(ref1[15:8]));
+    dH = ((signed[9])(inp[7:0]))-((signed[9])(ref1[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+  }
+
+  state predBoth(inp,ref0,ref1,bA,bB,bC,bD,bE,bF,bG,bH): {
+
+    dA = bA;    dB = bB;
+    dC = bC;    dD = bD;
+    dE = bE;    dF = bF;
+    dG = bG;    dH = bH;
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+
+  }
+
+
+
+}

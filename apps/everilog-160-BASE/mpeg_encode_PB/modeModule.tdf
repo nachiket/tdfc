@@ -1,0 +1,213 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999,2001 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+// $Revision: 1.1 $
+// $Date: 2002/01/10 20:56:58 $
+//
+//////////////////////////////////////////////////////////////////////////////
+
+#include "constants.txt"
+//#define SN (signed[9])
+#define ABS(x) bitsof((x<0)?(-x):x)
+#define DIFF(x,y) ((( (signed[9]) (curr[x:y]))<<1) - \
+                   ( (signed[9]) (ref0[x:y])) - ( (signed[9]) (ref1[x:y])))>>1
+		   
+modeModule(param unsigned[10] mbsinPic,
+	   input unsigned[16] err0, input unsigned[16] err1, 
+	   input unsigned[16] ierr, input unsigned[64] ref0,
+	   input unsigned[64] ref1, input unsigned[64] curr,
+	   output signed[9] bS0,output signed[9] bS1,output signed[9] bS2,output signed[9] bS3,
+	   output signed[9] bS4,output signed[9] bS5,output signed[9] bS6,output signed[9] bS7,
+	   output unsigned[5] mout)
+
+{
+
+  //FIXME! need to pass through I frame-> check
+  unsigned[16] bothErr=0;
+  unsigned[16] tempsum=0;
+  unsigned[5] tmindex=0;
+  unsigned[4] stat = 6;
+  unsigned[20] index = 0;
+
+  state initI(curr): 
+    {
+      index = index+1;
+      if (index == mbsinPic*48) {
+	index = 0;
+	goto init;
+      }
+    }
+
+  state init(): 
+
+    {
+      printf("modeModule stat is %llu\n",stat);
+      if (stat == 6) {
+	stat = 0;
+	goto last2;
+      } else if (stat == 3) {
+	goto last3;
+      } else {
+	goto summing;
+      }
+    }
+
+  state summing(curr,ref0,ref1):
+
+    {
+      signed[9] inresa;  signed[9] inresb; signed[9] inresc; signed[9] inresd;
+      signed[9] inrese;  signed[9] inresf; signed[9] inresg; signed[9] inresh; 
+
+      inresa = DIFF(63,56); bS0 = inresa;
+      inresb = DIFF(55,48); bS1 = inresb;
+      inresc = DIFF(47,40); bS2 = inresc;
+      inresd = DIFF(39,32); bS3 = inresd;
+      inrese = DIFF(31,24); bS4 = inrese;
+      inresf = DIFF(23,16); bS5 = inresf;
+      inresg = DIFF(15,8);  bS6 = inresg;
+      inresh = DIFF(7,0);   bS7 = inresh;
+
+      if (tmindex < 32) {
+	bothErr = bothErr + 
+	  ABS(inresa)+ABS(inresb)+ABS(inresc)+ABS(inresd)+
+	  ABS(inrese)+ABS(inresf)+ABS(inresg)+ABS(inresh);
+      }
+
+      tmindex = tmindex+1;
+
+      if (tmindex == 48) {
+	tmindex = 0;
+	if ((stat==1)||(stat==2)) {
+	  goto last1;
+	} else {
+	  goto last0;
+	}
+      } else {
+	stay;
+      }
+
+    }
+
+  state last0(err0,err1,ierr): 
+
+    {
+      unsigned[5] tmout1,tmout2;
+      unsigned[16] win1,win2;
+
+      tmout1 = ((ierr<err0)?INTRA:MOTION_BACKWARD);
+      win1 = ((ierr<err0)?ierr:err0);
+      tmout2 = ((err1<bothErr)?MOTION_FORWARD:MOTION_BOTH);
+      win2 = ((err1<bothErr)?err1:bothErr);
+
+      //printf("last0 gives %llu mode %llu\n",index,((win1<win2)?tmout1:tmout2));
+      mout = ((win1<win2)?tmout1:tmout2);
+
+      bothErr = 0;
+      index = index+1;
+      if (index == mbsinPic) {
+	index = 0;
+	stat = stat+1;
+	goto init;
+      } else {
+	goto summing;
+      }
+    }		  
+    
+
+  state last1(err0,err1,ierr): 
+
+    {
+      unsigned[5] tmout1,tmout2;
+      unsigned[16] win1,win2;
+
+      tmout1 = ((ierr<err0)?INTRA:MOTION_FORWARD);
+      win1 = ((ierr<err0)?ierr:err0);
+      tmout2 = ((err1<bothErr)?MOTION_BACKWARD:MOTION_BOTH);
+      win2 = ((err1<bothErr)?err1:bothErr);
+
+      //printf("last1 gives %llu mode %llu\n",index,((win1<win2)?tmout1:tmout2));
+      mout = ((win1<win2)?tmout1:tmout2);
+
+      bothErr = 0;
+      index = index+1;
+      if (index == mbsinPic) {
+	index = 0;
+	stat = stat+1;
+	goto init;
+      } else {
+	goto summing;
+      }
+    }
+
+  state last2(err0,ierr): 
+
+    {
+
+      mout = ((ierr<err0)?INTRA:MOTION_FORWARD);
+      index = index+1;
+      if (index == mbsinPic) {
+	index = 0;
+	stat = stat+1;
+	goto flush2;
+      }
+
+    }		  
+    
+  state flush2(ref0,curr):
+
+    {
+      index = index+1;
+      if (index == mbsinPic*48) {
+        index = 0;
+        goto init;
+      }
+    }
+
+
+  state last3(err1,ierr): 
+
+    {
+
+      mout = ((ierr<err1)?INTRA:MOTION_FORWARD);
+      index = index+1;
+      if (index == mbsinPic) {
+	index = 0;
+	stat = stat+1;
+	goto flush3;
+      }
+
+    }		  
+    
+
+  state flush3(ref1,curr):
+    {
+      index = index+1;
+      if (index == mbsinPic*48) {
+        index = 0;
+        goto init;
+      }
+    }
+
+
+
+
+}
+

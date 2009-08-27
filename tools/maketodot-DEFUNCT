@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+#
+#  maketodot:  convert a makefile to a dependence graph for dot (graphviz)
+
+@rules;		# - list of rules, unparsed
+@actions;	# - list of actions from rules, unparsed
+@targets;	# - list of unique targets (files)
+%target_id;	# - map : target --> num
+
+while (<>) {
+  if (/^\s*#/) {
+    # comment --> ignore
+    next;
+  }
+  while (/\\$/) {
+    # multi-line --> add next line(s) before parsing
+    $L1 = substr($_,0,length($_)-2);
+    $L2 = <>;
+    $_ = $L1 . $L2;
+  }
+  if (/^\.[^\s]+\s*:/) {
+    # rule for built-in target, e.g. ".PHONY:" --> ignore
+    next;
+  }
+  if (/^([^\s]+(\s+[\s]+)*)\s*:\s*(.*)/) {
+    # rule "a b c : x y z" --> convert to dot
+    push(@rules,$_);
+    $targetstr = $1;
+    $depstr    = $3;
+    @targets   = split(/\s+/,$targetstr);
+    @deps      = split(/\s+/,$depstr);
+
+    @foo=@targets;
+    push(@foo,":");
+    push(@foo,@deps);
+    print "*** RULE " . join(" ",@foo) . "\n";
+
+    $action = <>;			# - get first word of action
+    if ($action =~ /^\s+([^\s]+)/) {
+      print "*** ACTION $1\n";
+      push(@actions,$1);
+    }
+    elsif ($action =~ /^\s*$/) {
+      next;
+    }
+    else {				# - ignore rest until empty line
+      while (<>) {
+        if (/^\s*$/) { last }
+      }
+    }
+  }
+}

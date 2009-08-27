@@ -1,0 +1,12 @@
+unsigned[4] add (input unsigned[4] a, input unsigned[4] b) {
+  state only (a,b) : add = a+b;
+}
+
+addc (input  unsigned[4] x,
+      input  unsigned[4] y,
+      input  unsigned[4] z,
+      output unsigned[4] o) {
+  unsigned[4] w;
+  w=add(x,y);
+  o=add(z,w);
+}

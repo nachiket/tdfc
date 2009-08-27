@@ -1,0 +1,9 @@
+#!/bin/csh
+
+foreach dot (*.dot)
+  echo $dot - Streams in       - `grep -c lightblue $dot`
+  echo $dot - Streams out      - `grep -c lightpink $dot`
+  echo $dot - Streams all      - `grep -c -i ' -> ' $dot`
+  echo $dot - Streams feedback - `grep -c -i ' -> .*color="red"' $dot`
+  echo $dot - Segment ops      - `grep -c -i ' segment.*color="lightgrey"' $dot`
+end

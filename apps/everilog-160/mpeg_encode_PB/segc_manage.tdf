@@ -1,0 +1,213 @@
+// - For synthesis with Synplify, define MODULO_COUNTER  (modulo_counter.h)
+// - BUT it only works if:  rowSize>64
+// - Specifically, we need (max{index}<rowSize) to implement
+//     (getMacInd*8+index)%rowSize using a modulo-rowSize counter  (***)
+// - Eylon 7/1/03
+
+#include "modulo_counter.txt"
+
+#ifdef MODULO_COUNTER
+  #define INCREMENT_GETMACIND {						    \
+      getMacIndDiv22 = INCRMOD_CARRY(getMacIndMod22,22) + getMacIndDiv22;   \
+      getMacIndMod22 = INCRMOD(getMacIndMod22,22);			    \
+      getMacIndX8DivRowSize = INCRMOD_STRIDED_CARRY(getMacIndX8ModRowSize,rowSize,8) + getMacIndX8DivRowSize; \
+      getMacIndX8ModRowSize = INCRMOD_STRIDED(getMacIndX8ModRowSize,rowSize,8); \
+  }
+  #define SET_GETMACIND(CONST) {			\
+	getMacIndDiv22 = (CONST)/22;			\
+	getMacIndMod22 = (CONST)%22;			\
+	getMacIndX8DivRowSize = ((CONST)*8)/rowSize;	\
+	getMacIndX8ModRowSize = ((CONST)*8)%rowSize;	\
+  }
+#else
+  #define INCREMENT_GETMACIND  {}
+  #define SET_GETMACIND(CONST) {}
+#endif
+
+
+segc_manage(param unsigned[20] segSize, param unsigned[10] rowSize,
+	    output unsigned[16] addr, input signed[6] xRef, 
+	    input signed[6] yRef, output boolean w,
+	    param boolean initP)
+{
+
+//unsigned[20] index = 0;
+  unsigned[7]  index = 0;		// - apparently index<=64  (EC)
+  unsigned[8] picInd = 0;
+  unsigned[20] getMacInd = 0;
+  #ifdef MODULO_COUNTER
+  unsigned[widthof(22)]                    getMacIndMod22 = 0;
+  unsigned[widthof(getMacInd)-widthof(22)] getMacIndDiv22 = 0;
+  unsigned[widthof(rowSize)]               getMacIndX8ModRowSize = 0;
+  unsigned[widthof(getMacInd)+3]           getMacIndX8DivRowSize = 0;
+  #endif
+  unsigned[14] initaddr,initaddr0,initaddr1,initaddr2,initaddr3;
+  boolean init=true;
+  unsigned[3] stat;
+
+  // first chroma and second chroma will be sent in 8
+  // at a time, alternating
+  state writin1(): {
+    unsigned[10] rowInd;
+    unsigned[10] rowMod;
+#if 0
+    unsigned[14] addr_;
+#endif
+    w = true;
+
+    #ifdef MODULO_COUNTER
+    rowInd = getMacIndX8DivRowSize;
+    rowMod = MOD_ONCE(getMacIndX8ModRowSize+index,rowSize);	// (***)
+    #else
+    rowInd = (getMacInd*8)/rowSize;
+    rowMod = (getMacInd*8+index)%rowSize;
+    #endif
+
+    addr = (rowSize*16*rowInd)+2*rowMod;
+#if 0
+    addr_ = (rowSize*16*rowInd)+2*rowMod;
+    printf("writin1 addr is %llu\n",addr_);
+#endif
+    index = index+1;
+    if (index == 8) {
+      index = 0;
+      goto writin2;
+    }
+  }
+
+  state writin2(): {
+
+    unsigned[14] tmpaddr;
+
+    unsigned[10] rowInd;   unsigned[10] rowMod;
+    w = true;
+
+    #ifdef MODULO_COUNTER
+    rowInd = getMacIndX8DivRowSize;
+    rowMod = MOD_ONCE(getMacIndX8ModRowSize+index,rowSize);	// (***)
+    #else
+    rowInd = (getMacInd*8)/rowSize;
+    rowMod = (getMacInd*8+index)%rowSize;
+    #endif
+
+    tmpaddr = (rowSize*16*rowInd)+2*rowMod+1;
+    addr = tmpaddr;
+
+    // printf ("writin2: addr = %lld\n", tmpaddr);
+
+    index = index+1;
+    if (index == 8) {
+      index = 0;
+      getMacInd = getMacInd+1;
+      INCREMENT_GETMACIND;
+      if (getMacInd == segSize/8) {
+	if (init) {
+	  init = false;
+	  if (initP) stat = 3;
+	  else stat = 1;
+	} else {
+	  stat = stat+1;
+	}
+	getMacInd = 0;
+	SET_GETMACIND(0);
+	goto getmatch;
+      } else {
+	goto writin1;
+      }
+    }
+  }
+
+  state getmatch(xRef,yRef): {
+    
+    unsigned[10] macRow; unsigned[10] macMod;
+    // mean different things than in previous state
+   
+    #ifdef MODULO_COUNTER
+    macRow = getMacIndDiv22;
+    macMod = getMacIndMod22;
+    #else
+    macRow = getMacInd/22;
+    macMod = getMacInd%22;
+    #endif
+
+    //    printf("getmatch: macRow = %lld, maxMod = %lld\n",
+    //	   macRow, macMod);
+
+    // 8*2*rowSize*macRow+16*macInd    
+    initaddr = 16*(rowSize*macRow+macMod);
+    // initaddr = 352*macRo1w+16*macMod;
+
+#if 0
+    printf("getmatch: initaddr = %lld\n", initaddr);
+
+    printf("getmatch: sh_yref = %lld, sh_xref = %lld\n",
+	   yRef >> 1, xRef >> 1);
+#endif
+    initaddr0 = bitsof(initaddr+2*(rowSize*((yRef)>>1)));
+    initaddr0 = bitsof(initaddr0+2*((xRef)>>1));
+
+    initaddr1 = bitsof(initaddr+2*(rowSize*((yRef)>>1)));
+    initaddr1 = bitsof(initaddr1+2*((xRef+1)>>1));
+
+    initaddr2 = bitsof(initaddr+2*(rowSize*((yRef+1)>>1)));
+    initaddr2 = bitsof(initaddr2+2*((xRef)>>1));
+
+    initaddr3 = bitsof(initaddr+2*(rowSize*((yRef+1)>>1)));
+    initaddr3 = bitsof(initaddr3+2*((xRef+1)>>1));
+
+#if 0
+     printf("getmatch: xRef = %lld, yRef = %lld, [%lld, %lld, %lld, %lld]\n", 
+	    xRef, yRef, initaddr0, initaddr1, initaddr2, initaddr3);
+#endif
+     goto getting;
+
+   }
+
+
+   state getting(): {
+
+     unsigned[2] whichChrom; // first or second
+     unsigned[4] whichLoc;
+     unsigned[2] whichPos;   // which position
+     unsigned[16] tmpaddr;
+
+     w = false;
+     whichChrom = index/32;
+     whichLoc = (index%32)/4;
+     whichPos = index%4;
+
+     if (whichPos == 0) {
+       tmpaddr = initaddr0+2*whichLoc+whichChrom;
+     } else if (whichPos == 1) {
+       tmpaddr = initaddr1+2*whichLoc+whichChrom;
+     } else if (whichPos == 2) {
+       tmpaddr = initaddr2+2*whichLoc+whichChrom;
+     } else if (whichPos == 3) {
+       tmpaddr = initaddr3+2*whichLoc+whichChrom;
+     }
+
+     addr = tmpaddr;
+#if 0
+     printf("getting: index = %lld, whichPos = %lld, addr = %lld\n", index, 
+	    whichPos, tmpaddr);
+#endif
+    
+    index = index+1;
+    if (index == 64) {
+      index = 0;
+      getMacInd = getMacInd+1;
+      INCREMENT_GETMACIND;
+      if (getMacInd == (segSize/8)) {
+	getMacInd = 0;
+	SET_GETMACIND(0);
+	stat = stat+1;
+	if (stat==6) { stat=0; goto writin1; }
+	else { goto getmatch; }
+      } else {
+	goto getmatch;
+      }
+    }
+  
+  }
+
+}

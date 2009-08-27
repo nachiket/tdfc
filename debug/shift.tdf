@@ -1,0 +1,5 @@
+foo (input unsigned[16] i, output unsigned[16] o)
+{
+  state only (i) :
+    o = i<<i;
+}

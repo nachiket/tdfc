@@ -1,0 +1,90 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+LiftWaveH(param unsigned[10] rowLen, param unsigned[8] inWidth, 
+	  param unsigned[8] outWidth, 
+	  input signed[inWidth] a, output signed[outWidth] s,
+	  output signed[outWidth] d)
+     
+{
+  
+  unsigned[9] count = 1;
+  signed[outWidth] sum;
+  signed[outWidth] diff;
+  //  signed[outWidth] diffLast;
+  signed[outWidth] sumplus1;
+  signed[outWidth] diffminus1;
+  
+  state start(a):
+    {	  
+      sum = a; goto init1;
+    }
+
+  state init1(a):
+    {
+      diffminus1 = a; diff = a; //count = count + 1; goto middle10;
+      goto middle10;
+    }
+  
+  state middle01(a):
+    {
+      d = diff;
+      diffminus1 = diff;
+      sum = sumplus1;
+      diff = a; count = count + 1; 
+      if (count == (rowLen/2)) goto final0;
+      else goto middle10;
+    }
+
+  state middle10(a):
+    {
+      sumplus1 = a;
+      diff = diff*2-sum-sumplus1;
+      s = sum + ((diff+diffminus1)>>3);
+      goto middle01;
+    }
+
+  state final0():
+    {
+      signed[outWidth] diffLast;
+      diffLast = (diff-sum)<<1;
+      d = diffLast;
+      //goto final1;
+      s = sum + ((diffLast+diffminus1)>>3);
+      count = 1; //s = sum;
+      goto start; 
+    }
+
+//    state final1():
+//      {
+//        s = sum + ((diffLast+diffminus1)>>3);
+//        count = 1; //s = sum;
+//        goto start; 
+//      }
+ 
+  }
+
+
+
+
+

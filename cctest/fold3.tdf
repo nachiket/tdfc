@@ -1,0 +1,51 @@
+fold3(input unsigned[8] in1,
+      input unsigned[8] in2,
+      output unsigned[8] out1,
+      output unsigned[8] out2)
+{
+ state s0(in1):
+  {
+   out1=(7>0)?in1:~in1;
+   out2=in1;
+   goto s1;
+  }
+ state s1(in1):
+  {
+   out1=(7>0)?~in1:in1;
+   out2=~in1;
+   goto s2;
+  }
+ state s2(in1):
+  {
+   out1=(in1>7)?3:3;
+   out2=3;
+   goto s3;
+  }
+ state s3(in1,in2):
+  {
+   out1=(in1>in2)?in1:in2;
+   out2=(in1>in2)?in1:in2;
+   goto s4;
+  }
+ state s4(in1):
+  {
+   out1=(7<0)?in1:~in1;
+   out2=~in1;
+   goto s5;
+  }
+ state s5(in1):
+  {
+   out1=(7<0)?~in1:in1;
+   out2=in1;
+   goto s6;
+  }
+ state s6(in1):
+  {
+   out1=(in1<7)?5:5;
+   out2=3;
+   goto last;
+  }
+ state last():
+   done();	
+
+}

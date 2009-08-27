@@ -1,0 +1,21 @@
+Formulation of Queue Depth Analysis
+Eylon Caspi, 1/31/05
+-----------------------------------
+
+FEASIBILITY:
+Given TDFPN digraph G=(V,E), find queue depth assignment
+q_e:E->N*  (N* = N\cup\infty)
+s.t. composite automaton is deadlock free
+
+MINIMUM QUEUE DEPTH:
+Given TDFPN digraph G(V,E), find queue depth assignment
+q_e:E->N*  (N* = N\cup\infty)
+s.t. composite automaton is deadlock free
+and q_e is minimum for every e\in E (pointwise least)
+
+Q:  is there a single, pointwise least q_e?
+
+PROP.: Given TDFPN digraph G=(V,E), there exists
+       a single, pointwise least queue depth asst. q_min,
+       s.t. for any deadlock-free queue depth asst. q,
+       for each e\in E, q(e)>=q_min(e)

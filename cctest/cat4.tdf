@@ -1,0 +1,32 @@
+cat4_sigma(param unsigned[6] w, param unsigned[10] wo, 
+      param unsigned [16] size,
+      input unsigned[w] in, output unsigned[wo] out)
+{
+  unsigned[wo] sum=0;
+  unsigned[16] cnt=0;
+  state start(in):
+    {
+      sum=sum+in;
+      cnt=cnt+1;
+      if (cnt==size)
+	goto finish;
+      else
+	goto start;
+    }
+  state finish():
+    {
+      out=sum;
+      done();
+    }
+
+}
+
+
+cat4(param unsigned[6] w, 
+             param unsigned[2] y,
+             input unsigned[w] in, 
+             output unsigned[cat(w,y)] out)
+{
+	cat4_sigma(w,cat(w,y),15,in,out);
+}
+

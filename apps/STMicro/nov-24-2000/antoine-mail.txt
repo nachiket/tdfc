@@ -1,0 +1,125 @@
+From eylon@eecs.berkeley.edu Fri Nov 24 11:26:08 2000 -0800
+Status: R
+X-Status: 
+X-Keywords:
+Received: from eecs3.EECS.Berkeley.EDU (eecs3.EECS.Berkeley.EDU [169.229.60.164])
+	by mnemosyne.CS.Berkeley.EDU (8.9.3/) with ESMTP id LAA09318
+	for <eylon@mailspool.cs.berkeley.edu>; Fri, 24 Nov 2000 11:26:07 -0800 (PST)
+Received: from EECS.Berkeley.EDU (localhost.Berkeley.EDU [127.0.0.1])
+	by eecs3.EECS.Berkeley.EDU (8.9.3/8.9.3) with ESMTP id LAA17546
+	for <eylon@mailspool.cs.berkeley.edu>; Fri, 24 Nov 2000 11:27:20 -0800 (PST)
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+	by EECS.Berkeley.EDU (8.9.3/8.9.3) with ESMTP id LAA17543
+	for <eylon@cs.berkeley.edu>; Fri, 24 Nov 2000 11:27:15 -0800 (PST)
+Received: from zeta.dmz-eu.st.com (zeta.dmz-eu.st.com [164.129.230.9])
+	by beta.dmz-eu.st.com (STMicroelectronics) with SMTP id 89C0C48F6
+	for <eylon@cs.berkeley.edu>; Fri, 24 Nov 2000 19:26:44 +0000 (GMT)
+Received: by zeta.dmz-eu.st.com (STMicroelectronics, from userid 0)
+	id 02AE848D0; Fri, 24 Nov 2000 19:27:04 +0000 (GMT)
+Received: from eux100.sgp.st.com (localhost [127.0.0.1])
+	by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 4E2BB1847
+	for <eylon@cs.berkeley.edu>; Fri, 24 Nov 2000 19:27:03 +0000 (GMT)
+Received: from rbmail.rbc.st.com (rbmail [167.4.210.79])
+	by eux100.sgp.st.com (8.8.6 (PHNE_17190)/8.8.6) with ESMTP id UAA20729
+	for <eylon@cs.berkeley.edu>; Fri, 24 Nov 2000 20:26:36 +0100 (MET)
+Received: from huea ([167.4.227.160]) by rbmail.rbc.st.com with SMTP (8.7.6/8.7.3) id LAA16526 for <eylon@cs.berkeley.edu>; Fri, 24 Nov 2000 11:26:10 -0800 (PST)
+Message-ID: <004001c0564c$076d7110$a0e304a7@rbc.st.com>
+From: "Antoine Hue" <Antoine.Hue@st.com>
+To: <eylon@cs.berkeley.edu>
+References: <Pine.LNX.4.21.0011240456070.13112-100000@purr.CS.Berkeley.EDU>
+Subject: Re: simulated  time
+Date: Fri, 24 Nov 2000 11:23:29 -0800
+Organization: STMicroelectronics
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_003D_01C05608.F898E270"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_003D_01C05608.F898E270
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+You will attached the interpolation filter and the complete pipeline.
+Normally, there is everything (TDF, driver, Makefiles, .fuser, input image).
+Ask me if you  are missing something. The commands are:
+- for interpolation : runapp <input image.pgm>
+- for assembly (pipeline): ve5_SCORE <input image.pgm> <output image.pbm>
+
+Thanks for your support.
+
+Antoine
+
+STMicroelectronics
+(1-858)-452-7715 ext442
+4690 Executive Drive San Diego CA 92121 USA
+----- Original Message -----
+From: <eylon@cs.berkeley.edu>
+To: <antoine.hue@st.com>
+Cc: <score-list@cs.berkeley.edu>
+Sent: Friday, November 24, 2000 4:58 AM
+Subject: Re: simulated time
+
+
+> On Mon, 20 Nov 2000, Antoine Hue wrote:
+>
+> > Hello,
+> > some time ago, I told you that executing the complete camera application
+> > takes less simulated time than part of it (any stage of the pipeline);
+all
+> > simulations executed spatially.
+> > Eylon told me that one of the possible cause is the use of multithreaded
+in
+> > my driver. This morning, I have reduced the number of threads from 3
+> > (main,producer, consumer) to 2 (main,producer) and I observed some gain.
+I
+> > do not know how to reduce to one thread but by mixing the producer and
+> > consumer loops. Tough and dirty job if I do not want to loose in
+performance
+> > because a buffer connected to the CPU is full (output) or empty (input)
+.
+> > Worst case: the CPU is waiting for a token to be outputted by the
+pipeline
+> > and thus do not produce an input, tokens go one by one through the
+pipeline.
+> >
+> > I look forward your suggestions.
+> >
+> > Antoine
+>
+>
+> Hi Antoine.
+> Yury would like to try running your example, to see
+> exactly what is wrong.  Is it possible to get a copy
+> of your latest code, along with the (inaccurate) simulation
+> times that you are experiencing?  Thanks.
+> Appologies for not getting back to you sooner.
+> Happy thanksgiving!
+>
+>
+> Eylon Caspi                     University of California, Berkeley
+> eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+> tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>
+>
+
+------=_NextPart_000_003D_01C05608.F898E270
+Content-Type: application/x-compressed;
+	name="interp_part_agregates.tgz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="interp_part_agregates.tgz"
+
+------=_NextPart_000_003D_01C05608.F898E270
+Content-Type: application/x-compressed;
+	name="ve5_ass-nov24.tgz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="ve5_ass-nov24.tgz"
+
+------=_NextPart_000_003D_01C05608.F898E270--
+

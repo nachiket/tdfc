@@ -1,0 +1,166 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+
+
+// Dynamic output edited from Andre/Eylon's code
+// Needs special code to handle EOS
+
+#include "div.txt"
+
+__Quant_ZLE (param unsigned[8] inWidth, param unsigned[15] max, 
+	   param unsigned[10] zerothresh,
+	   param unsigned[10] MAX,  param unsigned[5] ZERO_MARK,
+	   input signed[inWidth] a, output unsigned[8] o)
+{
+    unsigned[15] range = max - zerothresh;
+    signed[15] t0;
+    unsigned[15] val;
+    unsigned[15] nval; // limited version of val
+    boolean sign;
+    unsigned[5] temp; 
+    unsigned[5] ntemp; // limited version of temp
+    unsigned[20] t1;
+
+    unsigned[7] cnt=0;
+    unsigned[5] aold; // substituting for a@1 since it is
+                      // unclear in eos cases
+ 
+    state nopend(a): {
+      unsigned[5] q;
+
+      if (a < 0) {t0 = -a; val = bitsof(t0); sign = true;}
+      else {val = bitsof(a); sign = false;}
+      if (val > max) {nval = max;}
+      else nval = val;
+      if (val < zerothresh) {q = ZERO_MARK;}
+      else { 
+	nval = val - zerothresh;
+	//  t1 = nval*16/range;
+	t1 = DIV(nval*16,range);
+	temp = t1%32;
+	if (temp > 14) {ntemp = 14;}
+	else ntemp = temp;
+	if (!sign) {q = ntemp + 15;}
+	else {q = ntemp;}
+      }
+
+      aold = q;
+      if (q==ZERO_MARK)   {cnt=1; goto zero; }
+      else {o=q;} // and stay
+    }
+
+    state zero(a): {  
+      unsigned[5] q;
+
+      if (a < 0) {t0 = -a; val = bitsof(t0); sign = true;}
+      else {val = bitsof(a); sign = false;}
+      if (val > max) {nval = max;}
+      else nval = val;
+      if (val < zerothresh) {q = ZERO_MARK;}
+      else { 
+	nval = val - zerothresh;
+	//  t1 = nval*16/range;
+	t1 = DIV(nval*16,range);
+	temp = t1%32;
+	if (temp > 14) {ntemp = 14;}
+	else ntemp = temp;
+	if (!sign) {q = ntemp + 15;}
+	else {q = ntemp;}
+      }
+
+      aold = q;
+      if (q==ZERO_MARK) {
+	if (cnt==MAX-1-ZERO_MARK) {
+	  o=(MAX-1);
+	  cnt = 0;
+	  stay;
+	}
+	else {
+	  cnt=cnt+1;
+	}
+      }
+      else {
+	if (cnt>0)   {
+	  o=(cnt+ZERO_MARK-1);
+	  cnt = 0;
+	  goto pending;
+	}
+	else {
+	  o=q;
+	  goto nopend;
+	}
+      }
+    }
+
+    state pending(a): {
+      unsigned[5] q;
+
+      if (a < 0) {t0 = -a; val = bitsof(t0); sign = true;}
+      else {val = bitsof(a); sign = false;}
+      if (val > max) {nval = max;}
+      else nval = val;
+      if (val < zerothresh) {q = ZERO_MARK;}
+      else { 
+	nval = val - zerothresh;
+	//  t1 = nval*16/range;
+	t1 = DIV(nval*16,range);
+	temp = t1%32;
+	if (temp > 14) {ntemp = 14;}
+	else ntemp = temp;
+	if (!sign) {q = ntemp + 15;}
+	else {q = ntemp;}
+      }
+
+      o = aold;
+      aold = q;
+      if (q==ZERO_MARK) {
+	cnt=1;  goto zero;
+      }
+      else {
+	goto pending;
+      }
+    }
+
+    // EOS states
+
+    state nopend(eos(a)): {
+      done();
+    }
+	
+    state zero(eos(a)): {
+      if (cnt>0) {
+	  o = (cnt+ZERO_MARK-1);
+      }
+      done();
+    }
+    
+    state pending(eos(a)): {
+	o = aold;
+	done();
+    }
+}  
+
+
+	   
+    

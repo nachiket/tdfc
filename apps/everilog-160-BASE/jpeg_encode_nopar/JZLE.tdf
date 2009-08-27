@@ -1,0 +1,226 @@
+//////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 1999 The Regents of the University of California 
+// Permission to use, copy, modify, and distribute this software and
+// its documentation for any purpose, without fee, and without a
+// written agreement is hereby granted, provided that the above copyright 
+// notice and this paragraph and the following two paragraphs appear in
+// all copies. 
+//
+// IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
+// DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
+// LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
+// EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. 
+//
+// THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
+// AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
+// PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+//
+//////////////////////////////////////////////////////////////////////////////
+
+// toAC gets symbols as outlined on pg 192 on Pennebaker and Mitchell
+// toDC bitwidths of DPCM differences as on pg 190 of P and M
+
+JZLE (input signed[16] a, output unsigned[4] toDC, output unsigned[8] toAC,
+      output unsigned[8] plainlen, 
+      output unsigned[16] plainout, output unsigned[4] toMux)
+{
+
+    signed[16] atemp;
+    unsigned[10] MAX=16;
+    unsigned[7] cnt=0;
+    unsigned[4] DCl;
+    //unsigned[5] aold; // substituting for a@1 since it is
+                        // unclear in eos cases
+    unsigned[7] dataSize = 64;
+    signed[16] oldDCValue;
+    unsigned[7] transpire; // how many data values have gone by
+    unsigned[5] zl;
+    unsigned[4] TODC = 0; unsigned[4] TOAC = 1; unsigned[4] TOAC2 = 2; 
+    unsigned[4] PLAIN = 3;
+    // since the last DC value
+    // nopend = not pending
+    unsigned[16] plainout_t;
+
+    state initDCval(a): {
+      unsigned[4] DClen;
+      signed[16] b;
+      toMux = TODC; // going to DC length table 
+      if (a < 0) {b = -a;}
+      else {b = a;}
+      if (b==0) {
+	DClen = 0;
+      } // toDC symbol will probably have to be copied
+      else {
+	DClen = 11;
+	DClen = ((b<1024)?10:DClen); DClen = ((b<512)?9:DClen);
+	DClen = ((b<256)?8:DClen); DClen = ((b<128)?7:DClen);
+	DClen = ((b<64)?6:DClen); DClen = ((b<32)?5:DClen);
+	DClen = ((b<16)?4:DClen); DClen = ((b<8)?3:DClen);
+	DClen = ((b<4)?2:DClen); DClen = ((b<2)?1:DClen);
+      }
+      toDC = DClen;  // for DC hufftable
+      DCl = DClen;   // for next state
+      // plainout  = a; // not this simple
+      if (a<0) {
+	plainout_t = bitsof(a+((1<<DClen)-1));
+      } else if (a>0) {
+	plainout_t = bitsof(a);
+      }
+      oldDCValue = a;
+      goto DCval2;
+    }
+
+    state DCval(a): {
+      signed[16] A;
+      unsigned[4] DClen;
+      signed[16] b;
+      A = a - oldDCValue;
+      toMux = TODC; // going to DC length table 
+      if (A < 0) {b = -A;}
+      else {b = A;}
+      if (b==0) {
+	DClen = 0;
+      } // toDC symbol will probably have to be copied
+      else {
+	DClen = 11;
+	DClen = ((b<1024)?10:DClen); DClen = ((b<512)?9:DClen);
+	DClen = ((b<256)?8:DClen); DClen = ((b<128)?7:DClen);
+	DClen = ((b<64)?6:DClen); DClen = ((b<32)?5:DClen);
+	DClen = ((b<16)?4:DClen); DClen = ((b<8)?3:DClen);
+	DClen = ((b<4)?2:DClen); DClen = ((b<2)?1:DClen);
+      }
+      toDC = DClen;  // for DC hufftable
+      DCl = DClen;   // for next state
+      // plainout  = a; // not this simple
+      if (A<0) {
+	plainout_t = bitsof(A+((1<<DClen)-1));
+      } else if (A>0) {
+	plainout_t = bitsof(A);
+      }
+      // insert code to calculate DCvalue
+      oldDCValue = a; // NOT A
+      goto DCval2;
+    }
+
+    state DCval2(): {
+      if (DCl != 0) {
+	plainlen = DCl;
+	plainout = plainout_t;
+	toMux = PLAIN; // should be only done if difference wasn't zero
+      }
+      transpire = 1;
+      goto zero;
+    }
+
+
+    state zero(a): {  
+      unsigned[7] ttrans;
+      signed[16] b;
+      unsigned[4] ssss;
+      ttrans = transpire + 1;
+      transpire = transpire + 1;
+      //aold = a;
+      if (a==0) {
+	if (ttrans==dataSize) {  // transpire will be set in DCval2
+	  toMux = TOAC;
+	  toAC = 0; // EOB symbol
+	  cnt = 0;
+	  goto DCval;
+	}
+//  	else if (cnt==(MAX-1)) { // actual number of zeroes is MAX already 
+//  	  toMux = TOAC;
+//  	  toAC = 15*16; // ZRL symbol
+//  	  cnt = 0;
+//  	}
+	else {
+	  cnt=cnt+1;
+	}
+      }
+      else {
+	if (cnt>=MAX) {
+	  atemp = a;  //has to carry to accombo
+	  goto zrlout;
+	} else {
+	  if (a < 0) {b = -a;}
+	  else {b = a;}
+	  ssss = 10;  ssss = ((b<512)?9:ssss); 
+	  ssss = ((b<256)?8:ssss); ssss = ((b<128)?7:ssss);
+	  ssss = ((b<64)?6:ssss); ssss = ((b<32)?5:ssss);
+	  ssss = ((b<16)?4:ssss); ssss = ((b<8)?3:ssss);
+	  ssss = ((b<4)?2:ssss); ssss = ((b<2)?1:ssss);
+	  toMux = TOAC2;
+	  toAC = cnt*16+ssss;
+	  plainlen = ssss;
+	  // plain = a; // not this simple
+	  if (a < 0) {
+	    plainout = bitsof(a+((1<<ssss)-1));
+	  } else {
+	    plainout = bitsof(a);
+	  }
+	  cnt = 0;
+	  if (ttrans==dataSize) {
+	    goto DCval;
+	  }
+	}
+      }
+    }
+
+    state zrlout(): {
+      if (cnt>=MAX) {
+	toMux = TOAC;
+	toAC = 15*16;
+	cnt = cnt-MAX;
+      } else {
+	goto ac_combo;
+      }
+    }
+
+    state ac_combo(): {
+      signed[16] b;
+      unsigned[4] ssss;
+      if (atemp < 0) {b = -atemp;}
+      else {b = atemp;}
+      ssss = 10;  ssss = ((b<512)?9:ssss); 
+      ssss = ((b<256)?8:ssss); ssss = ((b<128)?7:ssss);
+      ssss = ((b<64)?6:ssss); ssss = ((b<32)?5:ssss);
+      ssss = ((b<16)?4:ssss); ssss = ((b<8)?3:ssss);
+      ssss = ((b<4)?2:ssss); ssss = ((b<2)?1:ssss);
+      toMux = TOAC2;
+      toAC = cnt*16+ssss;
+      plainlen = ssss;
+      // plain = a; // not this simple
+      if (atemp < 0) {
+	plainout = bitsof(atemp+((1<<ssss)-1));
+      } else {
+	plainout = bitsof(atemp);
+      }
+      cnt = 0;
+      if (transpire==dataSize) {
+	goto DCval;
+      } else {
+	goto zero;
+      }
+      
+
+    }
+
+          
+//     state pending(a): {
+//         transpire = transpire + 1;
+// 	o = aold;
+// 	// o = a@1;
+// 	aold = a;
+// 	if (a==ZERO_MARK) {
+// 	    cnt=1;  goto zero;
+// 	}
+// 	else {
+// 	    goto pending;
+// 	}
+//     }
+
+}  
+

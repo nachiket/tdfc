@@ -1,0 +1,21 @@
+unsigned[3] mask(input unsigned[10] in, param unsigned[8] w)
+{
+      state only(in):
+        mask=((in) & ((1<<w)-1));
+}
+unsigned[8] shift(input unsigned[8] in, param unsigned[8] s)
+{
+      state only(in):
+        shift=(in<<s);
+}
+table_trans(param unsigned [8] w, param unsigned [8] s, 
+            param unsigned[8][8] seg,
+	    input unsigned[10] s0, 
+            output unsigned[8] s1) 
+{
+
+        unsigned [8] r;
+//      segment_r(dwidth,awidth,nelems,contents,addr,data)
+	segment_r(8,3,8,seg,mask(s0,w),r);
+        s1=shift(r,s);
+}

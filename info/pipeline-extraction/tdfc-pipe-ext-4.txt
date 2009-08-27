@@ -1,0 +1,161 @@
+----------------------------------------------------------------
+3 LEVELS OF PIPELINE EXTRACTION
+
+  (1) local extraction, in same BB
+        (equivalent to retiming I/O registers)
+
+  (2) global extraction, across BBs
+        (maybe equivalent to retiming, unless replicate/fanout)
+
+  (3) speculative extraction, across branches
+        (emit data + branch condition, cond possibly delayed,
+         s.t. cond gates I/O of I/O pipe)
+
+----------------------------------------------------------------
+STREAMIFYING A DEF-USE CHAIN
+
+A def-use chain d-->u is converted into a stream (``streamified'') by:
+  (1) succeeding definition d by token production
+  (2) preceding  use u        by token consumption
+
+A def-use chain d-->u may be converted into a stream
+(``is streamable'') if every evaluation of d implies a
+subsequent evaluation of u, in 1-to-1 correspondence,
+before any subsequent evaluation of d.
+Specifically, d-->u is streamable iff:
+
+  (1) d dominates u          (all paths start-->u contain d)
+  (2) u reverse dominates d  (all paths d-->end contain u)
+  (3) d respects u           (all loops d-->d contain u)
+  (4) u respects d           (all loops u-->u contain d)
+
+If d has multiple reached uses {ui}, then
+   (1) all streamified chains d-->ui get emission
+   (2) any non-streamified chains continue to use local variable
+
+If u has multiple reaching definitions {di}, then fail;
+  in this case, use u does not know which def to use,
+  so does not know which stream to consume.
+  This case should be prevented by streamification requirements
+  (1) d dominates u,  (4) u respects d
+
+----------------------------------------------------------------
+OUTPUT PIPELINE EXTRACTION
+
+repeat {
+  - extract computation "o=e" up to referenced vars, leaving "ov=v"
+  - lift emission "ov=v" to point of definition "v=e"  (or "v=phi()")
+  - propagate definition "v=e" into use "ov=v" to get "ov=e"
+}
+
+Pros and Cons:
+
+  - extract computation "o=e" up to referenced vars, leaving "ov=v"
+      * benefit: shrink SFSM
+
+  - lift emission "ov=v" to point of definition "v=e"
+      * benefit: emit earlier; more cycles for pipeline to compute
+                  staggered inputs, or save total cycles
+      * problem: need additional pipeline reg,
+                  when could have used SFSM reg to store v for a cycle
+      * how to determine whether this is profitable?
+
+  - propagate definition "v=e" into use "ov=v" to get "ov=e"; erase v
+      * problem: if v=e has multiple uses, then cannot erase v=e,
+                  must replicate e once in SFSM and once in pipeline
+      * how to determine whether this is profitable?
+         profitable to clock only if enables extracting more things
+         upstream from v=e, at cost of area
+
+Procedure:
+
+  - Computation "o=e" may be output extracted if:
+      (1)  o has only 1 point of emission  -- OR --
+      (1') every point of emission "o=e" has identical e
+    To extract:
+      (1) remove stream output o
+      (2) add stream outputs ov_i       for all vars v_i used in e
+      (3) replace "o=e" with "ov_i=v_i" for all vars v_i used in e
+            at every point of emission
+
+  - Emission "ov=v" may be lifted to point of definition "v=e" if:
+      (1) def-use chain "v=e"-->"ov=v" is streamable
+            (this should imply that ov=v has only 1 reaching def for v)
+      (2) no path along "v=e"-->"ov=v" emits ov
+            (maybe can model this as reverse copy propagation?)
+    To lift:
+      (1) move "ov=v" to immediately follow "v=e"  (possibly across BBs)
+    Note, def-use chain remains streamable after lifting
+
+  - Def "v=e" may be propagated into emission "ov=v" if
+      (1) def-use chain "v=e"-->"ov=v" is streamable  (trivial if lifted)
+      (2) "v=e" has only one reached use
+    To propagate:
+      (1) replace "ov=v" by "ov=e"
+      (2) remove "v=e"
+
+  - Def "v=e" may be propagated into emission "ov=v" with replication if:
+      (1) def-use chain "v=e"-->"ov=v" is streamable  (trivial if lifted)
+      (2) "v=e" has multiple reached uses
+    To propagate with replication:
+      (1) replace "ov=v" by "ov=e"
+    Note, this xform or subsequent extraction of "ov=e" does NOT
+      improve clock period of this state, since "v=e" remains;
+      this xform is only profitable as an area-time tradeoff
+      if subsequent extraction of "ov=e" and lifting/propagation of e
+      yields upstream extraction that reduces clock period of another state.
+
+----------------------------------------------------------------
+INPUT PIPELINE EXTRACTION
+
+repeat {
+  - propagate consumption of i to point of use e of i
+  - copy-propagate def "v=i" to point of use e of v
+  - extract computation "v=e" that uses i, leaving "v=iv"
+}
+
+  - Consumption of i "state foo(i)" may be propagated to to point of use e if:
+      (1)  i has only 1 point of consumption -- OR --
+      (1') every point of consumption "foo(i)" reaches identical use e...
+             << need to refine this condition >>
+      (2)  def-use chain "foo(i)-->e" is streamable
+             (implies that no path foo(i)-->e contains another i consumption)
+      (3)  no path foo(i)-->e contains an emission "o=e2" that feeds back
+             to consumption "foo(i)" through external stream connections
+    To propagate:
+      (1) remove consumption "foo(i)"
+      (2) add consumption "foo(i)" directly preceding use e
+
+  - Computation e that uses inputs i_k consumed in same BB "foo(i_1,..i_k)"
+      may be extracted if:
+      (1) i_k has only 1 point of consumption, for all inputs i_k used in e
+    To extract:
+      (1) remove stream inputs i_k for all i_k used in e
+      (2) add stream input i_e
+      (3) replace consumption of all i_k in this BB
+            by consumption of i_e:  foo(i_e)
+      (4) replace e by i_e
+
+  - Use copy propagation to get around hidden use of i:
+      "v=i" ... "=v"
+
+  - DEFUNCT
+    /----------------------------------------------------------------\
+      - Definition "v=i" of an input i consumed in same BB
+          may be propagated to the use e of v if:
+          (1) def-use chain v-->e is streamable
+          (2) def "v=i" has only 1 reached use
+          (3) no path v-->e consumes i
+        To propagate:
+          (1) replace v in e by i
+          (2) remove "v=i"
+
+      - Definition "v=i" of an in put i consumed in same BB
+          may be propagated to use e of v with replication if:
+          (1) def-use chain v-->e is streamable
+          (2) def "v=i" has multiple reached use
+          (3) no path v-->e consumes i
+        To propagate:
+          (1) replace v in e by i
+        What is benefit?
+    \----------------------------------------------------------------/

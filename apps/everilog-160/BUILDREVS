@@ -1,0 +1,9 @@
+#!/bin/csh
+
+set PREFIX = qsubwaitcsh
+
+# Synplify
+pushd proj ; make -j 40 PREFIX="${PREFIX}" applonly |& tee synplify-make-applonly.OUT ; popd
+
+# Xilinx PAR all revs
+pushd proj-xilinx ; make -f xilinx-makefile-allrevs-63i -j 40 PREFIX="${PREFIX}" |& tee xilinx-make-allrevs.OUT ; popd

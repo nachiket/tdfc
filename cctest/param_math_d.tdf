@@ -1,0 +1,24 @@
+param_math_d(param unsigned[6] w, param unsigned[10] wo, 
+      param unsigned [16] size,
+      input unsigned[w] in, output unsigned[wo] out)
+{
+  unsigned[wo] sum=0;
+  unsigned[16] cnt=0;
+  state start(in):
+    {
+      sum=sum+in;
+      cnt=cnt+1;
+      if (cnt==size)
+	goto finish;
+      else
+	goto start;
+    }
+  state finish():
+    {
+      out=sum;
+      done();
+// was      { unsigned[0] wait=done(0); }
+        // should this be a builtin? 
+    }
+
+}

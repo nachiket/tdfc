@@ -1,0 +1,58 @@
+#!/bin/csh
+#
+# Synplify a given behavioral module family (top, FSM, DP),
+#   given implementation / revision
+#
+# Usage:  synplify-impl topmodule impl
+#
+# Assume separate project directories for top, FSM, DP modules,
+#            each project directory named after its module
+#   - top is named "<topmodule>"
+#   - FSM is named "<topmodule>_fsm"
+#   - DP  is named "<topmodule>_dp"
+#
+# Synplify 7.1
+# Eylon Caspi, 5/8/03
+
+set synplify = "synplify_pro"
+
+if ($#argv<2) then
+  echo "Synplify a given module family (top, FSM, DP) and given implementation"
+  echo "Usage:  $0 topmodule impl"
+  echo "setenv SYNPLIFY <your synplify binary>"
+  exit
+endif
+
+set topmodule = $argv[1]
+set rev       = $argv[2]
+
+set fsmmodule = ${topmodule}_fsm
+set dpmodule  = ${topmodule}_dp
+
+echo "--- Cleaning Up ${topmodule}, ${fsmmodule}, ${dpmodule} / Implementation $rev"
+rm -f ${topmodule}/$rev/*
+rm -f ${topmodule}_fsm/$rev/*
+rm -f ${topmodule}_dp/$rev/*
+
+echo "--- Synthesizing Top Module $topmodule / Implementation $rev"
+$synplify -batch -impl $rev -log $topmodule/$rev/synplify.log $topmodule/*prj
+
+echo "--- Copying FSM Explorer results to FSM project"
+set origsdc = $topmodule/$rev/${topmodule}_fsm.sdc
+if (-r $origsdc) then
+  if (-d ${fsmmodule}/$rev) then
+    set newsdc = ${fsmmodule}/$rev/${fsmmodule}_fsm.sdc
+    set cmd = (cp -p $origsdc $newsdc)
+    # set cmd = (perl -npe \"s/$topmodule/${topmodule}_fsm/\" \< $origsdc \> $newsdc)
+    echo $cmd
+    eval $cmd
+  endif
+endif
+
+echo "--- Synthesizing FSM Module $fsmmodule / Implementation $rev"
+$synplify -batch -impl $rev -log $fsmmodule/$rev/synplify.log $fsmmodule/*prj
+
+echo "--- Synthesizing DP Module $dpmodule / Implementation $rev"
+$synplify -batch -impl $rev -log $dpmodule/$rev/synplify.log $dpmodule/*prj
+
+echo "--- Done"

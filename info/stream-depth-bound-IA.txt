@@ -1,0 +1,153 @@
+----
+
+Given op1, op2, connected by streams {stream_i}
+return for each stream_i, an upper bound depth d_i \in Z\cup\{\infty\}
+
+for each stream_i, let d_i=0
+
+while (1) {
+  construct interface automaton for op1, op2.
+  construct interface automaton for each stream_i as queue of depth d_i.
+  compose:  comp = op1 * {stream_i} * op2
+  if exist illegal states
+    for each illegal state in comp,
+      for each illegal output transition (corresponding to stream_i)
+        d_i <-- d_i + 1
+    conservative:  if d_i > K for any i,  then FAIL
+    better:        if d_i > K for some i, then d_i <-- \infty  (NOW WHAT?)
+                   if d_i = \infty \forall i, then FAIL
+  else
+    success:  return all d_i
+}
+
+FAIL:  return d_i=\infty \forall i
+
+
+----
+
+interface automaton = {V, E, Ai, Ao, Ah, Vstart}
+Actions Ai, Ao, Ah = Symbol (stream in top level composition)
+                   | Expr   (some internal transition... undef)
+V = state nodes, annotated by TDF State*
+E = transition,  annotated by an Action
+Vstart \in V is start state
+
+Note, for now we treat EOS as a token on the stream.
+There is no harm in doing so, provided the app is well formed,
+i.e. no token transmission after stream close,
+and no token consumption after eos.
+Also, an IA node may simultaneously (non-deterministically)
+branch on "i?" for data and "i?" for eos.
+To fully handle + analyze EOS, must build it into the queue.
+
+
+----
+
+Given op
+return interface automaton for op
+
+Assume inputs have _not_ been sequentialized.
+We sequentialize them here.
+
+map : State* -> node   maps a state to its "entry" node (that matches inputs)
+
+create state entry nodes.
+for each state having node u:  (starting with "start" state)
+  sort inputs of all state cases into sequential rule order
+  for each non-eos input:
+    add input action a to Ai
+    create node v
+    create edge u-(a)->v
+    go process v as state entry
+  for each eos/non-eos input:
+    normal:
+      add normal input action an to Ai
+      create node vn
+      create edge u-(an)->vn
+      put all normal input state-cases into state-case set for vn,
+        then go process vn (as if it were state entry)
+    eos:
+      add eos input action ae to Ai
+      create node ve
+      create edge u-(ae)->ve
+      put all eos input state-cases into state-case set for ve,
+        then go process ve (as if it were state entry)
+  for each remaining input:
+    add input action a to Ai
+    create node v
+    create edge u-(a)->v
+  when find state-case with no inputs:
+    for each token emission "o=...", in order:
+      add output action a to Ai
+      create node v
+      create edge u-(a)->v
+      continue with u<--v
+    if have conditional branch to S1, S2
+      create or find state entry nodes for S1, S2
+      add "data-dependent" internal action ad to Ai
+      create edge u-(ad)->S1
+      create edge u-(ad)->S2
+return
+
+
+----
+
+Given interface automata X, Y
+return composition automaton X||Y (kind of...)
+
+unvisited_states = { combo states (x,y) }
+
+compute shared actions:  shared(X,Y)
+
+frontier <-- (x_start,y_start)
+while (frontier not empty)
+  pop state (x,y) from frontier
+  for all outgoing transitions (x,ax,x') of x
+    if ax \in Ah_X  [internal step of X]
+    || ax \in Ai_X and ax \not\in shared(X,Y)
+    || ax \in Ao_X and ax \not\in shared(X,Y)
+      create edge ((x,y), a, (x',y))
+      if (x',y) \in unvisited_states
+        remove (x',y) from unvisited_states
+        add (x',y) to frontier
+    else if ax \in Ai_X and ax \in shared(X,Y)
+      if exists transition (y,ax,y')  ***
+        (assert:  ax \in Ao_Y(y))
+        create edge ((x,y), ax, (x',y'))
+        if (x',y') \in unvisited_states
+          remove (x',y') from unvisited_states
+          add (x',y') to frontier
+      else
+        [X is blocked on input ax?, but Y is not providing it]
+        [do nothing]
+    else if ax \in Ao_X and ax \in shared(X,Y)
+      if exists transition (y,ax,y')  ***
+        (assert:  ax \in Ai_Y(y))
+        create edge ((x,y), ax, (x',y'))
+        if (x',y') \in unvisited_states
+          remove (x',y') from unvisited_states
+          add (x',y') to frontier
+      else
+        [X outputs ax!, but Y does not provide it -- illegal state]
+        FAIL this branch:  remember INSUFFICIENT QUEUE DEPTH for ax
+        must extract from frontier any derivatives of this state
+          that we already pushed... dirty
+  for all remaining outgoing transitions (y,ay,y') of y
+    do same
+    (just don't repeat ***)
+  [done with state (x,y)]
+end while
+
+if had INSUFFICIENT QUEUE DEPTHS,
+  return them
+else
+  return combo interface automaton  (SUCCESS)
+
+----------------------------------------------------------------
+
+(1)  create IA for TDF op
+(2)  create IA for queue
+(3)  compose 2 IAs
+(4)  compose n IAs
+(5)  iterate with progressively larger queues
+

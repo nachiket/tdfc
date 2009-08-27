@@ -1,0 +1,148 @@
+// this will generate memory accesses in a zigzag pattern.
+// Example:
+//
+// 0  1  2  3
+// 4  5  6  7
+// 8  9  10 11
+// 12 13 14 15
+//
+//   Result: 0 1 4 8 5 2 3 6 9 12 13 10 8 11 14 15
+
+// this defines the maximum number of bits the address can occupy.
+#define MAX_ADDR_BITS	6
+
+// this operator generates the addresses.
+zigzag(param unsigned[MAX_ADDR_BITS] dim,
+       output unsigned[MAX_ADDR_BITS] addr,
+       param unsigned[16] iter)
+{
+  unsigned[MAX_ADDR_BITS] currentX;		// current X position.
+  unsigned[MAX_ADDR_BITS] currentY;		// current Y position.
+  unsigned[MAX_ADDR_BITS] currentAddr;	// current addr position.
+  unsigned[16] index=0;
+
+  // my coordinate system is the following: (see matrix above)
+  //   X increases from left to right,
+  //   Y increases from top to bottom.
+
+  state start():
+    {
+      currentX = 0;
+      currentY = 0;
+      currentAddr = 0;
+      // make sure our dimension is not 0.
+      if (dim == 0) {
+        // immediately complete!
+        goto cleanup;
+      } else {
+        // output the current address.
+        addr = currentAddr;
+
+        // if our dimensions are 1, then we are done!
+        if (dim == 1) {
+          goto cleanup;
+        } else {
+          goto go_east;
+	  // goto go_south;
+        }
+      }
+    }
+
+  state go_east():
+    {
+      // adjust address and position.
+      currentX = currentX + 1;
+      currentAddr = currentAddr + 1;
+
+      // output the current address.
+      addr = currentAddr;
+
+      // determine what is the next direction to go.
+      if ((currentX > 0) && (currentY < (dim-1))) {
+        goto go_southwest;
+      } else if ((currentX < (dim-1)) && (currentY > 0)) {
+        goto go_northeast;
+      } else {
+        goto cleanup;
+      }
+    }
+
+  state go_southwest():
+    {
+      // adjust address and position.
+      currentX = currentX - 1;
+      currentY = currentY + 1;
+      currentAddr = currentAddr - 1 + dim;
+
+      // output the current address.
+      addr = currentAddr;
+
+      // determine what is the next direction to go.
+      if ((currentX > 0) && (currentY < (dim-1))) {
+        goto go_southwest;
+      } else if (currentY < (dim-1)) {
+        goto go_south;
+      } else if (currentX < (dim-1)) {
+        goto go_east;
+      } else {
+        goto cleanup;
+      }
+    }
+
+  state go_south():
+    {
+      // adjust address and position.
+      currentY = currentY + 1;
+      currentAddr = currentAddr + dim;
+
+      // output the current address.
+      addr = currentAddr;
+
+      // determine what is the next direction to go.
+      if ((currentX > 0) && (currentY < (dim-1))) {
+        goto go_southwest;
+      } else if ((currentX < (dim-1)) && (currentY > 0)) {
+        goto go_northeast;
+      } else {
+        goto cleanup;
+      }
+    }
+
+  state go_northeast():
+    {
+      // adjust address and position.
+      currentX = currentX + 1;
+      currentY = currentY - 1;
+      currentAddr = currentAddr + 1 - dim;
+
+      // output the current address.
+      addr = currentAddr;
+
+      // determine what is the next direction to go.
+      if ((currentX < (dim-1)) && (currentY > 0)) {
+        goto go_northeast;
+      } else if (currentX < (dim-1)) {
+        goto go_east;
+      } else if (currentY < (dim-1)) {
+        goto go_south;
+      } else {
+        goto cleanup;
+      }
+    }
+
+  state cleanup():
+    {
+      unsigned[16] tindex;
+      tindex = index+1;
+      // close the address output.
+      if (tindex == iter) {
+	close(addr);
+	// signal done!
+	done();
+      } else {
+	index = index+1;
+	goto start;
+      }
+    }
+}
+

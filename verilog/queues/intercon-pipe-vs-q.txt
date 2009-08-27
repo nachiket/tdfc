@@ -1,0 +1,30 @@
+Queue size for 16-bit stream  (17-bit queue)  on XC2VP70-11
+Eylon Caspi 3/8/05
+
+
+Q:  Should interconnect pipelining be done with
+    (1) interconnect regs + larger downstream queue, or
+    (2) depth-2 queues  (``relay stations'')
+
+A:  If Xilinx slice packer (map) mistakenly packs interconnect regs
+    with logic, then must use depth>=2 regs to create mobile regs.
+    Pipe depth 2 has same area as Queue depth 2 (no win).
+
+
+------------------------------------------------------------------------
+				SRL16	FFs	LUTs	Packed slices (**)
+------------------------------------------------------------------------
+Interconnect pipe depth 2	 0	38	 0	22 / 20
+Queue depth 2, slow data (*)	 0	36	21	29 / 20
+Queue depth 2			 0	38	22	21 / 21
+Queue depth 4			17	23	51	26 / 26
+Queue depth 16			17	25	56	29 / 29
+------------------------------------------------------------------------
+
+
+(*) Q_srl_prenone,       clk-to-d 1.597ns, clk-to-ctl 0.370ns
+    Q_srl_oreg2_prefull, clk-to-d 0.370ns, clk-to-ctl 0.370ns
+
+
+(**) X/Y means X mapped with no area constraint, -c0
+               Y mapped with min square constraint

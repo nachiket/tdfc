@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+#
+# - Convert page netlist emitted by ``tdfc -epn'' (AT&T graphvis .dot)
+#   to remove stream diamonds
+#
+# - Eylon Caspi 6/21/05
+
+while (<>) {
+    # - Save all lines
+    push(@lines,$_);
+}
+
+foreach $_ (@lines) {
+    # - Build map stream->dst
+    if (/^ *(scoretmp\w+) -> (\w+)/i) {
+	# print "$1 -> $2\n" ;
+	$streamToDst{$1}=$2 ;
+    }
+}
+
+foreach $_ (@lines) {
+    # - Print modified lines
+    if (/^ *(scoretmp\w+) \[shape=/i) {
+	# - Skip this line  (scoretmp diamond)
+    }
+    elsif (/^ *(scoretmp\w+) -> (\w+)/i) {
+	# - Skip this line  (scoretmp->dst arc)
+    }
+    elsif (/^ *(\w+) -> (scoretmp\w+)/i) {
+	# - Replace X->scoretmp with X->dst
+	$dst = $streamToDst{$2};
+	s/-> $2/-> $dst/;
+	print;
+    }
+    else {
+	# - Print line as-is
+	print;
+    }
+}
+
+# print join(" ",@lines)

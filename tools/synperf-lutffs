@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file -- LUT-FFs
+# - $lutffs
+
+while (<>) {
+  if (/^Total +LUTs: +(\d+)/i)
+    { if ($luts==0 || $luts<$1) { $luts=$1; } }
+  elsif (/^Register bits not including I\/Os: +(\d+)/i)
+    { if ($ffs==0  || $ffs<$1)  { $ffs=$1;  } }
+}
+$lutffs = ($luts>$ffs) ? $luts : $ffs;
+print "$lutffs\n";

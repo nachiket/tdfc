@@ -1,0 +1,21 @@
+zle (param unsigned[8] w, input unsigned[w] i, output unsigned[w+1] o)
+{
+  unsigned[w]   MAX_ZEROS = bitsof((signed[w](-1));
+  unsigned[w+1] ZERO_MASK = ((unsigned[w+1])1)<<w;
+  unsigned[w] cnt=0;
+
+  state start (i) :
+    if (i==0) { cnt=1; goto zeros; }
+    else      { o=i; }
+
+  state zeros (i) :
+    if (i==0) {
+      if (cnt==MAX_ZEROS) { o=ZERO_MASK|cnt; cnt=0; }
+      else                { cnt=cnt+1; }
+    }
+    else                  { o=ZERO_MASK|cnt; cnt=0; goto pending; }
+    
+  state pending () :
+    o=i;
+    goto start;    
+}

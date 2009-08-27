@@ -1,0 +1,15 @@
+op (param unsigned[8] p,
+    input boolean i,
+    input unsigned[60] i60,
+    input unsigned[p]  ip,
+    output boolean o)
+{
+  unsigned[p] rp;
+
+  state foo(i) :
+    rp=ip;
+    printf("hello world");
+    printf("i=%d",i);
+    printf("i=%d i60=%Ld ip=%Ld o=%x i&&i=%d rp=%L 1=%d",i,i60,ip,o,i&&i,rp,1);
+    o=rp[0]==1?true:false;
+}

@@ -1,0 +1,55 @@
+Choose node to hoist:
+  Given:   G=(V,E,w,a), src, dst
+  Produce: node u connected to src (not dst) with minimum area-feasible cut
+
+  let Wmin=infinity, u=nil, Xu={}
+  forall node h connected to src  (or could limit to R neighbors)
+    skip h==dst
+    create local copy of graph, GL, work only on GL
+    collapse h into src
+    min-cut src->dst to get cut-set C and source-set X
+    evaluate A(X), W(C)
+    if (W(C)<Wmin) and (A(X)<A(page))
+      Wmin <- W(C)
+      u    <- h
+      Xu   <- X
+  return u, Xu  (u may be nil if never got good A(X))
+
+
+Bipartition:
+  Given:   G=(V,E,w,a), src, dst
+  Produce: source-set X in area bound
+
+  create local copy of graph, GL, work only on GL
+  min-cut src->dst to get cut-set C and source-set X
+  while (not done)  
+    if (X too small)
+      collapse X into src
+      choose node h (not src) to hoist into src  (get h's Xh)
+      if (nil h) then done
+      collapse h into src
+      let X <- Xh
+    else if (X too large)
+      collapse GL\X into dst
+      choose node h (not dst) to hoist into dst  (get h's Xh)
+      if (nil h) then done
+      collapse h into dst
+      let X <- G\Xh
+    else
+      done
+  return corresponding X in G
+
+
+Multi-way partition:
+  Given:   G=(V,E,w,a)
+  Produce: set of clusters {C_i \subset G}
+
+  choose random dst
+  while (A(G\dst) > A(page))
+    choose random src
+    Bipartition(G,src,dst)
+    record source-set as cluster
+    collapse source-set into src
+    if (first time)  let dst <- src
+    else             merge src into dst
+  take G\dst as final cluster

@@ -1,0 +1,45 @@
+philo (input  unsigned[0] rcvLeft,  input  unsigned[0] rcvRight,
+       output unsigned[0] tellLeft, output unsigned[0] tellRight)
+{
+  state thinking  ()		: if (rand()) {/*think*/} else goto hungry;
+  state hungry    ()		: tellLeft=0;  goto waitLeft;
+  state waitLeft  (rcvLeft)	: tellRight=0; goto waitRight;
+  state waitRight (rcvRight)	: goto eating;
+  state eating    ()		: if (rand())
+				    {/*eat*/}
+				  else
+				    { tellLeft=0; tellRight=0; goto thinking; }
+}
+
+
+fork (input  unsigned[0] hearLeft, input  unsigned[0] hearRight,
+      output unsigned[0] giveLeft, output unsigned[0] giveRight)
+{
+  state avail     (hearLeft)	: giveLeft=0;  goto waitLeft;
+  state avail     (hearRight)	: giveRight=0; goto waitRight;
+  state waitLeft  (hearLeft)	: goto avail;
+  state waitRight (hearRight)	: goto avail;
+}
+
+
+diningphilos ()
+{
+  // clockwise: philos A B C D E, forks AB BC CD DE EA
+
+  unsigned[0] AreqR, BreqR, CreqR, DreqR, EreqR,
+              AreqL, BreqL, CreqL, DreqL, EreqL,
+	      ArcvR, BrcvR, CrcvR, DrcvR, ErcvR,
+              ArcvL, BrcvL, CrcvL, DrcvL, ErcvL;
+
+  philo(AreqL,AreqR,ArcvL,ArcvR);	// philo A
+  philo(BreqL,BreqR,BrcvL,BrcvR);	// philo B
+  philo(CreqL,CreqR,CrcvL,CrcvR);	// philo C
+  philo(DreqL,DreqR,DrcvL,DrcvR);	// philo D
+  philo(EreqL,EreqR,ErcvL,ErcvR);	// philo E
+
+  fork(AreqL,BreqR,ArcvL,BrcvR);	// fork AB
+  fork(BreqL,CreqR,BrcvL,CrcvR);	// fork BC
+  fork(CreqL,DreqR,CrcvL,DrcvR);	// fork CD
+  fork(DreqL,EreqR,DrcvL,ErcvR);	// fork DE
+  fork(EreqL,AreqR,ErcvL,ArcvR);	// fork EA
+}

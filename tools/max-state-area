@@ -1,0 +1,2 @@
+#!csh
+perl -e 'foreach (<>) {if (/area\(.*\) = (\d+)/) {if ($maxarea<$1) {$maxarea=$1}}} print "$maxarea\n"' $*

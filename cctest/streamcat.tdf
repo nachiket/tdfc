@@ -1,0 +1,23 @@
+// Stream Concatenation (streamcat)
+//  - concatenate 2 streams in sequence
+//  - streamcat(a,b) == (a1 a2 a3 ... af b1 b2 b3 ... bf)
+
+
+unsigned[n] streamcat (param unsigned[8] n,
+		       input unsigned[n] a,
+		       input unsigned[n] b)
+{
+  #define ret streamcat
+
+  state pass_a (a) :
+    ret=a;
+
+  state pass_a (eos(a)) :
+    goto pass_b;
+
+  state pass_b (b) :
+    ret=b;
+
+  state pass_b (eos(b)) :
+    done();
+}

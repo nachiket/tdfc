@@ -1,0 +1,237 @@
+# BUILD-Makefile
+#
+# - Build apps using synplify + xilinx
+# - Run this after TDFC-APPS, XILINX-DIRS-APPS
+# - Eylon Caspi, 10/1/04
+
+
+################################################################
+# - User Options
+
+toolpath    = ~/brass/tdfc/tools
+
+# SYNPREFIX = qsubwait -cwd -j y -r y -l syn=1 ~/bin/csh-eval2
+SYNPREFIX   = qsubwait -cwd -j y -r y          ~/bin/csh-eval2
+XILPREFIX   = qsubwait -cwd -j y -r y          ~/bin/csh-eval2
+# SYNLICENSES = 6
+SYNLICENSES = 40
+XILLICENSES = 40
+
+synbuild    = $(MAKE) -k -j $(SYNLICENSES) PREFIX="$(SYNPREFIX)"
+synreport   = $(toolpath)/synplify-pp1+dpq-summary3-rev4
+xilbuild    = $(MAKE) -k -j $(XILLICENSES) PREFIX="$(XILPREFIX)"
+xilreport   = $(toolpath)/xilinx-pp1+dpq-summary3
+xlstohtml   = $(toolpath)/xls-to-html
+
+APPS        = $(shell cat APPS)
+
+
+################################################################
+# - Build Rules
+
+# - If $(synreport) and $(xilreport) start with $(PREFIX), use these defs
+# - But redirection of .xls output does not work with $(PREFIX)
+# #     ..._t = $(notdir $(lastword                    $(...report)))
+# synreport_t = $(notdir $(word $(words $(synreport)), $(synreport)))
+# xilreport_t = $(notdir $(word $(words $(xilreport)), $(xilreport)))
+
+synreport_t = $(notdir $(synreport))
+xilreport_t = $(notdir $(xilreport))
+
+APPS_SYN       = $(patsubst %,%_SYN,      $(APPS))
+APPS_XIL       = $(patsubst %,%_XIL,      $(APPS))
+APPS_SYNCMD    = $(patsubst %,%_SYNCMD,   $(APPS))
+APPS_XILCMD    = $(patsubst %,%_XILCMD,   $(APPS))
+APPS_SYNREPORT = $(patsubst %,%_SYNREPORT,$(APPS))
+APPS_XILREPORT = $(patsubst %,%_XILREPORT,$(APPS))
+
+.PHONY:	debug     apps      $(APPS)				\
+	syn       xil       $(APPS_SYN)       $(APPS_XIL)	\
+	syncmd    xilcmd    $(APPS_SYNCMD)    $(APPS_XILCMD)	\
+	synreport xilreport $(APPS_SYNREPORT) $(APPS_XILREPORT)
+
+apps:	$(APPS)
+
+syn:	$(APPS_SYN)
+
+xil:	$(APPS_XIL)
+
+syncmd:	$(APPS_SYNCMD)
+
+xilcmd:	$(APPS_XILCMD)
+
+synreport:	$(APPS_SYNREPORT)
+
+xilreport:	$(APPS_XILREPORT)
+
+$(APPS):	%:	%_SYN %_XIL
+
+$(APPS_SYN):	%_SYN:	%_SYNCMD %_SYNREPORT
+
+$(APPS_XIL):	%_XIL:	%_XILCMD %_XILREPORT
+
+$(APPS_SYNCMD):
+	# Synplify
+	cd $(patsubst %_SYNCMD,%,$@)/proj ; \
+	$(synbuild) 2>&1 | tee synplify-make.OUT
+
+#$(APPS_XILCMD):
+#	# Xilinx
+#	cd $(patsubst %_XILCMD,%,$@)/proj-xilinx ; \
+#	$(xilbuild) 2>&1 | tee xilinx-make.OUT
+
+# - Do not wait for slow application-level (applonly) build
+$(APPS_XILCMD):
+	# Xilinx
+	cd $(patsubst %_XILCMD,%,$@)/proj-xilinx ; \
+	$(xilbuild) applonly 2>&1 | tee xilinx-make-applonly.OUT & \
+	$(xilbuild) pages    2>&1 | tee xilinx-make-pages.OUT
+
+$(APPS_SYNREPORT):	%_SYNREPORT:	%/proj/$(synreport_t).xls \
+					%/proj/$(synreport_t).html
+
+$(APPS_XILREPORT):	%_XILREPORT:	%/proj-xilinx/$(xilreport_t).xls \
+					%/proj-xilinx/$(xilreport_t).html
+
+%/proj/$(synreport_t).xls:
+	cd $(@D) ; \
+	$(synreport)-xls 2>&1 > $(@F)
+
+%/proj-xilinx/$(xilreport_t).xls:
+	cd $(@D) ; \
+	$(xilreport)-xls 2>&1 > $(@F)
+
+%.html:	%.xls
+	$(xlstohtml) $< 2>&1 > $@
+
+debug:
+	echo synreport_t    = $(synreport_t)
+	echo xilreport_t    = $(xilreport_t)
+	echo APPS_SYN       = $(APPS_SYN)
+	echo APPS_XIL       = $(APPS_XIL)
+	echo APPS_SYNCMD    = $(APPS_SYNCMD)
+	echo APPS_XILCMD    = $(APPS_XILCMD)
+	echo APPS_SYNREPORT = $(APPS_SYNREPORT)
+	echo APPS_XILREPORT = $(APPS_XILREPORT)
+
+
+################################################################
+# - Clean
+
+APPS_APPCLEAN       = $(patsubst %,%_APPCLEAN,                       $(APPS))
+APPS_SYNCLEAN       = $(patsubst %,%_SYNCLEAN,                       $(APPS))
+APPS_XILCLEAN       = $(patsubst %,%_XILCLEAN,                       $(APPS))
+APPS_SYNREALLYCLEAN = $(patsubst %,%_SYNREALLYCLEAN,                 $(APPS))
+APPS_XILREALLYCLEAN = $(patsubst %,%_XILREALLYCLEAN,                 $(APPS))
+APPS_SYNXLS         = $(patsubst %,%/proj/$(synreport_t).xls,        $(APPS))
+APPS_XILXLS         = $(patsubst %,%/proj-xilinx/$(xilreport_t).xls, $(APPS))
+APPS_SYNHTML        = $(patsubst %,%/proj/$(synreport_t).html,       $(APPS))
+APPS_XILHTML        = $(patsubst %,%/proj-xilinx/$(xilreport_t).html,$(APPS))
+
+.PHONY:	   appclean					\
+	      clean       cleansyn       cleanxil	\
+	reallyclean reallycleansyn reallycleanxil	\
+	cleanreport cleansynreport cleanxilreport	\
+
+clean:		cleansyn cleanxil
+
+cleansyn:	$(APPS_SYNCLEAN)
+
+cleanxil:	$(APPS_XILCLEAN)
+
+$(APPS_SYNCLEAN):
+	cd $(patsubst %_SYNCLEAN,%,$@)/proj ; \
+	$(MAKE) clean
+
+$(APPS_XILCLEAN):
+	cd $(patsubst %_XILCLEAN,%,$@)/proj-xilinx ; \
+	./make clean
+
+reallyclean:	reallycleansyn reallycleanxil cleanreport
+
+reallycleansyn:	$(APPS_SYNREALLYCLEAN)
+
+reallycleanxil:	$(APPS_XILREALLYCLEAN)
+
+$(APPS_SYNREALLYCLEAN):
+	cd $(patsubst %_SYNREALLYCLEAN,%,$@)/proj ; \
+	$(MAKE) reallyclean
+
+$(APPS_XILREALLYCLEAN):
+	cd $(patsubst %_XILREALLYCLEAN,%,$@)/proj-xilinx ; \
+	./make reallyclean
+
+cleanreport:	cleansynreport cleanxilreport
+
+cleansynreport:
+	rm -f $(APPS_SYNXLS) $(APPS_SYNHTML)
+
+cleanxilreport:
+	rm -f $(APPS_XILXLS) $(APPS_XILHTML)
+
+appclean:	$(APPS_APPCLEAN)
+
+$(APPS_APPCLEAN):
+	pushd $(patsubst %_APPCLEAN,%,$@) ; \
+	$(MAKE) -k reallyclean ; \
+	rm -rf *.v proj* *.OUT ; \
+	rm -f *.xc ; \
+	popd
+
+
+################################################################
+# - Pipelined Build
+#   (pipeline {synplify app, xilinx previous app} for up to 7 apps in APPS)
+
+MAKEFILE = BUILD-Makefile
+
+.PHONY: pipelined pipenone
+
+pipelined:
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 1,$(APPS_SYNCMD))                                                                                  pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 2,$(APPS_SYNCMD)) $(word 1,$(APPS_SYNREPORT)) $(word 1,$(APPS_XILCMD))                             pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 3,$(APPS_SYNCMD)) $(word 2,$(APPS_SYNREPORT)) $(word 2,$(APPS_XILCMD)) $(word 1,$(APPS_XILREPORT)) pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 4,$(APPS_SYNCMD)) $(word 3,$(APPS_SYNREPORT)) $(word 3,$(APPS_XILCMD)) $(word 2,$(APPS_XILREPORT)) pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 5,$(APPS_SYNCMD)) $(word 4,$(APPS_SYNREPORT)) $(word 4,$(APPS_XILCMD)) $(word 3,$(APPS_XILREPORT)) pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 6,$(APPS_SYNCMD)) $(word 5,$(APPS_SYNREPORT)) $(word 5,$(APPS_XILCMD)) $(word 4,$(APPS_XILREPORT)) pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4 $(word 7,$(APPS_SYNCMD)) $(word 6,$(APPS_SYNREPORT)) $(word 6,$(APPS_XILCMD)) $(word 5,$(APPS_XILREPORT)) pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4                          $(word 7,$(APPS_SYNREPORT)) $(word 7,$(APPS_XILCMD)) $(word 6,$(APPS_XILREPORT)) pipenone
+	$(MAKE) -f $(MAKEFILE) -j 4                                                                               $(word 7,$(APPS_XILREPORT)) pipenone
+
+pipenone:
+
+
+################################################################
+# - Smart build
+#   (synplify application tops in parallel, then pipelined build)
+
+APPS_SYNAPPLONLY = $(patsubst %,%_SYNAPPLONLY,$(APPS))
+APPS_XILAPPLONLY = $(patsubst %,%_XILAPPLONLY,$(APPS))
+
+.PHONY:	smart applonly \
+	synapplonly xilapplonly $(APPS_SYNAPPLONLY) $(APPS_XILAPPLONLY)
+
+smart:
+	$(MAKE) -f $(MAKEFILE) -j $(SYNLICENSES) SYNLICENSES=1 synapplonly
+	$(MAKE) -f $(MAKEFILE) -j 1                            pipelined
+
+smartapplonly:
+	$(MAKE) -f $(MAKEFILE) -j $(SYNLICENSES) SYNLICENSES=1 synapplonly
+	$(MAKE) -f $(MAKEFILE) -j $(XILLICENSES) XILLICENSES=1 xilapplonly
+
+applonly:	synapplonly xilapplonly
+
+synapplonly:	$(APPS_SYNAPPLONLY)
+
+xilapplonly:	$(APPS_XILAPPLONLY)
+
+$(APPS_SYNAPPLONLY):
+	# Synplify applonly
+	cd $(patsubst %_SYNAPPLONLY,%,$@)/proj ; \
+	$(synbuild) applonly 2>&1 | tee synplify-make-applonly.OUT
+
+$(APPS_XILAPPLONLY):
+	# Xilinx applonly
+	cd $(patsubst %_XILAPPLONLY,%,$@)/proj-xilinx ; \
+	$(xilbuild) applonly 2>&1 | tee xilinx-make-applonly.OUT
+

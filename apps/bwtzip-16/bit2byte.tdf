@@ -1,0 +1,39 @@
+bit2byte(input unsigned[2] in, output unsigned[9] out) {
+    unsigned[8] buffer;
+    unsigned[4] bitsstored;
+
+    state onetrue(): {
+        buffer = 0;
+        bitsstored = 0;
+
+        goto only;
+    }
+
+    state only(in): {
+        if (in == 2) {
+            if (bitsstored != 0) {
+                out = buffer >> (8 - bitsstored);
+            }
+
+            goto terminator;
+        } else {
+            buffer = buffer >> 1;
+            if (in == 1) {
+                buffer = buffer | 0x80;
+            }
+
+            bitsstored = bitsstored + 1;
+
+            if (bitsstored == 8) {
+                out = buffer;
+                buffer = 0;
+                bitsstored = 0;
+            }
+        }
+    }
+
+    state terminator(): {
+        out = 300;
+        goto onetrue;
+    }
+}

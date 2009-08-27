@@ -1,0 +1,38 @@
+#!/bin/csh
+#
+#  Generate Xilinx report files for all apps in this directory
+#  Call after synthesis (synplify-all / xilinx-all)
+#
+#  Xilinx ISE 5.2i
+#  Eylon Caspi,  10/19/03
+
+# set toolpath = ${0:h}
+set toolpath = ${cwd}/../../tools
+
+set HTMLGEN  = ${toolpath}/xilinx-any-summary-html
+set XLSGEN   = ${toolpath}/xilinx-any-summary-xls
+
+set HTMLDIR = ~/public_html/brass/everilog/tdfc-1.155+pp1F/xilinx
+set XLSDIR  = ~/public_html/brass/everilog/tdfc-1.155+pp1F/xilinx/EXCEL/ORIG
+
+mkdir -p $HTMLDIR
+mkdir -p $XLSDIR
+
+# apps = (names of all directories in current dir, w/o leading path)
+set apps = (`find . -mindepth 1 -maxdepth 1 -type d -print | \
+             perl -npe 's{./}{}'` )
+
+foreach app ($apps)
+  echo "Generating Xilinx web report for" $app
+  set projdir = ${app}/proj-xilinx
+  if (-d $projdir) then
+    cd $projdir
+    ${HTMLGEN} > xilinx-any-summary.html
+    cp -fp xilinx-any-summary.html ${HTMLDIR}/${app}.html
+    ${XLSGEN}  > xilinx-any-summary.xls
+    cp -fp xilinx-any-summary.xls  ${XLSDIR}/${app}.xls
+    cd ../..
+  else
+    echo "  Error: no directory $projdir"
+  endif
+end

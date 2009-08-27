@@ -1,0 +1,234 @@
+<HTML>
+<HEAD>
+<TITLE>How To Modify tdfc (Without Upsetting Eylon)</TITLE>
+</HEAD>
+
+<BODY>
+<CENTER>
+<FONT COLOR=#600000>
+<H1>How To Modify <I>tdfc</I></H1>
+<H4>(Without Upsetting Eylon)</H4>
+</FONT>
+</CENTER>
+
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+<H2>Contents</H2>
+
+<BLOCKQUOTE>
+<UL>
+    <LI><A HREF="#version"	>Version Management</A>
+    <LI><A HREF="#components"	>Compiler Components / Phases</A>
+    <LI><A HREF="#buildAST"	>Building ASTs</A>
+    <LI><A HREF="#modifyAST"	>Modifying ASTs</A>
+    <LI><A HREF="#memory"	>Memory Management</A>
+        <P>
+    <LI><A HREF="modify-tdfc-rcs.html">Previous Version</A>
+        (1999, using RCS)
+</UL>
+</BLOCKQUOTE>
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+<A NAME="version"></A>
+<H2>
+Version Management
+</H2>
+
+<BLOCKQUOTE>
+
+<H4>The Short Version</H4>
+<UL>
+    <LI>Set environment for CVS:  (assuming <CODE>csh</CODE>)<P>
+        <UL>
+	    <LI>At Berkeley:
+		<BR><CODE> setenv CVSROOT /project/cs/brass/a/tools/brass/develop/CVSROOT</CODE><P>
+	    <LI>Elsewhere:
+	        <BR><CODE>setenv CVS_RSH ssh</CODE>
+		<BR><CODE>setenv CVSROOT :ext:user@ribbit.cs.berkeley.edu:/project/cs/brass/a/tools/brass/develop/CVSROOT</CODE>
+		<BR>where <CODE>user</CODE> is your cs.berkeley.edu user name<P>
+	</UL>
+    <LI>Get the latest version of everything:
+	<BLOCKQUOTE>
+	<CODE>cvs checkout tdfc</CODE>
+	</BLOCKQUOTE>
+    <LI>Code code code  (modify Makefile, src/*, <I>etc.</I>)
+    <LI>Incorporate other authors' latest changes:
+        <BLOCKQUOTE>
+	<CODE>cvs update</CODE>
+	</BLOCKQUOTE>
+    <LI>Decide on a new tdfc version number 1.xxx
+	  (get present version from <CODE>CHANGES</CODE> and increment xxx)
+    <LI>Add a history entry to the <CODE>CHANGES</CODE> file
+    <LI>Tell CVS about any new files:  (optional)
+	<BLOCKQUOTE>
+	<CODE>cvs add file.cc ...</CODE>
+	</BLOCKQUOTE>
+    <LI>Check-in the new revision:
+        <BLOCKQUOTE>
+	<CODE>cvs commit</CODE>
+	</BLOCKQUOTE>
+    <LI>Set the release tag:
+        <BLOCKQUOTE>
+	<CODE>cvs tag v1_xxx</CODE>
+	</BLOCKQUOTE>
+	where <CODE>v1_xxx</CODE> corresponds to the new revision number 1.xxx
+    <LI>Send an e-mail to the group
+</UL>
+
+<H4>CVS Concepts</H4>
+<UL>
+    <LI><B>C</B>oncurrent <B>V</B>ersion <B>S</B>ystem.
+    <LI>CVS manages multiple revisions of a project.
+    <LI>Multiple authors can check out copies of the project
+          without interfering;  CVS applies everyone's changes and
+	  asks for user intervention only if it gets confused.
+    <LI>Each local work directory has a subdirectory named
+	  <CODE>CVS</CODE> to record the state of checked-out files.
+    <LI>We enforce a revision numbering discipline
+          to be able to retrieve old revisions.
+</UL>
+
+<H4>Checking-Out</H4>
+<UL>
+    <LI><CODE>cvs checkout tdfc</CODE>
+        <BR>checks out a copy of the latest revision of tdfc.
+	It creates a directory hierarchy as necessary.
+	There is no file locking or exclusive check-out.
+	Multiple authors can do multiple check-outs without interfering.
+
+    <LI><CODE>cvs checkout -r v1_xxx tdfc </CODE>
+	<BR>checks out revision <CODE>v1_xxx</CODE> of tdfc,
+	corresponding to revision 1.xxx in the <CODE>CHANGES</CODE> file.
+
+    <LI><CODE>cvs update</CODE>
+        <BR>updates your existing files to reflect the latest
+	changes made by other authors.  Use this occasionally
+	and before <CODE>cvs commit</CODE>.
+</UL>
+
+<H4>Checking-In</H4>
+<UL>
+    <LI><CODE>cvs commit</CODE>
+	checks-in all files under the working directory.
+
+    <LI><CODE>cvs commit file ...</CODE>
+        <BR>checks-in only the specified files (<CODE>file ...</CODE>).
+
+    <LI>When checking-in modified source files,
+        <CODE>cvs commit</CODE> prompts for a change-log (short description
+	of changes).  Use the change-log!  This is the place to
+	record obscure technical details like, &QUOT<!>fixed bug in
+	foo::bar() which deallocated immuno-deficient endoplasm
+	records when cell-count exceeded...&QUOT<!>, or notes-to-self
+	like, &QUOT<!>still don't handle albino newts&QUOT<!>.
+	<CODE>cvs commit</CODE> applies a single log entry to every file.
+	You are encouraged to use <CODE>cvs commit file</CODE> instead,
+	to set a different log entry for each <CODE>file</CODE>.
+
+    <LI>We also maintain a master change-log in the top-level file,
+        <CODE>CHANGES</CODE>.  This is the place to briefly note
+	whatever visible features changed in the new project revision,
+	and who changed them.  For instance,
+	&QUOT<!>added support for albino newts&QUOT<!>.
+
+    <LI><CODE>cvs diff</CODE>
+        <BR>Reminds you what you changed.	
+</UL>
+
+</BLOCKQUOTE>
+
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+<A NAME="components"></A>
+<H2>
+Compiler Components / Phases
+</H2>
+
+<BLOCKQUOTE>
+<H4>Parsing</H4>
+<H4>Linking</H4>
+<H4>Type-Checking</H4>
+<H4>Semantic Checks</H4>
+<H4>Cannonical Transformations</H4>
+<H4>Optimizations</H4>
+<H4>Emission</H4>
+</BLOCKQUOTE>
+
+
+The front-end of TDFC takes in the full language.  During the
+transformation some of the semantic conveniences are canonicalized to 
+a simpler, core representation.  Consequently, later phases can 
+do not have to handle all the richness which appears in the original 
+AST.   The figure below shows the flow and the associated invariants they
+create.  This shows what later passes can assume has already been done,
+and hence the subset of the AST they actually have to handle.
+<p>
+<a href="tdfc-passes-new.ppt"><img src="tdfc-passes-new.gif"></a>
+<p>
+
+
+
+
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+<A NAME="buildAST"></A>
+<H2>
+Building ASTs
+</H2>
+
+<BLOCKQUOTE>
+<H4>Class Hierarchy</H4>
+<H4>Tree Structure</H4>
+<H4>Using Constructors</H4>
+<H4>Duplication</H4>
+</BLOCKQUOTE>
+
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+<A NAME="modifyAST"></A>
+<H2>
+Modifying ASTs (map)
+</H2>
+
+<BLOCKQUOTE>
+<H4>Tree Traveral</H4>
+<H4>Node Update (map)</H4>
+<H4>Node Replacement (map2)</H4>
+</BLOCKQUOTE>
+
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+<A NAME="memory"></A>
+<H2>
+Memory Management
+</H2>
+
+<BLOCKQUOTE>
+<H4>Garbage Collection</H4>
+<H4>Type Deletion/Regeneration</H4>
+</BLOCKQUOTE>
+
+<!---------------------------------------------------------------->
+
+<BR><HR><BR>
+
+Last modified:  10/21/02
+<BR>
+Comments to:  <a href="mailto:eylon@cs.berkeley.edu">Eylon Caspi</a>
+
+<!---------------------------------------------------------------->
+
+</BODY>
+</HTML>

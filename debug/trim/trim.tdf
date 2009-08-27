@@ -1,0 +1,5 @@
+trim (input unsigned[8] i, output unsigned[6] o)
+{
+  unsigned[6] r;
+  state only (i) : r=i; o=i;
+}

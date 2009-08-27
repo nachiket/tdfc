@@ -1,0 +1,15 @@
+#!/bin/csh
+#
+# (1) complete synplify build dirs
+# (2) create   xilinx   build dirs
+
+set toolpath = "~/brass/tdfc/tools"
+
+foreach app (`cat APPS`)
+  pushd $app
+  cp -p ${toolpath}/synplify-makefile-all-77 proj
+  ln -sf            synplify-makefile-all-77 proj/Makefile
+  ${toolpath}/verilog-reg-shells
+  ../XILINX-DIRS2 $*
+  popd
+end

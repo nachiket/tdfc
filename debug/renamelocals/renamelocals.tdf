@@ -1,0 +1,21 @@
+renamelocals_ (input boolean i, output boolean o)
+{
+  boolean x;
+
+  state one (i) : {
+    boolean x;
+    x=i;
+    o=x;
+  }
+
+  state two (i) : {
+    boolean x;
+    x=i;
+    o=x&&x;
+  }
+}
+
+renamelocals (input boolean i, output boolean o)
+{
+  renamelocals_(i,o);
+}

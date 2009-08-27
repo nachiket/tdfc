@@ -1,0 +1,77 @@
+muxtoDCT(param unsigned[16] segSize, input unsigned[5] mode, 
+	 input unsigned[64] inp, input unsigned[64] rf,
+         output signed[9] dA, output signed[9] dB, output signed[9] dC,
+         output signed[9] dD, output signed[9] dE, output signed[9] dF,
+         output signed[9] dG, output signed[9] dH)
+
+
+{
+
+  unsigned[5] MOTION_FORWARD = 0;
+  unsigned[5] MOTION_BACKWARD = 1;
+  unsigned[5] INTRA = 4;
+
+  unsigned[16] index = 0;
+  unsigned[8] macInd = 0; // for debugging purposes
+
+  // initial I-frame
+  state first(inp): {
+
+    dA = ((signed[9])(inp[63:56])); dB = ((signed[9])(inp[55:48]));
+    dC = ((signed[9])(inp[47:40])); dD = ((signed[9])(inp[39:32]));
+    dE = ((signed[9])(inp[31:24])); dF = ((signed[9])(inp[23:16]));
+    dG = ((signed[9])(inp[15:8])); dH = ((signed[9])(inp[7:0]));
+
+    index = index+1;
+    if (index == segSize) {
+      goto choose;
+    } 
+      
+  }
+
+  state choose(mode): {
+
+    index = 0;
+    if (mode==INTRA) {
+      goto intraout;
+    } else {
+      goto steady;
+    }
+
+  }
+
+  state intraout(inp,rf): {
+
+    dA = ((signed[9])(inp[63:56])); dB = ((signed[9])(inp[55:48]));
+    dC = ((signed[9])(inp[47:40])); dD = ((signed[9])(inp[39:32]));
+    dE = ((signed[9])(inp[31:24])); dF = ((signed[9])(inp[23:16]));
+    dG = ((signed[9])(inp[15:8])); dH = ((signed[9])(inp[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+
+  }
+
+  state steady(inp,rf): {
+
+    dA = ((signed[9])(inp[63:56]))-((signed[9])(rf[63:56]));
+    dB = ((signed[9])(inp[55:48]))-((signed[9])(rf[55:48]));
+    dC = ((signed[9])(inp[47:40]))-((signed[9])(rf[47:40]));
+    dD = ((signed[9])(inp[39:32]))-((signed[9])(rf[39:32]));
+    dE = ((signed[9])(inp[31:24]))-((signed[9])(rf[31:24]));
+    dF = ((signed[9])(inp[23:16]))-((signed[9])(rf[23:16]));
+    dG = ((signed[9])(inp[15:8]))-((signed[9])(rf[15:8]));
+    dH = ((signed[9])(inp[7:0]))-((signed[9])(rf[7:0]));
+
+    index = index+1;
+    if (index == 48) {
+      macInd = macInd+1;
+      goto choose;
+    }
+
+  }
+
+}

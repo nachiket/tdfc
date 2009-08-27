@@ -1,0 +1,31 @@
+PROBLEM:
+ - during state partitioning with exposed DF edges
+ - mix=0 (pure DF) makes larger DF cut than mix=1 (pure SF)  [wavelet_decode]
+ - even when it doesn't, mix=0 has only ~10% smaller DF cut  [jpeg_decode]
+ - mix=fraction is correctly inbetween mix=0 and mix=1, regardless of cut order
+
+ANALYSIS:
+ - mix=0 exposes DF edges, makes graph denser
+     (hypothesis: makes graph more homogeneous, min-cut less meaningful?)
+ - mix=0 iteratively hoists many small states across cut to satisfy area bound,
+     making cut progressively worse  (e.g. sizes: 300, 8, 4, 0)
+ - mix=1 does far less hoisting/iterating,
+     i.e. min-cuts satisfy area bound more quickly
+ - hypothesis 1:  this problem is alleviated by choosing src/dst
+                    sorted by size, largest first
+                    (i.e. separate largest nodes, cut to distrib. small nodes)
+ - hypothesis 2:  this problem goes away with more balanced state sizes?
+                    (if yes, then better to decompose all states into
+                     sub-states that are far smaller than a page;
+                     may want parallel state dispatch for efficiency)
+ - hypothesis 3:  min-cut NOT based on flow (no src/dst) will fare better?
+                    (no Wong-style iterative hoisting; see all cuts/areas)
+
+EXPERIMENT 1:
+ - clustering by always choosing largest src and 2nd largest dst
+     DF cuts are substantially lower than with randomized src/dst
+       (note that there is no src/dst randomization here at all).
+     For wavelet_decode, clustering is identical regardless of mix.
+     For jpeg_decode, mix tradeoffs are good.
+     But my implementation is slow, duplicates work
+       (chooses largest src that has not been tried as src since last merge)

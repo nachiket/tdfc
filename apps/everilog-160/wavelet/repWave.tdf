@@ -1,0 +1,12 @@
+repWave(param unsigned[10] outWidth, input signed[outWidth] d1,
+	output signed[outWidth] d2, output signed[outWidth] d3) 
+
+{
+
+  state only(d1): {
+    
+    d2 = d1; d3 = d1;
+  
+  }
+
+}

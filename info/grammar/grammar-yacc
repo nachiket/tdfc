@@ -1,0 +1,327 @@
+start
+: operators_opt
+;
+
+operators_opt
+: operators
+|
+;
+
+operators
+: operators operator
+| operator
+;
+
+operator
+: type_opt signature
+  operator_body exception_opt
+;
+
+type_opt
+: type
+|
+;
+
+type
+: BOOLEAN
+| sizedType '[' expr ']'
+/*
+| FIXED '[' expr '.' expr ']'
+*/
+;
+
+sizedType
+: SIGNED
+| UNSIGNED
+/*
+| FIXED
+*/
+;
+
+signature
+: ID '(' ioDecls_opt ')'
+;
+
+ioDecls_opt
+: ioDecls
+|
+;
+
+ioDecls
+: ioDecls ',' ioDecl
+| ioDecl
+;
+
+ioDecl
+: ioKind type ID
+/*
+| ioKind ID
+*/
+;
+
+ioKind
+: INPUT
+| OUTPUT
+| PARAM
+;
+
+exception_opt
+: exception
+|
+;
+
+exception
+: PASS_THROUGH_EXCEPTION
+;
+
+operator_body
+: '{' typeDecls_opt
+  states '}'
+| '{' typeDecls_opt
+   callsOrAssigns  '}'
+| '{' typeDecls_opt '}'
+;
+
+typeDecls_opt
+: typeDecls
+|
+;
+
+typeDecls
+: typeDecls typeDecl
+| typeDecl
+;
+
+typeDecl
+: type ID
+  ';'
+| type ID
+  '=' args ';'
+;
+
+callsOrAssigns
+: callsOrAssigns callOrAssign
+| callOrAssign
+;
+
+callOrAssign
+: call ';'
+| lvalue '=' call ';'
+| lvalue '=' lvalue ';'
+;
+
+states
+: states stateCase
+| stateCase
+;
+/* no restriction on ordering/grouping of stateCases */
+
+stateCase
+: STATE ID '(' stateVars_opt ')' ':' stmts_opt
+;
+
+stateVars_opt
+: stateVars
+|
+;
+
+stateVars
+: stateVars ',' stateVar
+| stateVar
+;
+
+stateVar
+: ID
+| ID '#' expr
+| EOS '(' ID ')'
+;
+
+stmts_opt
+: stmts
+|
+;
+
+stmts
+: stmts stmt
+| stmt
+;
+
+stmt
+: matchedStmt
+| unmatchedStmt
+;
+
+matchedStmt
+: IF '(' expr ')' matchedStmt ELSE matchedStmt
+| GOTO ID ';'
+| STAY ';'
+| assign ';'
+| builtinStmt ';'
+| call ';'
+| stmtBlock
+;
+
+unmatchedStmt
+: IF '(' expr ')' stmt
+| IF '(' expr ')' matchedStmt ELSE unmatchedStmt
+;
+
+stmtBlock
+: '{' typeDecls_opt
+  stmts_opt '}'
+;
+
+builtinStmt
+: ATTENTION '(' expr ')'
+| CLOSE '(' ID ')'
+;
+
+call
+: ID '(' args_opt ')'
+;
+
+args_opt
+: args
+|
+;
+
+args
+: args ',' expr
+| expr
+;
+
+assign
+: lvalue '=' expr
+;
+
+lvalue
+: ID
+| ID '[' expr ']'
+| ID '[' expr ':' expr ']'
+;
+
+expr
+: condExpr
+;
+
+condExpr
+: logOrExpr '?' condExpr ':' condExpr
+| logOrExpr
+;
+
+logOrExpr
+: logOrExpr LOGIC_OR logAndExpr
+| logAndExpr
+;
+
+logAndExpr
+: logAndExpr LOGIC_AND bitOrExpr
+| bitOrExpr
+;
+
+bitOrExpr
+: bitOrExpr '|' bitXorExpr
+| bitXorExpr
+;
+
+bitXorExpr
+: bitXorExpr '^' bitAndExpr
+| bitAndExpr
+;
+
+bitAndExpr
+: bitAndExpr '&' equalExpr
+| equalExpr
+;
+
+equalExpr
+: equalExpr equalOp inequalExpr
+| inequalExpr
+;
+
+inequalExpr
+: inequalExpr inequalOp shiftExpr
+| shiftExpr
+;
+
+shiftExpr
+: shiftExpr shiftOp addExpr
+| addExpr
+;
+
+addExpr
+: addExpr addOp prodExpr
+| prodExpr
+;
+
+prodExpr
+: prodExpr prodOp unaryExpr
+| unaryExpr
+;
+
+unaryExpr
+: unaryOp fixedExpr
+| '(' type ')' fixedExpr
+| '(' sizedType ')' fixedExpr
+| fixedExpr
+;
+
+fixedExpr
+: atomExpr '.' atomExpr
+| atomExpr
+;
+
+atomExpr
+: lvalue
+| lvalue '@' atomExpr
+| NUM
+| TRUE
+| FALSE
+| call
+| builtinExpr
+| '(' expr ')'
+;
+
+builtinExpr
+: CAT     '(' args ')'
+/*
+| EOS     '(' ID ')'
+*/
+| WIDTHOF '(' expr ')'
+| BITSOF  '(' expr ')'
+;
+
+equalOp
+: EQUALS
+| NOT_EQUALS
+;
+
+inequalOp
+: '<'
+| '>'
+| LTE
+| GTE
+;
+
+shiftOp
+: LEFT_SHIFT
+| RIGHT_SHIFT
+;
+
+addOp
+: '+'
+| '-'
+;
+
+prodOp
+: '*'
+| '/'
+| '%'
+;
+
+unaryOp
+: '+'
+| '-'
+| '!'
+| '~'
+;

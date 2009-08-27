@@ -1,0 +1,17 @@
+if-else matching:
+-----------------
+
+ifStmt
+  : matchedStmt
+  | unmatchedStmt
+  ;
+
+matchedStmt
+  : IF '(' logExpr ')' THEN matchedStmt ELSE matchedStmt
+  | ...
+  ;
+
+unmatchedStmt
+  : IF '(' logExpr ')' THEN ifStmt
+  | IF '(' logExpr ')' THEN matchedStmt ELSE unmatchedStmt
+  ;

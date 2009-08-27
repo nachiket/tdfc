@@ -1,0 +1,57 @@
+// 48 arguments
+unsigned[totalPix/16][64] segYatab0;
+unsigned[totalPix/16][64] segYatab1;
+
+//unsigned[totalPix/8][8] segYatab2;
+//unsigned[totalPix/8][8] segYatab3;
+//unsigned[totalPix/8][8] segYatab4;
+//unsigned[totalPix/8][8] segYatab5;
+//unsigned[totalPix/8][8] segYatab6;
+//unsigned[totalPix/8][8] segYatab7;
+
+unsigned[totalPix/16][64] segYbtab0;
+unsigned[totalPix/16][64] segYbtab1;
+
+//unsigned[totalPix/8][8] segYbtab2;
+//unsigned[totalPix/8][8] segYbtab3;
+//unsigned[totalPix/8][8] segYbtab4;
+//unsigned[totalPix/8][8] segYbtab5;
+//unsigned[totalPix/8][8] segYbtab6;
+//unsigned[totalPix/8][8] segYbtab7;
+
+unsigned[totalPix/16][64] segYctab0;
+unsigned[totalPix/16][64] segYctab1;
+
+//unsigned[totalPix/8][8] segYctab2;
+//unsigned[totalPix/8][8] segYctab3;
+//unsigned[totalPix/8][8] segYctab4;
+//unsigned[totalPix/8][8] segYctab5;
+//unsigned[totalPix/8][8] segYctab6;
+//unsigned[totalPix/8][8] segYctab7;
+
+unsigned[totalPix/16][64] segYdtab0;
+unsigned[totalPix/16][64] segYdtab1;
+
+//unsigned[totalPix/8][8] segYdtab2;
+//unsigned[totalPix/8][8] segYdtab3;
+//unsigned[totalPix/8][8] segYdtab4;
+//unsigned[totalPix/8][8] segYdtab5;
+//unsigned[totalPix/8][8] segYdtab6;
+//unsigned[totalPix/8][8] segYdtab7;
+
+unsigned[totalPix/16][8] segCatab0;
+unsigned[totalPix/16][8] segCatab1;
+unsigned[totalPix/16][8] segCatab2;
+unsigned[totalPix/16][8] segCatab3;
+unsigned[totalPix/16][8] segCatab4;
+unsigned[totalPix/16][8] segCatab5;
+unsigned[totalPix/16][8] segCatab6;
+unsigned[totalPix/16][8] segCatab7;	
+unsigned[totalPix/16][8] segCctab0;
+unsigned[totalPix/16][8] segCctab1;
+unsigned[totalPix/16][8] segCctab2;
+unsigned[totalPix/16][8] segCctab3;
+unsigned[totalPix/16][8] segCctab4;
+unsigned[totalPix/16][8] segCctab5;
+unsigned[totalPix/16][8] segCctab6;
+unsigned[totalPix/16][8] segCctab7;

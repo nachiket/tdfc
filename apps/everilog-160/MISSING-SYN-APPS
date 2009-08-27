@@ -1,0 +1,24 @@
+#!/bin/csh
+
+# proj = "proj" for synplify, "proj-xilinx" for xilinx
+set proj = "proj"
+set rev  = "rev_4__200mhz"
+
+foreach a (`cat APPS`)
+  pushd $a/$proj >& /dev/null
+  foreach r (*/$rev)
+    set m = ${r:h}
+#   echo r = $r
+#   echo m = $m
+    if ( ( $m =~ *_q ) || ( $m =~ *_q_ior ) || ( $m =~ *_qin ) || ( $m =~ *_qin_ior ) )  continue
+    if ( $m !~ _page_* ) then
+	if ( ( $m =~ *_noin ) || ( $m =~ *_noin_ior ) || ( $m =~ *_dpq ) || ( $m =~ *_dpq_ior ) )  continue
+    endif
+#   if (! -f ${r}/${m}.srr) then
+    if (! -f ${r}/${m}.edf) then
+#	echo $a/$proj/$m
+	echo $a/$proj/$r
+    endif
+  end
+  popd >& /dev/null
+end

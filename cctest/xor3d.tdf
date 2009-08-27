@@ -1,0 +1,21 @@
+unsigned[n] xor(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{
+	state only(a,b): xor=a^b;
+}
+unsigned[n] xor_shell(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b)
+{
+  xor_shell=xor(n,a,b);
+}
+unsigned[n] xor3d(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b, input unsigned[n] c)
+{ 
+	xor3d=xor3_real(n,a,b,c);
+}
+unsigned[n] xor3_real(param unsigned[6] n, input unsigned[n] a, 
+                input unsigned[n] b, input unsigned[n] c)
+{ 
+	xor3_real=xor_shell(n,xor_shell(n,a,b),c);
+}
+

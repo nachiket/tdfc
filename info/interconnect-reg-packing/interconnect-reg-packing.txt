@@ -1,0 +1,42 @@
+From eylon@eecs.berkeley.edu Wed Jul 20 17:06:38 2005
+Date: Wed, 20 Jul 2005 17:06:38 -0700 (PDT)
+From: Eylon Caspi <eylon@eecs.berkeley.edu>
+To: John Wawrzynek <johnw@eecs.berkeley.edu>
+Subject: PAR with floating interconnect regs  (+ file)
+
+[ this time with attachment ]
+
+
+John,
+
+I recompiled some of the SCORE apps, as we discussed on Monday,
+with constraints to make sure that interconnect pipelining
+registers did not pack with logic.  This was as attempt to
+get a greater speedup from stream-based interconnect pipelining.
+
+I tried 2 variants:
+
+   (1) Each register gets a complete slice, and
+
+   (2) Each pair of registers get a slice
+       (pack data pipelining regs d[0]+d[1], d[2]+d[3], etc.)
+
+An Excel results file is included.
+
+The short answer is that this only helps MPEG, not the other apps.
+Also, in all cases (including MPEG), a full-chip PAR without the
+slice packing constraints is still faster than an area-constrained
+PAR (+20% area expansion) with the slice packing constraints.
+
+So it appears that expanding the allowable PAR area is the only
+reliable way to improve interconnect timing.  Adding interconnect
+pipelining registers to the RTL is not sufficient so long as
+area is constrained.
+
+Eylon Caspi                     University of California, Berkeley
+eylon@cs.berkeley.edu           Electrical Engineering & Computer Science
+tel. 510-843-8689               <http://www.cs.berkeley.edu/~eylon>
+    [ Part 2: "Deleted Attachment" ]
+
+  [ The following attachment was DELETED when this message was saved:    ]
+  [ A Application/VND.MSEXCEL (Name="q_wpipe-packing-constraints.xls") s ]

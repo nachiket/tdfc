@@ -1,0 +1,17 @@
+#!/bin/csh
+
+if (! $?JOB_ID) then
+    set JOB_ID=
+endif
+if (! $?JOB_NAME) then
+    set JOB_NAME=
+endif
+if (! $?HOSTNAME) then
+    set HOSTNAME=
+endif
+
+echo Your job $JOB_ID '("'$JOB_NAME $*'")' has started on $HOSTNAME
+
+eval $*
+
+echo Your job $JOB_ID '("'$JOB_NAME $*'")' has completed

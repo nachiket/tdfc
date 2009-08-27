@@ -1,0 +1,66 @@
+unsigned[8] op1 (input unsigned[8] i)
+{
+  state S1 (i):
+    {
+      unsigned[8] l1;
+      unsigned[8] l2;
+      unsigned[8] l3;
+      l1=i;
+      l2=i;
+      if (i>0)
+	l2=l3;
+      else
+        goto S2;
+    }
+
+  state S2 (i):
+    stay;
+}
+
+unsigned[8] op2 (input unsigned[8] i, output unsigned[8] o)
+{
+  state s1 (i):
+    {
+      boolean s1_atTop;
+      if (i==1)
+	op2=i;
+      else
+      {
+	boolean s1_midway;
+	o=i+1;
+	op2=i+2;
+	s1_midway=i<10;
+	{
+	  boolean s1_bottom;
+	  s1_bottom=s1_midway;
+	  o=s1_bottom?1:2;
+	}
+      }
+      o=s1_atTop?1:2;
+    }
+
+  state s2 (i):
+    {
+      boolean s2_atTop;
+      o=i;
+      if (i>1)
+	if (i==2)
+	  op2=i;
+	else
+	  op2=i*2;
+      s2_atTop=i<10;
+    }
+
+  state s3 (i):
+    {
+      boolean s3_atTop;
+      s3_atTop=i<20;
+      if (i>1)
+	if (i==2)
+	  op2=i;
+	else
+	  op2=i*2;
+      o=i;
+    }
+}
+

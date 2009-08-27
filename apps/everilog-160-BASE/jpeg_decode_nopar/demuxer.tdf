@@ -1,0 +1,28 @@
+demuxer(output signed[16] stream1, output signed[16] stream2,
+	input signed[16] instream)
+
+{
+
+  unsigned[8] index = 0;
+
+  state one(instream): {
+    stream1 = instream; 
+    index = index+1;
+    if (index == 64) {
+      index = 0;
+      goto two;
+    }
+    
+  }
+
+  state two(instream): {
+    stream2 = instream;
+    index = index+1;
+    if (index == 64) {
+      index = 0;
+      goto one;
+    }
+  }
+
+
+}

@@ -1,0 +1,536 @@
+--- Summary for ./zle_xc / rev_1__speed
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              500.0 MHz     346.4 MHz     2.000         2.887         -0.887     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 47 (9%)
+
+--- Summary for ./zle_xc / rev_2__area
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              1.0 MHz       267.7 MHz     1000.000      3.736         996.264     inferred
+System             1.0 MHz       589.1 MHz     1000.000      1.697         998.303     system  
+Total  LUTs: 35 (6%)
+
+--- Summary for ./zle_xc / rev_3__no_optim
+clock              1.0 MHz       299.5 MHz     1000.000      3.339         996.661     inferred
+System             1.0 MHz       405.7 MHz     1000.000      2.465         997.535     system  
+Total  LUTs: 37 (7%)
+
+--- Summary for ./zle_xc_fsm / rev_1__speed
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              500.0 MHz     338.9 MHz     2.000         2.950         -0.950     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xc_fsm / rev_2__area
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              1.0 MHz       226.8 MHz     1000.000      4.410         995.590     inferred
+System             1.0 MHz       416.5 MHz     1000.000      2.401         997.599     system  
+Total  LUTs: 22 (4%)
+
+--- Summary for ./zle_xc_fsm / rev_3__no_optim
+clock              1.0 MHz       276.6 MHz     1000.000      3.615         996.385     inferred
+System             1.0 MHz       473.6 MHz     1000.000      2.111         997.889     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle_xc_dp / rev_1__speed
+clock              500.0 MHz     462.4 MHz     2.000         2.162         -0.162     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 24 (4%)
+
+--- Summary for ./zle_xc_dp / rev_2__area
+clock              1.0 MHz       445.1 MHz     1000.000      2.246         997.754     inferred
+System             1.0 MHz       521.6 MHz     1000.000      1.917         998.083     system  
+Total  LUTs: 17 (3%)
+
+--- Summary for ./zle_xc_dp / rev_3__no_optim
+clock              1.0 MHz       445.1 MHz     1000.000      2.246         997.754     inferred
+System             1.0 MHz       521.6 MHz     1000.000      1.917         998.083     system  
+Total  LUTs: 17 (3%)
+
+--- Summary for ./zle_xc2_fsm / rev_1__speed
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              500.0 MHz     338.9 MHz     2.000         2.950         -0.950     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xc2_fsm / rev_2__area
+Adding property syn_encoding, value "sequential", to instance stateo_1[8:0]
+clock              1.0 MHz       303.0 MHz     1000.000      3.301         996.699     inferred
+System             1.0 MHz       567.8 MHz     1000.000      1.761         998.239     system  
+Total  LUTs: 24 (4%)
+
+--- Summary for ./zle_xc2_fsm / rev_3__no_optim
+clock              1.0 MHz       209.8 MHz     1000.000      4.767         995.233     inferred
+System             1.0 MHz       395.5 MHz     1000.000      2.529         997.471     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle_xc3_fsm / rev_1__speed
+Adding property syn_encoding, value "gray", to instance state__1[8:0]
+clock              500.0 MHz     338.9 MHz     2.000         2.950         -0.950     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xc3_fsm / rev_2__area
+Adding property syn_encoding, value "gray", to instance state__1[8:0]
+clock              1.0 MHz       226.8 MHz     1000.000      4.410         995.590     inferred
+System             1.0 MHz       416.5 MHz     1000.000      2.401         997.599     system  
+Total  LUTs: 22 (4%)
+
+--- Summary for ./zle_xc3_fsm / rev_3__no_optim
+clock              1.0 MHz       252.0 MHz     1000.000      3.968         996.032     inferred
+System             1.0 MHz       375.4 MHz     1000.000      2.664         997.336     system  
+Total  LUTs: 16 (3%)
+
+--- Summary for ./zle_xc6 / rev_1__speed
+Adding property syn_encoding, value "onehot", to instance state[8:0]
+clock              500.0 MHz     303.0 MHz     2.000         3.301         -1.301     inferred
+System             500.0 MHz     465.9 MHz     2.000         2.147         -0.147     system  
+Total  LUTs: 44 (8%)
+
+--- Summary for ./zle_xc6 / rev_2__area
+Adding property syn_encoding, value "gray", to instance state[8:0]
+clock              1.0 MHz       252.8 MHz     1000.000      3.956         996.044     inferred
+System             1.0 MHz       464.1 MHz     1000.000      2.155         997.845     system  
+Total  LUTs: 32 (6%)
+
+--- Summary for ./zle_xc6 / rev_3__no_optim
+clock              1.0 MHz       249.9 MHz     1000.000      4.002         995.998     inferred
+System             1.0 MHz       405.7 MHz     1000.000      2.465         997.535     system  
+Total  LUTs: 39 (7%)
+
+--- Summary for ./zle_xc9 / rev_1__speed
+Adding property syn_encoding, value "gray", to instance fsm.state[8:0]
+clock              500.0 MHz     261.9 MHz     2.000         3.819         -1.819     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 45 (8%)
+
+--- Summary for ./zle_xc9 / rev_2__area
+Adding property syn_encoding, value "onehot", to instance fsm.state[8:0]
+clock              1.0 MHz       259.0 MHz     1000.000      3.861         996.139     inferred
+System             1.0 MHz       669.6 MHz     1000.000      1.494         998.506     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xc9 / rev_3__no_optim
+clock              1.0 MHz       298.7 MHz     1000.000      3.348         996.652     inferred
+System             1.0 MHz       524.2 MHz     1000.000      1.908         998.092     system  
+Total  LUTs: 33 (6%)
+
+--- Summary for ./zle_xc9_fsm / rev_1__speed
+Adding property syn_encoding, value "gray", to instance state[8:0]
+clock              500.0 MHz     326.2 MHz     2.000         3.066         -1.066     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 27 (5%)
+
+--- Summary for ./zle_xc9_fsm / rev_2__area
+Adding property syn_encoding, value "onehot", to instance state[8:0]
+clock              1.0 MHz       297.2 MHz      1000.000      3.364         996.636     inferred
+System             1.0 MHz       1006.4 MHz     1000.000      0.994         999.006     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle_xc9_fsm / rev_3__no_optim
+clock              1.0 MHz       248.5 MHz     1000.000      4.024         995.976     inferred
+System             1.0 MHz       391.0 MHz     1000.000      2.557         997.443     system  
+Total  LUTs: 24 (4%)
+
+--- Summary for ./zle_xc9_dp / rev_1__speed
+clock              500.0 MHz     458.1 MHz      2.000         2.183         -0.183     inferred
+System             500.0 MHz     1302.9 MHz     2.000         0.768         1.232      system  
+Total  LUTs: 11 (2%)
+
+--- Summary for ./zle_xc9_dp / rev_2__area
+clock              1.0 MHz       445.1 MHz      1000.000      2.246         997.754     inferred
+System             1.0 MHz       1302.9 MHz     1000.000      0.768         999.232     system  
+Total  LUTs: 9 (1%)
+
+--- Summary for ./zle_xc9_dp / rev_3__no_optim
+clock              1.0 MHz       445.1 MHz      1000.000      2.246         997.754     inferred
+System             1.0 MHz       1302.9 MHz     1000.000      0.768         999.232     system  
+Total  LUTs: 9 (1%)
+
+--- Summary for ./zle_xcA / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance fsm.state[8:0]
+clock              500.0 MHz     328.7 MHz     2.000         3.043         -1.043     inferred
+System             500.0 MHz     539.5 MHz     2.000         1.853         0.146      system  
+Total  LUTs: 45 (8%)
+
+--- Summary for ./zle_xcA / rev_2__area
+Adding property syn_encoding, value "onehot", to instance fsm.state[8:0]
+clock              1.0 MHz       259.0 MHz     1000.000      3.861         996.139     inferred
+System             1.0 MHz       669.6 MHz     1000.000      1.494         998.506     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xcA / rev_3__no_optim
+clock              1.0 MHz       283.0 MHz     1000.000      3.533         996.467     inferred
+System             1.0 MHz       539.5 MHz     1000.000      1.854         998.146     system  
+Total  LUTs: 34 (6%)
+
+--- Summary for ./zle_xcA_fsm / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance state[8:0]
+clock              500.0 MHz     328.7 MHz     2.000         3.043         -1.043     inferred
+System             500.0 MHz     539.5 MHz     2.000         1.853         0.146      system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xcA_fsm / rev_2__area
+Adding property syn_encoding, value "onehot", to instance state[8:0]
+clock              1.0 MHz       297.2 MHz      1000.000      3.364         996.636     inferred
+System             1.0 MHz       1006.4 MHz     1000.000      0.994         999.006     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle_xcA_fsm / rev_3__no_optim
+clock              1.0 MHz       266.2 MHz     1000.000      3.756         996.244     inferred
+System             1.0 MHz       539.5 MHz     1000.000      1.854         998.146     system  
+Total  LUTs: 24 (4%)
+
+--- Summary for ./zle_xcA_dp / rev_1__speed
+clock              500.0 MHz     398.0 MHz      2.000         2.513         -0.513     inferred
+System             500.0 MHz     1420.9 MHz     2.000         0.704         1.296      system  
+Total  LUTs: 11 (2%)
+
+--- Summary for ./zle_xcA_dp / rev_2__area
+clock              1.0 MHz       385.1 MHz      1000.000      2.597         997.403     inferred
+System             1.0 MHz       1420.9 MHz     1000.000      0.704         999.296     system  
+Total  LUTs: 9 (1%)
+
+--- Summary for ./zle_xcA_dp / rev_3__no_optim
+clock              1.0 MHz       385.1 MHz      1000.000      2.597         997.403     inferred
+System             1.0 MHz       1420.9 MHz     1000.000      0.704         999.296     system  
+Total  LUTs: 9 (1%)
+
+--- Summary for ./zle_xc2 / rev_1__speed
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              500.0 MHz     348.9 MHz     2.000         2.866         -0.866     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 43 (8%)
+
+--- Summary for ./zle_xc2 / rev_2__area
+Adding property syn_encoding, value "sequential", to instance fsm.stateo_1[8:0]
+clock              1.0 MHz       319.1 MHz     1000.000      3.134         996.866     inferred
+System             1.0 MHz       567.8 MHz     1000.000      1.761         998.239     system  
+Total  LUTs: 36 (7%)
+
+--- Summary for ./zle_xc2 / rev_3__no_optim
+clock              1.0 MHz       213.1 MHz     1000.000      4.693         995.307     inferred
+System             1.0 MHz       395.5 MHz     1000.000      2.529         997.471     system  
+Total  LUTs: 38 (7%)
+
+--- Summary for ./zle_xc2 / rev_4__area__gray_fsm
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              1.0 MHz       267.7 MHz     1000.000      3.736         996.264     inferred
+System             1.0 MHz       589.1 MHz     1000.000      1.697         998.303     system  
+Total  LUTs: 36 (7%)
+
+--- Summary for ./zle_xc5_fsm / rev_1__speed
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              500.0 MHz     338.9 MHz     2.000         2.950         -0.950     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xc5_fsm / rev_2__area
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              1.0 MHz       226.8 MHz     1000.000      4.410         995.590     inferred
+System             1.0 MHz       416.5 MHz     1000.000      2.401         997.599     system  
+Total  LUTs: 22 (4%)
+
+--- Summary for ./zle_xc5_fsm / rev_3__no_optim
+clock              1.0 MHz       276.6 MHz     1000.000      3.615         996.385     inferred
+System             1.0 MHz       473.6 MHz     1000.000      2.111         997.889     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle_xc3 / rev_1__speed
+Adding property syn_encoding, value "gray", to instance fsm.state__1[8:0]
+clock              500.0 MHz     346.4 MHz     2.000         2.887         -0.887     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 47 (9%)
+
+--- Summary for ./zle_xc3 / rev_2__area
+Adding property syn_encoding, value "gray", to instance fsm.state__1[8:0]
+clock              1.0 MHz       267.7 MHz     1000.000      3.736         996.264     inferred
+System             1.0 MHz       589.1 MHz     1000.000      1.697         998.303     system  
+Total  LUTs: 35 (6%)
+
+--- Summary for ./zle_xc3 / rev_3__no_optim
+clock              1.0 MHz       215.2 MHz     1000.000      4.647         995.353     inferred
+System             1.0 MHz       302.7 MHz     1000.000      3.304         996.696     system  
+Total  LUTs: 33 (6%)
+
+--- Summary for ./zle_xc5 / rev_1__speed
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              500.0 MHz     346.4 MHz     2.000         2.887         -0.887     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 47 (9%)
+
+--- Summary for ./zle_xc5 / rev_2__area
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              1.0 MHz       267.7 MHz     1000.000      3.736         996.264     inferred
+System             1.0 MHz       589.1 MHz     1000.000      1.697         998.303     system  
+Total  LUTs: 35 (6%)
+
+--- Summary for ./zle_xc5 / rev_3__no_optim
+clock              1.0 MHz       299.5 MHz     1000.000      3.339         996.661     inferred
+System             1.0 MHz       405.7 MHz     1000.000      2.465         997.535     system  
+Total  LUTs: 37 (7%)
+
+--- Summary for ./zle_xcB / rev_1__speed
+Adding property syn_encoding, value "onehot", to instance fsm.stateo_1[8:0]
+clock              500.0 MHz     237.0 MHz     2.000         4.220         -2.220     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 52 (10%)
+
+--- Summary for ./zle_xcB / rev_2__area
+Adding property syn_encoding, value "onehot", to instance fsm.stateo_1[8:0]
+clock              1.0 MHz       204.5 MHz      1000.000      4.891         995.109     inferred
+System             1.0 MHz       1006.4 MHz     1000.000      0.994         999.006     system  
+Total  LUTs: 42 (8%)
+
+--- Summary for ./zle_xcB / rev_3__no_optim
+clock              1.0 MHz       228.5 MHz     1000.000      4.377         995.623     inferred
+System             1.0 MHz       405.7 MHz     1000.000      2.465         997.535     system  
+Total  LUTs: 44 (8%)
+
+--- Summary for ./zle_xcB_dp / rev_1__speed
+clock              500.0 MHz     237.0 MHz     2.000         4.220         -2.220     inferred
+System             500.0 MHz     557.7 MHz     2.000         1.793         0.207      system  
+Total  LUTs: 30 (5%)
+
+--- Summary for ./zle_xcB_dp / rev_2__area
+clock              1.0 MHz       287.1 MHz     1000.000      3.483         996.517     inferred
+System             1.0 MHz       288.6 MHz     1000.000      3.465         996.535     system  
+Total  LUTs: 23 (4%)
+
+--- Summary for ./zle_xcB_dp / rev_3__no_optim
+clock              1.0 MHz       287.1 MHz     1000.000      3.483         996.517     inferred
+System             1.0 MHz       288.6 MHz     1000.000      3.465         996.535     system  
+Total  LUTs: 23 (4%)
+
+--- Summary for ./zle_xcB_fsm / rev_1__speed
+Adding property syn_encoding, value "onehot", to instance stateo_1[8:0]
+clock              500.0 MHz     385.1 MHz      2.000         2.597         -0.597     inferred
+System             500.0 MHz     1006.4 MHz     2.000         0.994         1.006      system  
+Total  LUTs: 24 (4%)
+
+--- Summary for ./zle_xcB_fsm / rev_2__area
+Adding property syn_encoding, value "onehot", to instance stateo_1[8:0]
+clock              1.0 MHz       385.1 MHz      1000.000      2.597         997.403     inferred
+System             1.0 MHz       1006.4 MHz     1000.000      0.994         999.006     system  
+Total  LUTs: 19 (3%)
+
+--- Summary for ./zle_xcB_fsm / rev_3__no_optim
+clock              1.0 MHz       276.6 MHz     1000.000      3.615         996.385     inferred
+System             1.0 MHz       473.6 MHz     1000.000      2.111         997.889     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle_xcQ2 / rev_1__speed
+Adding property syn_encoding, value "onehot", to instance zle.fsm.stateo_1[8:0]
+clock              500.0 MHz     286.7 MHz     2.000         3.488         -1.488     inferred
+Total  LUTs: 72 (14%)
+
+--- Summary for ./zle_xcQ2 / rev_2__area
+Adding property syn_encoding, value "gray", to instance zle.fsm.stateo_1[8:0]
+clock              1.0 MHz       223.0 MHz     1000.000      4.484         995.516     inferred
+Total  LUTs: 47 (9%)
+
+--- Summary for ./zle_xcQ2 / rev_3__no_optim
+clock              1.0 MHz       241.4 MHz     1000.000      4.142         995.858     inferred
+Total  LUTs: 50 (9%)
+
+--- Summary for ./zle_xcC / rev_1__speed
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              500.0 MHz     346.4 MHz     2.000         2.887         -0.887     inferred
+System             500.0 MHz     567.8 MHz     2.000         1.761         0.239      system  
+Total  LUTs: 47 (9%)
+
+--- Summary for ./zle_xcC / rev_2__area
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[8:0]
+clock              1.0 MHz       267.7 MHz     1000.000      3.736         996.264     inferred
+System             1.0 MHz       589.1 MHz     1000.000      1.697         998.303     system  
+Total  LUTs: 35 (6%)
+
+--- Summary for ./zle_xcC / rev_3__no_optim
+clock              1.0 MHz       299.5 MHz     1000.000      3.339         996.661     inferred
+System             1.0 MHz       405.7 MHz     1000.000      2.465         997.535     system  
+Total  LUTs: 37 (7%)
+
+--- Summary for ./zle_xcBQ2 / rev_1__speed
+Adding property syn_encoding, value "onehot", to instance zle.fsm.stateo_1[8:0]
+clock              500.0 MHz     237.0 MHz     2.000         4.220         -2.220     inferred
+Total  LUTs: 94 (18%)
+
+--- Summary for ./zle_xcBQ2 / rev_2__area
+Adding property syn_encoding, value "onehot", to instance zle.fsm.stateo_1[8:0]
+clock              1.0 MHz       220.7 MHz     1000.000      4.531         995.469     inferred
+Total  LUTs: 65 (12%)
+
+--- Summary for ./zle_xcBQ2 / rev_3__no_optim
+clock              1.0 MHz       219.3 MHz     1000.000      4.559         995.441     inferred
+Total  LUTs: 67 (13%)
+
+--- Summary for ./zle_xcC_fsm / rev_1__speed
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              500.0 MHz     338.9 MHz     2.000         2.950         -0.950     inferred
+System             500.0 MHz     405.7 MHz     2.000         2.465         -0.465     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_xcC_fsm / rev_2__area
+Adding property syn_encoding, value "gray", to instance stateo_1[8:0]
+clock              1.0 MHz       226.8 MHz     1000.000      4.410         995.590     inferred
+System             1.0 MHz       416.5 MHz     1000.000      2.401         997.599     system  
+Total  LUTs: 22 (4%)
+
+--- Summary for ./zle_xcC_fsm / rev_3__no_optim
+clock              1.0 MHz       276.6 MHz     1000.000      3.615         996.385     inferred
+System             1.0 MHz       473.6 MHz     1000.000      2.111         997.889     system  
+Total  LUTs: 21 (4%)
+
+--- Summary for ./zle / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance fsm.stateo_1[2:0]
+clock              500.0 MHz     312.6 MHz     2.000         3.199         -1.199     inferred
+System             500.0 MHz     459.9 MHz     2.000         2.174         -0.174     system  
+Total  LUTs: 32 (6%)
+
+--- Summary for ./zle / rev_2__area
+Adding property syn_encoding, value "sequential", to instance fsm.stateo_1[2:0]
+clock              1.0 MHz       277.5 MHz     1000.000      3.604         996.396     inferred
+System             1.0 MHz       349.8 MHz     1000.000      2.859         997.141     system  
+Total  LUTs: 25 (4%)
+
+--- Summary for ./zle / rev_3__no_optim
+clock              1.0 MHz       247.0 MHz     1000.000      4.048         995.952     inferred
+System             1.0 MHz       342.2 MHz     1000.000      2.922         997.078     system  
+Total  LUTs: 26 (5%)
+
+--- Summary for ./zle_fsm / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance stateo_1[2:0]
+clock              500.0 MHz     422.4 MHz     2.000         2.367         -0.367     inferred
+System             500.0 MHz     473.6 MHz     2.000         2.111         -0.111     system  
+Total  LUTs: 11 (2%)
+
+--- Summary for ./zle_fsm / rev_2__area
+Adding property syn_encoding, value "sequential", to instance stateo_1[2:0]
+clock              1.0 MHz       245.8 MHz     1000.000      4.068         995.932     inferred
+System             1.0 MHz       347.4 MHz     1000.000      2.879         997.121     system  
+Total  LUTs: 11 (2%)
+
+--- Summary for ./zle_fsm / rev_3__no_optim
+clock              1.0 MHz       297.2 MHz     1000.000      3.364         996.636     inferred
+System             1.0 MHz       459.7 MHz     1000.000      2.175         997.825     system  
+Total  LUTs: 10 (1%)
+
+--- Summary for ./zle_dp / rev_1__speed
+clock              500.0 MHz     299.8 MHz     2.000         3.336         -1.336     inferred
+System             500.0 MHz     323.8 MHz     2.000         3.088         -1.088     system  
+Total  LUTs: 25 (4%)
+
+--- Summary for ./zle_dp / rev_2__area
+clock              1.0 MHz       321.9 MHz     1000.000      3.106         996.894     inferred
+System             1.0 MHz       331.7 MHz     1000.000      3.015         996.985     system  
+Total  LUTs: 17 (3%)
+
+--- Summary for ./zle_dp / rev_3__no_optim
+clock              1.0 MHz       321.9 MHz     1000.000      3.106         996.894     inferred
+System             1.0 MHz       331.7 MHz     1000.000      3.015         996.985     system  
+Total  LUTs: 17 (3%)
+
+--- Summary for ./zle_B / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance fsm.stateo_1[2:0]
+clock              500.0 MHz     237.0 MHz     2.000         4.220         -2.220     inferred
+System             500.0 MHz     355.3 MHz     2.000         2.814         -0.814     system  
+Total  LUTs: 45 (8%)
+
+--- Summary for ./zle_B / rev_2__area
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[2:0]
+clock              1.0 MHz       165.0 MHz     1000.000      6.062         993.938     inferred
+System             1.0 MHz       181.1 MHz     1000.000      5.522         994.478     system  
+Total  LUTs: 33 (6%)
+
+--- Summary for ./zle_B / rev_3__no_optim
+clock              1.0 MHz       186.6 MHz     1000.000      5.358         994.642     inferred
+System             1.0 MHz       223.8 MHz     1000.000      4.469         995.531     system  
+Total  LUTs: 35 (6%)
+
+--- Summary for ./zle_Q2 / rev_1__speed
+egrep: No match.
+
+--- Summary for ./zle_Q2 / rev_2__area
+egrep: No match.
+
+--- Summary for ./zle_Q2 / rev_3__no_optim
+egrep: No match.
+
+--- Summary for ./zle_B_fsm / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance stateo_1[2:0]
+clock              500.0 MHz     422.4 MHz     2.000         2.367         -0.367     inferred
+System             500.0 MHz     473.6 MHz     2.000         2.111         -0.111     system  
+Total  LUTs: 11 (2%)
+
+--- Summary for ./zle_B_fsm / rev_2__area
+Adding property syn_encoding, value "gray", to instance stateo_1[2:0]
+clock              1.0 MHz       398.0 MHz     1000.000      2.513         997.487     inferred
+System             1.0 MHz       473.6 MHz     1000.000      2.111         997.889     system  
+Total  LUTs: 10 (1%)
+
+--- Summary for ./zle_B_fsm / rev_3__no_optim
+clock              1.0 MHz       297.2 MHz     1000.000      3.364         996.636     inferred
+System             1.0 MHz       459.7 MHz     1000.000      2.175         997.825     system  
+Total  LUTs: 10 (1%)
+
+--- Summary for ./zle_BQ2 / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance zle.fsm.stateo_1[2:0]
+clock              500.0 MHz     182.4 MHz     2.000         5.483         -3.483     inferred
+Total  LUTs: 67 (13%)
+
+--- Summary for ./zle_BQ2 / rev_2__area
+Adding property syn_encoding, value "gray", to instance zle.fsm.stateo_1[2:0]
+clock              1.0 MHz       156.5 MHz     1000.000      6.390         993.610     inferred
+Total  LUTs: 55 (10%)
+
+--- Summary for ./zle_BQ2 / rev_3__no_optim
+clock              1.0 MHz       165.0 MHz     1000.000      6.062         993.938     inferred
+Total  LUTs: 58 (11%)
+
+--- Summary for ./zle_B_dp / rev_1__speed
+clock              500.0 MHz     237.0 MHz     2.000         4.220         -2.220     inferred
+System             500.0 MHz     352.1 MHz     2.000         2.840         -0.840     system  
+Total  LUTs: 37 (7%)
+
+--- Summary for ./zle_B_dp / rev_2__area
+clock              1.0 MHz       163.3 MHz     1000.000      6.125         993.875     inferred
+System             1.0 MHz       212.5 MHz     1000.000      4.707         995.293     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_B_dp / rev_3__no_optim
+clock              1.0 MHz       163.3 MHz     1000.000      6.125         993.875     inferred
+System             1.0 MHz       212.5 MHz     1000.000      4.707         995.293     system  
+Total  LUTs: 28 (5%)
+
+--- Summary for ./zle_2 / rev_1__speed
+Adding property syn_encoding, value "sequential", to instance fsm.stateo_1[2:0]
+clock              500.0 MHz     320.1 MHz     2.000         3.124         -1.124     inferred
+System             500.0 MHz     473.6 MHz     2.000         2.111         -0.111     system  
+Total  LUTs: 35 (6%)
+
+--- Summary for ./zle_2 / rev_2__area
+Adding property syn_encoding, value "gray", to instance fsm.stateo_1[2:0]
+clock              1.0 MHz       277.5 MHz     1000.000      3.604         996.396     inferred
+System             1.0 MHz       349.8 MHz     1000.000      2.859         997.141     system  
+Total  LUTs: 24 (4%)
+
+--- Summary for ./zle_2 / rev_3__no_optim
+clock              1.0 MHz       212.9 MHz     1000.000      4.698         995.302     inferred
+System             1.0 MHz       287.3 MHz     1000.000      3.481         996.519     system  
+Total  LUTs: 26 (5%)
+
+--- Summary for ./zle_2_dp / rev_1__speed
+clock              500.0 MHz     299.0 MHz     2.000         3.344         -1.344     inferred
+System             500.0 MHz     465.9 MHz     2.000         2.147         -0.147     system  
+Total  LUTs: 22 (4%)
+
+--- Summary for ./zle_2_dp / rev_2__area
+clock              1.0 MHz       321.9 MHz     1000.000      3.106         996.894     inferred
+System             1.0 MHz       360.1 MHz     1000.000      2.777         997.223     system  
+Total  LUTs: 18 (3%)
+
+--- Summary for ./zle_2_dp / rev_3__no_optim
+clock              1.0 MHz       321.9 MHz     1000.000      3.106         996.894     inferred
+System             1.0 MHz       360.1 MHz     1000.000      2.777         997.223     system  
+Total  LUTs: 18 (3%)
+

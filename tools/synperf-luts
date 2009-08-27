@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+# - Distill synthesis results from Synplify 7 .srr file -- LUTS
+# - $luts
+
+while (<>) {
+  if (/^Total +LUTs: +(\d+)/i)
+    { if ($luts==0 || $luts<$1) { $luts=$1; } }
+}
+print "$luts\n";

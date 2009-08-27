@@ -1,0 +1,18 @@
+timing (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  timing_(a,b,o);
+}
+
+timing_ (input unsigned[16] a, input unsigned[16] b, output unsigned[16] o)
+{
+  unsigned[16] r1,r2;
+
+  state only (a,b) : {
+    unsigned[16] tmp, tmp2;
+    tmp =a[8:0] +b;
+    tmp2=a[12:0]+b;
+    r1=tmp[10:0]+1;
+    r2=tmp+2;
+    o=r1*r2;
+  }
+}
