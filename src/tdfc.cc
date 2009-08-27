@@ -348,11 +348,9 @@ set<string> *instances (Operator *op, Target targ,
 
 
 
-  cout << "Douchebag.. where's the graph?" << endl;
   // TODO: hoist this above header/body generation
   //       going to want flatten before all kinds of code gen
   Operator *fop=flatten(op);
-  cout << "Douchebag.. where's the graph? " << fop->getName() << endl;
 
   if (gEnableGC)
   {
