@@ -32,14 +32,15 @@
 #ifndef _TDF_BLOCKDFG_
 #define _TDF_BLOCKDFG_
 
-#include <LEDA/graph/graph.h>
-#include <LEDA/core/list.h>
 class Expr;
 class Stmt;
 class StmtAssign;
 class Operator;
 class OperatorCompose;
 class OperatorBehavioral;
+class SymbolVar;
+#include <LEDA/graph/graph.h>
+#include <LEDA/core/list.h>
 
 using leda::GRAPH;
 using leda::list;
@@ -130,8 +131,9 @@ typedef GRAPH<Expr*,StmtAssign*> BlockDFG;
 //
 ////////////////////////////////////////////////////////////////
 
+// extern void createBlockDfg (BlockDFG *dfg, list<Stmt*> stmtlist);
 
-extern void createBlockDfg (BlockDFG *dfg, list<Stmt*> stmtlist);
+extern void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts);
 
 extern string printBlockDFG (BlockDFG *dfg,
 			     node_array<int> *areas=NULL,	// "A=..."

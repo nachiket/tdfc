@@ -50,6 +50,7 @@ using leda::graph;
 using leda::node_array;
 using leda::edge_array;
 using leda::list_item;
+//using leda::set;
 
 using std::cerr;
 
@@ -89,6 +90,9 @@ public:
       locals    (locals_i     ? locals_i     : new set<SymbolVar*>)	{}
 };
 
+using std::cout;
+using std::endl;
+
 
 node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 {
@@ -105,6 +109,8 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 
   switch (e->getExprKind()) {
     case EXPR_VALUE:	{
+
+    cout << "Nachiket detected EXPR_VALUE node=" << e->toString() << endl;
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  if (uses_e)
@@ -112,6 +118,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  return n;
 			}
     case EXPR_LVALUE:	{
+    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << endl;
     			  // - if is stream ref w/possible retime,
     			  //     then there is no live def
 			  ExprLValue *lval=(ExprLValue*)e;
@@ -437,6 +444,17 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   // return dfgi.new_locals;
 }
 
+void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts) 
+{
+	list<Stmt*> nondfstmts;
+	set<SymbolVar*> locals;
+	set<SymbolVar*> new_locals;
+
+	createBlockDfg(dfg, stmts, &nondfstmts, &locals, &new_locals);
+}
+
+using std::cout;
+using std::endl;
 
 ////////////////////////////////////////////////////////////////
 //  Print BlockDFG
@@ -474,8 +492,18 @@ string printBlockDFG (BlockDFG *dfg,
     ret += string("edge %d->%d ",
 		  nodenums[dfg->source(e)], nodenums[dfg->target(e)]);
     Tree *t=(*dfg)[e];
-    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+
+    Tree *t1=(*dfg)[dfg->source(e)];
+    string t1_str = t1 ? t1->toString().replace_all("\n","") : string("<nil>");
+    Tree *t2=(*dfg)[dfg->target(e)];
+    string t2_str = t2 ? t2->toString().replace_all("\n","") : string("<nil>");
+
+    string t_str = t1_str + "->" + t2_str;
     ret += ": " + t_str + "\n";
+	
+//    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+//    ret += ": " + t_str + "\n";
+
   }
 
   return ret;
@@ -1534,7 +1562,7 @@ void reformBlockDFGs (BlockDFG *dfg, array<set<node> > *partitions,
     // - (reconstruct nodes, in arbitrary order)
     forall (n,partition)
       new_nodes[n] = new_dfg.new_node((*dfg)[n]);
-    edge e;
+    // Nachiket removed this: edge e;
     /*
     // - (reconstruct edges, retaining order of main edge list - WRONG)
     forall_edges (e,*dfg) {
@@ -1737,7 +1765,7 @@ void reformBlockDFGs (BlockDFG *dfg, array<set<node> > *partitions,
 	       = new_dfg.new_node((ExprLValue*)lval->duplicate());
 	  }
 	  else {
-	    Expr *e=new_dfg[pi];
+	    // Nachiket removed this: Expr *e=new_dfg[pi];
 	    // warn("SQUAK - REUSE PI "+e->toString());	// ***
 	  }
 	  // - connect primary input node, maintain order of target edge list

@@ -28,16 +28,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-
+#include "compares.h"
 #include "parse.h"
 #include "state.h"
 #include "operator.h"
 #include "stmt.h"
 #include "gc.h"
 #include "misc.h"
+#include "blockdfg.h"
 
 using leda::dic_item;
 using leda::list_item;
+using leda::list;
+using leda::set;
 
 ////////////////////////////////////////////////////////////////
 // pre-defined operators
@@ -810,6 +813,7 @@ string Operator::declToString () const
 
 string OperatorBehavioral::toString () const
 {
+cout << "Nachiket is writing out behavioral operators" << endl;
   indentPush();
   string varsStr   = vars->toString();
   if (varsStr.length()>0)
@@ -822,6 +826,28 @@ string OperatorBehavioral::toString () const
     if (s!=startState)
       statesStr += "\n" + s->toString();
   }
+
+  // - create dfg + residual stmts
+	set<StateCase*> statecases;
+	StateCase *sc;
+	forall_items (i,*states) {
+    		State *s = states->inf(i);
+		forall (sc,*s->getCases()) {
+			statecases.insert(sc);
+		}
+	}
+			
+	StateCase *sc1;
+	forall (sc1,statecases) {
+		BlockDFG dfg;
+		list<Stmt*> stmts1 = *sc1->getStmts();
+		createBlockDfgSimple(&dfg,&stmts1);
+		cout << "Nachiket is printing case=" << sc1->toString() << endl;
+		string dfgStr = printBlockDFG(&dfg, NULL, NULL, NULL); 
+		cout << dfgStr << endl;
+		cout << "Nachiket is done printing case" << sc1->toString() << endl;
+	}
+
   indentPop();
   return declToString() + "\n{\n" + varsStr + statesStr + "}\n";
 }

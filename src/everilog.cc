@@ -3044,8 +3044,10 @@ string tdfToVerilog_dp_alwaysCombi_toString (OperatorBehavioral *op,
 	list<string> stmts;
 	bool did_goto = false;
 	Stmt *s;
-	forall (s, *scase->getStmts())
+	forall (s, *scase->getStmts()) {
+	  cout << "\t Kapre is generating Verilog for state=" << s->toString() <<  endl;
 	  tdfToVerilog_dp_stmt(op,info,s,&stmts,indent,&did_goto);
+	}
 	string stmt;
 	forall (stmt, stmts)
 	  ret += stmt;

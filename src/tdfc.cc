@@ -60,12 +60,12 @@
 #include "dismantle.h"
 #include "pagenetlist.h"
 #include "pagenetlistdot.h"
-#include "blockdfg.h"
 #include "streamdepth.h"
 #include "everilog.h"
 #include "synplify.h"
 #include "dummypages.h"
 #include "pipeext.h"
+#include "blockdfg.h"
 
 
 char	*gProgName   = NULL;	// argv[0]
