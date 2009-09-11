@@ -1537,13 +1537,13 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 	    }
 
 	    
-	    ///* DEBUG
+	    /* DEBUG - Nachiket recognizes how useful this was with a comment
 	       cerr << " set initial value [" << svar->getName() << "[" << (*(*svar).getType()).toString()  << "]"
 	       << " in " << svar->getOperator()->getName() << "]" 
 	       << "<-" << rec->getParam(i) << endl;
 	       cerr << " readback initial value " << svar->getValue()->toString()
 	       << endl;
-	    //*/
+	    */
 					 
 	  }
 	else

@@ -430,9 +430,9 @@ set<string> *instances (Operator *op, Target targ,
 	case TARGET_DFG:
 //	cout << "wtfbbq?" << endl;
 	  if(iop->getOpKind()==OP_BEHAVIORAL) {
-	    cout << "\n// operator instance " << iop->getName() 
-	         << rec->toString()
-	         << "\n\n";
+//	    cout << "\n// operator instance " << iop->getName() 
+//	         << rec->toString()
+//	         << "\n\n";
 //	    cout << ((OperatorBehavioral*)iop)->toString();
 	    cout << ((OperatorBehavioral*)iop)->toDFGString();
 	  }
@@ -495,8 +495,8 @@ void emitDFG ()
 
   Operator *op;
   forall(op,*gSuite->getOperators())
-    cout << "// DFG for Operator " << op->getName() << '\n';
-  cout << '\n' << gSuite->toString();
+//    cout << "// DFG for Operator " << op->getName() << '\n';
+//  cout << '\n' << gSuite->toString();
   // not print instances
   forall(op,*gSuite->getOperators())
     instances(op,TARGET_DFG,0);
