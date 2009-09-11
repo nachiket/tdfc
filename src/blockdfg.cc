@@ -40,6 +40,7 @@
 #include <LEDA/core/array.h>
 #include <LEDA/core/set.h>
 #include <LEDA/core/map.h>
+#include "ops.h"
 
 using leda::list;
 using leda::map;
@@ -107,10 +108,11 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
   
   // warn("createBlockDfg_for_expr ("+e->toString()+")");
 
+//  cout << "Nachiket detected node=" << e->toString() << endl;
   switch (e->getExprKind()) {
     case EXPR_VALUE:	{
 
-    cout << "Nachiket detected EXPR_VALUE node=" << e->toString() << endl;
+//    cout << "Nachiket detected EXPR_VALUE node=" << e->toString() << endl;
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  if (uses_e)
@@ -118,7 +120,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  return n;
 			}
     case EXPR_LVALUE:	{
-    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << endl;
+//    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << endl;
     			  // - if is stream ref w/possible retime,
     			  //     then there is no live def
 			  ExprLValue *lval=(ExprLValue*)e;
@@ -193,6 +195,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  return n;
 			}
     case EXPR_BOP:	{
+    			cout << "Found binary operator=" << e->toString() << " of type=" << opToString(((ExprBop*)e)->getOp())  << endl;
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *e1=((ExprBop*)e)->getExpr1();
@@ -293,12 +296,14 @@ bool createBlockDfg_map (Tree *t, void *i)
   
   BlockDfgInfo *dfgi=(BlockDfgInfo*)i;
 
+//  cout << "Nachiket is processing statement=" << t->toString() << endl;
   if (t->getKind()==TREE_STMT) {
     switch (((Stmt*)t)->getStmtKind()) {
       case STMT_ASSIGN:	{
 			  Expr       *rhs=((StmtAssign*)t)->getRhs();
 			  ExprLValue *lhs=((StmtAssign*)t)->getLValue();
 			  Symbol     *sym=lhs->getSymbol();
+			  //cout << "Detected string=" << sym->toString() << endl;
 			  assert(lhs->usesAllBits());	// - ignoring bit asst
 			  // - create RHS tree and connect to a new PO node
 			  node po=(*dfgi->dfg).new_node(lhs);
@@ -346,6 +351,22 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  return false;
 			}
       case STMT_IF:	{
+      			cout << "Nachiket is processing an IF statement QUACK" << endl;
+			  /*
+			  Nachiket added this ...
+			  I think I now know what is going on with IF processing...
+			  An IF statement may enclose several assignments and it is important that we match these assignments properly... hence a good internal graph representation is useful here!
+			  node n=(*dfgi->dfg).new_node(e);
+			  (*dfgi->nodemap)[e]=n;
+
+			  Expr *ec=((ExprCond*)e)->getCond();
+			  Expr *et=((ExprCond*)e)->getThenPart();
+			  Expr *ef=((ExprCond*)e)->getElsePart();
+			  createBlockDfg_for_expr(ec,dfgi,n);
+			  createBlockDfg_for_expr(et,dfgi,n);
+			  createBlockDfg_for_expr(ef,dfgi,n);
+			  */
+			  
 			  Expr *cond=((StmtIf*)t)->getCond();
 			  node  dummyBranchCond=(*dfgi->dfg).new_node(NULL);
 			  createBlockDfg_for_expr(cond,dfgi,dummyBranchCond);
@@ -483,6 +504,20 @@ string printBlockDFG (BlockDFG *dfg,
     if (depths)
       ret += string("D=%d ",(*depths)[n]);
     Tree *t=(*dfg)[n];
+
+    string opType;
+	if(t->getKind()==TREE_EXPR) {
+		if(((Expr*)t)->getExprKind()==EXPR_BOP) {
+			opType= opToString(((ExprBop*)t)->getOp());
+			ret += " op="+opType+" ";
+		} else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
+			opType=opToString(((ExprUop*)t)->getOp());
+			ret += " op="+opType+" ";
+		} else if(((Expr*)t)->getExprKind()==EXPR_COND) {
+			ret += " op=ifmu ";
+		}
+	}
+
     string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
     ret += ": " + t_str + "\n";
   }
@@ -491,7 +526,7 @@ string printBlockDFG (BlockDFG *dfg,
   forall_edges (e,*dfg) {
     ret += string("edge %d->%d ",
 		  nodenums[dfg->source(e)], nodenums[dfg->target(e)]);
-    Tree *t=(*dfg)[e];
+    //Tree *t=(*dfg)[e];
 
     Tree *t1=(*dfg)[dfg->source(e)];
     string t1_str = t1 ? t1->toString().replace_all("\n","") : string("<nil>");
