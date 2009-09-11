@@ -1236,3 +1236,17 @@ void rmType(Tree *t)
 {
   t->map(typeDeleteMap,(TreeMap)NULL,(void *)NULL);
 }
+
+string typekindToString(TypeKind t) {
+	switch(t) {
+		case TYPE_BOOL: return string("boolean");
+		case TYPE_INT: return string("integer");
+		case TYPE_FIXED: return string("fixed");
+		case TYPE_ARRAY: return string("array");
+		case TYPE_ANY: return string("any");
+		case TYPE_FLOAT: return string("float");
+		case TYPE_DOUBLE: return string("double");
+		case TYPE_NONE: return string("none");
+		default: return string("bs");
+	}
+}

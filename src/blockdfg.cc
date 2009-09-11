@@ -510,19 +510,19 @@ string printBlockDFG (BlockDFG *dfg,
 	if(t->getKind()==TREE_EXPR) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP) {
 			opType= opToString(((ExprBop*)t)->getOp());
-			ret += " operator "+opType+" \n";
+			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
 		} else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
 			opType=opToString(((ExprUop*)t)->getOp());
-			ret += " operator "+opType+" \n";
+			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
 		} else if(((Expr*)t)->getExprKind()==EXPR_COND) {
 			ret += " operator ifmux \n";
 		} else {
 			string var="";
 			if(((Expr*)t)->getExprKind()==EXPR_VALUE) {
-				var="constant";
+				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " constant";
 			}
 			if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
-				var="variable";
+				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 			}
 			string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 			//ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
@@ -535,23 +535,28 @@ string printBlockDFG (BlockDFG *dfg,
     	}
   }
 
+  // attempt to generate graph by iterating over nodes and the input edges of node..
+  node n1;
   edge e;
-  forall_edges (e,*dfg) {
-    ret += string("edge %d->%d ",
+  forall_nodes (n1,*dfg) {
+  	forall_in_edges(e, n1) {
+      //forall_edges (e,*dfg) {
+      ret += string("edge %d->%d ",
 		  nodenums[dfg->source(e)], nodenums[dfg->target(e)]);
-    //Tree *t=(*dfg)[e];
+      //Tree *t=(*dfg)[e];
 
-    Tree *t1=(*dfg)[dfg->source(e)];
-    string t1_str = t1 ? t1->toString().replace_all("\n","") : string("<nil>");
-    Tree *t2=(*dfg)[dfg->target(e)];
-    string t2_str = t2 ? t2->toString().replace_all("\n","") : string("<nil>");
+      Tree *t1=(*dfg)[dfg->source(e)];
+      string t1_str = t1 ? t1->toString().replace_all("\n","") : string("<nil>");
+      Tree *t2=(*dfg)[dfg->target(e)];
+      string t2_str = t2 ? t2->toString().replace_all("\n","") : string("<nil>");
 
-    string t_str = t1_str + "->" + t2_str;
-    ret += ": " + t_str + "\n";
+      string t_str = t1_str + "->" + t2_str;
+      ret += ": " + t_str + "\n";
 	
 //    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 //    ret += ": " + t_str + "\n";
 
+    }
   }
 
   return ret;

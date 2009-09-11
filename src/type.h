@@ -43,6 +43,9 @@ enum TypeKind { TYPE_BOOL,		// boolean
 		TYPE_FIXED,		// fixed point
 		TYPE_ARRAY,		// array (memory segment, LUT, etc.)
 		TYPE_ANY,		// wildcard
+		// floating-point types added by Nachiket
+		TYPE_FLOAT,		// single-precision float		
+		TYPE_DOUBLE,		// double-precision float
 		TYPE_NONE };		// for non-typed tree nodes
 
 class Type : public Tree
@@ -205,5 +208,6 @@ extern /*const*/ Type	*type_sint64;
 
 void rmType(Tree *t);
 
+extern string typekindToString(TypeKind t);
 
 #endif  // #ifndef _TDF_TYPE_
