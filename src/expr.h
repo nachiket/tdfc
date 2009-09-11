@@ -467,6 +467,7 @@ Expr* newMaxExpr (Expr *e1, Expr *e2)
 		      (Expr*)e2->duplicate());
 }
 
+extern string exprkindToString(ExprKind e);
 
 
 #endif  // #ifndef _TDF_EXPR_

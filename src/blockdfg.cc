@@ -494,9 +494,10 @@ string printBlockDFG (BlockDFG *dfg,
   node n;
   forall_nodes (n,*dfg) {
     nodenums[n] = nodenum++;
-    ret += string("node %d ",nodenums[n])
-        +  (dfg->indeg (n)==0 ? "PI " :
-            dfg->outdeg(n)==0 ? "PO " : "   ");
+    ret += string("node %d ",nodenums[n]);
+// removed by Nachiket 
+//        +  (dfg->indeg (n)==0 ? "PI " :
+//            dfg->outdeg(n)==0 ? "PO " : "   ");
     if (areas)
       ret += string("A=%d ",(*areas)[n]);
     if (latencies)
@@ -509,17 +510,29 @@ string printBlockDFG (BlockDFG *dfg,
 	if(t->getKind()==TREE_EXPR) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP) {
 			opType= opToString(((ExprBop*)t)->getOp());
-			ret += " op="+opType+" ";
+			ret += " operator "+opType+" \n";
 		} else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
 			opType=opToString(((ExprUop*)t)->getOp());
-			ret += " op="+opType+" ";
+			ret += " operator "+opType+" \n";
 		} else if(((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += " op=ifmu ";
+			ret += " operator ifmux \n";
+		} else {
+			string var="";
+			if(((Expr*)t)->getExprKind()==EXPR_VALUE) {
+				var="constant";
+			}
+			if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+				var="variable";
+			}
+			string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+			//ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
+			ret += " " + var + " "  + t_str + "\n";
 		}
-	}
+	} else {
 
-    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-    ret += ": " + t_str + "\n";
+	    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+	    ret += " "+treekindToString(t->getKind())+" "+ t_str + "\n";
+    	}
   }
 
   edge e;

@@ -2653,3 +2653,18 @@ void ExprArray::map2 (Tree **h, TreeMap2 pre, TreeMap2 post,
   }
 }
 
+string exprkindToString(ExprKind e) {
+	switch(e) {
+		case EXPR_VALUE: return string("EXPR_VALUE");
+		case EXPR_LVALUE: return string("EXPR_LVALUE");
+		case EXPR_CALL: return string("EXPR_CALL");
+		case EXPR_BUILTIN: return string("EXPR_BUILTIN");
+		case EXPR_COND: return string("EXPR_COND");
+		case EXPR_BOP: return string("EXPR_BOP");
+		case EXPR_UOP: return string("EXPR_UOP");
+		case EXPR_CAST: return string("EXPR_CAST");
+		case EXPR_ARRAY: return string("EXPR_ARRAY");
+		case EXPR_BITSEL: return string("EXPR_BITSEL");
+		default: return string("bs");
+	};
+}

@@ -69,3 +69,22 @@ SymTab* Tree::getScope () const				// nearest symtab
 {
   return parent ? parent->getScope() : NULL;
 }
+
+
+
+string treekindToString(TreeKind t) {
+        switch(t) {
+		case TREE_SUITE: return string("TREE_SUITE");
+		case TREE_OPERATOR: return string("TREE_OPERATOR");
+		case TREE_STATE: return string("TREE_STATE");
+		case TREE_STATECASE: return string("TREE_STATECASE");
+		case TREE_INPUTSPEC: return string("TREE_INPUTSPEC");
+		case TREE_STMT: return string("TREE_STMT");
+		case TREE_EXPR: return string("TREE_EXPR");
+		case TREE_SYMTAB: return string("TREE_SYMTAB");
+		case TREE_SYMBOL: return string("TREE_SYMBOL");
+		case TREE_TYPE: return string("TREE_TYPE");
+		default: return string("bs");
+	}
+}
+
