@@ -94,7 +94,8 @@ enum Target { TARGET_TDF,
 	      TARGET_NEWREP,
 	    //TARGET_CLUSTERS,
 	      TARGET_STREAMDEPTH,
-	      TARGET_RI
+	      TARGET_RI,
+	      TARGET_DFG		// added by Nachiket on 9/10/2009
 	    };
 
 char *feedback_ext[2]={"fuser","fauto"};
@@ -426,6 +427,14 @@ set<string> *instances (Operator *op, Target targ,
 	    cout << inst_op->toString();
 	  }
 	  break;
+	case TARGET_DFG:
+	  if(iop->getOpKind()==OP_BEHAVIORAL) {
+	    cout << "\n// operator instance " << iop->getName() 
+	         << rec->toString()
+	         << "\n\n";
+	    cout << ((OperatorBehavioral*)iop)->toDFGString();
+	  }
+	  break;
 	case TARGET_CC:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
@@ -477,6 +486,19 @@ void emitTDF ()
     instances(op,TARGET_TDF,0);
 }
 
+
+void emitDFG ()
+{
+  // - emit DFG code for all operators  (-edfg option)
+
+  Operator *op;
+  forall(op,*gSuite->getOperators())
+    cout << "// DFG for Operator " << op->getName() << '\n';
+  cout << '\n' << gSuite->toString();
+  // not print instances
+  forall(op,*gSuite->getOperators())
+    instances(op,TARGET_DFG,0);
+}
 
 void emitCC (int dpr, int dps)
 {
@@ -623,6 +645,8 @@ int main(int argc, char *argv[])
       optionPreprocessorFlags.append(argv[arg]);      
     else if (strcmp(argv[arg],"-etdf")==0)	// -etdf     : emit TDF
       optionTarget = TARGET_TDF;
+    else if (strcmp(argv[arg],"-edfg")==0)	// -edfg     : emit DFG
+      optionTarget = TARGET_DFG;
     else if (strcmp(argv[arg],"-ecc")==0)	// -ecc      : emit C++
       optionTarget = TARGET_CC;
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
@@ -860,6 +884,7 @@ int main(int argc, char *argv[])
     switch (optionTarget)
     {
       case TARGET_TDF:		emitTDF();			  break;
+      case TARGET_DFG:		emitDFG();			  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
 				       optionDebugPageStep);	  break;
       case TARGET_VERILOG:	emitVerilog();			  break;

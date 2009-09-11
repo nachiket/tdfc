@@ -813,7 +813,7 @@ string Operator::declToString () const
 
 string OperatorBehavioral::toString () const
 {
-cout << "Nachiket is writing out behavioral operators" << endl;
+//cout << "Nachiket is writing out behavioral operators" << endl;
   indentPush();
   string varsStr   = vars->toString();
   if (varsStr.length()>0)
@@ -826,10 +826,16 @@ cout << "Nachiket is writing out behavioral operators" << endl;
     if (s!=startState)
       statesStr += "\n" + s->toString();
   }
+  indentPop();
+  return declToString() + "\n{\n" + varsStr + statesStr + "}\n";
+}
 
+string OperatorBehavioral::toDFGString () const
+{
   // - create dfg + residual stmts
 	set<StateCase*> statecases;
 	StateCase *sc;
+  	dic_item i;
 	forall_items (i,*states) {
     		State *s = states->inf(i);
 		forall (sc,*s->getCases()) {
@@ -842,14 +848,14 @@ cout << "Nachiket is writing out behavioral operators" << endl;
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
 		createBlockDfgSimple(&dfg,&stmts1);
-		cout << "Nachiket is printing case=" << sc1->toString() << endl;
 		string dfgStr = printBlockDFG(&dfg, NULL, NULL, NULL); 
-		cout << dfgStr << endl;
-		cout << "Nachiket is done printing case" << sc1->toString() << endl;
+		//cout << dfgStr << endl;
+
+		// ASSERT only 1 case statement!
+		return dfgStr; 
 	}
 
-  indentPop();
-  return declToString() + "\n{\n" + varsStr + statesStr + "}\n";
+	return "";
 }
 
 

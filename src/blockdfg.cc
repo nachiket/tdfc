@@ -195,7 +195,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  return n;
 			}
     case EXPR_BOP:	{
-    			cout << "Found binary operator=" << e->toString() << " of type=" << opToString(((ExprBop*)e)->getOp())  << endl;
+//    			cout << "Found binary operator=" << e->toString() << " of type=" << opToString(((ExprBop*)e)->getOp())  << endl;
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *e1=((ExprBop*)e)->getExpr1();
