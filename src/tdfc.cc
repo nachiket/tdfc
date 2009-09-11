@@ -428,6 +428,7 @@ set<string> *instances (Operator *op, Target targ,
 	  }
 	  break;
 	case TARGET_DFG:
+//	cout << "wtfbbq?" << endl;
 	  if(iop->getOpKind()==OP_BEHAVIORAL) {
 	    cout << "\n// operator instance " << iop->getName() 
 	         << rec->toString()

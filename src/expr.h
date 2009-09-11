@@ -81,6 +81,8 @@ class ExprValue : public Expr
 {
 private:
   long long intVal, fracVal;
+  float floatVal;
+  double doubleVal;
 
 public:
   ExprValue (Token *token_i, Type *type_i,
@@ -89,8 +91,12 @@ public:
 
   long long		getIntVal	() const	{ return intVal;  }
   long long		getFracVal	() const	{ return fracVal; }
+  float			getFloatVal	() const	{ return floatVal;}
+  double		getDoubleVal	() const	{ return doubleVal;}
   void			setIntVal	(long long v)	{ intVal=v;	  }
   void			setFracVal	(long long v)	{ fracVal=v;	  }
+  void			setFloatVal	(float v)	{ floatVal=v;}
+  void			setDoubleVal	(double v)	{ doubleVal=v;}
 
   virtual bool		equals		(const Expr *x) const;
   virtual bool		okInComposeOp	() const	{ return true; }

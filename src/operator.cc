@@ -832,6 +832,7 @@ string OperatorBehavioral::toString () const
 
 string OperatorBehavioral::toDFGString () const
 {
+cout << "asbolut." << endl;
   // - create dfg + residual stmts
 	set<StateCase*> statecases;
 	StateCase *sc;

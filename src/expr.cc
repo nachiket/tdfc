@@ -1226,6 +1226,13 @@ Type* ExprBop::typeCheck ()
 	  return type;
 	  // lazy, does not fold constant widths
 	}
+	else if (mergeType->getTypeKind()==TYPE_FLOAT || mergeType->getTypeKind()==TYPE_DOUBLE)
+	{
+		//type= new Type(mergeType->getTypeKind(), new ExprBop(NULL,'+'))->typeCheck();
+		type=mergeType;
+		type->setParent(this);
+		return type;
+        }
 	else
 	  // assert(!"internal inconsistency");
 	  fatal(1, string("binary operator '")+opToString(bop)+
@@ -1263,6 +1270,13 @@ Type* ExprBop::typeCheck ()
 					      makeFracWidthExpr()),
 				mergeType->isSigned())) -> typeCheck();
 	}
+	else if (mergeType->getTypeKind()==TYPE_FLOAT || mergeType->getTypeKind()==TYPE_DOUBLE)
+	{
+
+		type=mergeType;
+		type->setParent(this);
+		return type;
+	}
 	else
 	  // assert(!"internal inconsistency");
 	  fatal(1, string("binary operator '")+opToString(bop)+
@@ -1272,6 +1286,8 @@ Type* ExprBop::typeCheck ()
       {
 	// - do NOT narrow width
 	if (mergeType->getTypeKind()==TYPE_INT ||
+	    mergeType->getTypeKind()==TYPE_FLOAT ||
+	    mergeType->getTypeKind()==TYPE_DOUBLE ||
 	    mergeType->getTypeKind()==TYPE_FIXED ) {
 	  type=mergeType;	// should have width of 1st arg, not max?
 	  type->setParent(this);
@@ -1282,6 +1298,22 @@ Type* ExprBop::typeCheck ()
 	  fatal(1, string("binary operator '")+opToString(bop)+
 		   "' requires integer or fixed point operands", token);
       }
+      /* this should be in biultin? or call
+    case 'exp':
+    case 'log':
+    case 'sqrt':
+      {
+	if (mergeType->getTypeKind()==TYPE_FLOAT ||
+	    mergeType->getTypeKind()==TYPE_DOUBLE ) {
+	  type=mergeType;	// should have width of 1st arg, not max?
+	  type->setParent(this);
+	  return type;
+	}
+	else
+	  fatal(1, string("binary operator '")+opToString(bop)+
+		   "' requires floating point operands", token);
+      }
+      */
     case '%':
       {
 	// width comes from 2nd operand
@@ -1348,11 +1380,15 @@ Type* ExprBop::typeCheck ()
     case '>':
       {
 	if (e1Type->getTypeKind()!=TYPE_INT &&
+	    e1Type->getTypeKind()!=TYPE_FLOAT &&
+	    e1Type->getTypeKind()!=TYPE_DOUBLE &&
 	    e1Type->getTypeKind()!=TYPE_FIXED)
 	  fatal(1, string("incompatible type for binary operator '")+
 		   opToString(bop)+"', left side is "+e1Type->toString()+
 		   ", should be numeric type", e1->getToken());
 	if (e2Type->getTypeKind()!=TYPE_INT &&
+	    e2Type->getTypeKind()!=TYPE_FLOAT &&
+	    e2Type->getTypeKind()!=TYPE_DOUBLE &&
 	    e2Type->getTypeKind()!=TYPE_FIXED)
 	  fatal(1, string("incompatible type for binary operator '")+
 		   opToString(bop)+"', right side is "+e2Type->toString()+
@@ -2071,6 +2107,10 @@ string ExprValue::toString () const
       return string("<nil value>");	  // not sure if this ever happens
     case TYPE_BOOL:
       return string(intVal?"true":"false");
+    case TYPE_FLOAT:
+      return string("%g",floatVal);
+    case TYPE_DOUBLE:
+      return string("%g",doubleVal);
     case TYPE_INT:
       return string("%ld",(long)intVal);  // leda string can't handle long long
     case TYPE_FIXED:

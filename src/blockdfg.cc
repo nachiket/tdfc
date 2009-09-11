@@ -488,6 +488,8 @@ string printBlockDFG (BlockDFG *dfg,
   string ret("BlockDFG  (%d nodes, %d edges)\n",
 	     dfg->number_of_nodes(), dfg->number_of_edges());
 
+//cout << "inside" << endl;
+
   int nodenum=0;
   node_array<int> nodenums(*dfg);
 

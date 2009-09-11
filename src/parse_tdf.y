@@ -192,7 +192,7 @@ Symbol* lookup (Token *t)
   Suite				*suite;
 };
 
-%token <token>	ATTENTION BITSOF BOOLEAN CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?'
+%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?'
 
 %type <token>		sizedType ioKind exception_opt exception equalOp inequalOp shiftOp addOp prodOp unaryOp
 %type <expr>		arraySize call lvalue expr condExpr logOrExpr logAndExpr bitOrExpr bitXorExpr bitAndExpr equalExpr inequalExpr shiftExpr addExpr prodExpr unaryExpr fixedExpr atomExpr builtinExpr
@@ -306,6 +306,10 @@ type_opt
 type
 : BOOLEAN
 			{ $$=new Type(TYPE_BOOL); }
+| FLOAT
+			{ $$=new Type(TYPE_FLOAT); }
+| DOUBLE
+			{ $$=new Type(TYPE_DOUBLE); }
 | BOOLEAN arraySize
 			{ $$=new TypeArray(new Type(TYPE_BOOL),$2); }
 | sizedType '[' expr ']'

@@ -118,6 +118,8 @@ Type::Type (TypeKind typeKind_i, Expr *predExpr_i)	// TYPE_BOOL, ANY, NONE
     // bindTime(predExpr ? predExpr->getBindTime() : BindTime(BIND_COMPILE))
 {
   assert(   typeKind==TYPE_BOOL
+  	 || typeKind==TYPE_FLOAT
+  	 || typeKind==TYPE_DOUBLE
 	 || typeKind==TYPE_ANY
 	 || typeKind==TYPE_NONE
 	 || typeKind==TYPE_ARRAY);
@@ -350,6 +352,10 @@ Type* Type::typeCheck ()
 	  return type_none;
 	else						// - true predicate
 	  predExpr=NULL;
+      } else if (predExpr->getType()->getTypeKind()==TYPE_FLOAT || 
+      			predExpr->getType()->getTypeKind()==TYPE_DOUBLE) 
+      {
+        return this; // return valid type for floats and doubles.. jesus!
       }
       else
 	assert(!"internal inconsistency");
@@ -402,6 +408,8 @@ bool Type::upgradable (const Type *t) const
   // now know typeKind==t->typeKind, and neither is TYPE_ANY or TYPE_NONE
 
   if (typeKind==TYPE_BOOL)
+    return true;
+  else if (typeKind==TYPE_FLOAT || typeKind==TYPE_DOUBLE)
     return true;
   else if (typeKind==TYPE_INT)
   {
@@ -493,6 +501,16 @@ Type* Type::upgrade (const Type *t) const
   if (typeKind==TYPE_BOOL)
   {
     Type *ret=(new Type(TYPE_BOOL,newPredExpr)) -> typeCheck();
+    return ret;
+  }
+  else if (typeKind==TYPE_FLOAT)
+  {
+    Type *ret=(new Type(TYPE_FLOAT,newPredExpr)) -> typeCheck();
+    return ret;
+  }
+  else if (typeKind==TYPE_DOUBLE)
+  {
+    Type *ret=(new Type(TYPE_DOUBLE,newPredExpr)) -> typeCheck();
     return ret;
   }
   else if (typeKind==TYPE_INT)
@@ -656,6 +674,16 @@ Type* Type::merge (const Type *t) const
   if (typeKind==TYPE_BOOL)
   {
     Type *ret=new Type(TYPE_BOOL,newPredExpr);
+    return ret;
+  }
+  else if (typeKind==TYPE_FLOAT)
+  {
+    Type *ret=new Type(TYPE_FLOAT,newPredExpr);
+    return ret;
+  }
+  else if (typeKind==TYPE_DOUBLE)
+  {
+    Type *ret=new Type(TYPE_DOUBLE,newPredExpr);
     return ret;
   }
   else if (typeKind==TYPE_INT)
@@ -1010,6 +1038,12 @@ string Type::toString () const
 
     case TYPE_BOOL:
       return "boolean";
+
+// nachiket: ok studid! there was a toString() here!!!
+    case TYPE_FLOAT:
+      return "float";
+    case TYPE_DOUBLE:
+      return "double";
 
     case TYPE_INT:
     {
