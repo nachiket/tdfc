@@ -1078,7 +1078,7 @@ void exline_processMemRef (StmtAssign *stmt,
   {
     formal =cFormals->succ(formal);
     cFormal=cFormals->inf(formal);
-    cActual=new ExprValue(NULL,(Type*)type_bool->duplicate(),!reading);
+    cActual=new ExprValue(NULL,(Type*)type_bool->duplicate(),!reading, 0);
     ExprBuiltin tmpCall(NULL, new list<Expr*>(*ei_s->exlineActuals), seg);
     exline_processCallArg(cFormal,cActual,&tmpCall,ei_op,ei_s, firstTime,true);
   }

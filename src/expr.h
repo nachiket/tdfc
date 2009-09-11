@@ -87,6 +87,8 @@ private:
 public:
   ExprValue (Token *token_i, Type *type_i,
 	     long long intVal_i, long long fracVal_i=0);
+  ExprValue (Token *token_i, Type *type_i, float floatVal_i);
+  ExprValue (Token *token_i, Type *type_i, double doubleVal_i);
   virtual ~ExprValue () {}
 
   long long		getIntVal	() const	{ return intVal;  }

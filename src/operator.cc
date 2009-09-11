@@ -832,7 +832,6 @@ string OperatorBehavioral::toString () const
 
 string OperatorBehavioral::toDFGString () const
 {
-cout << "asbolut." << endl;
   // - create dfg + residual stmts
 	set<StateCase*> statecases;
 	StateCase *sc;
@@ -925,6 +924,7 @@ void OperatorBehavioral::map2 (Tree **h, TreeMap2 pre, TreeMap2 post,
       }
     }
   }
+
   if (descend)
   {
     symtab->map2((Tree**)&symtab,pre,post,i);

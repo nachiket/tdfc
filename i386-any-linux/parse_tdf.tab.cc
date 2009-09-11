@@ -2977,12 +2977,12 @@ yyreduce:
 
   case 152:
 #line 1045 "../src/parse_tdf.y"
-    { (yyval.expr)=(Expr*)new ExprValue((yyvsp[(1) - (1)].token),new Type(TYPE_BOOL),1); ;}
+    { (yyval.expr)=(Expr*)new ExprValue((yyvsp[(1) - (1)].token),new Type(TYPE_BOOL),1,0); ;}
     break;
 
   case 153:
 #line 1047 "../src/parse_tdf.y"
-    { (yyval.expr)=(Expr*)new ExprValue((yyvsp[(1) - (1)].token),new Type(TYPE_BOOL),0); ;}
+    { (yyval.expr)=(Expr*)new ExprValue((yyvsp[(1) - (1)].token),new Type(TYPE_BOOL),0,0); ;}
     break;
 
   case 154:

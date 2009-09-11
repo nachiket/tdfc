@@ -1042,9 +1042,9 @@ atomExpr
 			}
 
 | TRUE
-			{ $$=(Expr*)new ExprValue($1,new Type(TYPE_BOOL),1); }
+			{ $$=(Expr*)new ExprValue($1,new Type(TYPE_BOOL),1,0); }
 | FALSE
-			{ $$=(Expr*)new ExprValue($1,new Type(TYPE_BOOL),0); }
+			{ $$=(Expr*)new ExprValue($1,new Type(TYPE_BOOL),0,0); }
 | call
 			{ $$=$1; }
 | builtinExpr

@@ -58,8 +58,8 @@ const ExprValue *expr_1 = NULL;		// the constant "1"
 
 void Expr::init ()
 {
-  expr_0 = new ExprValue(NULL, new Type(TYPE_INT,0,false), 0);
-  expr_1 = new ExprValue(NULL, new Type(TYPE_INT,1,false), 1);
+  expr_0 = new ExprValue(NULL, new Type(TYPE_INT,0,false), 0, 0);
+  expr_1 = new ExprValue(NULL, new Type(TYPE_INT,1,false), 1, 0);
 
   TreeGC::addRoot(expr_0);
   TreeGC::addRoot(expr_1);
@@ -93,6 +93,21 @@ ExprValue::ExprValue (Token *token_i, Type *type_i,
   assert(type->getTypeKind()!=TYPE_ANY);
 }
 
+
+ExprValue::ExprValue (Token *token_i, Type *type_i, float floatVal_i)
+  : Expr(token_i,EXPR_VALUE,type_i),
+    floatVal(floatVal_i)
+{
+  assert(type->getTypeKind()==TYPE_FLOAT);
+}
+
+
+ExprValue::ExprValue (Token *token_i, Type *type_i, double doubleVal_i)
+  : Expr(token_i,EXPR_VALUE,type_i),
+    doubleVal(doubleVal_i)
+{
+  assert(type->getTypeKind()==TYPE_DOUBLE);
+}
 
 ExprLValue::ExprLValue (Token *token_i, Symbol *sym_i,
 			Expr  *posLow_i, Expr *posHigh_i,
@@ -1690,6 +1705,10 @@ bool ExprValue::equals (const Expr *x) const
       || !getType()->equals(x->getType()) )
     return false;
   ExprValue *xx=(ExprValue*)x;
+  if((*getType()).getTypeKind()==TYPE_FLOAT || (*getType()).getTypeKind()==TYPE_DOUBLE) {
+  	return (floatVal==xx->floatVal
+	  && doubleVal==xx->doubleVal);
+  }
   return (   intVal ==xx->intVal
 	  && fracVal==xx->fracVal);
 }

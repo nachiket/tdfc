@@ -75,7 +75,7 @@ bool pre_cond(Tree** h, void* vav){
   list<bool> * av = (list<bool> *) vav;
   if (t->getKind() == TREE_EXPR &&  ((Expr*)t)->getExprKind() == EXPR_LVALUE){
     //cerr << "EXPR_LVALUE " << *t<< endl;
-    *h=(Tree*) new ExprValue(NULL,t->getType(),(int)av->pop());
+    *h=(Tree*) new ExprValue(NULL,t->getType(),(int)av->pop(),0);
     return 0;
   }
   return 1;

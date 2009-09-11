@@ -51,6 +51,9 @@
 //    notions of instances.
 #include "cctype.h"
 
+using std::cout;
+using std::endl;
+
 using leda::list_item;
 using std::cerr;
 using std::endl;
@@ -256,7 +259,7 @@ Expr *EvaluateGetWidth(Expr *expr)
 	if (iwidth>=0)
 	  i=new ExprValue(expr->getToken(),
 			  new Type(TYPE_INT,6,0),
-			  iwidth);
+			  iwidth,0);
 	else
 	  {
 	    Expr *esize=ftype->getIntWidthExpr();
@@ -265,7 +268,7 @@ Expr *EvaluateGetWidth(Expr *expr)
 	if (fwidth>=0)
 	  f=new ExprValue(expr->getToken(),
 			  new Type(TYPE_INT,6,0),
-			  fwidth);
+			  fwidth,0);
 
 	else
 	  {
@@ -450,6 +453,16 @@ Expr *EvaluateExpr(Expr *orig)
 						orig->getType(),
 						((ExprValue *)value)->
 							getIntVal()));
+		      else if (orig->getType()->getTypeKind()==TYPE_FLOAT)
+			return(new ExprValue   (orig->getToken(),
+						orig->getType(),
+						((ExprValue *)value)->
+							getFloatVal()));
+		      else if (orig->getType()->getTypeKind()==TYPE_DOUBLE)
+			return(new ExprValue   (orig->getToken(),
+						orig->getType(),
+						((ExprValue *)value)->
+							getDoubleVal()));
 		      else
 			return(new ExprValue   (orig->getToken(),
 						orig->getType(),
@@ -623,6 +636,10 @@ Expr *EvaluateExpr(Expr *orig)
 	    // NOTE: not work for fixed, need to fix
 	    long long v1=((ExprValue *)value1)->getIntVal();
 	    long long v2=((ExprValue *)value2)->getIntVal();
+	    float v1f=((ExprValue *)value1)->getFloatVal();
+	    float v2f=((ExprValue *)value2)->getFloatVal();
+	    double v1d=((ExprValue *)value1)->getDoubleVal();
+	    double v2d=((ExprValue *)value2)->getDoubleVal();
 	    switch (bexpr->getOp())
 	      {
 	      case (RIGHT_SHIFT): return(newExprValue_int(orig->getToken(),
@@ -633,52 +650,110 @@ Expr *EvaluateExpr(Expr *orig)
 							  (v1<<v2)));
 	      case (EQUALS):      return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1==v2)));
+							  (v1==v2),0));
 	      case (NOT_EQUALS):  return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1!=v2)));
+							  (v1!=v2),0));
 	      case (LOGIC_AND):   return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1&&v2)));
+							  (v1&&v2),0));
 	      case (LOGIC_OR):    return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1||v2)));
+							  (v1||v2),0));
 	      case (GTE):         return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1>=v2)));
+							  (v1>=v2),0));
 	      case (LTE):         return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1<=v2)));
+							  (v1<=v2),0));
 	      case('<'):          return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1<v2)));
+							  (v1<v2),0));
 	      case('>'):          return(new ExprValue   (orig->getToken(),
 							  (orig->getType()),
-							  (v1>v2)));
-	      case('+'):          return(newExprValue_int(orig->getToken(),
+							  (v1>v2),0));
+	      case('+'):   	  if((orig->getType())->getTypeKind()==TYPE_FLOAT) {
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (float)(v1f+v2f)));
+			          } else if ((orig->getType())->getTypeKind()==TYPE_DOUBLE) {
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (double)(v1d+v2d)));
+				  } else {
+	      			     return(newExprValue_int(orig->getToken(),
 							  (orig->getType()),
 							  (v1+v2)));
-	      case('-'):          return(newExprValue_int(orig->getToken(),
+				  }
+	      case('-'):   	  if((orig->getType())->getTypeKind()==TYPE_FLOAT) {
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (float)(v1f-v2f)));
+			          } else if ((orig->getType())->getTypeKind()==TYPE_DOUBLE) {
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (double)(v1d-v2d)));
+				  } else {
+	      			     return(newExprValue_int(orig->getToken(),
 							  (orig->getType()),
 							  (v1-v2)));
-	      case('*'):          return(newExprValue_int(orig->getToken(),
+				  }
+	      case('*'):   	  if((orig->getType())->getTypeKind()==TYPE_FLOAT) {
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (float)(v1f*v2f)));
+			          } else if ((orig->getType())->getTypeKind()==TYPE_DOUBLE) {
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (double)(v1d*v2d)));
+				  } else {
+	      			     return(newExprValue_int(orig->getToken(),
 							  (orig->getType()),
 							  (v1*v2)));
-	      case('/'): 
-		if (v2==0)
-		  {
-		    cerr << "Evaluating: " << orig->toString() << endl;
-		    cerr << "     found: " << v1 << "/" << v2 << endl;
-		    error(-1,"divide by zero during bound instance constant folding",
-			  orig->getToken());
-		    return(new ExprValue(orig->getToken(),
-					 orig->getType(),
-					 0));
-		  }
-		else
-		  return(newExprValue_int(orig->getToken(),
-					  (orig->getType()),
-					  (v1/v2)));
+				  }
+	      case('/'):   	  if((orig->getType())->getTypeKind()==TYPE_FLOAT) {
+					if (v2f==0)
+					  {
+					    cerr << "Evaluating: " << orig->toString() << endl;
+					    cerr << "     found: " << v1 << "/" << v2 << endl;
+					    error(-1,"divide by zero during bound instance constant folding",
+						  orig->getToken());
+					    return(new ExprValue(orig->getToken(),
+								 orig->getType(),
+								 0,0));
+					}
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (float)(v1f/v2f)));
+			          } else if ((orig->getType())->getTypeKind()==TYPE_DOUBLE) {
+					if (v2d==0)
+					  {
+					    cerr << "Evaluating: " << orig->toString() << endl;
+					    cerr << "     found: " << v1 << "/" << v2 << endl;
+					    error(-1,"divide by zero during bound instance constant folding",
+						  orig->getToken());
+					    return(new ExprValue(orig->getToken(),
+								 orig->getType(),
+								 0,0));
+					}
+	      			     return(new ExprValue(orig->getToken(),
+							  (orig->getType()),
+							  (double)(v1d/v2d)));
+				  } else {
+					if (v2==0)
+					  {
+					    cerr << "Evaluating: " << orig->toString() << endl;
+					    cerr << "     found: " << v1 << "/" << v2 << endl;
+					    error(-1,"divide by zero during bound instance constant folding",
+						  orig->getToken());
+					    return(new ExprValue(orig->getToken(),
+								 orig->getType(),
+								 0,0));
+					  }
+	      			     return(newExprValue_int(orig->getToken(),
+							  (orig->getType()),
+							  (v1/v2)));
+			  	  }
 	      case('%'):          return(newExprValue_int(orig->getToken(),
 							  (orig->getType()),
 							  (v1%v2)));
@@ -804,7 +879,7 @@ Expr *EvaluateExpr(Expr *orig)
 		if (v==0)
 		  return(new ExprValue(orig->getToken(),
 				       orig->getType(),
-				       0));
+				       0,0));
 		else if (v==1)
 		  return(new ExprCast(orig->getToken(),
 				      orig->getType(),
@@ -819,7 +894,7 @@ Expr *EvaluateExpr(Expr *orig)
 		else if (v==1)
 		  return(new ExprValue(orig->getToken(),
 				       orig->getType(),
-				       1));
+				       1,0));
 		else
 		  break;
 	      case('+'): 
@@ -836,7 +911,7 @@ Expr *EvaluateExpr(Expr *orig)
 		if (v==0)
 		  return(new ExprValue(orig->getToken(),
 				       orig->getType(),
-				       0));
+				       0,0));
 		else if (v==1)
 		  return(new ExprCast(orig->getToken(),
 				      (orig->getType()),
@@ -858,7 +933,7 @@ Expr *EvaluateExpr(Expr *orig)
 		if (v==0)
 		  return(new ExprValue(orig->getToken(),
 				       orig->getType(),
-				       0));
+				       0,0));
 		else break;
 	      }
 
@@ -998,7 +1073,7 @@ Expr *EvaluateExpr(Expr *orig)
 						 (~v)));
 	      case('!'): return(new ExprValue   (orig->getToken(),
 						 (orig->getType()),
-						 (!v)));
+						 (!v),0));
 	      default:
 		error(-1,string("Unknown unary op in Evaluate Expr [%s]",
 				opToString(uexpr->getOp())),
@@ -1444,19 +1519,31 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 	if (ccParamCausesInstance(sym))
 	  {
 	    SymbolVar *svar=(SymbolVar *)sym;
-	    // TODO/note: not handling fixed point case
-	    svar->setValue(new ExprValue(sym->getToken(),
+
+	    TypeKind t =  (*(*svar).getType()).getTypeKind();
+	    if(t==TYPE_DOUBLE) {
+		    svar->setValue(new ExprValue(sym->getToken(),
 					 sym->getType(),
-					 rec->getParam(i)));
+					 (double)rec->getParam(i)));
+	    } else if(t==TYPE_FLOAT) {
+		    svar->setValue(new ExprValue(sym->getToken(),
+					 sym->getType(),
+					 (float)rec->getParam(i)));
+	    } else {
+		    // TODO/note: not handling fixed point case
+		    svar->setValue(new ExprValue(sym->getToken(),
+					 sym->getType(),
+					 rec->getParam(i), 0));
+	    }
 
 	    
-	    /* DEBUG
-	       cerr << " set initial value [" << svar->getName() 
+	    ///* DEBUG
+	       cerr << " set initial value [" << svar->getName() << "[" << (*(*svar).getType()).toString()  << "]"
 	       << " in " << svar->getOperator()->getName() << "]" 
 	       << "<-" << rec->getParam(i) << endl;
 	       cerr << " readback initial value " << svar->getValue()->toString()
 	       << endl;
-	    */
+	    //*/
 					 
 	  }
 	else

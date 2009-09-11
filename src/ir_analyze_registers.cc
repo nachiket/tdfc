@@ -76,7 +76,7 @@ void fold(Tree**h  ){
        case '>':		{out=in1 >   in2; break;}
        case '<':		{out=in1 <   in2; break;}
        }
-     *h = (Tree*) new ExprValue(NULL,((ExprBop*)t)->getExpr1()->getType(),out); 
+     *h = (Tree*) new ExprValue(NULL,((ExprBop*)t)->getExpr1()->getType(),out,0); 
    }
    else if (((Expr*)t)->getExprKind() == EXPR_COND){
      ExprCond* econd = (ExprCond*)t;
@@ -92,7 +92,7 @@ void fold(Tree**h  ){
        out = ((ExprValue*) econd->getElsePart())->getIntVal();
        type =( (ExprValue*)econd->getElsePart())->getType();
      }
-     *h = (Tree*) new ExprValue(NULL,type,out); 
+     *h = (Tree*) new ExprValue(NULL,type,out,0); 
    }
    //cerr << "written out value " << out <<" in tree " << *t<< endl;
    //THIS MIGHT BE CREATING THAT TYPE INCONSISTENCY!!!!!!!!!

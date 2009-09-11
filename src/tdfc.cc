@@ -433,6 +433,7 @@ set<string> *instances (Operator *op, Target targ,
 	    cout << "\n// operator instance " << iop->getName() 
 	         << rec->toString()
 	         << "\n\n";
+//	    cout << ((OperatorBehavioral*)iop)->toString();
 	    cout << ((OperatorBehavioral*)iop)->toDFGString();
 	  }
 	  break;
