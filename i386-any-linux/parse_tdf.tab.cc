@@ -213,6 +213,8 @@
 #define strtoll strtoq
 #endif
 
+using std::cout;
+using std::endl;
 
 ////////////////////////////////////////////////////////////////
 //  classes (local)
@@ -348,7 +350,7 @@ Symbol* lookup (Token *t)
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 170 "../src/parse_tdf.y"
+#line 172 "../src/parse_tdf.y"
 {
   Token 	*token;
   Expr		*expr;
@@ -374,7 +376,7 @@ typedef union YYSTYPE
   Suite				*suite;
 }
 /* Line 187 of yacc.c.  */
-#line 378 "parse_tdf.tab.cc"
+#line 380 "parse_tdf.tab.cc"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -387,7 +389,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 391 "parse_tdf.tab.cc"
+#line 393 "parse_tdf.tab.cc"
 
 #ifdef short
 # undef short
@@ -743,24 +745,24 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   220,   220,   225,   228,   240,   245,   260,   259,   300,
-     303,   307,   309,   311,   313,   315,   337,   366,   368,   373,
-     392,   397,   400,   407,   413,   423,   435,   437,   439,   444,
-     447,   451,   457,   456,   468,   467,   476,   485,   488,   496,
-     499,   499,   508,   522,   527,   528,   533,   538,   537,   543,
-     542,   549,   551,   556,   558,   563,   565,   567,   569,   578,
-     583,   592,   610,   613,   617,   619,   624,   626,   628,   633,
-     636,   640,   642,   647,   649,   654,   656,   661,   663,   665,
-     667,   669,   671,   673,   678,   680,   685,   694,   702,   711,
-     719,   727,   729,   734,   736,   741,   749,   758,   767,   776,
-     785,   794,   806,   811,   814,   822,   825,   829,   831,   836,
-     841,   854,   862,   864,   866,   871,   873,   881,   884,   888,
-     890,   895,   897,   902,   904,   909,   911,   916,   918,   923,
-     925,   930,   932,   937,   939,   944,   946,   951,   953,   958,
-     960,   965,   967,   972,   974,   976,   978,   983,  1011,  1016,
-    1018,  1031,  1044,  1046,  1048,  1050,  1052,  1057,  1068,  1074,
-    1083,  1084,  1088,  1089,  1090,  1091,  1095,  1096,  1100,  1101,
-    1105,  1106,  1107,  1111,  1112,  1113,  1114
+       0,   222,   222,   227,   230,   242,   247,   262,   261,   302,
+     305,   309,   311,   313,   315,   317,   339,   368,   370,   375,
+     394,   399,   402,   409,   415,   425,   437,   439,   441,   446,
+     449,   453,   459,   458,   470,   469,   478,   487,   490,   498,
+     501,   501,   510,   524,   529,   530,   535,   540,   539,   545,
+     544,   551,   553,   558,   560,   565,   567,   569,   571,   580,
+     585,   594,   612,   615,   619,   621,   626,   628,   630,   635,
+     638,   642,   644,   649,   651,   656,   658,   663,   665,   667,
+     669,   671,   673,   675,   680,   682,   687,   696,   704,   713,
+     721,   729,   731,   736,   738,   743,   751,   760,   769,   778,
+     787,   796,   808,   813,   816,   824,   827,   831,   833,   838,
+     843,   856,   864,   866,   868,   873,   875,   883,   886,   890,
+     892,   897,   899,   904,   906,   911,   913,   918,   920,   925,
+     927,   932,   934,   939,   941,   946,   948,   953,   955,   960,
+     962,   967,   969,   974,   976,   978,   980,   985,  1013,  1018,
+    1020,  1033,  1046,  1048,  1050,  1052,  1054,  1059,  1070,  1076,
+    1085,  1086,  1090,  1091,  1092,  1093,  1097,  1098,  1102,  1103,
+    1107,  1108,  1109,  1113,  1114,  1115,  1116
 };
 #endif
 
@@ -1893,17 +1895,17 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 221 "../src/parse_tdf.y"
+#line 223 "../src/parse_tdf.y"
     { (yyval.suite)=(yyvsp[(1) - (1)].suite); ;}
     break;
 
   case 3:
-#line 226 "../src/parse_tdf.y"
+#line 228 "../src/parse_tdf.y"
     { (yyval.suite)=(yyvsp[(1) - (1)].suite); ;}
     break;
 
   case 4:
-#line 228 "../src/parse_tdf.y"
+#line 230 "../src/parse_tdf.y"
     {
 			  if (!gSuite)
 			  {
@@ -1916,7 +1918,7 @@ yyreduce:
     break;
 
   case 5:
-#line 241 "../src/parse_tdf.y"
+#line 243 "../src/parse_tdf.y"
     {
 			  (yyval.suite)=(yyvsp[(1) - (2)].suite);
 			  (yyval.suite)->addOperator((yyvsp[(2) - (2)].operatr));
@@ -1924,7 +1926,7 @@ yyreduce:
     break;
 
   case 6:
-#line 246 "../src/parse_tdf.y"
+#line 248 "../src/parse_tdf.y"
     {
 			  if (!gSuite)
 			  {
@@ -1938,7 +1940,7 @@ yyreduce:
     break;
 
   case 7:
-#line 260 "../src/parse_tdf.y"
+#line 262 "../src/parse_tdf.y"
     {
 			  // opSignature leaves iodecls in pushed symtab
 			  if ((yyvsp[(1) - (2)].type))
@@ -1957,7 +1959,7 @@ yyreduce:
     break;
 
   case 8:
-#line 276 "../src/parse_tdf.y"
+#line 278 "../src/parse_tdf.y"
     {
 			  if ((yyvsp[(4) - (5)].opBody)->opKind==OP_BEHAVIORAL)
 			  {
@@ -1982,37 +1984,37 @@ yyreduce:
     break;
 
   case 9:
-#line 301 "../src/parse_tdf.y"
+#line 303 "../src/parse_tdf.y"
     { (yyval.type)=(yyvsp[(1) - (1)].type); ;}
     break;
 
   case 10:
-#line 303 "../src/parse_tdf.y"
+#line 305 "../src/parse_tdf.y"
     { (yyval.type)=NULL; ;}
     break;
 
   case 11:
-#line 308 "../src/parse_tdf.y"
+#line 310 "../src/parse_tdf.y"
     { (yyval.type)=new Type(TYPE_BOOL); ;}
     break;
 
   case 12:
-#line 310 "../src/parse_tdf.y"
+#line 312 "../src/parse_tdf.y"
     { (yyval.type)=new Type(TYPE_FLOAT); ;}
     break;
 
   case 13:
-#line 312 "../src/parse_tdf.y"
+#line 314 "../src/parse_tdf.y"
     { (yyval.type)=new Type(TYPE_DOUBLE); ;}
     break;
 
   case 14:
-#line 314 "../src/parse_tdf.y"
+#line 316 "../src/parse_tdf.y"
     { (yyval.type)=new TypeArray(new Type(TYPE_BOOL),(yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 15:
-#line 316 "../src/parse_tdf.y"
+#line 318 "../src/parse_tdf.y"
     {
 			  bool signd  = ((yyvsp[(1) - (4)].token)->code==SIGNED) ? true : false;
 			  Type *typeE = (yyvsp[(3) - (4)].expr)->getType();
@@ -2037,7 +2039,7 @@ yyreduce:
     break;
 
   case 16:
-#line 338 "../src/parse_tdf.y"
+#line 340 "../src/parse_tdf.y"
     {
 			  bool signd  = ((yyvsp[(1) - (5)].token)->code==SIGNED) ? true : false;
 			  Type *typeE = (yyvsp[(4) - (5)].expr)->getType();
@@ -2066,17 +2068,17 @@ yyreduce:
     break;
 
   case 17:
-#line 367 "../src/parse_tdf.y"
-    { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
-    break;
-
-  case 18:
 #line 369 "../src/parse_tdf.y"
     { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
     break;
 
+  case 18:
+#line 371 "../src/parse_tdf.y"
+    { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
+    break;
+
   case 19:
-#line 374 "../src/parse_tdf.y"
+#line 376 "../src/parse_tdf.y"
     {
 			  Type *typeE = (yyvsp[(2) - (3)].expr)->getType();
 			  if (typeE->getTypeKind()==TYPE_ANY)
@@ -2095,17 +2097,17 @@ yyreduce:
     break;
 
   case 20:
-#line 393 "../src/parse_tdf.y"
+#line 395 "../src/parse_tdf.y"
     { (yyval.opSignature)=new OpSignature((yyvsp[(1) - (4)].token),(yyvsp[(1) - (4)].token)->str,(yyvsp[(3) - (4)].symList)); ;}
     break;
 
   case 21:
-#line 398 "../src/parse_tdf.y"
+#line 400 "../src/parse_tdf.y"
     { (yyval.symList)=(yyvsp[(1) - (1)].symList); ;}
     break;
 
   case 22:
-#line 400 "../src/parse_tdf.y"
+#line 402 "../src/parse_tdf.y"
     {
 			  (yyval.symList)=new list<Symbol*>;
 			  symtabPush(new SymTab(SYMTAB_OP));
@@ -2113,7 +2115,7 @@ yyreduce:
     break;
 
   case 23:
-#line 408 "../src/parse_tdf.y"
+#line 410 "../src/parse_tdf.y"
     {
 			  (yyval.symList)=(yyvsp[(1) - (3)].symList);
 			  (yyval.symList)->append((yyvsp[(3) - (3)].sym));
@@ -2122,7 +2124,7 @@ yyreduce:
     break;
 
   case 24:
-#line 414 "../src/parse_tdf.y"
+#line 416 "../src/parse_tdf.y"
     {
 			  (yyval.symList)=new list<Symbol*>;
 			  (yyval.symList)->append((yyvsp[(1) - (1)].sym));
@@ -2132,7 +2134,7 @@ yyreduce:
     break;
 
   case 25:
-#line 424 "../src/parse_tdf.y"
+#line 426 "../src/parse_tdf.y"
     {
 			  if ((yyvsp[(1) - (3)].token)->code==INPUT)
 			    (yyval.sym)=new SymbolStream((yyvsp[(3) - (3)].token),(yyvsp[(3) - (3)].token)->str,(yyvsp[(2) - (3)].type),STREAM_IN);
@@ -2144,37 +2146,37 @@ yyreduce:
     break;
 
   case 26:
-#line 436 "../src/parse_tdf.y"
-    { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
-    break;
-
-  case 27:
 #line 438 "../src/parse_tdf.y"
     { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
     break;
 
-  case 28:
+  case 27:
 #line 440 "../src/parse_tdf.y"
     { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
     break;
 
+  case 28:
+#line 442 "../src/parse_tdf.y"
+    { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
+    break;
+
   case 29:
-#line 445 "../src/parse_tdf.y"
+#line 447 "../src/parse_tdf.y"
     { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
     break;
 
   case 30:
-#line 447 "../src/parse_tdf.y"
+#line 449 "../src/parse_tdf.y"
     { (yyval.token)=NULL; ;}
     break;
 
   case 31:
-#line 452 "../src/parse_tdf.y"
+#line 454 "../src/parse_tdf.y"
     { (yyval.token)=(yyvsp[(1) - (1)].token); ;}
     break;
 
   case 32:
-#line 457 "../src/parse_tdf.y"
+#line 459 "../src/parse_tdf.y"
     {
 			  // typeDecls_opt leaves pushed symtab
 			  gStates=new dictionary<string,State*>;
@@ -2182,7 +2184,7 @@ yyreduce:
     break;
 
   case 33:
-#line 462 "../src/parse_tdf.y"
+#line 464 "../src/parse_tdf.y"
     {
 			  (yyval.opBody)=(OpBody*)new BehavOpBody(gSymtab,gStates,(yyvsp[(4) - (5)].states));
 			  symtabPop();
@@ -2191,14 +2193,14 @@ yyreduce:
     break;
 
   case 34:
-#line 468 "../src/parse_tdf.y"
+#line 470 "../src/parse_tdf.y"
     {
 			  // typeDecls_opt leaves pushed symtab
 			;}
     break;
 
   case 35:
-#line 472 "../src/parse_tdf.y"
+#line 474 "../src/parse_tdf.y"
     {
 			  (yyval.opBody)=(OpBody*)new ComposeOpBody(gSymtab,(yyvsp[(4) - (5)].stmts));
 			  symtabPop();
@@ -2206,7 +2208,7 @@ yyreduce:
     break;
 
   case 36:
-#line 477 "../src/parse_tdf.y"
+#line 479 "../src/parse_tdf.y"
     {
 			  // typeDecls_opt leaves pushed symtab
 			  delete symtabPop();
@@ -2215,12 +2217,12 @@ yyreduce:
     break;
 
   case 37:
-#line 486 "../src/parse_tdf.y"
+#line 488 "../src/parse_tdf.y"
     { (yyval.symtab)=(yyvsp[(1) - (1)].symtab); ;}
     break;
 
   case 38:
-#line 488 "../src/parse_tdf.y"
+#line 490 "../src/parse_tdf.y"
     {
 			  // push new empty symtab before processing first decl
 			  symtabPush(new SymTab(SYMTAB_BLOCK));
@@ -2229,12 +2231,12 @@ yyreduce:
     break;
 
   case 39:
-#line 497 "../src/parse_tdf.y"
+#line 499 "../src/parse_tdf.y"
     { (yyval.symtab)=gSymtab; ;}
     break;
 
   case 40:
-#line 499 "../src/parse_tdf.y"
+#line 501 "../src/parse_tdf.y"
     {
 			  // push new empty symtab before processing first decl
 			  symtabPush(new SymTab(SYMTAB_BLOCK));
@@ -2242,12 +2244,12 @@ yyreduce:
     break;
 
   case 41:
-#line 504 "../src/parse_tdf.y"
+#line 506 "../src/parse_tdf.y"
     { (yyval.symtab)=gSymtab; ;}
     break;
 
   case 42:
-#line 509 "../src/parse_tdf.y"
+#line 511 "../src/parse_tdf.y"
     {
 			  (yyval.symtab)=gSymtab;
 			  bool first=true;	// - mark 1st loop iter
@@ -2264,22 +2266,22 @@ yyreduce:
     break;
 
   case 43:
-#line 523 "../src/parse_tdf.y"
+#line 525 "../src/parse_tdf.y"
     { (yyval.symtab)=gSymtab; ;}
     break;
 
   case 44:
-#line 527 "../src/parse_tdf.y"
+#line 529 "../src/parse_tdf.y"
     { (yyval.typeDeclElems)=new list<TypeDeclElem*>; (yyval.typeDeclElems)->append((yyvsp[(1) - (1)].typeDeclElem)); ;}
     break;
 
   case 45:
-#line 529 "../src/parse_tdf.y"
+#line 531 "../src/parse_tdf.y"
     { (yyval.typeDeclElems)=(yyvsp[(1) - (3)].typeDeclElems);                      (yyval.typeDeclElems)->append((yyvsp[(3) - (3)].typeDeclElem)); ;}
     break;
 
   case 46:
-#line 533 "../src/parse_tdf.y"
+#line 535 "../src/parse_tdf.y"
     {
 			  lookupDuplicateDecl((yyvsp[(1) - (1)].token));
 			  (yyval.typeDeclElem)=new TypeDeclElem((yyvsp[(1) - (1)].token),NULL,NULL);
@@ -2287,67 +2289,67 @@ yyreduce:
     break;
 
   case 47:
-#line 538 "../src/parse_tdf.y"
+#line 540 "../src/parse_tdf.y"
     { lookupDuplicateDecl((yyvsp[(1) - (1)].token)); ;}
     break;
 
   case 48:
-#line 540 "../src/parse_tdf.y"
+#line 542 "../src/parse_tdf.y"
     { (yyval.typeDeclElem)=new TypeDeclElem((yyvsp[(1) - (4)].token),(yyvsp[(4) - (4)].expr),NULL); ;}
     break;
 
   case 49:
-#line 543 "../src/parse_tdf.y"
+#line 545 "../src/parse_tdf.y"
     { lookupDuplicateDecl((yyvsp[(1) - (1)].token)); ;}
     break;
 
   case 50:
-#line 545 "../src/parse_tdf.y"
+#line 547 "../src/parse_tdf.y"
     { (yyval.typeDeclElem)=new TypeDeclElem((yyvsp[(1) - (5)].token),NULL,(yyvsp[(4) - (5)].expr)); ;}
     break;
 
   case 51:
-#line 550 "../src/parse_tdf.y"
+#line 552 "../src/parse_tdf.y"
     { (yyval.stmts)=(yyvsp[(1) - (2)].stmts);		if ((yyvsp[(2) - (2)].stmt)) (yyval.stmts)->append((yyvsp[(2) - (2)].stmt)); ;}
     break;
 
   case 52:
-#line 552 "../src/parse_tdf.y"
+#line 554 "../src/parse_tdf.y"
     { (yyval.stmts)=new list<Stmt*>;	if ((yyvsp[(1) - (1)].stmt)) (yyval.stmts)->append((yyvsp[(1) - (1)].stmt)); ;}
     break;
 
   case 53:
-#line 557 "../src/parse_tdf.y"
+#line 559 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
   case 54:
-#line 559 "../src/parse_tdf.y"
+#line 561 "../src/parse_tdf.y"
     { (yyval.stmt)=NULL; ;}
     break;
 
   case 55:
-#line 564 "../src/parse_tdf.y"
+#line 566 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtCall((yyvsp[(1) - (2)].expr)->getToken(),(ExprCall*)(yyvsp[(1) - (2)].expr)); ;}
     break;
 
   case 56:
-#line 566 "../src/parse_tdf.y"
-    { (yyval.stmt)=new StmtAssign((yyvsp[(2) - (4)].token),(ExprLValue*)(yyvsp[(1) - (4)].expr),(yyvsp[(3) - (4)].expr)); ;}
-    break;
-
-  case 57:
 #line 568 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtAssign((yyvsp[(2) - (4)].token),(ExprLValue*)(yyvsp[(1) - (4)].expr),(yyvsp[(3) - (4)].expr)); ;}
     break;
 
-  case 58:
+  case 57:
 #line 570 "../src/parse_tdf.y"
+    { (yyval.stmt)=new StmtAssign((yyvsp[(2) - (4)].token),(ExprLValue*)(yyvsp[(1) - (4)].expr),(yyvsp[(3) - (4)].expr)); ;}
+    break;
+
+  case 58:
+#line 572 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (2)].stmt); ;}
     break;
 
   case 59:
-#line 579 "../src/parse_tdf.y"
+#line 581 "../src/parse_tdf.y"
     {
 			  (yyval.states)=(yyvsp[(1) - (2)].states);			// $$ = start state
 			  // states are stored in gStates by stateCase action
@@ -2355,7 +2357,7 @@ yyreduce:
     break;
 
   case 60:
-#line 584 "../src/parse_tdf.y"
+#line 586 "../src/parse_tdf.y"
     {
 			  (yyval.states)=(State*)((yyvsp[(1) - (1)].stateCase)->getParent());	// $$ = start state
 			  // states are stored in gStates by stateCase action
@@ -2363,7 +2365,7 @@ yyreduce:
     break;
 
   case 61:
-#line 593 "../src/parse_tdf.y"
+#line 595 "../src/parse_tdf.y"
     {
 			  // lookup/create state and add stateCase to it
 			  dic_item state_item=gStates->lookup((yyvsp[(2) - (7)].token)->str);
@@ -2381,127 +2383,127 @@ yyreduce:
     break;
 
   case 62:
-#line 611 "../src/parse_tdf.y"
+#line 613 "../src/parse_tdf.y"
     { (yyval.inputSpecs)=(yyvsp[(1) - (1)].inputSpecs); ;}
     break;
 
   case 63:
-#line 613 "../src/parse_tdf.y"
+#line 615 "../src/parse_tdf.y"
     { (yyval.inputSpecs)=new list<InputSpec*>; ;}
     break;
 
   case 64:
-#line 618 "../src/parse_tdf.y"
+#line 620 "../src/parse_tdf.y"
     { (yyval.inputSpecs)=(yyvsp[(1) - (3)].inputSpecs);			(yyval.inputSpecs)->append((yyvsp[(3) - (3)].inputSpec)); ;}
     break;
 
   case 65:
-#line 620 "../src/parse_tdf.y"
+#line 622 "../src/parse_tdf.y"
     { (yyval.inputSpecs)=new list<InputSpec*>;	(yyval.inputSpecs)->append((yyvsp[(1) - (1)].inputSpec)); ;}
     break;
 
   case 66:
-#line 625 "../src/parse_tdf.y"
+#line 627 "../src/parse_tdf.y"
     { (yyval.inputSpec)=new InputSpec((yyvsp[(1) - (1)].token),lookup((yyvsp[(1) - (1)].token))); ;}
     break;
 
   case 67:
-#line 627 "../src/parse_tdf.y"
+#line 629 "../src/parse_tdf.y"
     { (yyval.inputSpec)=new InputSpec((yyvsp[(1) - (3)].token),lookup((yyvsp[(1) - (3)].token)),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 68:
-#line 629 "../src/parse_tdf.y"
+#line 631 "../src/parse_tdf.y"
     { (yyval.inputSpec)=new InputSpec((yyvsp[(3) - (4)].token),lookup((yyvsp[(3) - (4)].token)),NULL,true); ;}
     break;
 
   case 69:
-#line 634 "../src/parse_tdf.y"
+#line 636 "../src/parse_tdf.y"
     { (yyval.stmts)=(yyvsp[(1) - (1)].stmts); ;}
     break;
 
   case 70:
-#line 636 "../src/parse_tdf.y"
+#line 638 "../src/parse_tdf.y"
     { (yyval.stmts)=new list<Stmt*>; ;}
     break;
 
   case 71:
-#line 641 "../src/parse_tdf.y"
+#line 643 "../src/parse_tdf.y"
     { (yyval.stmts)=(yyvsp[(1) - (2)].stmts);		if ((yyvsp[(2) - (2)].stmt)) (yyval.stmts)->append((yyvsp[(2) - (2)].stmt)); ;}
     break;
 
   case 72:
-#line 643 "../src/parse_tdf.y"
+#line 645 "../src/parse_tdf.y"
     { (yyval.stmts)=new list<Stmt*>;	if ((yyvsp[(1) - (1)].stmt)) (yyval.stmts)->append((yyvsp[(1) - (1)].stmt)); ;}
     break;
 
   case 73:
-#line 648 "../src/parse_tdf.y"
+#line 650 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
   case 74:
-#line 650 "../src/parse_tdf.y"
+#line 652 "../src/parse_tdf.y"
     { (yyval.stmt)=NULL; ;}
     break;
 
   case 75:
-#line 655 "../src/parse_tdf.y"
-    { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
-    break;
-
-  case 76:
 #line 657 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
+  case 76:
+#line 659 "../src/parse_tdf.y"
+    { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
+    break;
+
   case 77:
-#line 662 "../src/parse_tdf.y"
+#line 664 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtIf((yyvsp[(1) - (7)].token),(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt)); ;}
     break;
 
   case 78:
-#line 664 "../src/parse_tdf.y"
+#line 666 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtGoto((yyvsp[(1) - (3)].token),(yyvsp[(2) - (3)].token)->str); ;}
     break;
 
   case 79:
-#line 666 "../src/parse_tdf.y"
+#line 668 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtGoto((yyvsp[(1) - (2)].token),NULL); ;}
     break;
 
   case 80:
-#line 668 "../src/parse_tdf.y"
-    { (yyval.stmt)=(yyvsp[(1) - (2)].stmt); ;}
-    break;
-
-  case 81:
 #line 670 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (2)].stmt); ;}
     break;
 
-  case 82:
+  case 81:
 #line 672 "../src/parse_tdf.y"
+    { (yyval.stmt)=(yyvsp[(1) - (2)].stmt); ;}
+    break;
+
+  case 82:
+#line 674 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtCall((yyvsp[(1) - (2)].expr)->getToken(),(ExprCall*)(yyvsp[(1) - (2)].expr)); ;}
     break;
 
   case 83:
-#line 674 "../src/parse_tdf.y"
+#line 676 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
   case 84:
-#line 679 "../src/parse_tdf.y"
+#line 681 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtIf((yyvsp[(1) - (5)].token),(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt)); ;}
     break;
 
   case 85:
-#line 681 "../src/parse_tdf.y"
+#line 683 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtIf((yyvsp[(1) - (7)].token),(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt)); ;}
     break;
 
   case 86:
-#line 686 "../src/parse_tdf.y"
+#line 688 "../src/parse_tdf.y"
     {
 			  // typeDecls_opt leaves pushed symtab
 			  (yyval.stmt)=new StmtBlock((yyvsp[(1) - (4)].token),gSymtab,(yyvsp[(3) - (4)].stmts));
@@ -2510,7 +2512,7 @@ yyreduce:
     break;
 
   case 87:
-#line 695 "../src/parse_tdf.y"
+#line 697 "../src/parse_tdf.y"
     {
 			  list<Expr*> *args=new list<Expr*>;
 			  args->append((yyvsp[(3) - (4)].expr));
@@ -2521,7 +2523,7 @@ yyreduce:
     break;
 
   case 88:
-#line 703 "../src/parse_tdf.y"
+#line 705 "../src/parse_tdf.y"
     {
 			  ExprLValue *el=new ExprLValue((yyvsp[(3) - (4)].token),lookup((yyvsp[(3) - (4)].token)));
 			  list<Expr*> *args=new list<Expr*>;
@@ -2533,7 +2535,7 @@ yyreduce:
     break;
 
   case 89:
-#line 712 "../src/parse_tdf.y"
+#line 714 "../src/parse_tdf.y"
     {
 			  list<Expr*> *args=new list<Expr*>;
 			  args->append((Expr*)expr_0->duplicate());   // sync 0
@@ -2544,7 +2546,7 @@ yyreduce:
     break;
 
   case 90:
-#line 720 "../src/parse_tdf.y"
+#line 722 "../src/parse_tdf.y"
     {
 			  list<Expr*> *args=(yyvsp[(4) - (5)].args);
 			  ExprBuiltin *eb=new ExprBuiltin((yyvsp[(1) - (5)].token),args,
@@ -2555,27 +2557,27 @@ yyreduce:
     break;
 
   case 91:
-#line 728 "../src/parse_tdf.y"
-    { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
-    break;
-
-  case 92:
 #line 730 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
-  case 93:
-#line 735 "../src/parse_tdf.y"
+  case 92:
+#line 732 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
-  case 94:
+  case 93:
 #line 737 "../src/parse_tdf.y"
     { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
     break;
 
+  case 94:
+#line 739 "../src/parse_tdf.y"
+    { (yyval.stmt)=(yyvsp[(1) - (1)].stmt); ;}
+    break;
+
   case 95:
-#line 742 "../src/parse_tdf.y"
+#line 744 "../src/parse_tdf.y"
     {
 			  ExprBuiltin *eb=new ExprBuiltin((yyvsp[(1) - (4)].token),(yyvsp[(3) - (4)].args),builtin_copy);
 			  (yyval.stmt)=new StmtBuiltin((yyvsp[(1) - (4)].token),eb);
@@ -2583,7 +2585,7 @@ yyreduce:
     break;
 
   case 96:
-#line 750 "../src/parse_tdf.y"
+#line 752 "../src/parse_tdf.y"
     {
 			  OperatorSegment *o
 			    = new OperatorSegment((yyvsp[(1) - (4)].token),string("_dummy_seg_op"),
@@ -2595,7 +2597,7 @@ yyreduce:
     break;
 
   case 97:
-#line 759 "../src/parse_tdf.y"
+#line 761 "../src/parse_tdf.y"
     {
 			  OperatorSegment *o
 			    = new OperatorSegment((yyvsp[(1) - (4)].token),string("_dummy_seg_op"),
@@ -2607,7 +2609,7 @@ yyreduce:
     break;
 
   case 98:
-#line 768 "../src/parse_tdf.y"
+#line 770 "../src/parse_tdf.y"
     {
 			  OperatorSegment *o
 			    = new OperatorSegment((yyvsp[(1) - (4)].token),string("_dummy_seg_op"),
@@ -2619,7 +2621,7 @@ yyreduce:
     break;
 
   case 99:
-#line 777 "../src/parse_tdf.y"
+#line 779 "../src/parse_tdf.y"
     {
 			  OperatorSegment *o
 			    = new OperatorSegment((yyvsp[(1) - (4)].token),string("_dummy_seg_op"),
@@ -2631,7 +2633,7 @@ yyreduce:
     break;
 
   case 100:
-#line 786 "../src/parse_tdf.y"
+#line 788 "../src/parse_tdf.y"
     {
 			  OperatorSegment *o
 			    = new OperatorSegment((yyvsp[(1) - (4)].token),string("_dummy_seg_op"),
@@ -2643,7 +2645,7 @@ yyreduce:
     break;
 
   case 101:
-#line 795 "../src/parse_tdf.y"
+#line 797 "../src/parse_tdf.y"
     {
 			  OperatorSegment *o
 			    = new OperatorSegment((yyvsp[(1) - (4)].token),string("_dummy_seg_op"),
@@ -2655,17 +2657,17 @@ yyreduce:
     break;
 
   case 102:
-#line 807 "../src/parse_tdf.y"
+#line 809 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprCall((yyvsp[(1) - (4)].token),(yyvsp[(3) - (4)].args)); ;}
     break;
 
   case 103:
-#line 812 "../src/parse_tdf.y"
+#line 814 "../src/parse_tdf.y"
     { (yyval.args)=(yyvsp[(1) - (1)].args); ;}
     break;
 
   case 104:
-#line 814 "../src/parse_tdf.y"
+#line 816 "../src/parse_tdf.y"
     {
 			  // empty args list implies 0-width sync stream
 			  (yyval.args)=new list<Expr*>;
@@ -2674,32 +2676,32 @@ yyreduce:
     break;
 
   case 105:
-#line 823 "../src/parse_tdf.y"
+#line 825 "../src/parse_tdf.y"
     { (yyval.args)=(yyvsp[(2) - (2)].args); ;}
     break;
 
   case 106:
-#line 825 "../src/parse_tdf.y"
+#line 827 "../src/parse_tdf.y"
     { (yyval.args)=new list<Expr*>; ;}
     break;
 
   case 107:
-#line 830 "../src/parse_tdf.y"
+#line 832 "../src/parse_tdf.y"
     { (yyval.args)=(yyvsp[(1) - (3)].args);		(yyval.args)->append((yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 108:
-#line 832 "../src/parse_tdf.y"
+#line 834 "../src/parse_tdf.y"
     { (yyval.args)=new list<Expr*>;	(yyval.args)->append((yyvsp[(1) - (1)].expr)); ;}
     break;
 
   case 109:
-#line 837 "../src/parse_tdf.y"
+#line 839 "../src/parse_tdf.y"
     { (yyval.stmt)=new StmtAssign((yyvsp[(2) - (3)].token),(ExprLValue*)(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 110:
-#line 842 "../src/parse_tdf.y"
+#line 844 "../src/parse_tdf.y"
     {
 			  Symbol *s  = lookupTry((yyvsp[(1) - (1)].token)),
 				 *sym= s?s:new SymbolVar((yyvsp[(1) - (1)].token),(yyvsp[(1) - (1)].token)->str,type_any);
@@ -2715,7 +2717,7 @@ yyreduce:
     break;
 
   case 111:
-#line 855 "../src/parse_tdf.y"
+#line 857 "../src/parse_tdf.y"
     {
 			  Symbol *s=lookup((yyvsp[(1) - (4)].token));
 			  if (s->getType()->getTypeKind()==TYPE_ARRAY)
@@ -2726,27 +2728,27 @@ yyreduce:
     break;
 
   case 112:
-#line 863 "../src/parse_tdf.y"
+#line 865 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprLValue((yyvsp[(1) - (6)].token),lookup((yyvsp[(1) - (6)].token)),(yyvsp[(5) - (6)].expr),(yyvsp[(3) - (6)].expr)); ;}
     break;
 
   case 113:
-#line 865 "../src/parse_tdf.y"
+#line 867 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprLValue((yyvsp[(1) - (7)].token),lookup((yyvsp[(1) - (7)].token)),(yyvsp[(6) - (7)].expr),NULL,NULL,(yyvsp[(3) - (7)].expr)); ;}
     break;
 
   case 114:
-#line 867 "../src/parse_tdf.y"
+#line 869 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprLValue((yyvsp[(1) - (9)].token),lookup((yyvsp[(1) - (9)].token)),(yyvsp[(8) - (9)].expr),(yyvsp[(6) - (9)].expr),NULL,(yyvsp[(3) - (9)].expr)); ;}
     break;
 
   case 115:
-#line 872 "../src/parse_tdf.y"
+#line 874 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 116:
-#line 874 "../src/parse_tdf.y"
+#line 876 "../src/parse_tdf.y"
     {
 			  TypeArray *type=new TypeArray(type_any,(yyvsp[(2) - (3)].exprs)->size());
 			  (yyval.expr)=new ExprArray((yyvsp[(1) - (3)].token),type,(yyvsp[(2) - (3)].exprs));
@@ -2754,157 +2756,157 @@ yyreduce:
     break;
 
   case 117:
-#line 882 "../src/parse_tdf.y"
+#line 884 "../src/parse_tdf.y"
     { (yyval.exprs)=(yyvsp[(1) - (1)].exprs); ;}
     break;
 
   case 118:
-#line 884 "../src/parse_tdf.y"
+#line 886 "../src/parse_tdf.y"
     { (yyval.exprs)=new list<Expr*>; ;}
     break;
 
   case 119:
-#line 889 "../src/parse_tdf.y"
+#line 891 "../src/parse_tdf.y"
     { (yyval.exprs)=(yyvsp[(1) - (3)].exprs); (yyval.exprs)->append((yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 120:
-#line 891 "../src/parse_tdf.y"
+#line 893 "../src/parse_tdf.y"
     { (yyval.exprs)=new list<Expr*>; (yyval.exprs)->append((yyvsp[(1) - (1)].expr)); ;}
     break;
 
   case 121:
-#line 896 "../src/parse_tdf.y"
+#line 898 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprCond((yyvsp[(2) - (5)].token),(yyvsp[(1) - (5)].expr),(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].expr)); ;}
     break;
 
   case 122:
-#line 898 "../src/parse_tdf.y"
+#line 900 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 123:
-#line 903 "../src/parse_tdf.y"
+#line 905 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),LOGIC_OR,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 124:
-#line 905 "../src/parse_tdf.y"
+#line 907 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 125:
-#line 910 "../src/parse_tdf.y"
+#line 912 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),LOGIC_AND,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 126:
-#line 912 "../src/parse_tdf.y"
+#line 914 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 127:
-#line 917 "../src/parse_tdf.y"
+#line 919 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 128:
-#line 919 "../src/parse_tdf.y"
+#line 921 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 129:
-#line 924 "../src/parse_tdf.y"
+#line 926 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 130:
-#line 926 "../src/parse_tdf.y"
+#line 928 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 131:
-#line 931 "../src/parse_tdf.y"
+#line 933 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 132:
-#line 933 "../src/parse_tdf.y"
+#line 935 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 133:
-#line 938 "../src/parse_tdf.y"
+#line 940 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 134:
-#line 940 "../src/parse_tdf.y"
+#line 942 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 135:
-#line 945 "../src/parse_tdf.y"
+#line 947 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 136:
-#line 947 "../src/parse_tdf.y"
+#line 949 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 137:
-#line 952 "../src/parse_tdf.y"
+#line 954 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 138:
-#line 954 "../src/parse_tdf.y"
+#line 956 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 139:
-#line 959 "../src/parse_tdf.y"
+#line 961 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 140:
-#line 961 "../src/parse_tdf.y"
+#line 963 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 141:
-#line 966 "../src/parse_tdf.y"
+#line 968 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBop((yyvsp[(2) - (3)].token),(yyvsp[(2) - (3)].token)->code,(yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr)); ;}
     break;
 
   case 142:
-#line 968 "../src/parse_tdf.y"
+#line 970 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 143:
-#line 973 "../src/parse_tdf.y"
+#line 975 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprUop((yyvsp[(1) - (2)].token),(yyvsp[(1) - (2)].token)->code,(yyvsp[(2) - (2)].expr)); ;}
     break;
 
   case 144:
-#line 975 "../src/parse_tdf.y"
+#line 977 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprCast((yyvsp[(1) - (4)].token),(yyvsp[(2) - (4)].type),(yyvsp[(4) - (4)].expr)); ;}
     break;
 
   case 145:
-#line 977 "../src/parse_tdf.y"
+#line 979 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprCast((yyvsp[(1) - (4)].token),(yyvsp[(2) - (4)].token)->code==SIGNED?true:false,(yyvsp[(4) - (4)].expr)); ;}
     break;
 
   case 146:
-#line 979 "../src/parse_tdf.y"
+#line 981 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 147:
-#line 984 "../src/parse_tdf.y"
+#line 986 "../src/parse_tdf.y"
     {
 			  Type *ti=(yyvsp[(1) - (3)].expr)->getType(),
 			       *tf=(yyvsp[(3) - (3)].expr)->getType();
@@ -2935,17 +2937,17 @@ yyreduce:
     break;
 
   case 148:
-#line 1012 "../src/parse_tdf.y"
+#line 1014 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 149:
-#line 1017 "../src/parse_tdf.y"
+#line 1019 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 150:
-#line 1019 "../src/parse_tdf.y"
+#line 1021 "../src/parse_tdf.y"
     {
 			  ExprLValue *lvalue=(ExprLValue*)(yyvsp[(1) - (3)].expr);
 			  (yyval.expr)=new ExprLValue(lvalue->getToken(),
@@ -2961,8 +2963,8 @@ yyreduce:
     break;
 
   case 151:
-#line 1032 "../src/parse_tdf.y"
-    {
+#line 1034 "../src/parse_tdf.y"
+    { 
 			  const char *tokenChars=(yyvsp[(1) - (1)].token)->str;
 			  if (  tokenChars[0]=='0' &&
 			       (tokenChars[1]=='b' || tokenChars[1]=='B'))
@@ -2976,37 +2978,37 @@ yyreduce:
     break;
 
   case 152:
-#line 1045 "../src/parse_tdf.y"
+#line 1047 "../src/parse_tdf.y"
     { (yyval.expr)=(Expr*)new ExprValue((yyvsp[(1) - (1)].token),new Type(TYPE_BOOL),1,0); ;}
     break;
 
   case 153:
-#line 1047 "../src/parse_tdf.y"
+#line 1049 "../src/parse_tdf.y"
     { (yyval.expr)=(Expr*)new ExprValue((yyvsp[(1) - (1)].token),new Type(TYPE_BOOL),0,0); ;}
     break;
 
   case 154:
-#line 1049 "../src/parse_tdf.y"
-    { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
-    break;
-
-  case 155:
 #line 1051 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
-  case 156:
+  case 155:
 #line 1053 "../src/parse_tdf.y"
+    { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
+    break;
+
+  case 156:
+#line 1055 "../src/parse_tdf.y"
     { (yyval.expr)=(yyvsp[(2) - (3)].expr); ;}
     break;
 
   case 157:
-#line 1058 "../src/parse_tdf.y"
+#line 1060 "../src/parse_tdf.y"
     { (yyval.expr)=new ExprBuiltin((yyvsp[(1) - (4)].token),(yyvsp[(3) - (4)].args),builtin_cat); ;}
     break;
 
   case 158:
-#line 1069 "../src/parse_tdf.y"
+#line 1071 "../src/parse_tdf.y"
     {
 			  list<Expr*> *args=new list<Expr*>;
 			  args->append((yyvsp[(3) - (4)].expr));
@@ -3015,7 +3017,7 @@ yyreduce:
     break;
 
   case 159:
-#line 1075 "../src/parse_tdf.y"
+#line 1077 "../src/parse_tdf.y"
     {
 			  list<Expr*> *args=new list<Expr*>;
 			  args->append((yyvsp[(3) - (4)].expr));
@@ -3025,7 +3027,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 3029 "parse_tdf.tab.cc"
+#line 3031 "parse_tdf.tab.cc"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3239,6 +3241,6 @@ yyreturn:
 }
 
 
-#line 1117 "../src/parse_tdf.y"
+#line 1119 "../src/parse_tdf.y"
 
 

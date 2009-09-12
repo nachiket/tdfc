@@ -528,7 +528,7 @@ string printBlockDFG (BlockDFG *dfg,
 			}
 			string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 			//ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
-			ret += " " + var + " "  + t_str + "\n";
+			ret += var + " "  + t_str + "\n";
 		}
 	} else {
 
@@ -543,7 +543,8 @@ string printBlockDFG (BlockDFG *dfg,
   forall_nodes (n1,*dfg) {
   	forall_in_edges(e, n1) {
       //forall_edges (e,*dfg) {
-      ret += string("edge %d->%d ",
+      // Nachiket: added space around -> for easier tokenization in javacc
+      ret += string("edge %d -> %d \n",
 		  nodenums[dfg->source(e)], nodenums[dfg->target(e)]);
       //Tree *t=(*dfg)[e];
 
@@ -552,8 +553,9 @@ string printBlockDFG (BlockDFG *dfg,
       Tree *t2=(*dfg)[dfg->target(e)];
       string t2_str = t2 ? t2->toString().replace_all("\n","") : string("<nil>");
 
-      string t_str = t1_str + "->" + t2_str;
-      ret += ": " + t_str + "\n";
+	// Nachiket: avoid trailing crap
+      // string t_str = t1_str + " -> " + t2_str;
+      // ret += ": " + t_str + "\n";
 	
 //    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 //    ret += ": " + t_str + "\n";

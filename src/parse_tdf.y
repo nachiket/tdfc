@@ -52,6 +52,8 @@
 #define strtoll strtoq
 #endif
 
+using std::cout;
+using std::endl;
 
 ////////////////////////////////////////////////////////////////
 //  classes (local)
@@ -1029,7 +1031,7 @@ atomExpr
 			  // should just update token & retime directly in $1
 			}
 | NUM
-                        {
+			{ 
 			  const char *tokenChars=$1->str;
 			  if (  tokenChars[0]=='0' &&
 			       (tokenChars[1]=='b' || tokenChars[1]=='B'))

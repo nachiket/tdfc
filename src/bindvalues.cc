@@ -786,14 +786,21 @@ Expr *EvaluateExpr(Expr *orig)
 
 	    Expr *value_expr;
 	    long long v;
+	    float vf;
+	    double vd;
 	    if (value1->getExprKind()==EXPR_VALUE) 
 	      {
 
 		long long v1=((ExprValue *)value1)->getIntVal();
+		float v1f=((ExprValue *)value1)->getFloatVal();
+		double v1d=((ExprValue *)value1)->getDoubleVal();
 		switch (bexpr->getOp())
 		  {
 		  case('-'):
-		    if (v1==0)
+		    if (
+		    	((((ExprValue *)value1)->getType())->getTypeKind()==TYPE_FLOAT && v1f==0)  ||
+		    	((((ExprValue *)value1)->getType())->getTypeKind()==TYPE_DOUBLE && v1d==0) ||
+		    	((((ExprValue *)value1)->getType())->getTypeKind()==TYPE_INT && v1==0))
 		      return(new ExprCast(orig->getToken(),
 					  orig->getType(),
 					  new ExprUop(orig->getToken(),
@@ -802,28 +809,41 @@ Expr *EvaluateExpr(Expr *orig)
 		    else break;
 		  }
 		v=v1;
+		vf=v1f;
+		vd=v1d;
 		value_expr=value2;
 	      }
 	    else
 	      {
 		long long v2=((ExprValue *)value2)->getIntVal();
+		float v2f=((ExprValue *)value2)->getFloatVal();
+		double v2d=((ExprValue *)value2)->getDoubleVal();
 		switch (bexpr->getOp())
 		  {
 		  case('-'):
-		    if (v2==0)
+		    if (
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_FLOAT && v2f==0)  ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_DOUBLE && v2d==0) ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_INT && v2==0))
 		      return(new ExprCast(orig->getToken(),
 					  orig->getType(),
 					  value1));
 		    else break;
 		  case (RIGHT_SHIFT): 
 		  case (LEFT_SHIFT):  
-		    if (v2==0)
+		    if (
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_FLOAT && v2f==0)  ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_DOUBLE && v2d==0) ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_INT && v2==0))
 		      return(new ExprCast(orig->getToken(),
 					  (orig->getType()),
 					  value1));
 		    else break;
 		  case('/'): 
-		    if (v2==0)
+		    if (
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_FLOAT && v2f==0)  ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_DOUBLE && v2d==0) ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_INT && v2==0))
 		      {
 			cerr << "Evaluating: " << orig->toString() << endl;
 			cerr << "     found: " << value1->toString() 
@@ -835,7 +855,10 @@ Expr *EvaluateExpr(Expr *orig)
 						0));
 		      }
 		    else
-		      if (v2==1)
+		      if (
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_FLOAT && v2f==1)  ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_DOUBLE && v2d==1) ||
+		    	((((ExprValue *)value2)->getType())->getTypeKind()==TYPE_INT && v2==1))
 			return(new ExprCast(orig->getToken(),
 					    (orig->getType()),
 					    value1));
@@ -867,6 +890,8 @@ Expr *EvaluateExpr(Expr *orig)
 		    else break;
 		  }
 		v=v2;
+		vf=v2f;
+		vd=v2d;
 		value_expr=value1;
 	      }
 
@@ -897,26 +922,41 @@ Expr *EvaluateExpr(Expr *orig)
 				       1,0));
 		else
 		  break;
-	      case('+'): 
-		if (v==0)
-		  {
-		    cerr << "folding out +0 on add [" << orig->toString() 
-			 << "]" << endl;
-		    return(new ExprCast(orig->getToken(),
-					(orig->getType()),
-					value_expr));
-		  }
-		else break;
-	      case('*'): 
-		if (v==0)
-		  return(new ExprValue(orig->getToken(),
-				       orig->getType(),
-				       0,0));
-		else if (v==1)
-		  return(new ExprCast(orig->getToken(),
-				      (orig->getType()),
-				      value_expr));
-		else break;
+	      case('+'):   	  if(
+	      				((orig->getType())->getTypeKind()==TYPE_FLOAT && vf==0) ||
+	      				((orig->getType())->getTypeKind()==TYPE_DOUBLE && vd==0) ||
+	      				((orig->getType())->getTypeKind()==TYPE_INT && v==0))
+					  {
+					    cerr << "folding out +0 on add [" << orig->toString() 
+						 << "]" << endl;
+					    return(new ExprCast(orig->getToken(),
+								(orig->getType()),
+								value_expr));
+					  }
+				  else break;
+	      case('*'):   	  if(
+	      				((orig->getType())->getTypeKind()==TYPE_FLOAT && vf==0) || 
+	      				((orig->getType())->getTypeKind()==TYPE_DOUBLE && vd==0) || 
+	      				((orig->getType())->getTypeKind()==TYPE_INT && v==0))
+					  {
+					    cerr << "folding out *1 on mult [" << orig->toString() 
+						 << "]" << endl;
+					    return(new ExprCast(orig->getToken(),
+								(orig->getType()),
+								value_expr));
+					  }
+	      			  else if(
+				  	((orig->getType())->getTypeKind()==TYPE_FLOAT && vf==1) || 
+	      				((orig->getType())->getTypeKind()==TYPE_DOUBLE && vd==1) || 
+	      				((orig->getType())->getTypeKind()==TYPE_INT && v==1)) 
+					  {
+					    cerr << "folding out *1 on mult [" << orig->toString() 
+						 << "]" << endl;
+					    return(new ExprCast(orig->getToken(),
+								(orig->getType()),
+								0));
+					  }
+				  else break;
 	      case('|'): 
 		if (v==0)
 		  return(new ExprCast(orig->getToken(),
