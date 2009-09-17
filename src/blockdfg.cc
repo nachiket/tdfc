@@ -351,7 +351,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  return false;
 			}
       case STMT_IF:	{
-      			cout << "Nachiket is processing an IF statement QUACK" << endl;
+      			//cout << "Nachiket is processing an IF statement QUACK" << endl;
 			  /*
 			  Nachiket added this ...
 			  I think I now know what is going on with IF processing...
@@ -526,6 +526,13 @@ string printBlockDFG (BlockDFG *dfg,
 			if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
 				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 			}
+			// For now I am throwing out the typecasting.. not necessary
+			if(((Expr*)t)->getExprKind()==EXPR_CAST) {
+				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
+			}
+
+//			cout << "ExprType for weirdness=" << exprkindToString(((Expr*)t)->getExprKind()) << endl;
+
 			string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 			//ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
 			ret += var + " "  + t_str + "\n";

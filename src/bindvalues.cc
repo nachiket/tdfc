@@ -1100,17 +1100,40 @@ Expr *EvaluateExpr(Expr *orig)
 	if (ivalue->getExprKind()==EXPR_VALUE)
 	  {
 	    long long v=((ExprValue *)ivalue)->getIntVal();
+	    float vf=((ExprValue *)ivalue)->getFloatVal();
+	    double vd=((ExprValue *)ivalue)->getDoubleVal();
 	    switch(uexpr->getOp())
 	      {
-	      case('-'): return(newExprValue_int(orig->getToken(),
+	      case('-'): 
+	      case('~'):
+	       	if((orig->getType())->getTypeKind()==TYPE_FLOAT) {
+	      		return(new ExprValue(orig->getToken(),
+						 (orig->getType()),
+						 (-vf)));
+		} else if((orig->getType())->getTypeKind()==TYPE_DOUBLE) {
+	      		return(new ExprValue(orig->getToken(),
+						 (orig->getType()),
+						 (-vd)));
+		} else { 
+		//cout << typekindToString(orig->getType()->getTypeKind()) << endl;
+			return(new ExprValue (orig->getToken(),
 						 (orig->getType()),
 						 (-v)));
-	      case('+'): return(newExprValue_int(orig->getToken(),
+		}
+	      case('+'):
+	       	if((orig->getType())->getTypeKind()==TYPE_FLOAT) {
+	      		return(new ExprValue(orig->getToken(),
+						 (orig->getType()),
+						 (vf)));
+		} else if((orig->getType())->getTypeKind()==TYPE_DOUBLE) {
+	      		return(new ExprValue(orig->getToken(),
+						 (orig->getType()),
+						 (vd)));
+		} else { 
+			return(newExprValue_int(orig->getToken(),
 						 (orig->getType()),
 						 (v)));
-	      case('~'): return(newExprValue_int(orig->getToken(),
-						 (orig->getType()),
-						 (~v)));
+		}
 	      case('!'): return(new ExprValue   (orig->getToken(),
 						 (orig->getType()),
 						 (!v),0));
