@@ -517,7 +517,7 @@ string printBlockDFG (BlockDFG *dfg,
 			opType=opToString(((ExprUop*)t)->getOp());
 			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
 		} else if(((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator ifmux \n";
+			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator IF \n";
 		} else {
 			string var="";
 			if(((Expr*)t)->getExprKind()==EXPR_VALUE) {

@@ -486,7 +486,7 @@ bool ExprCall::link ()
     string opName = op?op->getName():token->str;
     Operator *resolvedOp=((Suite*)suite)->lookupOperator(opName);
     if (resolvedOp==NULL)
-      fatal(1, string("operator ")+opName+" not found", token);
+      fatal(1, string("stupid operator ")+opName+" not found", token);
     else
       op=resolvedOp;
   }
