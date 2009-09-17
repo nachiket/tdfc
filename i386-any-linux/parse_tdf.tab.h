@@ -80,7 +80,10 @@
      STRING = 296,
      TRUE = 297,
      UNSIGNED = 298,
-     WIDTHOF = 299
+     WIDTHOF = 299,
+     EXP = 300,
+     LOG = 301,
+     SQRT = 302
    };
 #endif
 /* Tokens.  */
@@ -126,6 +129,9 @@
 #define TRUE 297
 #define UNSIGNED 298
 #define WIDTHOF 299
+#define EXP 300
+#define LOG 301
+#define SQRT 302
 
 
 
@@ -158,7 +164,7 @@ typedef union YYSTYPE
   Suite				*suite;
 }
 /* Line 1489 of yacc.c.  */
-#line 162 "parse_tdf.tab.hh"
+#line 168 "parse_tdf.tab.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

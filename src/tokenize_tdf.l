@@ -215,9 +215,11 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "boolean"	{ return_token(BOOLEAN);	}
 "float"		{ return_token(FLOAT);		}
 "double"	{ return_token(DOUBLE);		}
- /* "exp"		{ return_token(EXP);		}*/
- /* "log"		{ return_token(LOG);		}*/
- /* "sqrt"		{ return_token(SQRT);		}*/
+
+"exp"		{ return_token(EXP);		}
+"log"		{ return_token(LOG);		}
+"sqrt"		{ return_token(SQRT);		}
+
 "signed"	{ return_token(SIGNED);		}
 "unsigned"	{ return_token(UNSIGNED);	}
  /* "fixed"	{ return_token(FIXED);		} */

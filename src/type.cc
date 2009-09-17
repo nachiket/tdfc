@@ -40,6 +40,8 @@
 #define max(a,b) (((a)>(b))?(a):(b))
 #endif
 
+using std::cout;
+using std::endl;
 
 ////////////////////////////////////////////////////////////////
 //  pre-defined types
@@ -657,8 +659,6 @@ Type* Type::merge (const Type *t) const
     return type_any;
   if (typeKind==TYPE_NONE && t->typeKind==TYPE_NONE)
     return type_none;
-  if (typeKind!=t->typeKind)
-    return NULL;
   // now know typeKind==t->typeKind, and neither is TYPE_ANY or TYPE_NONE
 
   /*
@@ -676,12 +676,22 @@ Type* Type::merge (const Type *t) const
     Type *ret=new Type(TYPE_BOOL,newPredExpr);
     return ret;
   }
-  else if (typeKind==TYPE_FLOAT)
+  else if ((typeKind==TYPE_INT || typeKind==TYPE_FIXED) && t->typeKind==TYPE_FLOAT)
   {
     Type *ret=new Type(TYPE_FLOAT,newPredExpr);
     return ret;
   }
-  else if (typeKind==TYPE_DOUBLE)
+  else if ((typeKind==TYPE_INT || typeKind==TYPE_FIXED) && t->typeKind==TYPE_DOUBLE)
+  {
+    Type *ret=new Type(TYPE_DOUBLE,newPredExpr);
+    return ret;
+  }
+  else if (typeKind==TYPE_FLOAT && (t->typeKind==TYPE_FIXED || t->typeKind==TYPE_INT || t->typeKind==TYPE_FLOAT))
+  {
+    Type *ret=new Type(TYPE_FLOAT,newPredExpr);
+    return ret;
+  }
+  else if (typeKind==TYPE_DOUBLE  && (t->typeKind==TYPE_FIXED || t->typeKind==TYPE_INT || t->typeKind==TYPE_DOUBLE))
   {
     Type *ret=new Type(TYPE_DOUBLE,newPredExpr);
     return ret;
@@ -817,9 +827,13 @@ Type* Type::merge (const Type *t) const
   }
   else
   {
+
+//  	cout << "Crap!" << typekindToString(typeKind) << typekindToString(t->typeKind) << endl;
     assert(!"internal inconsistency");
     return NULL;	// dummy
   }
+  if (typeKind!=t->typeKind)
+    return NULL;
 }
 
 

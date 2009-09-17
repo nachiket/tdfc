@@ -45,6 +45,9 @@ string opToString (int op)
     case LTE:		return string("<=");
     case NOT_EQUALS:	return string("!=");
     case RIGHT_SHIFT:	return string(">>");
+    case EXP:		return string("exp");
+    case LOG:		return string("log");
+    case SQRT:		return string("sqrt");
     default:		if (op=='%')	return string('%');
 			else		return string("%c",op);
   }
