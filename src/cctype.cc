@@ -138,7 +138,17 @@ string getCCvarType (Type *stype)
 	}
     }
   if (tk==TYPE_BOOL)
+  {
     return (string("int"));
+  }
+  else if (tk==TYPE_FLOAT)
+  {
+    return (string("float"));
+  }
+  else if (tk==TYPE_DOUBLE) 
+  {
+    return (string("double"));
+  }
   else if (tk==TYPE_INT)
     {
       int width=stype->getWidth();
