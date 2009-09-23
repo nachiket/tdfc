@@ -1479,7 +1479,9 @@ Type* ExprUop::typeCheck ()
       {
 	// - upgrade to signed
 	if (eType->getTypeKind()!=TYPE_INT &&
-	    eType->getTypeKind()!=TYPE_FIXED)
+	    eType->getTypeKind()!=TYPE_FIXED &&
+	    eType->getTypeKind()!=TYPE_DOUBLE &&
+	    eType->getTypeKind()!=TYPE_FLOAT)
 	  fatal(1, string("incompatible type for unary operator '")+
 		   opToString(uop)+"', is "+eType->toString()+
 		   ", should be numeric type", e->getToken());
@@ -1509,6 +1511,13 @@ Type* ExprUop::typeCheck ()
 								-> typeCheck();
 	    type->setParent(this);
 	    return type;
+	  }
+	  else if (eType->getTypeKind()==TYPE_FLOAT ||
+	  		eType->getTypeKind()==TYPE_DOUBLE)
+	  {
+	    type=(Type*)eType->duplicate();	// - warning: duplicates pred
+	    type->setParent(this);
+	    return type;	    
 	  }
 	  else
 	    assert(!"internal inconsistency");
