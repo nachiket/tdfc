@@ -272,7 +272,8 @@ string getCCStreamType(Symbol *rsym,int treat_as_stream)
 	      return(res);
 	    }
 	  else
-	    return("(ScoreStreamType *)NULL)"); // blah
+	    return("(ScoreStreamType *)NULL"); // blah 
+	    // Nachiket fixed a trailing )
 	}
     }
   else
