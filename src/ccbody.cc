@@ -992,9 +992,14 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 		{
 		  if (!ispec->isEosCase())
 		    {
+			// Added by Nachiket on Sep 29th to support floating-point operations
+			TypeKind intyp = ispec->typeCheck()->getTypeKind();
+			bool floattyp=(intyp==TYPE_FLOAT);
+			bool doubletyp=(intyp=TYPE_DOUBLE);
+
 		      *fout << "          " 
 			    << ispec->getStream()->getName() 
-			    << "=STREAM_READ_NOACC(" 
+			    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : "=STREAM_READ_NOACC(") 
 			    << "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << "]"
 			    << ");" << endl;

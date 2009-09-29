@@ -166,6 +166,10 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
       {
 	StmtAssign *astmt=(StmtAssign *)stmt;
 	ExprLValue *lval=astmt->getLValue();
+	// added by Nachiket on Sep29th to use fancy floating-point stream access functions in the Score runtime
+	TypeKind lvalTypeKind = lval->typeCheck()->getTypeKind();
+	bool floattyp = (lvalTypeKind==TYPE_FLOAT);
+	bool doubletyp = (lvalTypeKind==TYPE_DOUBLE);
 	Expr *rexp=astmt->getRhs();
 	Symbol *asym=lval->getSymbol();
 	if (asym->isStream())
@@ -176,7 +180,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		int id=(int)(ssym->getAnnote(CC_STREAM_ID));
 		*fout<<indent
 		     <<(in_pagestep?"STREAM_WRITE_ARRAY("
-				   :"STREAM_WRITE_NOACC(")
+				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(")
 		     << "out[" << id << "]" 
 		     << ","
 		     << ccEvalExpr(EvaluateExpr(rexp)) << ");" << endl;
