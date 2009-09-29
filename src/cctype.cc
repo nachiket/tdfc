@@ -114,6 +114,8 @@ string getCCvarType (Type *stype)
       switch (etype->getTypeKind())
 	{
 	case (TYPE_BOOL): return(TYPE_SCORE_SEGMENT_BOOLEAN);
+	case (TYPE_FLOAT): return(TYPE_SCORE_SEGMENT_FLOAT);
+	case (TYPE_DOUBLE): return(TYPE_SCORE_SEGMENT_DOUBLE);
 	case (TYPE_FIXED): 
 	  {
 	    if (etype->isSigned())
@@ -214,6 +216,10 @@ string getCCStreamType(Symbol *rsym,int treat_as_stream)
       TypeKind tk=stype->getTypeKind();
       if (tk==TYPE_BOOL)
 	return ("new ScoreStreamType(0,1)");
+      else if (tk==TYPE_FLOAT)
+	return ("new ScoreStreamType(0,1,0,32)");
+      else if (tk==TYPE_DOUBLE)
+	return ("new ScoreStreamType(0,0,1,64)");
       else 
 	{
 	  string prefix;
@@ -316,6 +322,12 @@ string getCCtypeConstructor (Symbol *rsym, bool treat_as_stream,
 	    case (TYPE_BOOL): 
 	      segment_constructor=string(TYPE_SCORE_SEGMENT_BOOLEAN_CONSTRUCTOR);
 	      break;
+	    case (TYPE_FLOAT): 
+	      segment_constructor=string(TYPE_SCORE_SEGMENT_FLOAT_CONSTRUCTOR);
+	      break;
+	    case (TYPE_DOUBLE): 
+	      segment_constructor=string(TYPE_SCORE_SEGMENT_DOUBLE_CONSTRUCTOR);
+	      break;
 	    case (TYPE_FIXED): 
 	      {
 		if (etype->isSigned())
@@ -368,6 +380,12 @@ string getCCtypeConstructor (Symbol *rsym, bool treat_as_stream,
       string ps_end = in_pagestep ? TYPE_PAGESTEP_SUFFIX : "";
       if (tk==TYPE_BOOL)
 	return(string(TYPE_BOOLEAN_SCORE_STREAM_CONSTRUCTOR) + dh_end + ps_end
+	       + "(" + dh_str + ")");
+      else if (tk==TYPE_FLOAT)
+	return(string(TYPE_FLOAT_SCORE_STREAM_CONSTRUCTOR) + dh_end + ps_end
+	       + "(" + dh_str + ")");
+      else if (tk==TYPE_DOUBLE)
+	return(string(TYPE_DOUBLE_SCORE_STREAM_CONSTRUCTOR) + dh_end + ps_end
 	       + "(" + dh_str + ")");
       else if (tk==TYPE_INT)
 	{
@@ -461,6 +479,8 @@ string getCCtype (Symbol *rsym, bool treat_as_stream)
 	  switch (etype->getTypeKind())
 	    {
 	    case (TYPE_BOOL): return(TYPE_SCORE_SEGMENT_BOOLEAN);
+	    case (TYPE_FLOAT): return(TYPE_SCORE_SEGMENT_FLOAT);
+	    case (TYPE_DOUBLE): return(TYPE_SCORE_SEGMENT_DOUBLE);
 	    case (TYPE_FIXED): 
 	      {
 		if (etype->isSigned())
