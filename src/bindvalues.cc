@@ -864,18 +864,23 @@ Expr *EvaluateExpr(Expr *orig)
 					    value1));
 		      else
 			{
-			  int p2=power_of_two(v2);
-			  if (p2>0)
-			    return(new ExprCast(orig->getToken(),
-						orig->getType(),
-						new ExprBop(orig->getToken(),
-							    RIGHT_SHIFT,
-							    value1,
-							    newExprValue_int(value2->getToken(),
-									     value2->getType(),
-									     p2))));
-			  else break;
+				// added
+				if(((((ExprValue *)value1)->getType())->getTypeKind()!=TYPE_FLOAT)  &&
+						((((ExprValue *)value1)->getType())->getTypeKind()!=TYPE_DOUBLE)) {
+					int p2=power_of_two(v2);
+					if (p2>0)
+						return(new ExprCast(orig->getToken(),
+									orig->getType(),
+									new ExprBop(orig->getToken(),
+										RIGHT_SHIFT,
+										value1,
+										newExprValue_int(value2->getToken(),
+											value2->getType(),
+											p2))));
+					else break;
 
+				}
+					else break;
 			}
 		  case('%'): 
 		    if (power_of_two(v2)>0) // turn into mask
