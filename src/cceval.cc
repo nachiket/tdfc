@@ -65,6 +65,8 @@ string getWidth(Type *atype)
   switch (atype->getTypeKind())
     {
     case TYPE_BOOL: return(string(1));
+    case TYPE_FLOAT: return(string(32));
+    case TYPE_DOUBLE: return(string(64));
     case TYPE_INT:
       {
 	int width=atype->getWidth();

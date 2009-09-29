@@ -142,9 +142,17 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    *fout << indent << "fprintf(stderr,\""
 	          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
 		  << "\"";
-	    for (list_item i=args->first(); i; i=args->succ(i))
-	      *fout << ", (long long)"
-		    << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
+	    for (list_item i=args->first(); i; i=args->succ(i)) {
+		    // Nachiket's modifications to support floating-point casting
+		    Expr* orig=args->inf(i);
+		    if (orig->getType()->getTypeKind()!=TYPE_FLOAT &&
+				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
+			    *fout << ", (long long)"
+				    << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
+		    } else {
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
+		    }
+	    }
 	    *fout << ");" << endl;
 	  }
 	else

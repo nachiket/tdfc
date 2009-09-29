@@ -222,6 +222,11 @@ Expr *EvaluateGetWidth(Expr *expr)
       //                      1));
       return constIntExpr(1,expr->getToken());
 
+    // Sporadically being added by Nachiket as and when required..
+    case TYPE_FLOAT:
+      return constIntExpr(32,expr->getToken());
+    case TYPE_DOUBLE:
+      return constIntExpr(64,expr->getToken());
     case TYPE_INT:
       {
 	int width=atype->getWidth();
