@@ -511,6 +511,10 @@ string getCCtype (Symbol *rsym, bool treat_as_stream)
       TypeKind tk=stype->getTypeKind();
       if (tk==TYPE_BOOL)
 	return(TYPE_BOOLEAN_SCORE_STREAM);
+      else if (tk==TYPE_FLOAT)
+	return(TYPE_FLOAT_SCORE_STREAM);
+      else if (tk==TYPE_DOUBLE)
+	return(TYPE_DOUBLE_SCORE_STREAM);
       else if (tk==TYPE_INT)
 	if (stype->isSigned())
 	  return(TYPE_SIGNED_SCORE_STREAM);
