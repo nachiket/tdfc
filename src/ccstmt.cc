@@ -147,7 +147,8 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		    Expr* orig=args->inf(i);
 		    if (orig->getType()->getTypeKind()!=TYPE_FLOAT &&
 				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
-			    *fout << ", (long long)"
+			    //*fout << ", (long long)" --> Not sure if this is such a good idea in any case
+			    *fout << ", "
 				    << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
 		    } else {
 			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
