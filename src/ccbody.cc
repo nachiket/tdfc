@@ -997,7 +997,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 			bool floattyp=(intyp==TYPE_FLOAT);
 			bool doubletyp=(intyp==TYPE_DOUBLE);
 
-			cout << "Type=" << typekindToString(intyp) << " for stream " << ispec->getStream()->getName() << endl;
+			// cout << "Type=" << typekindToString(intyp) << " for stream " << ispec->getStream()->getName() << endl;
 
 		      *fout << "          " 
 			    << ispec->getStream()->getName() 
