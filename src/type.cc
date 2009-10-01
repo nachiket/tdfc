@@ -488,6 +488,20 @@ Type* Type::upgrade (const Type *t) const
     return type_none;
   if (typeKind!=t->typeKind)
     return NULL;
+
+  Expr *newPredExpr = NULL;
+  // if LHS is floating-point, any rhs will do? 
+  if (t->typeKind==TYPE_FLOAT)
+  {
+    Type *ret=(new Type(TYPE_FLOAT,newPredExpr)) -> typeCheck();
+    return ret;
+  }
+  else if (t->typeKind==TYPE_DOUBLE)
+  {
+    Type *ret=(new Type(TYPE_DOUBLE,newPredExpr)) -> typeCheck();
+    return ret;
+  }
+
   // now know typeKind==t->typeKind, and neither is TYPE_ANY or TYPE_NONE
 
   /*
@@ -498,13 +512,12 @@ Type* Type::upgrade (const Type *t) const
 		      (predExpr)    ? (Expr*)   predExpr->duplicate() :
 		      (t->predExpr) ? (Expr*)t->predExpr->duplicate() : NULL;
   */
-  Expr *newPredExpr = NULL;
 
   if (typeKind==TYPE_BOOL)
   {
     Type *ret=(new Type(TYPE_BOOL,newPredExpr)) -> typeCheck();
     return ret;
-  }
+  } 
   else if (typeKind==TYPE_FLOAT)
   {
     Type *ret=(new Type(TYPE_FLOAT,newPredExpr)) -> typeCheck();
