@@ -486,8 +486,6 @@ Type* Type::upgrade (const Type *t) const
     return type_any;
   if (typeKind==TYPE_NONE && t->typeKind==TYPE_NONE)
     return type_none;
-  if (typeKind!=t->typeKind)
-    return NULL;
 
   Expr *newPredExpr = NULL;
   // if LHS is floating-point, any rhs will do? 
@@ -502,6 +500,9 @@ Type* Type::upgrade (const Type *t) const
     return ret;
   }
 
+// rest type-conversions should be handled conventionally
+  if (typeKind!=t->typeKind)
+    return NULL;
   // now know typeKind==t->typeKind, and neither is TYPE_ANY or TYPE_NONE
 
   /*
