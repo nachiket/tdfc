@@ -219,6 +219,7 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "exp"		{ return_token(EXP);		}
 "log"		{ return_token(LOG);		}
 "sqrt"		{ return_token(SQRT);		}
+"floor"		{ return_token(FLOOR);		}
 
 "signed"	{ return_token(SIGNED);		}
 "unsigned"	{ return_token(UNSIGNED);	}

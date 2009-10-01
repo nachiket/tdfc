@@ -194,9 +194,9 @@ Symbol* lookup (Token *t)
   Suite				*suite;
 };
 
-%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT
+%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR
 
-%type <token>		sizedType ioKind exception_opt exception equalOp inequalOp shiftOp addOp prodOp unaryOp exprOp logOp sqrtOp
+%type <token>		sizedType ioKind exception_opt exception equalOp inequalOp shiftOp addOp prodOp unaryOp exprOp logOp sqrtOp floorOp
 %type <expr>		arraySize call lvalue expr condExpr logOrExpr logAndExpr bitOrExpr bitXorExpr bitAndExpr equalExpr inequalExpr shiftExpr addExpr prodExpr unaryExpr fixedExpr atomExpr builtinExpr
 %type <exprs>		condExprs_opt condExprs
 %type <stmt>		stmt stmt_nonEmpty matchedStmt unmatchedStmt stmtBlock builtinStmtBehav builtinStmtCompose assign callOrAssign callOrAssign_nonEmpty copyStmt segmentStmt
@@ -973,11 +973,13 @@ prodExpr
 unaryExpr
 : unaryOp fixedExpr
 			{ $$=new ExprUop($1,$1->code,$2); }
-| exprOp '(' fixedExpr ')'
+| exprOp '(' expr ')'
 			{ $$=new ExprUop($1,$1->code,$3); }
-| logOp '(' fixedExpr ')'
+| logOp '(' expr ')'
 			{ $$=new ExprUop($1,$1->code,$3); }
-| sqrtOp '(' fixedExpr ')'
+| sqrtOp '(' expr ')'
+			{ $$=new ExprUop($1,$1->code,$3); }
+| floorOp '(' expr ')'
 			{ $$=new ExprUop($1,$1->code,$3); }
 | '(' type ')' fixedExpr
 			{ $$=new ExprCast($1,$2,$4); }
@@ -986,6 +988,8 @@ unaryExpr
 | fixedExpr
 			{ $$=$1; }
 ;
+
+
 
 fixedExpr
 : atomExpr '.' atomExpr
@@ -1119,6 +1123,10 @@ logOp
 
 sqrtOp
 : SQRT
+;
+
+floorOp
+: FLOOR
 ;
 
 prodOp

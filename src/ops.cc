@@ -48,6 +48,7 @@ string opToString (int op)
     case EXP:		return string("exp");
     case LOG:		return string("log");
     case SQRT:		return string("sqrt");
+    case FLOOR:		return string("floor");
     default:		if (op=='%')	return string('%');
 			else		return string("%c",op);
   }

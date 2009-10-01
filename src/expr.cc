@@ -1540,6 +1540,17 @@ Type* ExprUop::typeCheck ()
 		   opToString(uop)+"', is "+eType->toString()+
 		   ", should be float or double ", e->getToken());
       }
+    case FLOOR:
+      if(eType->getTypeKind()==TYPE_FLOAT || eType->getTypeKind()==TYPE_DOUBLE) {
+	  type=(Type*)eType->duplicate();	// - warning: duplicates pred
+
+	  type->setParent(this);
+	  return type;
+      } else {
+	  fatal(1, string("incompatible type for unary operator '")+
+		   opToString(uop)+"', is "+eType->toString()+
+		   ", should be float or double ", e->getToken());
+      }
     case '~':
       {
 	if (eType->getTypeKind()!=TYPE_INT || eType->isSigned())

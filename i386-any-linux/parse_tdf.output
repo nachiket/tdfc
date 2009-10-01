@@ -214,120 +214,123 @@ Grammar
   141         | unaryExpr
 
   142 unaryExpr: unaryOp fixedExpr
-  143          | exprOp '(' fixedExpr ')'
-  144          | logOp '(' fixedExpr ')'
-  145          | sqrtOp '(' fixedExpr ')'
-  146          | '(' type ')' fixedExpr
-  147          | '(' sizedType ')' fixedExpr
-  148          | fixedExpr
+  143          | exprOp '(' expr ')'
+  144          | logOp '(' expr ')'
+  145          | sqrtOp '(' expr ')'
+  146          | floorOp '(' expr ')'
+  147          | '(' type ')' fixedExpr
+  148          | '(' sizedType ')' fixedExpr
+  149          | fixedExpr
 
-  149 fixedExpr: atomExpr '.' atomExpr
-  150          | atomExpr
+  150 fixedExpr: atomExpr '.' atomExpr
+  151          | atomExpr
 
-  151 atomExpr: lvalue
-  152         | lvalue '@' atomExpr
-  153         | NUM
-  154         | TRUE
-  155         | FALSE
-  156         | call
-  157         | builtinExpr
-  158         | '(' expr ')'
+  152 atomExpr: lvalue
+  153         | lvalue '@' atomExpr
+  154         | NUM
+  155         | TRUE
+  156         | FALSE
+  157         | call
+  158         | builtinExpr
+  159         | '(' expr ')'
 
-  159 builtinExpr: CAT '(' args ')'
-  160            | WIDTHOF '(' expr ')'
-  161            | BITSOF '(' expr ')'
+  160 builtinExpr: CAT '(' args ')'
+  161            | WIDTHOF '(' expr ')'
+  162            | BITSOF '(' expr ')'
 
-  162 equalOp: EQUALS
-  163        | NOT_EQUALS
+  163 equalOp: EQUALS
+  164        | NOT_EQUALS
 
-  164 inequalOp: '<'
-  165          | '>'
-  166          | LTE
-  167          | GTE
+  165 inequalOp: '<'
+  166          | '>'
+  167          | LTE
+  168          | GTE
 
-  168 shiftOp: LEFT_SHIFT
-  169        | RIGHT_SHIFT
+  169 shiftOp: LEFT_SHIFT
+  170        | RIGHT_SHIFT
 
-  170 addOp: '+'
-  171      | '-'
+  171 addOp: '+'
+  172      | '-'
 
-  172 exprOp: EXP
+  173 exprOp: EXP
 
-  173 logOp: LOG
+  174 logOp: LOG
 
-  174 sqrtOp: SQRT
+  175 sqrtOp: SQRT
 
-  175 prodOp: '*'
-  176       | '/'
-  177       | '%'
+  176 floorOp: FLOOR
 
-  178 unaryOp: '+'
-  179        | '-'
-  180        | '!'
-  181        | '~'
+  177 prodOp: '*'
+  178       | '/'
+  179       | '%'
+
+  180 unaryOp: '+'
+  181        | '-'
+  182        | '!'
+  183        | '~'
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'!' (33) 180
+'!' (33) 182
 '#' (35) 66
-'%' (37) 177
+'%' (37) 179
 '&' (38) 130
 '(' (40) 19 49 60 67 76 83 84 86 87 88 89 94 95 96 97 98 99 100 101
-    143 144 145 146 147 158 159 160 161
+    143 144 145 146 147 148 159 160 161 162
 ')' (41) 19 49 60 67 76 83 84 86 87 88 89 94 95 96 97 98 99 100 101
-    143 144 145 146 147 158 159 160 161
-'*' (42) 175
-'+' (43) 170 178
+    143 144 145 146 147 148 159 160 161 162
+'*' (42) 177
+'+' (43) 171 180
 ',' (44) 22 44 63 104 106 118
-'-' (45) 171 179
-'.' (46) 149
-'/' (47) 176
+'-' (45) 172 181
+'.' (46) 150
+'/' (47) 178
 ':' (58) 60 111 113 120
 ';' (59) 41 42 53 54 55 56 57 73 77 78 79 80 81
-'<' (60) 164
+'<' (60) 165
 '=' (61) 47 55 56 108
-'>' (62) 165
+'>' (62) 166
 '?' (63) 120
-'@' (64) 152
+'@' (64) 153
 '[' (91) 14 15 18 110 111 112 113
 ']' (93) 14 15 18 110 111 112 113
 '^' (94) 128
 '{' (123) 32 34 35 85 115
 '|' (124) 126
 '}' (125) 32 34 35 85 115
-'~' (126) 181
+'~' (126) 183
 error (256)
 ATTENTION (258) 86
-BITSOF (259) 161
+BITSOF (259) 162
 BOOLEAN (260) 10 13
 FLOAT (261) 11
 DOUBLE (262) 12
-CAT (263) 159
+CAT (263) 160
 CLOSE (264) 87
 COPY (265) 94
 DONE (266) 88
 ELSE (267) 76 84
 EOS (268) 67
-EQUALS (269) 162
-FALSE (270) 155
+EQUALS (269) 163
+FALSE (270) 156
 GOTO (271) 77
-GTE (272) 167
+GTE (272) 168
 ID_ (273) 19 24 45 47 49 60 65 66 67 77 87 101 109 110 111 112 113
 IF (274) 76 83 84
 INPUT (275) 25
-LEFT_SHIFT (276) 168
+LEFT_SHIFT (276) 169
 LOGIC_AND (277) 124
 LOGIC_OR (278) 122
-LTE (279) 166
-NOT_EQUALS (280) 163
-NUM (281) 153
+LTE (279) 167
+NOT_EQUALS (280) 164
+NUM (281) 154
 OUTPUT (282) 26
 PARAM (283) 27
 PASS_THROUGH_EXCEPTION (284) 30
 PRINTF (285) 89
-RIGHT_SHIFT (286) 169
+RIGHT_SHIFT (286) 170
 SEGMENT_R_ (287) 95
 SEGMENT_RW_ (288) 97
 SEGMENT_SEQ_R_ (289) 98
@@ -338,177 +341,180 @@ SIGNED (293) 16
 STATE (294) 60
 STAY (295) 78
 STRING (296) 89
-TRUE (297) 154
+TRUE (297) 155
 UNSIGNED (298) 17
-WIDTHOF (299) 160
-EXP (300) 172
-LOG (301) 173
-SQRT (302) 174
+WIDTHOF (299) 161
+EXP (300) 173
+LOG (301) 174
+SQRT (302) 175
+FLOOR (303) 176
 
 
 Nonterminals, with rules where they appear
 
-$accept (74)
+$accept (75)
     on left: 0
-start (75)
+start (76)
     on left: 1, on right: 0
-operators_opt (76)
+operators_opt (77)
     on left: 2 3, on right: 1
-operators (77)
+operators (78)
     on left: 4 5, on right: 2 4
-operator (78)
+operator (79)
     on left: 7, on right: 4 5
-@1 (79)
+@1 (80)
     on left: 6, on right: 7
-type_opt (80)
+type_opt (81)
     on left: 8 9, on right: 7
-type (81)
-    on left: 10 11 12 13 14 15, on right: 8 24 41 146
-sizedType (82)
-    on left: 16 17, on right: 14 15 147
-arraySize (83)
+type (82)
+    on left: 10 11 12 13 14 15, on right: 8 24 41 147
+sizedType (83)
+    on left: 16 17, on right: 14 15 148
+arraySize (84)
     on left: 18, on right: 13 15
-opSignature (84)
+opSignature (85)
     on left: 19, on right: 7
-ioDecls_opt (85)
+ioDecls_opt (86)
     on left: 20 21, on right: 19
-ioDecls (86)
+ioDecls (87)
     on left: 22 23, on right: 20 22
-ioDecl (87)
+ioDecl (88)
     on left: 24, on right: 22 23
-ioKind (88)
+ioKind (89)
     on left: 25 26 27, on right: 24
-exception_opt (89)
+exception_opt (90)
     on left: 28 29, on right: 7
-exception (90)
+exception (91)
     on left: 30, on right: 28
-operatorBody (91)
+operatorBody (92)
     on left: 32 34 35, on right: 7
-@2 (92)
+@2 (93)
     on left: 31, on right: 32
-@3 (93)
+@3 (94)
     on left: 33, on right: 34
-typeDecls_opt (94)
+typeDecls_opt (95)
     on left: 36 37, on right: 32 34 35 85
-typeDecls (95)
+typeDecls (96)
     on left: 38 40, on right: 36 38
-@4 (96)
+@4 (97)
     on left: 39, on right: 40
-typeDecl (97)
+typeDecl (98)
     on left: 41 42, on right: 38 40
-typeDeclElems (98)
+typeDeclElems (99)
     on left: 43 44, on right: 41 44
-typeDeclElem (99)
+typeDeclElem (100)
     on left: 45 47 49, on right: 43 44
-@5 (100)
+@5 (101)
     on left: 46, on right: 47
-@6 (101)
+@6 (102)
     on left: 48, on right: 49
-callsOrAssigns (102)
+callsOrAssigns (103)
     on left: 50 51, on right: 34 50
-callOrAssign (103)
+callOrAssign (104)
     on left: 52 53, on right: 50
-callOrAssign_nonEmpty (104)
+callOrAssign_nonEmpty (105)
     on left: 54 55 56 57, on right: 51 52
-states (105)
+states (106)
     on left: 58 59, on right: 32 58
-stateCase (106)
+stateCase (107)
     on left: 60, on right: 58 59
-stateVars_opt (107)
+stateVars_opt (108)
     on left: 61 62, on right: 60
-stateVars (108)
+stateVars (109)
     on left: 63 64, on right: 61 63
-stateVar (109)
+stateVar (110)
     on left: 65 66 67, on right: 63 64
-stmts_opt (110)
+stmts_opt (111)
     on left: 68 69, on right: 60 85
-stmts (111)
+stmts (112)
     on left: 70 71, on right: 68 70
-stmt (112)
+stmt (113)
     on left: 72 73, on right: 70 83
-stmt_nonEmpty (113)
+stmt_nonEmpty (114)
     on left: 74 75, on right: 71 72
-matchedStmt (114)
+matchedStmt (115)
     on left: 76 77 78 79 80 81 82, on right: 74 76 84
-unmatchedStmt (115)
+unmatchedStmt (116)
     on left: 83 84, on right: 75 84
-stmtBlock (116)
+stmtBlock (117)
     on left: 85, on right: 82
-builtinStmtBehav (117)
+builtinStmtBehav (118)
     on left: 86 87 88 89 90 91, on right: 80
-builtinStmtCompose (118)
+builtinStmtCompose (119)
     on left: 92 93, on right: 57
-copyStmt (119)
+copyStmt (120)
     on left: 94, on right: 90 92
-segmentStmt (120)
+segmentStmt (121)
     on left: 95 96 97 98 99 100, on right: 91 93
-call (121)
-    on left: 101, on right: 54 55 81 156
-args_opt (122)
+call (122)
+    on left: 101, on right: 54 55 81 157
+args_opt (123)
     on left: 102 103, on right: 101
-more_args_opt (123)
+more_args_opt (124)
     on left: 104 105, on right: 89
-args (124)
-    on left: 106 107, on right: 94 95 96 97 98 99 100 102 104 106 159
-assign (125)
+args (125)
+    on left: 106 107, on right: 94 95 96 97 98 99 100 102 104 106 160
+assign (126)
     on left: 108, on right: 79
-lvalue (126)
-    on left: 109 110 111 112 113, on right: 55 56 108 151 152
-expr (127)
+lvalue (127)
+    on left: 109 110 111 112 113, on right: 55 56 108 152 153
+expr (128)
     on left: 114 115, on right: 14 15 18 47 49 66 76 83 84 86 106 107
-    108 110 111 112 113 158 160 161
-condExprs_opt (128)
+    108 110 111 112 113 143 144 145 146 159 161 162
+condExprs_opt (129)
     on left: 116 117, on right: 115
-condExprs (129)
+condExprs (130)
     on left: 118 119, on right: 116 118
-condExpr (130)
+condExpr (131)
     on left: 120 121, on right: 114 118 119 120
-logOrExpr (131)
+logOrExpr (132)
     on left: 122 123, on right: 120 121 122
-logAndExpr (132)
+logAndExpr (133)
     on left: 124 125, on right: 122 123 124
-bitOrExpr (133)
+bitOrExpr (134)
     on left: 126 127, on right: 124 125 126
-bitXorExpr (134)
+bitXorExpr (135)
     on left: 128 129, on right: 126 127 128
-bitAndExpr (135)
+bitAndExpr (136)
     on left: 130 131, on right: 128 129 130
-equalExpr (136)
+equalExpr (137)
     on left: 132 133, on right: 130 131 132
-inequalExpr (137)
+inequalExpr (138)
     on left: 134 135, on right: 132 133 134
-shiftExpr (138)
+shiftExpr (139)
     on left: 136 137, on right: 134 135 136
-addExpr (139)
+addExpr (140)
     on left: 138 139, on right: 136 137 138
-prodExpr (140)
+prodExpr (141)
     on left: 140 141, on right: 138 139 140
-unaryExpr (141)
-    on left: 142 143 144 145 146 147 148, on right: 140 141
-fixedExpr (142)
-    on left: 149 150, on right: 142 143 144 145 146 147 148
-atomExpr (143)
-    on left: 151 152 153 154 155 156 157 158, on right: 149 150 152
-builtinExpr (144)
-    on left: 159 160 161, on right: 157
-equalOp (145)
-    on left: 162 163, on right: 132
-inequalOp (146)
-    on left: 164 165 166 167, on right: 134
-shiftOp (147)
-    on left: 168 169, on right: 136
-addOp (148)
-    on left: 170 171, on right: 138
-exprOp (149)
-    on left: 172, on right: 143
-logOp (150)
-    on left: 173, on right: 144
-sqrtOp (151)
-    on left: 174, on right: 145
-prodOp (152)
-    on left: 175 176 177, on right: 140
-unaryOp (153)
-    on left: 178 179 180 181, on right: 142
+unaryExpr (142)
+    on left: 142 143 144 145 146 147 148 149, on right: 140 141
+fixedExpr (143)
+    on left: 150 151, on right: 142 147 148 149
+atomExpr (144)
+    on left: 152 153 154 155 156 157 158 159, on right: 150 151 153
+builtinExpr (145)
+    on left: 160 161 162, on right: 158
+equalOp (146)
+    on left: 163 164, on right: 132
+inequalOp (147)
+    on left: 165 166 167 168, on right: 134
+shiftOp (148)
+    on left: 169 170, on right: 136
+addOp (149)
+    on left: 171 172, on right: 138
+exprOp (150)
+    on left: 173, on right: 143
+logOp (151)
+    on left: 174, on right: 144
+sqrtOp (152)
+    on left: 175, on right: 145
+floorOp (153)
+    on left: 176, on right: 146
+prodOp (154)
+    on left: 177 178 179, on right: 140
+unaryOp (155)
+    on left: 180 181 182 183, on right: 142
 
 
 state 0
@@ -660,29 +666,31 @@ state 13
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 39
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 40
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 14
@@ -710,7 +718,7 @@ state 17
 
    19 opSignature: ID_ . '(' ioDecls_opt ')'
 
-    '('  shift, and go to state 59
+    '('  shift, and go to state 61
 
 
 state 18
@@ -719,7 +727,7 @@ state 18
 
     $default  reduce using rule 6 (@1)
 
-    @1  go to state 60
+    @1  go to state 62
 
 
 state 19
@@ -743,57 +751,59 @@ state 19
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 61
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 63
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 20
 
    15 type: sizedType arraySize . '[' expr ']'
 
-    '['  shift, and go to state 62
+    '['  shift, and go to state 64
 
 
 state 21
 
-  161 builtinExpr: BITSOF . '(' expr ')'
+  162 builtinExpr: BITSOF . '(' expr ')'
 
-    '('  shift, and go to state 63
+    '('  shift, and go to state 65
 
 
 state 22
 
-  159 builtinExpr: CAT . '(' args ')'
+  160 builtinExpr: CAT . '(' args ')'
 
-    '('  shift, and go to state 64
+    '('  shift, and go to state 66
 
 
 state 23
 
-  155 atomExpr: FALSE .
+  156 atomExpr: FALSE .
 
-    $default  reduce using rule 155 (atomExpr)
+    $default  reduce using rule 156 (atomExpr)
 
 
 state 24
@@ -805,31 +815,31 @@ state 24
   112       | ID_ . '[' expr ']' '[' expr ']'
   113       | ID_ . '[' expr ']' '[' expr ':' expr ']'
 
-    '('  shift, and go to state 65
-    '['  shift, and go to state 66
+    '('  shift, and go to state 67
+    '['  shift, and go to state 68
 
     $default  reduce using rule 109 (lvalue)
 
 
 state 25
 
-  153 atomExpr: NUM .
-
-    $default  reduce using rule 153 (atomExpr)
-
-
-state 26
-
-  154 atomExpr: TRUE .
+  154 atomExpr: NUM .
 
     $default  reduce using rule 154 (atomExpr)
 
 
+state 26
+
+  155 atomExpr: TRUE .
+
+    $default  reduce using rule 155 (atomExpr)
+
+
 state 27
 
-  146 unaryExpr: '(' . type ')' fixedExpr
-  147          | '(' . sizedType ')' fixedExpr
-  158 atomExpr: '(' . expr ')'
+  147 unaryExpr: '(' . type ')' fixedExpr
+  148          | '(' . sizedType ')' fixedExpr
+  159 atomExpr: '(' . expr ')'
 
     BITSOF    shift, and go to state 21
     BOOLEAN   shift, and go to state 1
@@ -852,38 +862,40 @@ state 27
     EXP       shift, and go to state 34
     LOG       shift, and go to state 35
     SQRT      shift, and go to state 36
+    FLOOR     shift, and go to state 37
 
-    type         go to state 67
-    sizedType    go to state 68
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 69
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    type         go to state 69
+    sizedType    go to state 70
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 71
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 28
 
-  160 builtinExpr: WIDTHOF . '(' expr ')'
+  161 builtinExpr: WIDTHOF . '(' expr ')'
 
-    '('  shift, and go to state 70
+    '('  shift, and go to state 72
 
 
 state 29
@@ -905,287 +917,303 @@ state 29
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
     $default  reduce using rule 117 (condExprs_opt)
 
-    call           go to state 37
-    lvalue         go to state 38
-    condExprs_opt  go to state 71
-    condExprs      go to state 72
-    condExpr       go to state 73
-    logOrExpr      go to state 41
-    logAndExpr     go to state 42
-    bitOrExpr      go to state 43
-    bitXorExpr     go to state 44
-    bitAndExpr     go to state 45
-    equalExpr      go to state 46
-    inequalExpr    go to state 47
-    shiftExpr      go to state 48
-    addExpr        go to state 49
-    prodExpr       go to state 50
-    unaryExpr      go to state 51
-    fixedExpr      go to state 52
-    atomExpr       go to state 53
-    builtinExpr    go to state 54
-    exprOp         go to state 55
-    logOp          go to state 56
-    sqrtOp         go to state 57
-    unaryOp        go to state 58
+    call           go to state 38
+    lvalue         go to state 39
+    condExprs_opt  go to state 73
+    condExprs      go to state 74
+    condExpr       go to state 75
+    logOrExpr      go to state 42
+    logAndExpr     go to state 43
+    bitOrExpr      go to state 44
+    bitXorExpr     go to state 45
+    bitAndExpr     go to state 46
+    equalExpr      go to state 47
+    inequalExpr    go to state 48
+    shiftExpr      go to state 49
+    addExpr        go to state 50
+    prodExpr       go to state 51
+    unaryExpr      go to state 52
+    fixedExpr      go to state 53
+    atomExpr       go to state 54
+    builtinExpr    go to state 55
+    exprOp         go to state 56
+    logOp          go to state 57
+    sqrtOp         go to state 58
+    floorOp        go to state 59
+    unaryOp        go to state 60
 
 
 state 30
 
-  179 unaryOp: '-' .
-
-    $default  reduce using rule 179 (unaryOp)
-
-
-state 31
-
-  178 unaryOp: '+' .
-
-    $default  reduce using rule 178 (unaryOp)
-
-
-state 32
-
-  181 unaryOp: '~' .
+  181 unaryOp: '-' .
 
     $default  reduce using rule 181 (unaryOp)
 
 
-state 33
+state 31
 
-  180 unaryOp: '!' .
+  180 unaryOp: '+' .
 
     $default  reduce using rule 180 (unaryOp)
 
 
+state 32
+
+  183 unaryOp: '~' .
+
+    $default  reduce using rule 183 (unaryOp)
+
+
+state 33
+
+  182 unaryOp: '!' .
+
+    $default  reduce using rule 182 (unaryOp)
+
+
 state 34
 
-  172 exprOp: EXP .
+  173 exprOp: EXP .
 
-    $default  reduce using rule 172 (exprOp)
+    $default  reduce using rule 173 (exprOp)
 
 
 state 35
 
-  173 logOp: LOG .
+  174 logOp: LOG .
 
-    $default  reduce using rule 173 (logOp)
+    $default  reduce using rule 174 (logOp)
 
 
 state 36
 
-  174 sqrtOp: SQRT .
+  175 sqrtOp: SQRT .
 
-    $default  reduce using rule 174 (sqrtOp)
+    $default  reduce using rule 175 (sqrtOp)
 
 
 state 37
 
-  156 atomExpr: call .
+  176 floorOp: FLOOR .
 
-    $default  reduce using rule 156 (atomExpr)
+    $default  reduce using rule 176 (floorOp)
 
 
 state 38
 
-  151 atomExpr: lvalue .
-  152         | lvalue . '@' atomExpr
+  157 atomExpr: call .
 
-    '@'  shift, and go to state 74
-
-    $default  reduce using rule 151 (atomExpr)
+    $default  reduce using rule 157 (atomExpr)
 
 
 state 39
 
-   18 arraySize: '[' expr . ']'
+  152 atomExpr: lvalue .
+  153         | lvalue . '@' atomExpr
 
-    ']'  shift, and go to state 75
+    '@'  shift, and go to state 76
+
+    $default  reduce using rule 152 (atomExpr)
 
 
 state 40
+
+   18 arraySize: '[' expr . ']'
+
+    ']'  shift, and go to state 77
+
+
+state 41
 
   114 expr: condExpr .
 
     $default  reduce using rule 114 (expr)
 
 
-state 41
+state 42
 
   120 condExpr: logOrExpr . '?' condExpr ':' condExpr
   121         | logOrExpr .
   122 logOrExpr: logOrExpr . LOGIC_OR logAndExpr
 
-    LOGIC_OR  shift, and go to state 76
-    '?'       shift, and go to state 77
+    LOGIC_OR  shift, and go to state 78
+    '?'       shift, and go to state 79
 
     $default  reduce using rule 121 (condExpr)
 
 
-state 42
+state 43
 
   123 logOrExpr: logAndExpr .
   124 logAndExpr: logAndExpr . LOGIC_AND bitOrExpr
 
-    LOGIC_AND  shift, and go to state 78
+    LOGIC_AND  shift, and go to state 80
 
     $default  reduce using rule 123 (logOrExpr)
 
 
-state 43
+state 44
 
   125 logAndExpr: bitOrExpr .
   126 bitOrExpr: bitOrExpr . '|' bitXorExpr
 
-    '|'  shift, and go to state 79
+    '|'  shift, and go to state 81
 
     $default  reduce using rule 125 (logAndExpr)
 
 
-state 44
+state 45
 
   127 bitOrExpr: bitXorExpr .
   128 bitXorExpr: bitXorExpr . '^' bitAndExpr
 
-    '^'  shift, and go to state 80
+    '^'  shift, and go to state 82
 
     $default  reduce using rule 127 (bitOrExpr)
 
 
-state 45
+state 46
 
   129 bitXorExpr: bitAndExpr .
   130 bitAndExpr: bitAndExpr . '&' equalExpr
 
-    '&'  shift, and go to state 81
+    '&'  shift, and go to state 83
 
     $default  reduce using rule 129 (bitXorExpr)
 
 
-state 46
+state 47
 
   131 bitAndExpr: equalExpr .
   132 equalExpr: equalExpr . equalOp inequalExpr
 
-    EQUALS      shift, and go to state 82
-    NOT_EQUALS  shift, and go to state 83
+    EQUALS      shift, and go to state 84
+    NOT_EQUALS  shift, and go to state 85
 
     $default  reduce using rule 131 (bitAndExpr)
 
-    equalOp  go to state 84
-
-
-state 47
-
-  133 equalExpr: inequalExpr .
-  134 inequalExpr: inequalExpr . inequalOp shiftExpr
-
-    GTE  shift, and go to state 85
-    LTE  shift, and go to state 86
-    '<'  shift, and go to state 87
-    '>'  shift, and go to state 88
-
-    $default  reduce using rule 133 (equalExpr)
-
-    inequalOp  go to state 89
+    equalOp  go to state 86
 
 
 state 48
 
-  135 inequalExpr: shiftExpr .
-  136 shiftExpr: shiftExpr . shiftOp addExpr
+  133 equalExpr: inequalExpr .
+  134 inequalExpr: inequalExpr . inequalOp shiftExpr
 
-    LEFT_SHIFT   shift, and go to state 90
-    RIGHT_SHIFT  shift, and go to state 91
+    GTE  shift, and go to state 87
+    LTE  shift, and go to state 88
+    '<'  shift, and go to state 89
+    '>'  shift, and go to state 90
 
-    $default  reduce using rule 135 (inequalExpr)
+    $default  reduce using rule 133 (equalExpr)
 
-    shiftOp  go to state 92
+    inequalOp  go to state 91
 
 
 state 49
 
-  137 shiftExpr: addExpr .
-  138 addExpr: addExpr . addOp prodExpr
+  135 inequalExpr: shiftExpr .
+  136 shiftExpr: shiftExpr . shiftOp addExpr
 
-    '-'  shift, and go to state 93
-    '+'  shift, and go to state 94
+    LEFT_SHIFT   shift, and go to state 92
+    RIGHT_SHIFT  shift, and go to state 93
 
-    $default  reduce using rule 137 (shiftExpr)
+    $default  reduce using rule 135 (inequalExpr)
 
-    addOp  go to state 95
+    shiftOp  go to state 94
 
 
 state 50
 
-  139 addExpr: prodExpr .
-  140 prodExpr: prodExpr . prodOp unaryExpr
+  137 shiftExpr: addExpr .
+  138 addExpr: addExpr . addOp prodExpr
 
-    '%'  shift, and go to state 96
-    '*'  shift, and go to state 97
-    '/'  shift, and go to state 98
+    '-'  shift, and go to state 95
+    '+'  shift, and go to state 96
 
-    $default  reduce using rule 139 (addExpr)
+    $default  reduce using rule 137 (shiftExpr)
 
-    prodOp  go to state 99
+    addOp  go to state 97
 
 
 state 51
+
+  139 addExpr: prodExpr .
+  140 prodExpr: prodExpr . prodOp unaryExpr
+
+    '%'  shift, and go to state 98
+    '*'  shift, and go to state 99
+    '/'  shift, and go to state 100
+
+    $default  reduce using rule 139 (addExpr)
+
+    prodOp  go to state 101
+
+
+state 52
 
   141 prodExpr: unaryExpr .
 
     $default  reduce using rule 141 (prodExpr)
 
 
-state 52
-
-  148 unaryExpr: fixedExpr .
-
-    $default  reduce using rule 148 (unaryExpr)
-
-
 state 53
 
-  149 fixedExpr: atomExpr . '.' atomExpr
-  150          | atomExpr .
+  149 unaryExpr: fixedExpr .
 
-    '.'  shift, and go to state 100
-
-    $default  reduce using rule 150 (fixedExpr)
+    $default  reduce using rule 149 (unaryExpr)
 
 
 state 54
 
-  157 atomExpr: builtinExpr .
+  150 fixedExpr: atomExpr . '.' atomExpr
+  151          | atomExpr .
 
-    $default  reduce using rule 157 (atomExpr)
+    '.'  shift, and go to state 102
+
+    $default  reduce using rule 151 (fixedExpr)
 
 
 state 55
 
-  143 unaryExpr: exprOp . '(' fixedExpr ')'
+  158 atomExpr: builtinExpr .
 
-    '('  shift, and go to state 101
+    $default  reduce using rule 158 (atomExpr)
 
 
 state 56
 
-  144 unaryExpr: logOp . '(' fixedExpr ')'
-
-    '('  shift, and go to state 102
-
-
-state 57
-
-  145 unaryExpr: sqrtOp . '(' fixedExpr ')'
+  143 unaryExpr: exprOp . '(' expr ')'
 
     '('  shift, and go to state 103
 
 
+state 57
+
+  144 unaryExpr: logOp . '(' expr ')'
+
+    '('  shift, and go to state 104
+
+
 state 58
+
+  145 unaryExpr: sqrtOp . '(' expr ')'
+
+    '('  shift, and go to state 105
+
+
+state 59
+
+  146 unaryExpr: floorOp . '(' expr ')'
+
+    '('  shift, and go to state 106
+
+
+state 60
 
   142 unaryExpr: unaryOp . fixedExpr
 
@@ -1195,50 +1223,50 @@ state 58
     ID_      shift, and go to state 24
     NUM      shift, and go to state 25
     TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
+    '('      shift, and go to state 107
     WIDTHOF  shift, and go to state 28
 
-    call         go to state 37
-    lvalue       go to state 38
-    fixedExpr    go to state 105
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-
-
-state 59
-
-   19 opSignature: ID_ '(' . ioDecls_opt ')'
-
-    INPUT   shift, and go to state 106
-    OUTPUT  shift, and go to state 107
-    PARAM   shift, and go to state 108
-
-    $default  reduce using rule 21 (ioDecls_opt)
-
-    ioDecls_opt  go to state 109
-    ioDecls      go to state 110
-    ioDecl       go to state 111
-    ioKind       go to state 112
-
-
-state 60
-
-    7 operator: type_opt opSignature @1 . operatorBody exception_opt
-
-    '{'  shift, and go to state 113
-
-    operatorBody  go to state 114
+    call         go to state 38
+    lvalue       go to state 39
+    fixedExpr    go to state 108
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
 
 
 state 61
 
-   14 type: sizedType '[' expr . ']'
-   18 arraySize: '[' expr . ']'
+   19 opSignature: ID_ '(' . ioDecls_opt ')'
 
-    ']'  shift, and go to state 115
+    INPUT   shift, and go to state 109
+    OUTPUT  shift, and go to state 110
+    PARAM   shift, and go to state 111
+
+    $default  reduce using rule 21 (ioDecls_opt)
+
+    ioDecls_opt  go to state 112
+    ioDecls      go to state 113
+    ioDecl       go to state 114
+    ioKind       go to state 115
 
 
 state 62
+
+    7 operator: type_opt opSignature @1 . operatorBody exception_opt
+
+    '{'  shift, and go to state 116
+
+    operatorBody  go to state 117
+
+
+state 63
+
+   14 type: sizedType '[' expr . ']'
+   18 arraySize: '[' expr . ']'
+
+    ']'  shift, and go to state 118
+
+
+state 64
 
    15 type: sizedType arraySize '[' . expr ']'
 
@@ -1258,123 +1286,129 @@ state 62
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 116
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 63
-
-  161 builtinExpr: BITSOF '(' . expr ')'
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 27
-    WIDTHOF  shift, and go to state 28
-    '{'      shift, and go to state 29
-    '-'      shift, and go to state 30
-    '+'      shift, and go to state 31
-    '~'      shift, and go to state 32
-    '!'      shift, and go to state 33
-    EXP      shift, and go to state 34
-    LOG      shift, and go to state 35
-    SQRT     shift, and go to state 36
-
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 117
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 64
-
-  159 builtinExpr: CAT '(' . args ')'
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 27
-    WIDTHOF  shift, and go to state 28
-    '{'      shift, and go to state 29
-    '-'      shift, and go to state 30
-    '+'      shift, and go to state 31
-    '~'      shift, and go to state 32
-    '!'      shift, and go to state 33
-    EXP      shift, and go to state 34
-    LOG      shift, and go to state 35
-    SQRT     shift, and go to state 36
-
-    call         go to state 37
-    args         go to state 118
-    lvalue       go to state 38
+    call         go to state 38
+    lvalue       go to state 39
     expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 65
+
+  162 builtinExpr: BITSOF '(' . expr ')'
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 27
+    WIDTHOF  shift, and go to state 28
+    '{'      shift, and go to state 29
+    '-'      shift, and go to state 30
+    '+'      shift, and go to state 31
+    '~'      shift, and go to state 32
+    '!'      shift, and go to state 33
+    EXP      shift, and go to state 34
+    LOG      shift, and go to state 35
+    SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
+
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 120
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
+
+
+state 66
+
+  160 builtinExpr: CAT '(' . args ')'
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 27
+    WIDTHOF  shift, and go to state 28
+    '{'      shift, and go to state 29
+    '-'      shift, and go to state 30
+    '+'      shift, and go to state 31
+    '~'      shift, and go to state 32
+    '!'      shift, and go to state 33
+    EXP      shift, and go to state 34
+    LOG      shift, and go to state 35
+    SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
+
+    call         go to state 38
+    args         go to state 121
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
+
+
+state 67
 
   101 call: ID_ '(' . args_opt ')'
 
@@ -1394,36 +1428,38 @@ state 65
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
     $default  reduce using rule 103 (args_opt)
 
-    call         go to state 37
-    args_opt     go to state 120
-    args         go to state 121
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args_opt     go to state 123
+    args         go to state 124
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 66
+state 68
 
   110 lvalue: ID_ '[' . expr ']'
   111       | ID_ '[' . expr ':' expr ']'
@@ -1446,60 +1482,62 @@ state 66
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 122
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 67
-
-  146 unaryExpr: '(' type . ')' fixedExpr
-
-    ')'  shift, and go to state 123
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 125
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 68
+state 69
+
+  147 unaryExpr: '(' type . ')' fixedExpr
+
+    ')'  shift, and go to state 126
+
+
+state 70
 
    14 type: sizedType . '[' expr ']'
    15     | sizedType . arraySize '[' expr ']'
-  147 unaryExpr: '(' sizedType . ')' fixedExpr
+  148 unaryExpr: '(' sizedType . ')' fixedExpr
 
-    ')'  shift, and go to state 124
+    ')'  shift, and go to state 127
     '['  shift, and go to state 19
 
     arraySize  go to state 20
 
 
-state 69
+state 71
 
-  158 atomExpr: '(' expr . ')'
+  159 atomExpr: '(' expr . ')'
 
-    ')'  shift, and go to state 125
+    ')'  shift, and go to state 128
 
 
-state 70
+state 72
 
-  160 builtinExpr: WIDTHOF '(' . expr ')'
+  161 builtinExpr: WIDTHOF '(' . expr ')'
 
     BITSOF   shift, and go to state 21
     CAT      shift, and go to state 22
@@ -1517,58 +1555,60 @@ state 70
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 126
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 129
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 71
+state 73
 
   115 expr: '{' condExprs_opt . '}'
 
-    '}'  shift, and go to state 127
+    '}'  shift, and go to state 130
 
 
-state 72
+state 74
 
   116 condExprs_opt: condExprs .
   118 condExprs: condExprs . ',' condExpr
 
-    ','  shift, and go to state 128
+    ','  shift, and go to state 131
 
     $default  reduce using rule 116 (condExprs_opt)
 
 
-state 73
+state 75
 
   119 condExprs: condExpr .
 
     $default  reduce using rule 119 (condExprs)
 
 
-state 74
+state 76
 
-  152 atomExpr: lvalue '@' . atomExpr
+  153 atomExpr: lvalue '@' . atomExpr
 
     BITSOF   shift, and go to state 21
     CAT      shift, and go to state 22
@@ -1576,23 +1616,23 @@ state 74
     ID_      shift, and go to state 24
     NUM      shift, and go to state 25
     TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
+    '('      shift, and go to state 107
     WIDTHOF  shift, and go to state 28
 
-    call         go to state 37
-    lvalue       go to state 38
-    atomExpr     go to state 129
-    builtinExpr  go to state 54
+    call         go to state 38
+    lvalue       go to state 39
+    atomExpr     go to state 132
+    builtinExpr  go to state 55
 
 
-state 75
+state 77
 
    18 arraySize: '[' expr ']' .
 
     $default  reduce using rule 18 (arraySize)
 
 
-state 76
+state 78
 
   122 logOrExpr: logOrExpr LOGIC_OR . logAndExpr
 
@@ -1611,29 +1651,31 @@ state 76
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    logAndExpr   go to state 130
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    logAndExpr   go to state 133
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 77
+state 79
 
   120 condExpr: logOrExpr '?' . condExpr ':' condExpr
 
@@ -1652,31 +1694,33 @@ state 77
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    condExpr     go to state 131
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    condExpr     go to state 134
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 78
+state 80
 
   124 logAndExpr: logAndExpr LOGIC_AND . bitOrExpr
 
@@ -1695,28 +1739,30 @@ state 78
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    bitOrExpr    go to state 132
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    bitOrExpr    go to state 135
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 79
+state 81
 
   126 bitOrExpr: bitOrExpr '|' . bitXorExpr
 
@@ -1735,27 +1781,29 @@ state 79
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    bitXorExpr   go to state 133
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    bitXorExpr   go to state 136
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 80
+state 82
 
   128 bitXorExpr: bitXorExpr '^' . bitAndExpr
 
@@ -1774,26 +1822,28 @@ state 80
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    bitAndExpr   go to state 134
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    bitAndExpr   go to state 137
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 81
+state 83
 
   130 bitAndExpr: bitAndExpr '&' . equalExpr
 
@@ -1812,39 +1862,41 @@ state 81
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    equalExpr    go to state 135
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 82
-
-  162 equalOp: EQUALS .
-
-    $default  reduce using rule 162 (equalOp)
+    call         go to state 38
+    lvalue       go to state 39
+    equalExpr    go to state 138
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 83
+state 84
 
-  163 equalOp: NOT_EQUALS .
+  163 equalOp: EQUALS .
 
     $default  reduce using rule 163 (equalOp)
 
 
-state 84
+state 85
+
+  164 equalOp: NOT_EQUALS .
+
+    $default  reduce using rule 164 (equalOp)
+
+
+state 86
 
   132 equalExpr: equalExpr equalOp . inequalExpr
 
@@ -1863,52 +1915,54 @@ state 84
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    inequalExpr  go to state 136
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 85
-
-  167 inequalOp: GTE .
-
-    $default  reduce using rule 167 (inequalOp)
-
-
-state 86
-
-  166 inequalOp: LTE .
-
-    $default  reduce using rule 166 (inequalOp)
+    call         go to state 38
+    lvalue       go to state 39
+    inequalExpr  go to state 139
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 87
 
-  164 inequalOp: '<' .
+  168 inequalOp: GTE .
 
-    $default  reduce using rule 164 (inequalOp)
+    $default  reduce using rule 168 (inequalOp)
 
 
 state 88
 
-  165 inequalOp: '>' .
+  167 inequalOp: LTE .
+
+    $default  reduce using rule 167 (inequalOp)
+
+
+state 89
+
+  165 inequalOp: '<' .
 
     $default  reduce using rule 165 (inequalOp)
 
 
-state 89
+state 90
+
+  166 inequalOp: '>' .
+
+    $default  reduce using rule 166 (inequalOp)
+
+
+state 91
 
   134 inequalExpr: inequalExpr inequalOp . shiftExpr
 
@@ -1927,37 +1981,39 @@ state 89
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    shiftExpr    go to state 137
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 90
-
-  168 shiftOp: LEFT_SHIFT .
-
-    $default  reduce using rule 168 (shiftOp)
+    call         go to state 38
+    lvalue       go to state 39
+    shiftExpr    go to state 140
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 91
+state 92
 
-  169 shiftOp: RIGHT_SHIFT .
+  169 shiftOp: LEFT_SHIFT .
 
     $default  reduce using rule 169 (shiftOp)
 
 
-state 92
+state 93
+
+  170 shiftOp: RIGHT_SHIFT .
+
+    $default  reduce using rule 170 (shiftOp)
+
+
+state 94
 
   136 shiftExpr: shiftExpr shiftOp . addExpr
 
@@ -1976,36 +2032,38 @@ state 92
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    addExpr      go to state 138
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    addExpr      go to state 141
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 93
+state 95
 
-  171 addOp: '-' .
+  172 addOp: '-' .
+
+    $default  reduce using rule 172 (addOp)
+
+
+state 96
+
+  171 addOp: '+' .
 
     $default  reduce using rule 171 (addOp)
 
 
-state 94
-
-  170 addOp: '+' .
-
-    $default  reduce using rule 170 (addOp)
-
-
-state 95
+state 97
 
   138 addExpr: addExpr addOp . prodExpr
 
@@ -2024,42 +2082,44 @@ state 95
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    prodExpr     go to state 139
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 96
-
-  177 prodOp: '%' .
-
-    $default  reduce using rule 177 (prodOp)
-
-
-state 97
-
-  175 prodOp: '*' .
-
-    $default  reduce using rule 175 (prodOp)
+    call         go to state 38
+    lvalue       go to state 39
+    prodExpr     go to state 142
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 98
 
-  176 prodOp: '/' .
+  179 prodOp: '%' .
 
-    $default  reduce using rule 176 (prodOp)
+    $default  reduce using rule 179 (prodOp)
 
 
 state 99
+
+  177 prodOp: '*' .
+
+    $default  reduce using rule 177 (prodOp)
+
+
+state 100
+
+  178 prodOp: '/' .
+
+    $default  reduce using rule 178 (prodOp)
+
+
+state 101
 
   140 prodExpr: prodExpr prodOp . unaryExpr
 
@@ -2078,61 +2138,24 @@ state 99
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    unaryExpr    go to state 140
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 100
-
-  149 fixedExpr: atomExpr '.' . atomExpr
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
-    WIDTHOF  shift, and go to state 28
-
-    call         go to state 37
-    lvalue       go to state 38
-    atomExpr     go to state 141
-    builtinExpr  go to state 54
-
-
-state 101
-
-  143 unaryExpr: exprOp '(' . fixedExpr ')'
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
-    WIDTHOF  shift, and go to state 28
-
-    call         go to state 37
-    lvalue       go to state 38
-    fixedExpr    go to state 142
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
+    call         go to state 38
+    lvalue       go to state 39
+    unaryExpr    go to state 143
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 102
 
-  144 unaryExpr: logOp '(' . fixedExpr ')'
+  150 fixedExpr: atomExpr '.' . atomExpr
 
     BITSOF   shift, and go to state 21
     CAT      shift, and go to state 22
@@ -2140,39 +2163,18 @@ state 102
     ID_      shift, and go to state 24
     NUM      shift, and go to state 25
     TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
+    '('      shift, and go to state 107
     WIDTHOF  shift, and go to state 28
 
-    call         go to state 37
-    lvalue       go to state 38
-    fixedExpr    go to state 143
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
+    call         go to state 38
+    lvalue       go to state 39
+    atomExpr     go to state 144
+    builtinExpr  go to state 55
 
 
 state 103
 
-  145 unaryExpr: sqrtOp '(' . fixedExpr ')'
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
-    WIDTHOF  shift, and go to state 28
-
-    call         go to state 37
-    lvalue       go to state 38
-    fixedExpr    go to state 144
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-
-
-state 104
-
-  158 atomExpr: '(' . expr ')'
+  143 unaryExpr: exprOp '(' . expr ')'
 
     BITSOF   shift, and go to state 21
     CAT      shift, and go to state 22
@@ -2190,84 +2192,274 @@ state 104
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 69
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 145
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
+
+
+state 104
+
+  144 unaryExpr: logOp '(' . expr ')'
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 27
+    WIDTHOF  shift, and go to state 28
+    '{'      shift, and go to state 29
+    '-'      shift, and go to state 30
+    '+'      shift, and go to state 31
+    '~'      shift, and go to state 32
+    '!'      shift, and go to state 33
+    EXP      shift, and go to state 34
+    LOG      shift, and go to state 35
+    SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
+
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 146
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 105
+
+  145 unaryExpr: sqrtOp '(' . expr ')'
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 27
+    WIDTHOF  shift, and go to state 28
+    '{'      shift, and go to state 29
+    '-'      shift, and go to state 30
+    '+'      shift, and go to state 31
+    '~'      shift, and go to state 32
+    '!'      shift, and go to state 33
+    EXP      shift, and go to state 34
+    LOG      shift, and go to state 35
+    SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
+
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 147
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
+
+
+state 106
+
+  146 unaryExpr: floorOp '(' . expr ')'
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 27
+    WIDTHOF  shift, and go to state 28
+    '{'      shift, and go to state 29
+    '-'      shift, and go to state 30
+    '+'      shift, and go to state 31
+    '~'      shift, and go to state 32
+    '!'      shift, and go to state 33
+    EXP      shift, and go to state 34
+    LOG      shift, and go to state 35
+    SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
+
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 148
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
+
+
+state 107
+
+  159 atomExpr: '(' . expr ')'
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 27
+    WIDTHOF  shift, and go to state 28
+    '{'      shift, and go to state 29
+    '-'      shift, and go to state 30
+    '+'      shift, and go to state 31
+    '~'      shift, and go to state 32
+    '!'      shift, and go to state 33
+    EXP      shift, and go to state 34
+    LOG      shift, and go to state 35
+    SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
+
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 71
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
+
+
+state 108
 
   142 unaryExpr: unaryOp fixedExpr .
 
     $default  reduce using rule 142 (unaryExpr)
 
 
-state 106
+state 109
 
    25 ioKind: INPUT .
 
     $default  reduce using rule 25 (ioKind)
 
 
-state 107
+state 110
 
    26 ioKind: OUTPUT .
 
     $default  reduce using rule 26 (ioKind)
 
 
-state 108
+state 111
 
    27 ioKind: PARAM .
 
     $default  reduce using rule 27 (ioKind)
 
 
-state 109
+state 112
 
    19 opSignature: ID_ '(' ioDecls_opt . ')'
 
-    ')'  shift, and go to state 145
+    ')'  shift, and go to state 149
 
 
-state 110
+state 113
 
    20 ioDecls_opt: ioDecls .
    22 ioDecls: ioDecls . ',' ioDecl
 
-    ','  shift, and go to state 146
+    ','  shift, and go to state 150
 
     $default  reduce using rule 20 (ioDecls_opt)
 
 
-state 111
+state 114
 
    23 ioDecls: ioDecl .
 
     $default  reduce using rule 23 (ioDecls)
 
 
-state 112
+state 115
 
    24 ioDecl: ioKind . type ID_
 
@@ -2277,11 +2469,11 @@ state 112
     SIGNED    shift, and go to state 4
     UNSIGNED  shift, and go to state 5
 
-    type       go to state 147
+    type       go to state 151
     sizedType  go to state 12
 
 
-state 113
+state 116
 
    32 operatorBody: '{' . typeDecls_opt @2 states '}'
    34             | '{' . typeDecls_opt @3 callsOrAssigns '}'
@@ -2295,24 +2487,24 @@ state 113
     ';'       reduce using rule 39 (@4)
     $default  reduce using rule 37 (typeDecls_opt)
 
-    typeDecls_opt  go to state 148
-    typeDecls      go to state 149
-    @4             go to state 150
+    typeDecls_opt  go to state 152
+    typeDecls      go to state 153
+    @4             go to state 154
 
 
-state 114
+state 117
 
     7 operator: type_opt opSignature @1 operatorBody . exception_opt
 
-    PASS_THROUGH_EXCEPTION  shift, and go to state 151
+    PASS_THROUGH_EXCEPTION  shift, and go to state 155
 
     $default  reduce using rule 29 (exception_opt)
 
-    exception_opt  go to state 152
-    exception      go to state 153
+    exception_opt  go to state 156
+    exception      go to state 157
 
 
-state 115
+state 118
 
    14 type: sizedType '[' expr ']' .
    18 arraySize: '[' expr ']' .
@@ -2321,126 +2513,126 @@ state 115
     $default  reduce using rule 14 (type)
 
 
-state 116
+state 119
 
    15 type: sizedType arraySize '[' expr . ']'
 
-    ']'  shift, and go to state 154
+    ']'  shift, and go to state 158
 
 
-state 117
+state 120
 
-  161 builtinExpr: BITSOF '(' expr . ')'
+  162 builtinExpr: BITSOF '(' expr . ')'
 
-    ')'  shift, and go to state 155
+    ')'  shift, and go to state 159
 
 
-state 118
+state 121
 
   106 args: args . ',' expr
-  159 builtinExpr: CAT '(' args . ')'
+  160 builtinExpr: CAT '(' args . ')'
 
-    ')'  shift, and go to state 156
-    ','  shift, and go to state 157
+    ')'  shift, and go to state 160
+    ','  shift, and go to state 161
 
 
-state 119
+state 122
 
   107 args: expr .
 
     $default  reduce using rule 107 (args)
 
 
-state 120
+state 123
 
   101 call: ID_ '(' args_opt . ')'
 
-    ')'  shift, and go to state 158
+    ')'  shift, and go to state 162
 
 
-state 121
+state 124
 
   102 args_opt: args .
   106 args: args . ',' expr
 
-    ','  shift, and go to state 157
+    ','  shift, and go to state 161
 
     $default  reduce using rule 102 (args_opt)
 
 
-state 122
+state 125
 
   110 lvalue: ID_ '[' expr . ']'
   111       | ID_ '[' expr . ':' expr ']'
   112       | ID_ '[' expr . ']' '[' expr ']'
   113       | ID_ '[' expr . ']' '[' expr ':' expr ']'
 
-    ']'  shift, and go to state 159
-    ':'  shift, and go to state 160
-
-
-state 123
-
-  146 unaryExpr: '(' type ')' . fixedExpr
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
-    WIDTHOF  shift, and go to state 28
-
-    call         go to state 37
-    lvalue       go to state 38
-    fixedExpr    go to state 161
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-
-
-state 124
-
-  147 unaryExpr: '(' sizedType ')' . fixedExpr
-
-    BITSOF   shift, and go to state 21
-    CAT      shift, and go to state 22
-    FALSE    shift, and go to state 23
-    ID_      shift, and go to state 24
-    NUM      shift, and go to state 25
-    TRUE     shift, and go to state 26
-    '('      shift, and go to state 104
-    WIDTHOF  shift, and go to state 28
-
-    call         go to state 37
-    lvalue       go to state 38
-    fixedExpr    go to state 162
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-
-
-state 125
-
-  158 atomExpr: '(' expr ')' .
-
-    $default  reduce using rule 158 (atomExpr)
+    ']'  shift, and go to state 163
+    ':'  shift, and go to state 164
 
 
 state 126
 
-  160 builtinExpr: WIDTHOF '(' expr . ')'
+  147 unaryExpr: '(' type ')' . fixedExpr
 
-    ')'  shift, and go to state 163
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 107
+    WIDTHOF  shift, and go to state 28
+
+    call         go to state 38
+    lvalue       go to state 39
+    fixedExpr    go to state 165
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
 
 
 state 127
+
+  148 unaryExpr: '(' sizedType ')' . fixedExpr
+
+    BITSOF   shift, and go to state 21
+    CAT      shift, and go to state 22
+    FALSE    shift, and go to state 23
+    ID_      shift, and go to state 24
+    NUM      shift, and go to state 25
+    TRUE     shift, and go to state 26
+    '('      shift, and go to state 107
+    WIDTHOF  shift, and go to state 28
+
+    call         go to state 38
+    lvalue       go to state 39
+    fixedExpr    go to state 166
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+
+
+state 128
+
+  159 atomExpr: '(' expr ')' .
+
+    $default  reduce using rule 159 (atomExpr)
+
+
+state 129
+
+  161 builtinExpr: WIDTHOF '(' expr . ')'
+
+    ')'  shift, and go to state 167
+
+
+state 130
 
   115 expr: '{' condExprs_opt '}' .
 
     $default  reduce using rule 115 (expr)
 
 
-state 128
+state 131
 
   118 condExprs: condExprs ',' . condExpr
 
@@ -2459,229 +2651,238 @@ state 128
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    condExpr     go to state 164
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 129
-
-  152 atomExpr: lvalue '@' atomExpr .
-
-    $default  reduce using rule 152 (atomExpr)
-
-
-state 130
-
-  122 logOrExpr: logOrExpr LOGIC_OR logAndExpr .
-  124 logAndExpr: logAndExpr . LOGIC_AND bitOrExpr
-
-    LOGIC_AND  shift, and go to state 78
-
-    $default  reduce using rule 122 (logOrExpr)
-
-
-state 131
-
-  120 condExpr: logOrExpr '?' condExpr . ':' condExpr
-
-    ':'  shift, and go to state 165
+    call         go to state 38
+    lvalue       go to state 39
+    condExpr     go to state 168
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 132
 
-  124 logAndExpr: logAndExpr LOGIC_AND bitOrExpr .
-  126 bitOrExpr: bitOrExpr . '|' bitXorExpr
+  153 atomExpr: lvalue '@' atomExpr .
 
-    '|'  shift, and go to state 79
-
-    $default  reduce using rule 124 (logAndExpr)
+    $default  reduce using rule 153 (atomExpr)
 
 
 state 133
 
-  126 bitOrExpr: bitOrExpr '|' bitXorExpr .
-  128 bitXorExpr: bitXorExpr . '^' bitAndExpr
+  122 logOrExpr: logOrExpr LOGIC_OR logAndExpr .
+  124 logAndExpr: logAndExpr . LOGIC_AND bitOrExpr
 
-    '^'  shift, and go to state 80
+    LOGIC_AND  shift, and go to state 80
 
-    $default  reduce using rule 126 (bitOrExpr)
+    $default  reduce using rule 122 (logOrExpr)
 
 
 state 134
 
-  128 bitXorExpr: bitXorExpr '^' bitAndExpr .
-  130 bitAndExpr: bitAndExpr . '&' equalExpr
+  120 condExpr: logOrExpr '?' condExpr . ':' condExpr
 
-    '&'  shift, and go to state 81
-
-    $default  reduce using rule 128 (bitXorExpr)
+    ':'  shift, and go to state 169
 
 
 state 135
 
-  130 bitAndExpr: bitAndExpr '&' equalExpr .
-  132 equalExpr: equalExpr . equalOp inequalExpr
+  124 logAndExpr: logAndExpr LOGIC_AND bitOrExpr .
+  126 bitOrExpr: bitOrExpr . '|' bitXorExpr
 
-    EQUALS      shift, and go to state 82
-    NOT_EQUALS  shift, and go to state 83
+    '|'  shift, and go to state 81
 
-    $default  reduce using rule 130 (bitAndExpr)
-
-    equalOp  go to state 84
+    $default  reduce using rule 124 (logAndExpr)
 
 
 state 136
 
-  132 equalExpr: equalExpr equalOp inequalExpr .
-  134 inequalExpr: inequalExpr . inequalOp shiftExpr
+  126 bitOrExpr: bitOrExpr '|' bitXorExpr .
+  128 bitXorExpr: bitXorExpr . '^' bitAndExpr
 
-    GTE  shift, and go to state 85
-    LTE  shift, and go to state 86
-    '<'  shift, and go to state 87
-    '>'  shift, and go to state 88
+    '^'  shift, and go to state 82
 
-    $default  reduce using rule 132 (equalExpr)
-
-    inequalOp  go to state 89
+    $default  reduce using rule 126 (bitOrExpr)
 
 
 state 137
 
-  134 inequalExpr: inequalExpr inequalOp shiftExpr .
-  136 shiftExpr: shiftExpr . shiftOp addExpr
+  128 bitXorExpr: bitXorExpr '^' bitAndExpr .
+  130 bitAndExpr: bitAndExpr . '&' equalExpr
 
-    LEFT_SHIFT   shift, and go to state 90
-    RIGHT_SHIFT  shift, and go to state 91
+    '&'  shift, and go to state 83
 
-    $default  reduce using rule 134 (inequalExpr)
-
-    shiftOp  go to state 92
+    $default  reduce using rule 128 (bitXorExpr)
 
 
 state 138
 
-  136 shiftExpr: shiftExpr shiftOp addExpr .
-  138 addExpr: addExpr . addOp prodExpr
+  130 bitAndExpr: bitAndExpr '&' equalExpr .
+  132 equalExpr: equalExpr . equalOp inequalExpr
 
-    '-'  shift, and go to state 93
-    '+'  shift, and go to state 94
+    EQUALS      shift, and go to state 84
+    NOT_EQUALS  shift, and go to state 85
 
-    $default  reduce using rule 136 (shiftExpr)
+    $default  reduce using rule 130 (bitAndExpr)
 
-    addOp  go to state 95
+    equalOp  go to state 86
 
 
 state 139
 
-  138 addExpr: addExpr addOp prodExpr .
-  140 prodExpr: prodExpr . prodOp unaryExpr
+  132 equalExpr: equalExpr equalOp inequalExpr .
+  134 inequalExpr: inequalExpr . inequalOp shiftExpr
 
-    '%'  shift, and go to state 96
-    '*'  shift, and go to state 97
-    '/'  shift, and go to state 98
+    GTE  shift, and go to state 87
+    LTE  shift, and go to state 88
+    '<'  shift, and go to state 89
+    '>'  shift, and go to state 90
 
-    $default  reduce using rule 138 (addExpr)
+    $default  reduce using rule 132 (equalExpr)
 
-    prodOp  go to state 99
+    inequalOp  go to state 91
 
 
 state 140
+
+  134 inequalExpr: inequalExpr inequalOp shiftExpr .
+  136 shiftExpr: shiftExpr . shiftOp addExpr
+
+    LEFT_SHIFT   shift, and go to state 92
+    RIGHT_SHIFT  shift, and go to state 93
+
+    $default  reduce using rule 134 (inequalExpr)
+
+    shiftOp  go to state 94
+
+
+state 141
+
+  136 shiftExpr: shiftExpr shiftOp addExpr .
+  138 addExpr: addExpr . addOp prodExpr
+
+    '-'  shift, and go to state 95
+    '+'  shift, and go to state 96
+
+    $default  reduce using rule 136 (shiftExpr)
+
+    addOp  go to state 97
+
+
+state 142
+
+  138 addExpr: addExpr addOp prodExpr .
+  140 prodExpr: prodExpr . prodOp unaryExpr
+
+    '%'  shift, and go to state 98
+    '*'  shift, and go to state 99
+    '/'  shift, and go to state 100
+
+    $default  reduce using rule 138 (addExpr)
+
+    prodOp  go to state 101
+
+
+state 143
 
   140 prodExpr: prodExpr prodOp unaryExpr .
 
     $default  reduce using rule 140 (prodExpr)
 
 
-state 141
-
-  149 fixedExpr: atomExpr '.' atomExpr .
-
-    $default  reduce using rule 149 (fixedExpr)
-
-
-state 142
-
-  143 unaryExpr: exprOp '(' fixedExpr . ')'
-
-    ')'  shift, and go to state 166
-
-
-state 143
-
-  144 unaryExpr: logOp '(' fixedExpr . ')'
-
-    ')'  shift, and go to state 167
-
-
 state 144
 
-  145 unaryExpr: sqrtOp '(' fixedExpr . ')'
+  150 fixedExpr: atomExpr '.' atomExpr .
 
-    ')'  shift, and go to state 168
+    $default  reduce using rule 150 (fixedExpr)
 
 
 state 145
+
+  143 unaryExpr: exprOp '(' expr . ')'
+
+    ')'  shift, and go to state 170
+
+
+state 146
+
+  144 unaryExpr: logOp '(' expr . ')'
+
+    ')'  shift, and go to state 171
+
+
+state 147
+
+  145 unaryExpr: sqrtOp '(' expr . ')'
+
+    ')'  shift, and go to state 172
+
+
+state 148
+
+  146 unaryExpr: floorOp '(' expr . ')'
+
+    ')'  shift, and go to state 173
+
+
+state 149
 
    19 opSignature: ID_ '(' ioDecls_opt ')' .
 
     $default  reduce using rule 19 (opSignature)
 
 
-state 146
+state 150
 
    22 ioDecls: ioDecls ',' . ioDecl
 
-    INPUT   shift, and go to state 106
-    OUTPUT  shift, and go to state 107
-    PARAM   shift, and go to state 108
+    INPUT   shift, and go to state 109
+    OUTPUT  shift, and go to state 110
+    PARAM   shift, and go to state 111
 
-    ioDecl  go to state 169
-    ioKind  go to state 112
+    ioDecl  go to state 174
+    ioKind  go to state 115
 
 
-state 147
+state 151
 
    24 ioDecl: ioKind type . ID_
 
-    ID_  shift, and go to state 170
+    ID_  shift, and go to state 175
 
 
-state 148
+state 152
 
    32 operatorBody: '{' typeDecls_opt . @2 states '}'
    34             | '{' typeDecls_opt . @3 callsOrAssigns '}'
    35             | '{' typeDecls_opt . '}'
 
-    '}'  shift, and go to state 171
+    '}'  shift, and go to state 176
 
     STATE     reduce using rule 31 (@2)
     $default  reduce using rule 33 (@3)
 
-    @2  go to state 172
-    @3  go to state 173
+    @2  go to state 177
+    @3  go to state 178
 
 
-state 149
+state 153
 
    36 typeDecls_opt: typeDecls .
    38 typeDecls: typeDecls . typeDecl
@@ -2691,16 +2892,16 @@ state 149
     DOUBLE    shift, and go to state 3
     SIGNED    shift, and go to state 4
     UNSIGNED  shift, and go to state 5
-    ';'       shift, and go to state 174
+    ';'       shift, and go to state 179
 
     $default  reduce using rule 36 (typeDecls_opt)
 
-    type       go to state 175
+    type       go to state 180
     sizedType  go to state 12
-    typeDecl   go to state 176
+    typeDecl   go to state 181
 
 
-state 150
+state 154
 
    40 typeDecls: @4 . typeDecl
 
@@ -2709,56 +2910,56 @@ state 150
     DOUBLE    shift, and go to state 3
     SIGNED    shift, and go to state 4
     UNSIGNED  shift, and go to state 5
-    ';'       shift, and go to state 174
+    ';'       shift, and go to state 179
 
-    type       go to state 175
+    type       go to state 180
     sizedType  go to state 12
-    typeDecl   go to state 177
+    typeDecl   go to state 182
 
 
-state 151
+state 155
 
    30 exception: PASS_THROUGH_EXCEPTION .
 
     $default  reduce using rule 30 (exception)
 
 
-state 152
+state 156
 
     7 operator: type_opt opSignature @1 operatorBody exception_opt .
 
     $default  reduce using rule 7 (operator)
 
 
-state 153
+state 157
 
    28 exception_opt: exception .
 
     $default  reduce using rule 28 (exception_opt)
 
 
-state 154
+state 158
 
    15 type: sizedType arraySize '[' expr ']' .
 
     $default  reduce using rule 15 (type)
 
 
-state 155
+state 159
 
-  161 builtinExpr: BITSOF '(' expr ')' .
+  162 builtinExpr: BITSOF '(' expr ')' .
 
-    $default  reduce using rule 161 (builtinExpr)
-
-
-state 156
-
-  159 builtinExpr: CAT '(' args ')' .
-
-    $default  reduce using rule 159 (builtinExpr)
+    $default  reduce using rule 162 (builtinExpr)
 
 
-state 157
+state 160
+
+  160 builtinExpr: CAT '(' args ')' .
+
+    $default  reduce using rule 160 (builtinExpr)
+
+
+state 161
 
   106 args: args ',' . expr
 
@@ -2778,50 +2979,52 @@ state 157
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 178
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 183
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 158
+state 162
 
   101 call: ID_ '(' args_opt ')' .
 
     $default  reduce using rule 101 (call)
 
 
-state 159
+state 163
 
   110 lvalue: ID_ '[' expr ']' .
   112       | ID_ '[' expr ']' . '[' expr ']'
   113       | ID_ '[' expr ']' . '[' expr ':' expr ']'
 
-    '['  shift, and go to state 179
+    '['  shift, and go to state 184
 
     $default  reduce using rule 110 (lvalue)
 
 
-state 160
+state 164
 
   111 lvalue: ID_ '[' expr ':' . expr ']'
 
@@ -2841,60 +3044,62 @@ state 160
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 180
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 161
-
-  146 unaryExpr: '(' type ')' fixedExpr .
-
-    $default  reduce using rule 146 (unaryExpr)
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 185
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 162
+state 165
 
-  147 unaryExpr: '(' sizedType ')' fixedExpr .
+  147 unaryExpr: '(' type ')' fixedExpr .
 
     $default  reduce using rule 147 (unaryExpr)
 
 
-state 163
+state 166
 
-  160 builtinExpr: WIDTHOF '(' expr ')' .
+  148 unaryExpr: '(' sizedType ')' fixedExpr .
 
-    $default  reduce using rule 160 (builtinExpr)
+    $default  reduce using rule 148 (unaryExpr)
 
 
-state 164
+state 167
+
+  161 builtinExpr: WIDTHOF '(' expr ')' .
+
+    $default  reduce using rule 161 (builtinExpr)
+
+
+state 168
 
   118 condExprs: condExprs ',' condExpr .
 
     $default  reduce using rule 118 (condExprs)
 
 
-state 165
+state 169
 
   120 condExpr: logOrExpr '?' condExpr ':' . condExpr
 
@@ -2913,143 +3118,152 @@ state 165
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    condExpr     go to state 181
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    condExpr     go to state 186
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 166
+state 170
 
-  143 unaryExpr: exprOp '(' fixedExpr ')' .
+  143 unaryExpr: exprOp '(' expr ')' .
 
     $default  reduce using rule 143 (unaryExpr)
 
 
-state 167
+state 171
 
-  144 unaryExpr: logOp '(' fixedExpr ')' .
+  144 unaryExpr: logOp '(' expr ')' .
 
     $default  reduce using rule 144 (unaryExpr)
 
 
-state 168
+state 172
 
-  145 unaryExpr: sqrtOp '(' fixedExpr ')' .
+  145 unaryExpr: sqrtOp '(' expr ')' .
 
     $default  reduce using rule 145 (unaryExpr)
 
 
-state 169
+state 173
+
+  146 unaryExpr: floorOp '(' expr ')' .
+
+    $default  reduce using rule 146 (unaryExpr)
+
+
+state 174
 
    22 ioDecls: ioDecls ',' ioDecl .
 
     $default  reduce using rule 22 (ioDecls)
 
 
-state 170
+state 175
 
    24 ioDecl: ioKind type ID_ .
 
     $default  reduce using rule 24 (ioDecl)
 
 
-state 171
+state 176
 
    35 operatorBody: '{' typeDecls_opt '}' .
 
     $default  reduce using rule 35 (operatorBody)
 
 
-state 172
+state 177
 
    32 operatorBody: '{' typeDecls_opt @2 . states '}'
 
-    STATE  shift, and go to state 182
+    STATE  shift, and go to state 187
 
-    states     go to state 183
-    stateCase  go to state 184
+    states     go to state 188
+    stateCase  go to state 189
 
 
-state 173
+state 178
 
    34 operatorBody: '{' typeDecls_opt @3 . callsOrAssigns '}'
 
-    COPY             shift, and go to state 185
+    COPY             shift, and go to state 190
     ID_              shift, and go to state 24
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
 
-    callsOrAssigns         go to state 192
-    callOrAssign_nonEmpty  go to state 193
-    builtinStmtCompose     go to state 194
-    copyStmt               go to state 195
-    segmentStmt            go to state 196
-    call                   go to state 197
-    lvalue                 go to state 198
+    callsOrAssigns         go to state 197
+    callOrAssign_nonEmpty  go to state 198
+    builtinStmtCompose     go to state 199
+    copyStmt               go to state 200
+    segmentStmt            go to state 201
+    call                   go to state 202
+    lvalue                 go to state 203
 
 
-state 174
+state 179
 
    42 typeDecl: ';' .
 
     $default  reduce using rule 42 (typeDecl)
 
 
-state 175
+state 180
 
    41 typeDecl: type . typeDeclElems ';'
 
-    ID_  shift, and go to state 199
+    ID_  shift, and go to state 204
 
-    typeDeclElems  go to state 200
-    typeDeclElem   go to state 201
+    typeDeclElems  go to state 205
+    typeDeclElem   go to state 206
 
 
-state 176
+state 181
 
    38 typeDecls: typeDecls typeDecl .
 
     $default  reduce using rule 38 (typeDecls)
 
 
-state 177
+state 182
 
    40 typeDecls: @4 typeDecl .
 
     $default  reduce using rule 40 (typeDecls)
 
 
-state 178
+state 183
 
   106 args: args ',' expr .
 
     $default  reduce using rule 106 (args)
 
 
-state 179
+state 184
 
   112 lvalue: ID_ '[' expr ']' '[' . expr ']'
   113       | ID_ '[' expr ']' '[' . expr ':' expr ']'
@@ -3070,188 +3284,190 @@ state 179
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 202
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 207
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 180
+state 185
 
   111 lvalue: ID_ '[' expr ':' expr . ']'
 
-    ']'  shift, and go to state 203
+    ']'  shift, and go to state 208
 
 
-state 181
+state 186
 
   120 condExpr: logOrExpr '?' condExpr ':' condExpr .
 
     $default  reduce using rule 120 (condExpr)
 
 
-state 182
+state 187
 
    60 stateCase: STATE . ID_ '(' stateVars_opt ')' ':' stmts_opt
 
-    ID_  shift, and go to state 204
+    ID_  shift, and go to state 209
 
 
-state 183
+state 188
 
    32 operatorBody: '{' typeDecls_opt @2 states . '}'
    58 states: states . stateCase
 
-    STATE  shift, and go to state 182
-    '}'    shift, and go to state 205
+    STATE  shift, and go to state 187
+    '}'    shift, and go to state 210
 
-    stateCase  go to state 206
+    stateCase  go to state 211
 
 
-state 184
+state 189
 
    59 states: stateCase .
 
     $default  reduce using rule 59 (states)
 
 
-state 185
-
-   94 copyStmt: COPY . '(' args ')'
-
-    '('  shift, and go to state 207
-
-
-state 186
-
-   95 segmentStmt: SEGMENT_R_ . '(' args ')'
-
-    '('  shift, and go to state 208
-
-
-state 187
-
-   97 segmentStmt: SEGMENT_RW_ . '(' args ')'
-
-    '('  shift, and go to state 209
-
-
-state 188
-
-   98 segmentStmt: SEGMENT_SEQ_R_ . '(' args ')'
-
-    '('  shift, and go to state 210
-
-
-state 189
-
-  100 segmentStmt: SEGMENT_SEQ_RW_ . '(' args ')'
-
-    '('  shift, and go to state 211
-
-
 state 190
 
-   99 segmentStmt: SEGMENT_SEQ_W_ . '(' args ')'
+   94 copyStmt: COPY . '(' args ')'
 
     '('  shift, and go to state 212
 
 
 state 191
 
-   96 segmentStmt: SEGMENT_W_ . '(' args ')'
+   95 segmentStmt: SEGMENT_R_ . '(' args ')'
 
     '('  shift, and go to state 213
 
 
 state 192
 
-   34 operatorBody: '{' typeDecls_opt @3 callsOrAssigns . '}'
-   50 callsOrAssigns: callsOrAssigns . callOrAssign
+   97 segmentStmt: SEGMENT_RW_ . '(' args ')'
 
-    COPY             shift, and go to state 185
-    ID_              shift, and go to state 24
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
-    '}'              shift, and go to state 214
-    ';'              shift, and go to state 215
-
-    callOrAssign           go to state 216
-    callOrAssign_nonEmpty  go to state 217
-    builtinStmtCompose     go to state 194
-    copyStmt               go to state 195
-    segmentStmt            go to state 196
-    call                   go to state 197
-    lvalue                 go to state 198
+    '('  shift, and go to state 214
 
 
 state 193
+
+   98 segmentStmt: SEGMENT_SEQ_R_ . '(' args ')'
+
+    '('  shift, and go to state 215
+
+
+state 194
+
+  100 segmentStmt: SEGMENT_SEQ_RW_ . '(' args ')'
+
+    '('  shift, and go to state 216
+
+
+state 195
+
+   99 segmentStmt: SEGMENT_SEQ_W_ . '(' args ')'
+
+    '('  shift, and go to state 217
+
+
+state 196
+
+   96 segmentStmt: SEGMENT_W_ . '(' args ')'
+
+    '('  shift, and go to state 218
+
+
+state 197
+
+   34 operatorBody: '{' typeDecls_opt @3 callsOrAssigns . '}'
+   50 callsOrAssigns: callsOrAssigns . callOrAssign
+
+    COPY             shift, and go to state 190
+    ID_              shift, and go to state 24
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
+    '}'              shift, and go to state 219
+    ';'              shift, and go to state 220
+
+    callOrAssign           go to state 221
+    callOrAssign_nonEmpty  go to state 222
+    builtinStmtCompose     go to state 199
+    copyStmt               go to state 200
+    segmentStmt            go to state 201
+    call                   go to state 202
+    lvalue                 go to state 203
+
+
+state 198
 
    51 callsOrAssigns: callOrAssign_nonEmpty .
 
     $default  reduce using rule 51 (callsOrAssigns)
 
 
-state 194
+state 199
 
    57 callOrAssign_nonEmpty: builtinStmtCompose . ';'
 
-    ';'  shift, and go to state 218
+    ';'  shift, and go to state 223
 
 
-state 195
+state 200
 
    92 builtinStmtCompose: copyStmt .
 
     $default  reduce using rule 92 (builtinStmtCompose)
 
 
-state 196
+state 201
 
    93 builtinStmtCompose: segmentStmt .
 
     $default  reduce using rule 93 (builtinStmtCompose)
 
 
-state 197
+state 202
 
    54 callOrAssign_nonEmpty: call . ';'
 
-    ';'  shift, and go to state 219
+    ';'  shift, and go to state 224
 
 
-state 198
+state 203
 
    55 callOrAssign_nonEmpty: lvalue . '=' call ';'
    56                      | lvalue . '=' lvalue ';'
 
-    '='  shift, and go to state 220
+    '='  shift, and go to state 225
 
 
-state 199
+state 204
 
    45 typeDeclElem: ID_ .
    47             | ID_ . @5 '=' expr
@@ -3261,64 +3477,64 @@ state 199
     '='       reduce using rule 46 (@5)
     $default  reduce using rule 45 (typeDeclElem)
 
-    @5  go to state 221
-    @6  go to state 222
+    @5  go to state 226
+    @6  go to state 227
 
 
-state 200
+state 205
 
    41 typeDecl: type typeDeclElems . ';'
    44 typeDeclElems: typeDeclElems . ',' typeDeclElem
 
-    ';'  shift, and go to state 223
-    ','  shift, and go to state 224
+    ';'  shift, and go to state 228
+    ','  shift, and go to state 229
 
 
-state 201
+state 206
 
    43 typeDeclElems: typeDeclElem .
 
     $default  reduce using rule 43 (typeDeclElems)
 
 
-state 202
+state 207
 
   112 lvalue: ID_ '[' expr ']' '[' expr . ']'
   113       | ID_ '[' expr ']' '[' expr . ':' expr ']'
 
-    ']'  shift, and go to state 225
-    ':'  shift, and go to state 226
+    ']'  shift, and go to state 230
+    ':'  shift, and go to state 231
 
 
-state 203
+state 208
 
   111 lvalue: ID_ '[' expr ':' expr ']' .
 
     $default  reduce using rule 111 (lvalue)
 
 
-state 204
+state 209
 
    60 stateCase: STATE ID_ . '(' stateVars_opt ')' ':' stmts_opt
 
-    '('  shift, and go to state 227
+    '('  shift, and go to state 232
 
 
-state 205
+state 210
 
    32 operatorBody: '{' typeDecls_opt @2 states '}' .
 
     $default  reduce using rule 32 (operatorBody)
 
 
-state 206
+state 211
 
    58 states: states stateCase .
 
     $default  reduce using rule 58 (states)
 
 
-state 207
+state 212
 
    94 copyStmt: COPY '(' . args ')'
 
@@ -3338,33 +3554,35 @@ state 207
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 228
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 233
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 208
+state 213
 
    95 segmentStmt: SEGMENT_R_ '(' . args ')'
 
@@ -3384,33 +3602,35 @@ state 208
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 229
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 234
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 209
+state 214
 
    97 segmentStmt: SEGMENT_RW_ '(' . args ')'
 
@@ -3430,33 +3650,35 @@ state 209
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 230
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 235
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 210
+state 215
 
    98 segmentStmt: SEGMENT_SEQ_R_ '(' . args ')'
 
@@ -3476,33 +3698,35 @@ state 210
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 231
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 236
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 211
+state 216
 
   100 segmentStmt: SEGMENT_SEQ_RW_ '(' . args ')'
 
@@ -3522,33 +3746,35 @@ state 211
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 232
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 237
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 212
+state 217
 
    99 segmentStmt: SEGMENT_SEQ_W_ '(' . args ')'
 
@@ -3568,33 +3794,35 @@ state 212
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 233
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 238
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 213
+state 218
 
    96 segmentStmt: SEGMENT_W_ '(' . args ')'
 
@@ -3614,123 +3842,125 @@ state 213
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 234
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 239
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 214
+state 219
 
    34 operatorBody: '{' typeDecls_opt @3 callsOrAssigns '}' .
 
     $default  reduce using rule 34 (operatorBody)
 
 
-state 215
+state 220
 
    53 callOrAssign: ';' .
 
     $default  reduce using rule 53 (callOrAssign)
 
 
-state 216
+state 221
 
    50 callsOrAssigns: callsOrAssigns callOrAssign .
 
     $default  reduce using rule 50 (callsOrAssigns)
 
 
-state 217
+state 222
 
    52 callOrAssign: callOrAssign_nonEmpty .
 
     $default  reduce using rule 52 (callOrAssign)
 
 
-state 218
+state 223
 
    57 callOrAssign_nonEmpty: builtinStmtCompose ';' .
 
     $default  reduce using rule 57 (callOrAssign_nonEmpty)
 
 
-state 219
+state 224
 
    54 callOrAssign_nonEmpty: call ';' .
 
     $default  reduce using rule 54 (callOrAssign_nonEmpty)
 
 
-state 220
+state 225
 
    55 callOrAssign_nonEmpty: lvalue '=' . call ';'
    56                      | lvalue '=' . lvalue ';'
 
     ID_  shift, and go to state 24
 
-    call    go to state 235
-    lvalue  go to state 236
+    call    go to state 240
+    lvalue  go to state 241
 
 
-state 221
+state 226
 
    47 typeDeclElem: ID_ @5 . '=' expr
 
-    '='  shift, and go to state 237
+    '='  shift, and go to state 242
 
 
-state 222
+state 227
 
    49 typeDeclElem: ID_ @6 . '(' expr ')'
 
-    '('  shift, and go to state 238
+    '('  shift, and go to state 243
 
 
-state 223
+state 228
 
    41 typeDecl: type typeDeclElems ';' .
 
     $default  reduce using rule 41 (typeDecl)
 
 
-state 224
+state 229
 
    44 typeDeclElems: typeDeclElems ',' . typeDeclElem
 
-    ID_  shift, and go to state 199
+    ID_  shift, and go to state 204
 
-    typeDeclElem  go to state 239
+    typeDeclElem  go to state 244
 
 
-state 225
+state 230
 
   112 lvalue: ID_ '[' expr ']' '[' expr ']' .
 
     $default  reduce using rule 112 (lvalue)
 
 
-state 226
+state 231
 
   113 lvalue: ID_ '[' expr ']' '[' expr ':' . expr ']'
 
@@ -3750,123 +3980,125 @@ state 226
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 240
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
-
-
-state 227
-
-   60 stateCase: STATE ID_ '(' . stateVars_opt ')' ':' stmts_opt
-
-    EOS  shift, and go to state 241
-    ID_  shift, and go to state 242
-
-    $default  reduce using rule 62 (stateVars_opt)
-
-    stateVars_opt  go to state 243
-    stateVars      go to state 244
-    stateVar       go to state 245
-
-
-state 228
-
-   94 copyStmt: COPY '(' args . ')'
-  106 args: args . ',' expr
-
-    ')'  shift, and go to state 246
-    ','  shift, and go to state 157
-
-
-state 229
-
-   95 segmentStmt: SEGMENT_R_ '(' args . ')'
-  106 args: args . ',' expr
-
-    ')'  shift, and go to state 247
-    ','  shift, and go to state 157
-
-
-state 230
-
-   97 segmentStmt: SEGMENT_RW_ '(' args . ')'
-  106 args: args . ',' expr
-
-    ')'  shift, and go to state 248
-    ','  shift, and go to state 157
-
-
-state 231
-
-   98 segmentStmt: SEGMENT_SEQ_R_ '(' args . ')'
-  106 args: args . ',' expr
-
-    ')'  shift, and go to state 249
-    ','  shift, and go to state 157
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 245
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
 state 232
 
-  100 segmentStmt: SEGMENT_SEQ_RW_ '(' args . ')'
-  106 args: args . ',' expr
+   60 stateCase: STATE ID_ '(' . stateVars_opt ')' ':' stmts_opt
 
-    ')'  shift, and go to state 250
-    ','  shift, and go to state 157
+    EOS  shift, and go to state 246
+    ID_  shift, and go to state 247
+
+    $default  reduce using rule 62 (stateVars_opt)
+
+    stateVars_opt  go to state 248
+    stateVars      go to state 249
+    stateVar       go to state 250
 
 
 state 233
 
-   99 segmentStmt: SEGMENT_SEQ_W_ '(' args . ')'
+   94 copyStmt: COPY '(' args . ')'
   106 args: args . ',' expr
 
     ')'  shift, and go to state 251
-    ','  shift, and go to state 157
+    ','  shift, and go to state 161
 
 
 state 234
 
-   96 segmentStmt: SEGMENT_W_ '(' args . ')'
+   95 segmentStmt: SEGMENT_R_ '(' args . ')'
   106 args: args . ',' expr
 
     ')'  shift, and go to state 252
-    ','  shift, and go to state 157
+    ','  shift, and go to state 161
 
 
 state 235
 
-   55 callOrAssign_nonEmpty: lvalue '=' call . ';'
+   97 segmentStmt: SEGMENT_RW_ '(' args . ')'
+  106 args: args . ',' expr
 
-    ';'  shift, and go to state 253
+    ')'  shift, and go to state 253
+    ','  shift, and go to state 161
 
 
 state 236
 
-   56 callOrAssign_nonEmpty: lvalue '=' lvalue . ';'
+   98 segmentStmt: SEGMENT_SEQ_R_ '(' args . ')'
+  106 args: args . ',' expr
 
-    ';'  shift, and go to state 254
+    ')'  shift, and go to state 254
+    ','  shift, and go to state 161
 
 
 state 237
+
+  100 segmentStmt: SEGMENT_SEQ_RW_ '(' args . ')'
+  106 args: args . ',' expr
+
+    ')'  shift, and go to state 255
+    ','  shift, and go to state 161
+
+
+state 238
+
+   99 segmentStmt: SEGMENT_SEQ_W_ '(' args . ')'
+  106 args: args . ',' expr
+
+    ')'  shift, and go to state 256
+    ','  shift, and go to state 161
+
+
+state 239
+
+   96 segmentStmt: SEGMENT_W_ '(' args . ')'
+  106 args: args . ',' expr
+
+    ')'  shift, and go to state 257
+    ','  shift, and go to state 161
+
+
+state 240
+
+   55 callOrAssign_nonEmpty: lvalue '=' call . ';'
+
+    ';'  shift, and go to state 258
+
+
+state 241
+
+   56 callOrAssign_nonEmpty: lvalue '=' lvalue . ';'
+
+    ';'  shift, and go to state 259
+
+
+state 242
 
    47 typeDeclElem: ID_ @5 '=' . expr
 
@@ -3886,32 +4118,34 @@ state 237
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 255
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 260
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 238
+state 243
 
    49 typeDeclElem: ID_ @6 '(' . expr ')'
 
@@ -3931,178 +4165,180 @@ state 238
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 256
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 261
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 239
+state 244
 
    44 typeDeclElems: typeDeclElems ',' typeDeclElem .
 
     $default  reduce using rule 44 (typeDeclElems)
 
 
-state 240
+state 245
 
   113 lvalue: ID_ '[' expr ']' '[' expr ':' expr . ']'
 
-    ']'  shift, and go to state 257
+    ']'  shift, and go to state 262
 
 
-state 241
+state 246
 
    67 stateVar: EOS . '(' ID_ ')'
 
-    '('  shift, and go to state 258
+    '('  shift, and go to state 263
 
 
-state 242
+state 247
 
    65 stateVar: ID_ .
    66         | ID_ . '#' expr
 
-    '#'  shift, and go to state 259
+    '#'  shift, and go to state 264
 
     $default  reduce using rule 65 (stateVar)
 
 
-state 243
+state 248
 
    60 stateCase: STATE ID_ '(' stateVars_opt . ')' ':' stmts_opt
 
-    ')'  shift, and go to state 260
+    ')'  shift, and go to state 265
 
 
-state 244
+state 249
 
    61 stateVars_opt: stateVars .
    63 stateVars: stateVars . ',' stateVar
 
-    ','  shift, and go to state 261
+    ','  shift, and go to state 266
 
     $default  reduce using rule 61 (stateVars_opt)
 
 
-state 245
+state 250
 
    64 stateVars: stateVar .
 
     $default  reduce using rule 64 (stateVars)
 
 
-state 246
+state 251
 
    94 copyStmt: COPY '(' args ')' .
 
     $default  reduce using rule 94 (copyStmt)
 
 
-state 247
+state 252
 
    95 segmentStmt: SEGMENT_R_ '(' args ')' .
 
     $default  reduce using rule 95 (segmentStmt)
 
 
-state 248
+state 253
 
    97 segmentStmt: SEGMENT_RW_ '(' args ')' .
 
     $default  reduce using rule 97 (segmentStmt)
 
 
-state 249
+state 254
 
    98 segmentStmt: SEGMENT_SEQ_R_ '(' args ')' .
 
     $default  reduce using rule 98 (segmentStmt)
 
 
-state 250
+state 255
 
   100 segmentStmt: SEGMENT_SEQ_RW_ '(' args ')' .
 
     $default  reduce using rule 100 (segmentStmt)
 
 
-state 251
+state 256
 
    99 segmentStmt: SEGMENT_SEQ_W_ '(' args ')' .
 
     $default  reduce using rule 99 (segmentStmt)
 
 
-state 252
+state 257
 
    96 segmentStmt: SEGMENT_W_ '(' args ')' .
 
     $default  reduce using rule 96 (segmentStmt)
 
 
-state 253
+state 258
 
    55 callOrAssign_nonEmpty: lvalue '=' call ';' .
 
     $default  reduce using rule 55 (callOrAssign_nonEmpty)
 
 
-state 254
+state 259
 
    56 callOrAssign_nonEmpty: lvalue '=' lvalue ';' .
 
     $default  reduce using rule 56 (callOrAssign_nonEmpty)
 
 
-state 255
+state 260
 
    47 typeDeclElem: ID_ @5 '=' expr .
 
     $default  reduce using rule 47 (typeDeclElem)
 
 
-state 256
+state 261
 
    49 typeDeclElem: ID_ @6 '(' expr . ')'
 
-    ')'  shift, and go to state 262
+    ')'  shift, and go to state 267
 
 
-state 257
+state 262
 
   113 lvalue: ID_ '[' expr ']' '[' expr ':' expr ']' .
 
     $default  reduce using rule 113 (lvalue)
 
 
-state 258
+state 263
 
    67 stateVar: EOS '(' . ID_ ')'
 
-    ID_  shift, and go to state 263
+    ID_  shift, and go to state 268
 
 
-state 259
+state 264
 
    66 stateVar: ID_ '#' . expr
 
@@ -4122,172 +4358,174 @@ state 259
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 264
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 269
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 260
+state 265
 
    60 stateCase: STATE ID_ '(' stateVars_opt ')' . ':' stmts_opt
 
-    ':'  shift, and go to state 265
+    ':'  shift, and go to state 270
 
 
-state 261
+state 266
 
    63 stateVars: stateVars ',' . stateVar
 
-    EOS  shift, and go to state 241
-    ID_  shift, and go to state 242
+    EOS  shift, and go to state 246
+    ID_  shift, and go to state 247
 
-    stateVar  go to state 266
+    stateVar  go to state 271
 
 
-state 262
+state 267
 
    49 typeDeclElem: ID_ @6 '(' expr ')' .
 
     $default  reduce using rule 49 (typeDeclElem)
 
 
-state 263
+state 268
 
    67 stateVar: EOS '(' ID_ . ')'
 
-    ')'  shift, and go to state 267
+    ')'  shift, and go to state 272
 
 
-state 264
+state 269
 
    66 stateVar: ID_ '#' expr .
 
     $default  reduce using rule 66 (stateVar)
 
 
-state 265
+state 270
 
    60 stateCase: STATE ID_ '(' stateVars_opt ')' ':' . stmts_opt
 
-    ATTENTION        shift, and go to state 268
-    CLOSE            shift, and go to state 269
-    COPY             shift, and go to state 185
-    DONE             shift, and go to state 270
-    GOTO             shift, and go to state 271
+    ATTENTION        shift, and go to state 273
+    CLOSE            shift, and go to state 274
+    COPY             shift, and go to state 190
+    DONE             shift, and go to state 275
+    GOTO             shift, and go to state 276
     ID_              shift, and go to state 24
-    IF               shift, and go to state 272
-    PRINTF           shift, and go to state 273
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
-    STAY             shift, and go to state 274
-    '{'              shift, and go to state 275
+    IF               shift, and go to state 277
+    PRINTF           shift, and go to state 278
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
+    STAY             shift, and go to state 279
+    '{'              shift, and go to state 280
 
     $default  reduce using rule 69 (stmts_opt)
 
-    stmts_opt         go to state 276
-    stmts             go to state 277
-    stmt_nonEmpty     go to state 278
-    matchedStmt       go to state 279
-    unmatchedStmt     go to state 280
-    stmtBlock         go to state 281
-    builtinStmtBehav  go to state 282
-    copyStmt          go to state 283
-    segmentStmt       go to state 284
-    call              go to state 285
-    assign            go to state 286
-    lvalue            go to state 287
+    stmts_opt         go to state 281
+    stmts             go to state 282
+    stmt_nonEmpty     go to state 283
+    matchedStmt       go to state 284
+    unmatchedStmt     go to state 285
+    stmtBlock         go to state 286
+    builtinStmtBehav  go to state 287
+    copyStmt          go to state 288
+    segmentStmt       go to state 289
+    call              go to state 290
+    assign            go to state 291
+    lvalue            go to state 292
 
 
-state 266
+state 271
 
    63 stateVars: stateVars ',' stateVar .
 
     $default  reduce using rule 63 (stateVars)
 
 
-state 267
+state 272
 
    67 stateVar: EOS '(' ID_ ')' .
 
     $default  reduce using rule 67 (stateVar)
 
 
-state 268
-
-   86 builtinStmtBehav: ATTENTION . '(' expr ')'
-
-    '('  shift, and go to state 288
-
-
-state 269
-
-   87 builtinStmtBehav: CLOSE . '(' ID_ ')'
-
-    '('  shift, and go to state 289
-
-
-state 270
-
-   88 builtinStmtBehav: DONE . '(' ')'
-
-    '('  shift, and go to state 290
-
-
-state 271
-
-   77 matchedStmt: GOTO . ID_ ';'
-
-    ID_  shift, and go to state 291
-
-
-state 272
-
-   76 matchedStmt: IF . '(' expr ')' matchedStmt ELSE matchedStmt
-   83 unmatchedStmt: IF . '(' expr ')' stmt
-   84              | IF . '(' expr ')' matchedStmt ELSE unmatchedStmt
-
-    '('  shift, and go to state 292
-
-
 state 273
 
-   89 builtinStmtBehav: PRINTF . '(' STRING more_args_opt ')'
+   86 builtinStmtBehav: ATTENTION . '(' expr ')'
 
     '('  shift, and go to state 293
 
 
 state 274
 
-   78 matchedStmt: STAY . ';'
+   87 builtinStmtBehav: CLOSE . '(' ID_ ')'
 
-    ';'  shift, and go to state 294
+    '('  shift, and go to state 294
 
 
 state 275
+
+   88 builtinStmtBehav: DONE . '(' ')'
+
+    '('  shift, and go to state 295
+
+
+state 276
+
+   77 matchedStmt: GOTO . ID_ ';'
+
+    ID_  shift, and go to state 296
+
+
+state 277
+
+   76 matchedStmt: IF . '(' expr ')' matchedStmt ELSE matchedStmt
+   83 unmatchedStmt: IF . '(' expr ')' stmt
+   84              | IF . '(' expr ')' matchedStmt ELSE unmatchedStmt
+
+    '('  shift, and go to state 297
+
+
+state 278
+
+   89 builtinStmtBehav: PRINTF . '(' STRING more_args_opt ')'
+
+    '('  shift, and go to state 298
+
+
+state 279
+
+   78 matchedStmt: STAY . ';'
+
+    ';'  shift, and go to state 299
+
+
+state 280
 
    85 stmtBlock: '{' . typeDecls_opt stmts_opt '}'
 
@@ -4299,127 +4537,127 @@ state 275
     ';'       reduce using rule 39 (@4)
     $default  reduce using rule 37 (typeDecls_opt)
 
-    typeDecls_opt  go to state 295
-    typeDecls      go to state 149
-    @4             go to state 150
+    typeDecls_opt  go to state 300
+    typeDecls      go to state 153
+    @4             go to state 154
 
 
-state 276
+state 281
 
    60 stateCase: STATE ID_ '(' stateVars_opt ')' ':' stmts_opt .
 
     $default  reduce using rule 60 (stateCase)
 
 
-state 277
+state 282
 
    68 stmts_opt: stmts .
    70 stmts: stmts . stmt
 
-    ATTENTION        shift, and go to state 268
-    CLOSE            shift, and go to state 269
-    COPY             shift, and go to state 185
-    DONE             shift, and go to state 270
-    GOTO             shift, and go to state 271
+    ATTENTION        shift, and go to state 273
+    CLOSE            shift, and go to state 274
+    COPY             shift, and go to state 190
+    DONE             shift, and go to state 275
+    GOTO             shift, and go to state 276
     ID_              shift, and go to state 24
-    IF               shift, and go to state 272
-    PRINTF           shift, and go to state 273
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
-    STAY             shift, and go to state 274
-    '{'              shift, and go to state 275
-    ';'              shift, and go to state 296
+    IF               shift, and go to state 277
+    PRINTF           shift, and go to state 278
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
+    STAY             shift, and go to state 279
+    '{'              shift, and go to state 280
+    ';'              shift, and go to state 301
 
     $default  reduce using rule 68 (stmts_opt)
 
-    stmt              go to state 297
-    stmt_nonEmpty     go to state 298
-    matchedStmt       go to state 279
-    unmatchedStmt     go to state 280
-    stmtBlock         go to state 281
-    builtinStmtBehav  go to state 282
-    copyStmt          go to state 283
-    segmentStmt       go to state 284
-    call              go to state 285
-    assign            go to state 286
-    lvalue            go to state 287
+    stmt              go to state 302
+    stmt_nonEmpty     go to state 303
+    matchedStmt       go to state 284
+    unmatchedStmt     go to state 285
+    stmtBlock         go to state 286
+    builtinStmtBehav  go to state 287
+    copyStmt          go to state 288
+    segmentStmt       go to state 289
+    call              go to state 290
+    assign            go to state 291
+    lvalue            go to state 292
 
 
-state 278
+state 283
 
    71 stmts: stmt_nonEmpty .
 
     $default  reduce using rule 71 (stmts)
 
 
-state 279
+state 284
 
    74 stmt_nonEmpty: matchedStmt .
 
     $default  reduce using rule 74 (stmt_nonEmpty)
 
 
-state 280
+state 285
 
    75 stmt_nonEmpty: unmatchedStmt .
 
     $default  reduce using rule 75 (stmt_nonEmpty)
 
 
-state 281
+state 286
 
    82 matchedStmt: stmtBlock .
 
     $default  reduce using rule 82 (matchedStmt)
 
 
-state 282
+state 287
 
    80 matchedStmt: builtinStmtBehav . ';'
 
-    ';'  shift, and go to state 299
+    ';'  shift, and go to state 304
 
 
-state 283
+state 288
 
    90 builtinStmtBehav: copyStmt .
 
     $default  reduce using rule 90 (builtinStmtBehav)
 
 
-state 284
+state 289
 
    91 builtinStmtBehav: segmentStmt .
 
     $default  reduce using rule 91 (builtinStmtBehav)
 
 
-state 285
+state 290
 
    81 matchedStmt: call . ';'
 
-    ';'  shift, and go to state 300
+    ';'  shift, and go to state 305
 
 
-state 286
+state 291
 
    79 matchedStmt: assign . ';'
 
-    ';'  shift, and go to state 301
+    ';'  shift, and go to state 306
 
 
-state 287
+state 292
 
   108 assign: lvalue . '=' expr
 
-    '='  shift, and go to state 302
+    '='  shift, and go to state 307
 
 
-state 288
+state 293
 
    86 builtinStmtBehav: ATTENTION '(' . expr ')'
 
@@ -4439,53 +4677,55 @@ state 288
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 303
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 308
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 289
+state 294
 
    87 builtinStmtBehav: CLOSE '(' . ID_ ')'
 
-    ID_  shift, and go to state 304
+    ID_  shift, and go to state 309
 
 
-state 290
+state 295
 
    88 builtinStmtBehav: DONE '(' . ')'
 
-    ')'  shift, and go to state 305
+    ')'  shift, and go to state 310
 
 
-state 291
+state 296
 
    77 matchedStmt: GOTO ID_ . ';'
 
-    ';'  shift, and go to state 306
+    ';'  shift, and go to state 311
 
 
-state 292
+state 297
 
    76 matchedStmt: IF '(' . expr ')' matchedStmt ELSE matchedStmt
    83 unmatchedStmt: IF '(' . expr ')' stmt
@@ -4507,125 +4747,127 @@ state 292
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 307
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 312
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 293
+state 298
 
    89 builtinStmtBehav: PRINTF '(' . STRING more_args_opt ')'
 
-    STRING  shift, and go to state 308
+    STRING  shift, and go to state 313
 
 
-state 294
+state 299
 
    78 matchedStmt: STAY ';' .
 
     $default  reduce using rule 78 (matchedStmt)
 
 
-state 295
+state 300
 
    85 stmtBlock: '{' typeDecls_opt . stmts_opt '}'
 
-    ATTENTION        shift, and go to state 268
-    CLOSE            shift, and go to state 269
-    COPY             shift, and go to state 185
-    DONE             shift, and go to state 270
-    GOTO             shift, and go to state 271
+    ATTENTION        shift, and go to state 273
+    CLOSE            shift, and go to state 274
+    COPY             shift, and go to state 190
+    DONE             shift, and go to state 275
+    GOTO             shift, and go to state 276
     ID_              shift, and go to state 24
-    IF               shift, and go to state 272
-    PRINTF           shift, and go to state 273
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
-    STAY             shift, and go to state 274
-    '{'              shift, and go to state 275
+    IF               shift, and go to state 277
+    PRINTF           shift, and go to state 278
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
+    STAY             shift, and go to state 279
+    '{'              shift, and go to state 280
 
     $default  reduce using rule 69 (stmts_opt)
 
-    stmts_opt         go to state 309
-    stmts             go to state 277
-    stmt_nonEmpty     go to state 278
-    matchedStmt       go to state 279
-    unmatchedStmt     go to state 280
-    stmtBlock         go to state 281
-    builtinStmtBehav  go to state 282
-    copyStmt          go to state 283
-    segmentStmt       go to state 284
-    call              go to state 285
-    assign            go to state 286
-    lvalue            go to state 287
+    stmts_opt         go to state 314
+    stmts             go to state 282
+    stmt_nonEmpty     go to state 283
+    matchedStmt       go to state 284
+    unmatchedStmt     go to state 285
+    stmtBlock         go to state 286
+    builtinStmtBehav  go to state 287
+    copyStmt          go to state 288
+    segmentStmt       go to state 289
+    call              go to state 290
+    assign            go to state 291
+    lvalue            go to state 292
 
 
-state 296
+state 301
 
    73 stmt: ';' .
 
     $default  reduce using rule 73 (stmt)
 
 
-state 297
+state 302
 
    70 stmts: stmts stmt .
 
     $default  reduce using rule 70 (stmts)
 
 
-state 298
+state 303
 
    72 stmt: stmt_nonEmpty .
 
     $default  reduce using rule 72 (stmt)
 
 
-state 299
+state 304
 
    80 matchedStmt: builtinStmtBehav ';' .
 
     $default  reduce using rule 80 (matchedStmt)
 
 
-state 300
+state 305
 
    81 matchedStmt: call ';' .
 
     $default  reduce using rule 81 (matchedStmt)
 
 
-state 301
+state 306
 
    79 matchedStmt: assign ';' .
 
     $default  reduce using rule 79 (matchedStmt)
 
 
-state 302
+state 307
 
   108 assign: lvalue '=' . expr
 
@@ -4645,145 +4887,147 @@ state 302
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    lvalue       go to state 38
-    expr         go to state 310
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    lvalue       go to state 39
+    expr         go to state 315
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 303
+state 308
 
    86 builtinStmtBehav: ATTENTION '(' expr . ')'
 
-    ')'  shift, and go to state 311
+    ')'  shift, and go to state 316
 
 
-state 304
+state 309
 
    87 builtinStmtBehav: CLOSE '(' ID_ . ')'
 
-    ')'  shift, and go to state 312
+    ')'  shift, and go to state 317
 
 
-state 305
+state 310
 
    88 builtinStmtBehav: DONE '(' ')' .
 
     $default  reduce using rule 88 (builtinStmtBehav)
 
 
-state 306
+state 311
 
    77 matchedStmt: GOTO ID_ ';' .
 
     $default  reduce using rule 77 (matchedStmt)
 
 
-state 307
+state 312
 
    76 matchedStmt: IF '(' expr . ')' matchedStmt ELSE matchedStmt
    83 unmatchedStmt: IF '(' expr . ')' stmt
    84              | IF '(' expr . ')' matchedStmt ELSE unmatchedStmt
 
-    ')'  shift, and go to state 313
+    ')'  shift, and go to state 318
 
 
-state 308
+state 313
 
    89 builtinStmtBehav: PRINTF '(' STRING . more_args_opt ')'
 
-    ','  shift, and go to state 314
+    ','  shift, and go to state 319
 
     $default  reduce using rule 105 (more_args_opt)
 
-    more_args_opt  go to state 315
+    more_args_opt  go to state 320
 
 
-state 309
+state 314
 
    85 stmtBlock: '{' typeDecls_opt stmts_opt . '}'
 
-    '}'  shift, and go to state 316
+    '}'  shift, and go to state 321
 
 
-state 310
+state 315
 
   108 assign: lvalue '=' expr .
 
     $default  reduce using rule 108 (assign)
 
 
-state 311
+state 316
 
    86 builtinStmtBehav: ATTENTION '(' expr ')' .
 
     $default  reduce using rule 86 (builtinStmtBehav)
 
 
-state 312
+state 317
 
    87 builtinStmtBehav: CLOSE '(' ID_ ')' .
 
     $default  reduce using rule 87 (builtinStmtBehav)
 
 
-state 313
+state 318
 
    76 matchedStmt: IF '(' expr ')' . matchedStmt ELSE matchedStmt
    83 unmatchedStmt: IF '(' expr ')' . stmt
    84              | IF '(' expr ')' . matchedStmt ELSE unmatchedStmt
 
-    ATTENTION        shift, and go to state 268
-    CLOSE            shift, and go to state 269
-    COPY             shift, and go to state 185
-    DONE             shift, and go to state 270
-    GOTO             shift, and go to state 271
+    ATTENTION        shift, and go to state 273
+    CLOSE            shift, and go to state 274
+    COPY             shift, and go to state 190
+    DONE             shift, and go to state 275
+    GOTO             shift, and go to state 276
     ID_              shift, and go to state 24
-    IF               shift, and go to state 272
-    PRINTF           shift, and go to state 273
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
-    STAY             shift, and go to state 274
-    '{'              shift, and go to state 275
-    ';'              shift, and go to state 296
+    IF               shift, and go to state 277
+    PRINTF           shift, and go to state 278
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
+    STAY             shift, and go to state 279
+    '{'              shift, and go to state 280
+    ';'              shift, and go to state 301
 
-    stmt              go to state 317
-    stmt_nonEmpty     go to state 298
-    matchedStmt       go to state 318
-    unmatchedStmt     go to state 280
-    stmtBlock         go to state 281
-    builtinStmtBehav  go to state 282
-    copyStmt          go to state 283
-    segmentStmt       go to state 284
-    call              go to state 285
-    assign            go to state 286
-    lvalue            go to state 287
+    stmt              go to state 322
+    stmt_nonEmpty     go to state 303
+    matchedStmt       go to state 323
+    unmatchedStmt     go to state 285
+    stmtBlock         go to state 286
+    builtinStmtBehav  go to state 287
+    copyStmt          go to state 288
+    segmentStmt       go to state 289
+    call              go to state 290
+    assign            go to state 291
+    lvalue            go to state 292
 
 
-state 314
+state 319
 
   104 more_args_opt: ',' . args
 
@@ -4803,122 +5047,124 @@ state 314
     EXP      shift, and go to state 34
     LOG      shift, and go to state 35
     SQRT     shift, and go to state 36
+    FLOOR    shift, and go to state 37
 
-    call         go to state 37
-    args         go to state 319
-    lvalue       go to state 38
-    expr         go to state 119
-    condExpr     go to state 40
-    logOrExpr    go to state 41
-    logAndExpr   go to state 42
-    bitOrExpr    go to state 43
-    bitXorExpr   go to state 44
-    bitAndExpr   go to state 45
-    equalExpr    go to state 46
-    inequalExpr  go to state 47
-    shiftExpr    go to state 48
-    addExpr      go to state 49
-    prodExpr     go to state 50
-    unaryExpr    go to state 51
-    fixedExpr    go to state 52
-    atomExpr     go to state 53
-    builtinExpr  go to state 54
-    exprOp       go to state 55
-    logOp        go to state 56
-    sqrtOp       go to state 57
-    unaryOp      go to state 58
+    call         go to state 38
+    args         go to state 324
+    lvalue       go to state 39
+    expr         go to state 122
+    condExpr     go to state 41
+    logOrExpr    go to state 42
+    logAndExpr   go to state 43
+    bitOrExpr    go to state 44
+    bitXorExpr   go to state 45
+    bitAndExpr   go to state 46
+    equalExpr    go to state 47
+    inequalExpr  go to state 48
+    shiftExpr    go to state 49
+    addExpr      go to state 50
+    prodExpr     go to state 51
+    unaryExpr    go to state 52
+    fixedExpr    go to state 53
+    atomExpr     go to state 54
+    builtinExpr  go to state 55
+    exprOp       go to state 56
+    logOp        go to state 57
+    sqrtOp       go to state 58
+    floorOp      go to state 59
+    unaryOp      go to state 60
 
 
-state 315
+state 320
 
    89 builtinStmtBehav: PRINTF '(' STRING more_args_opt . ')'
 
-    ')'  shift, and go to state 320
+    ')'  shift, and go to state 325
 
 
-state 316
+state 321
 
    85 stmtBlock: '{' typeDecls_opt stmts_opt '}' .
 
     $default  reduce using rule 85 (stmtBlock)
 
 
-state 317
+state 322
 
    83 unmatchedStmt: IF '(' expr ')' stmt .
 
     $default  reduce using rule 83 (unmatchedStmt)
 
 
-state 318
+state 323
 
    74 stmt_nonEmpty: matchedStmt .
    76 matchedStmt: IF '(' expr ')' matchedStmt . ELSE matchedStmt
    84 unmatchedStmt: IF '(' expr ')' matchedStmt . ELSE unmatchedStmt
 
-    ELSE  shift, and go to state 321
+    ELSE  shift, and go to state 326
 
     $default  reduce using rule 74 (stmt_nonEmpty)
 
 
-state 319
+state 324
 
   104 more_args_opt: ',' args .
   106 args: args . ',' expr
 
-    ','  shift, and go to state 157
+    ','  shift, and go to state 161
 
     $default  reduce using rule 104 (more_args_opt)
 
 
-state 320
+state 325
 
    89 builtinStmtBehav: PRINTF '(' STRING more_args_opt ')' .
 
     $default  reduce using rule 89 (builtinStmtBehav)
 
 
-state 321
+state 326
 
    76 matchedStmt: IF '(' expr ')' matchedStmt ELSE . matchedStmt
    84 unmatchedStmt: IF '(' expr ')' matchedStmt ELSE . unmatchedStmt
 
-    ATTENTION        shift, and go to state 268
-    CLOSE            shift, and go to state 269
-    COPY             shift, and go to state 185
-    DONE             shift, and go to state 270
-    GOTO             shift, and go to state 271
+    ATTENTION        shift, and go to state 273
+    CLOSE            shift, and go to state 274
+    COPY             shift, and go to state 190
+    DONE             shift, and go to state 275
+    GOTO             shift, and go to state 276
     ID_              shift, and go to state 24
-    IF               shift, and go to state 272
-    PRINTF           shift, and go to state 273
-    SEGMENT_R_       shift, and go to state 186
-    SEGMENT_RW_      shift, and go to state 187
-    SEGMENT_SEQ_R_   shift, and go to state 188
-    SEGMENT_SEQ_RW_  shift, and go to state 189
-    SEGMENT_SEQ_W_   shift, and go to state 190
-    SEGMENT_W_       shift, and go to state 191
-    STAY             shift, and go to state 274
-    '{'              shift, and go to state 275
+    IF               shift, and go to state 277
+    PRINTF           shift, and go to state 278
+    SEGMENT_R_       shift, and go to state 191
+    SEGMENT_RW_      shift, and go to state 192
+    SEGMENT_SEQ_R_   shift, and go to state 193
+    SEGMENT_SEQ_RW_  shift, and go to state 194
+    SEGMENT_SEQ_W_   shift, and go to state 195
+    SEGMENT_W_       shift, and go to state 196
+    STAY             shift, and go to state 279
+    '{'              shift, and go to state 280
 
-    matchedStmt       go to state 322
-    unmatchedStmt     go to state 323
-    stmtBlock         go to state 281
-    builtinStmtBehav  go to state 282
-    copyStmt          go to state 283
-    segmentStmt       go to state 284
-    call              go to state 285
-    assign            go to state 286
-    lvalue            go to state 287
+    matchedStmt       go to state 327
+    unmatchedStmt     go to state 328
+    stmtBlock         go to state 286
+    builtinStmtBehav  go to state 287
+    copyStmt          go to state 288
+    segmentStmt       go to state 289
+    call              go to state 290
+    assign            go to state 291
+    lvalue            go to state 292
 
 
-state 322
+state 327
 
    76 matchedStmt: IF '(' expr ')' matchedStmt ELSE matchedStmt .
 
     $default  reduce using rule 76 (matchedStmt)
 
 
-state 323
+state 328
 
    84 unmatchedStmt: IF '(' expr ')' matchedStmt ELSE unmatchedStmt .
 
