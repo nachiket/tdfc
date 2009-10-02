@@ -194,10 +194,10 @@ Symbol* lookup (Token *t)
   Suite				*suite;
 };
 
-%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR
+%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM NUMDBL OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR
 
 %type <token>		sizedType ioKind exception_opt exception equalOp inequalOp shiftOp addOp prodOp unaryOp exprOp logOp sqrtOp floorOp
-%type <expr>		arraySize call lvalue expr condExpr logOrExpr logAndExpr bitOrExpr bitXorExpr bitAndExpr equalExpr inequalExpr shiftExpr addExpr prodExpr unaryExpr fixedExpr atomExpr builtinExpr
+%type <expr>		arraySize call lvalue expr condExpr logOrExpr logAndExpr bitOrExpr bitXorExpr bitAndExpr equalExpr inequalExpr shiftExpr addExpr prodExpr unaryExpr fixedExpr atomExpr builtinExpr floatExpr
 %type <exprs>		condExprs_opt condExprs
 %type <stmt>		stmt stmt_nonEmpty matchedStmt unmatchedStmt stmtBlock builtinStmtBehav builtinStmtCompose assign callOrAssign callOrAssign_nonEmpty copyStmt segmentStmt
 %type <stmts>		callsOrAssigns stmts_opt stmts
@@ -985,11 +985,33 @@ unaryExpr
 			{ $$=new ExprCast($1,$2,$4); }
 | '(' sizedType ')' fixedExpr
 			{ $$=new ExprCast($1,$2->code==SIGNED?true:false,$4); }
-| fixedExpr
+| floatExpr
 			{ $$=$1; }
 ;
 
+floatExpr
+: fixedExpr
+			{ $$=$1; }
+;
 
+/*: fixedExpr 'e' atomExpr
+			{ 
+				
+				Type *t=$1->getType();
+				double fixedVal=0;
+				if(t->getTypeKind()==TYPE_FIXED) {
+					TypeFixed *tf=(TypeFixed*)t;
+					fixedVal=((ExprValue*)$1)->getIntVal()+(((ExprValue*)$1)->getFracVal()/pow(10,tf->getFracWidth()));
+				} else {
+					fixedVal=((ExprValue*)$1)->getIntVal();
+				}
+				double doubleValue=fixedVal*pow(10,((ExprValue*)$3)->getIntVal());
+				$$ = (Expr*) new ExprValue(NULL,new Type(TYPE_DOUBLE),doubleValue);
+			}
+| fixedExpr
+			{ $$=$1; }
+;
+*/
 
 fixedExpr
 : atomExpr '.' atomExpr
@@ -1053,6 +1075,10 @@ atomExpr
 			    $$=constIntExpr(strtoll($1->str,NULL,0),$1);
 			}
 
+| NUMDBL
+			{
+			  $$=(Expr*)new ExprValue($1, new Type(TYPE_DOUBLE),strtod($1->str,NULL));
+			}
 | TRUE
 			{ $$=(Expr*)new ExprValue($1,new Type(TYPE_BOOL),1,0); }
 | FALSE

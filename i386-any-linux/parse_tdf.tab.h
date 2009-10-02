@@ -63,28 +63,29 @@
      LTE = 279,
      NOT_EQUALS = 280,
      NUM = 281,
-     OUTPUT = 282,
-     PARAM = 283,
-     PASS_THROUGH_EXCEPTION = 284,
-     PRINTF = 285,
-     RIGHT_SHIFT = 286,
-     SEGMENT_R_ = 287,
-     SEGMENT_RW_ = 288,
-     SEGMENT_SEQ_R_ = 289,
-     SEGMENT_SEQ_RW_ = 290,
-     SEGMENT_SEQ_W_ = 291,
-     SEGMENT_W_ = 292,
-     SIGNED = 293,
-     STATE = 294,
-     STAY = 295,
-     STRING = 296,
-     TRUE = 297,
-     UNSIGNED = 298,
-     WIDTHOF = 299,
-     EXP = 300,
-     LOG = 301,
-     SQRT = 302,
-     FLOOR = 303
+     NUMDBL = 282,
+     OUTPUT = 283,
+     PARAM = 284,
+     PASS_THROUGH_EXCEPTION = 285,
+     PRINTF = 286,
+     RIGHT_SHIFT = 287,
+     SEGMENT_R_ = 288,
+     SEGMENT_RW_ = 289,
+     SEGMENT_SEQ_R_ = 290,
+     SEGMENT_SEQ_RW_ = 291,
+     SEGMENT_SEQ_W_ = 292,
+     SEGMENT_W_ = 293,
+     SIGNED = 294,
+     STATE = 295,
+     STAY = 296,
+     STRING = 297,
+     TRUE = 298,
+     UNSIGNED = 299,
+     WIDTHOF = 300,
+     EXP = 301,
+     LOG = 302,
+     SQRT = 303,
+     FLOOR = 304
    };
 #endif
 /* Tokens.  */
@@ -112,28 +113,29 @@
 #define LTE 279
 #define NOT_EQUALS 280
 #define NUM 281
-#define OUTPUT 282
-#define PARAM 283
-#define PASS_THROUGH_EXCEPTION 284
-#define PRINTF 285
-#define RIGHT_SHIFT 286
-#define SEGMENT_R_ 287
-#define SEGMENT_RW_ 288
-#define SEGMENT_SEQ_R_ 289
-#define SEGMENT_SEQ_RW_ 290
-#define SEGMENT_SEQ_W_ 291
-#define SEGMENT_W_ 292
-#define SIGNED 293
-#define STATE 294
-#define STAY 295
-#define STRING 296
-#define TRUE 297
-#define UNSIGNED 298
-#define WIDTHOF 299
-#define EXP 300
-#define LOG 301
-#define SQRT 302
-#define FLOOR 303
+#define NUMDBL 282
+#define OUTPUT 283
+#define PARAM 284
+#define PASS_THROUGH_EXCEPTION 285
+#define PRINTF 286
+#define RIGHT_SHIFT 287
+#define SEGMENT_R_ 288
+#define SEGMENT_RW_ 289
+#define SEGMENT_SEQ_R_ 290
+#define SEGMENT_SEQ_RW_ 291
+#define SEGMENT_SEQ_W_ 292
+#define SEGMENT_W_ 293
+#define SIGNED 294
+#define STATE 295
+#define STAY 296
+#define STRING 297
+#define TRUE 298
+#define UNSIGNED 299
+#define WIDTHOF 300
+#define EXP 301
+#define LOG 302
+#define SQRT 303
+#define FLOOR 304
 
 
 
@@ -166,7 +168,7 @@ typedef union YYSTYPE
   Suite				*suite;
 }
 /* Line 1489 of yacc.c.  */
-#line 170 "parse_tdf.tab.hh"
+#line 172 "parse_tdf.tab.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

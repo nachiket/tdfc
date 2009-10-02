@@ -77,6 +77,7 @@ numbin		"0b"{binary_digit}+
 numhex		"0x"{hex_digit}+
 numoct		"0"{oct_digit}+
 numdec		{digit}+
+numdbl		{digit}+("e"|"E"){sign}*{digit}+
 num		{numbin}|{numhex}|{numoct}|{numdec}
 syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 
@@ -256,6 +257,7 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "<="		{ return_token(LTE);		}
 {id}		{ return_token(ID_);		}
 {num}		{ return_token(NUM);		}
+{numdbl}	{ return_token(NUMDBL);		}
 {syms}		{ return_token(yytext[0]);	}
 
 %%
