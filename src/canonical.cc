@@ -1710,7 +1710,7 @@ OperatorBehavioral* makeCopyOperator (Token *token_i,
   //               output signed[wi.wf] o1, ...,output signed[wi.wf] oN);
 
   TypeKind typeKind=dataType_i->getTypeKind();
-  assert(typeKind==TYPE_BOOL || typeKind==TYPE_INT || typeKind==TYPE_FIXED);
+  assert(typeKind==TYPE_BOOL || typeKind==TYPE_INT || typeKind==TYPE_FIXED || typeKind==TYPE_FLOAT || typeKind==TYPE_DOUBLE);
   assert(fanout>1);
   bool sign=dataType_i->isSigned();
 
@@ -1731,6 +1731,12 @@ OperatorBehavioral* makeCopyOperator (Token *token_i,
   Type *streamType;
   if (typeKind==TYPE_BOOL) {
     streamType=new Type(TYPE_BOOL);
+  }
+  else if (typeKind==TYPE_FLOAT) {
+    streamType=new Type(TYPE_FLOAT);
+  }
+  else if (typeKind==TYPE_DOUBLE) {
+    streamType=new Type(TYPE_DOUBLE);
   }
   else if (typeKind==TYPE_INT) {
     SymbolVar *param_w=new SymbolVar(NULL,"w",
@@ -1815,6 +1821,8 @@ bool expandCopyOps_map (Tree **h, void *i)
 	  // - note, we cannibalize the copy() ExprCall
 	  switch (dataType->getTypeKind()) {
 	    case TYPE_BOOL:
+	    case TYPE_FLOAT:
+	    case TYPE_DOUBLE:
 	      break;
 	    case TYPE_INT:
 	      args->push(dataType->makeWidthExpr());
