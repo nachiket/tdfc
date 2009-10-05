@@ -77,7 +77,7 @@ numbin		"0b"{binary_digit}+
 numhex		"0x"{hex_digit}+
 numoct		"0"{oct_digit}+
 numdec		{digit}+
-numdbl		{digit}+("e"|"E"){sign}*{digit}+
+numdbl		{digit}+("."{digit}+)?("e"|"E"){sign}*{digit}+
 num		{numbin}|{numhex}|{numoct}|{numdec}
 syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 
