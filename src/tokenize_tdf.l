@@ -236,6 +236,7 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "copy"		{ return_token(COPY);		}
 "done"		{ return_token(DONE);		}
 "eos"		{ return_token(EOS);		}
+"eofr"		{ return_token(EOFR);		}
 "widthof"	{ return_token(WIDTHOF);	}
 "bitsof"	{ return_token(BITSOF);		}
 "printf"	{ return_token(PRINTF);		}

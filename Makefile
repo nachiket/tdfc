@@ -42,7 +42,7 @@
 #  User settings:
 #
 
-SRC_DIR	= ../src
+SRC_DIR	= src
 VPATH	= .:${SRC_DIR}
 
 

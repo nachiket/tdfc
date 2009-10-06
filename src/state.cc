@@ -70,11 +70,12 @@ StateCase::StateCase (Token *token_i, list<InputSpec*> *inputs_i,
 
 
 InputSpec::InputSpec (Token *token_i, Symbol *stream_i,
-		      Expr  *numTokens_i, bool eos_i)
+		      Expr  *numTokens_i, bool eos_i, bool eofr_i)
   : Tree(token_i,TREE_INPUTSPEC),
     stream(stream_i),
     numTokens(numTokens_i ? numTokens_i : (Expr*)expr_1->duplicate()),
-    eos(eos_i)
+    eos(eos_i),
+    eofr(eofr_i)
 {
   assert(stream);		// typeCheck() verifies it is an input-stream 
   numTokens->setParent(this);

@@ -1978,7 +1978,7 @@ OperatorCompose* synthesizePartitionedOp (OperatorBehavioral *op,
 	   string(" into: ")+origGoto->toString()+
 	   string(" in ")+src_bop->getName());
       // - add wait state in destination bop
-      InputSpec *dst_ispec=new InputSpec(NULL,dst_stream);
+      InputSpec *dst_ispec=new InputSpec(NULL,dst_stream, NULL, false, false);
       list<InputSpec*> *dst_ispecs=new list<InputSpec*>;
       dst_ispecs->append(dst_ispec);
       list<Stmt*> *dst_stmts=new list<Stmt*>;
@@ -2039,7 +2039,7 @@ OperatorCompose* synthesizePartitionedOp (OperatorBehavioral *op,
 	   string(", ")+call_of[dst_bop]->toString());
       // - src state is ok (reg write became stream write)
       // - add stream input to target state
-      InputSpec ispec(NULL,dst_stream);
+      InputSpec ispec(NULL,dst_stream, NULL, false, false);
       StateCase *sc;
       forall (sc,*dst_state->getCases())
 	sc->addInput((InputSpec*)ispec.duplicate());

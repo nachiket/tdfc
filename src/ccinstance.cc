@@ -1203,7 +1203,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 	      *fout << " && data_" 
 		    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) ; 
 	      *fout << " && ";
-	      if (!ispec->isEosCase())
+	      if (!ispec->isEosCase()) 	// Nachiket: Not supporting EOFR in _instance.cc file since it runs on HSRA.. and who ares about such crazy acronyms!? :)
 		*fout << "!";
 	      *fout << "eos_" 
 		    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) ;

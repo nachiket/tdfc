@@ -194,7 +194,7 @@ Symbol* lookup (Token *t)
   Suite				*suite;
 };
 
-%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM NUMDBL OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR
+%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE COPY DONE ELSE EOS EOFR EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM NUMDBL OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR
 
 %type <token>		sizedType ioKind exception_opt exception equalOp inequalOp shiftOp addOp prodOp unaryOp exprOp logOp sqrtOp floorOp
 %type <expr>		arraySize call lvalue expr condExpr logOrExpr logAndExpr bitOrExpr bitXorExpr bitAndExpr equalExpr inequalExpr shiftExpr addExpr prodExpr unaryExpr fixedExpr atomExpr builtinExpr floatExpr
@@ -624,11 +624,13 @@ stateVars
 
 stateVar
 : ID_
-			{ $$=new InputSpec($1,lookup($1)); }
+			{ $$=new InputSpec($1,lookup($1),NULL,false,false); }
 | ID_ '#' expr
-			{ $$=new InputSpec($1,lookup($1),$3); }
+			{ $$=new InputSpec($1,lookup($1),$3,false,false); }
 | EOS '(' ID_ ')'
-			{ $$=new InputSpec($3,lookup($3),NULL,true); }
+			{ $$=new InputSpec($3,lookup($3),NULL,true,false); }
+| EOFR '(' ID_ ')'
+			{ $$=new InputSpec($3,lookup($3),NULL,false,true); }			
 ;
 
 stmts_opt

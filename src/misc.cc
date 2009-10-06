@@ -390,6 +390,8 @@ bool debugStateFiring_map (Tree *t, void *i)
 	    fmt += ",";
 	  if (ispec->isEosCase()) {
 	    fmt += "eos";
+	  } else if(ispec->isEofrCase()) {
+		  fmt+= "eof";
 	  }
 	  else {
 	    fmt += "%Ld";

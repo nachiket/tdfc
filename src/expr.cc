@@ -2144,7 +2144,8 @@ static bool requiresParens (const Expr *e)
 		  && kindRequiresParens((Expr*)p))
 	      || (   p->getKind()==TREE_INPUTSPEC	// is num tokens "#n"
 		  &&  ((InputSpec*)p)->getNumTokens()==e
-		  && !((InputSpec*)p)->isEosCase()) ) );
+		  && !((InputSpec*)p)->isEosCase()
+		  && !((InputSpec*)p)->isEofrCase()) ) );
 }
 
 

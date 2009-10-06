@@ -125,20 +125,20 @@ public:
 };
 
 
-class InputSpec : public Tree
-{
+class InputSpec : public Tree {
 private:
   Symbol	*stream;
   Expr		*numTokens;
   bool		eos;
+  bool		eofr; // added an end-of-frame token on October 5th 2009
 
 public:
-  InputSpec (Token *token_i, Symbol *stream_i,
-	     Expr *numTokens_i=NULL, bool eos_i=false);
+  InputSpec (Token *token_i, Symbol *stream_i, Expr *numTokens_i=NULL, bool eos_i=false, bool eofr_i=false);
 
   Symbol*		getStream	() const	{ return stream; }
   Expr*			getNumTokens	() const	{ return numTokens; }
   bool			isEosCase	() const	{ return eos; }
+  bool			isEofrCase	() const	{ return eofr; }
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}
   virtual void		setParent	(Tree *p);

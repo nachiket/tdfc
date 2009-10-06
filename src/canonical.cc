@@ -909,7 +909,7 @@ void exline_processCallArg (Symbol *cFormal, Expr *cActual, ExprCall *call,
       }
       else  // cFormalDir==STREAM_OUT/_ANY
       {
-	ei_s->exlineReturns->append(new InputSpec(NULL,newFormal));
+	ei_s->exlineReturns->append(new InputSpec(NULL,newFormal,NULL,false,false));
 	/*
 	ei_s->deferStmts->append(new StmtAssign(NULL,
 						(ExprLValue*)cActual,
@@ -1777,7 +1777,7 @@ OperatorBehavioral* makeCopyOperator (Token *token_i,
 				      new ExprLValue(NULL,stream_i));
     stmts->append(assign);
   }
-  InputSpec *ispec=new InputSpec(NULL,stream_i);
+  InputSpec *ispec=new InputSpec(NULL,stream_i,NULL,false,false);
   list<InputSpec*> *ispecs=new list<InputSpec*>;
   ispecs->append(ispec);
   StateCase *stateCase=new StateCase(NULL,ispecs,stmts);

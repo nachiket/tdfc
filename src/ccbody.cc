@@ -971,6 +971,16 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 			    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << "]" 
 			    << ");" << endl;
+
+		      // EOF support added by Nachiket for C++ code generation on October 5th 2009
+		      *fout << "        int eofr_"
+			    << loc
+			    << "=STREAM_EOFR("
+			    << "in["
+			    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
+			    << "]"
+			    << ");" << endl;
+
 		    }
 		  
 		}
@@ -981,16 +991,21 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 		{
 		  int loc=caseIns->binary_search(ispec->getStream());
 		  *fout << "&&";
-		  if (!ispec->isEosCase())
-		    *fout << "!";
-		  *fout << "eos_" << loc;
+		  if (!ispec->isEosCase() && !ispec->isEofrCase()) {
+		     *fout << "!eos_" << loc; // unchanged default case
+		  } else if(ispec->isEosCase()) {
+			  *fout << "eos_" << loc; // single out eos
+		  } else if(ispec->isEofrCase()) {
+			  *fout << "eofr_" << loc; // add eofr support
+		  } // both eofr and eos cannot be set simultaneously!
+		  //*fout << "eos_" << loc;
 		}
 	      *fout << ") {" << endl;
 
 	      
 	      forall (ispec,*(acase->getInputs()))
 		{
-		  if (!ispec->isEosCase())
+		  if (!ispec->isEosCase() && !ispec->isEofrCase())
 		    {
 			// Added by Nachiket on Sep 29th to support floating-point operations
 			TypeKind intyp = ispec->getStream()->typeCheck()->getTypeKind();
@@ -1025,7 +1040,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 			    << ispec->getStream()->getName()
 			    << ";" << endl;
 		    }
-		  else
+		  else if(ispec->isEosCase())
 		    {
 		    *fout << "          "
 			  << "if (!input_free[" 
@@ -1042,7 +1057,26 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 			     << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 			     << "]=1;" << endl;
 		    }
+			  // Special case of End-of-Frame
+			  // consume token and simply move to a different state...
+			  // XXX: No retiming being done on the EOFR token.. is this correct?
+			  else if(ispec->isEofrCase())
+			  {
+					TypeKind intyp = ispec->getStream()->typeCheck()->getTypeKind();
+					bool floattyp=(intyp==TYPE_FLOAT);
+					bool doubletyp=(intyp==TYPE_DOUBLE);
+
+					// dummy read of the token..
+				    *fout << "          "
+					    << (floattyp? "STREAM_READ_FLOAT(" : (doubletyp)? "STREAM_READ_DOUBLE(" : "STREAM_READ_NOACC(")
+					    << "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
+					    << "]"
+					    << ");" << endl;
+
+			  }
 		}
+
+	  // Nachiketism: Not adding eofr to debug logic yet...
 	      if (debug_logic)
 		{
 		  *fout << "          " 
