@@ -378,8 +378,11 @@ bool createStreamDepthIA_map (Tree *t, void *i)
 			      case STMT_BUILTIN: {
 				StmtBuiltin *blts=(StmtBuiltin*)t;
 				ExprBuiltin *blte=blts->getBuiltin();
+				// Nachiket: 10/6/2009: Not sure if FRAMECLOSE should be supported or not..
 				if (((OperatorBuiltin*)blte->getOp())->
-					getBuiltinKind()==BUILTIN_CLOSE) {
+					getBuiltinKind()==BUILTIN_CLOSE ||
+					((OperatorBuiltin*)blte->getOp())->
+					getBuiltinKind()==BUILTIN_FRAMECLOSE) {
 				  // - add output EOS transition to IA
 				  Expr *arg=blte->getArgs()->head();
 				  assert(arg->getExprKind()==EXPR_LVALUE);

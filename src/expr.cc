@@ -1090,6 +1090,7 @@ Type* ExprBuiltin::typeCheck ()
       }
 
     case BUILTIN_CLOSE:
+    case BUILTIN_FRAMECLOSE:
       {
 	maxOneArg(numArgs);
 	ExprLValue *e = (ExprLValue*)args->head();

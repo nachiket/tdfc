@@ -163,6 +163,7 @@ enum BuiltinKind {  BUILTIN_ATTN,
 		    BUILTIN_BITSOF,
 		    BUILTIN_CAT,
 		    BUILTIN_CLOSE,
+		    BUILTIN_FRAMECLOSE,
 		    BUILTIN_COPY,
 		    BUILTIN_DONE,
 		  //BUILTIN_EOS,
@@ -402,6 +403,7 @@ public:
 extern OperatorBuiltin *builtin_attn;		// raise attention
 extern OperatorBuiltin *builtin_cat;		// concatenate bits
 extern OperatorBuiltin *builtin_close;		// close stream
+extern OperatorBuiltin *builtin_frameclose;		// close frame on a stream
 extern OperatorBuiltin *builtin_copy;		// copy stream to fanout
 // i.e. replicate input sequence to multiple output sequences
 extern OperatorBuiltin *builtin_done;		// self-terminate operator

@@ -233,6 +233,7 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "attn"		{ return_token(ATTENTION);	}
 "cat"		{ return_token(CAT);		}
 "close"		{ return_token(CLOSE);		}
+"frameclose" { return_token(FRAMECLOSE);	}
 "copy"		{ return_token(COPY);		}
 "done"		{ return_token(DONE);		}
 "eos"		{ return_token(EOS);		}

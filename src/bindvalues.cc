@@ -587,6 +587,7 @@ Expr *EvaluateExpr(Expr *orig)
 	      return EvaluateBitsof(bexpr);
 	    }
 	  case BUILTIN_CLOSE:
+	  case BUILTIN_FRAMECLOSE:
 	  case BUILTIN_DONE:
 	  case BUILTIN_SEGMENT:
 	    {

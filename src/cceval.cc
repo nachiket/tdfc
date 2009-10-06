@@ -300,8 +300,9 @@ string ccEvalExpr(Expr *expr)
 	      return(getBits(first));	
 	    }
 	  case BUILTIN_CLOSE:
+	  case BUILTIN_FRAMECLOSE:
 	    {
-	      error(-1,"close should not appear in expression",
+	      error(-1,"close and frameclose should not appear in expression",
 		    expr->getToken());
 	      // Expr *first=bexpr->getArgs()->head();
 	      // return("STREAM_CLOSE("+ccEvalExpr(first)+")");

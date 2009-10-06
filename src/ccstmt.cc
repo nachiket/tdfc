@@ -131,6 +131,29 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		      << endl;
 	      }
 	  }
+	// Added by Nachiket on 10/6/2009 to support frameclose operation
+	else if (bop->getBuiltinKind()==BUILTIN_FRAMECLOSE)
+		  {
+
+		    if (first->getExprKind()!=EXPR_LVALUE)
+		      warn(string("frameclose given invalid argument %s",
+				  first->toString()),first->getToken());
+		    else
+		      {
+		      	ExprLValue *lexpr=(ExprLValue *)first;
+			int id=(int)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
+			*fout << indent << "FRAME_CLOSE("
+			      << "out[" << id << "]"
+			      << ");" << endl;
+
+			/* Nachiket: Don't think any of these are valid.. are they?
+			early_close[id]=1;
+			*fout << indent
+			      << "output_close[" << id << "]=1;"
+			      << endl;
+			*/
+		      }
+		  }
 	else if (bop->getBuiltinKind()==BUILTIN_DONE)
 	  {
 	    *fout << indent 

@@ -51,6 +51,7 @@ OperatorBuiltin *builtin_bitsof	 = NULL;	// get representation of expr
 OperatorBuiltin *builtin_cat	 = NULL;	// concatenate bits
 OperatorBuiltin *builtin_done	 = NULL;	// self-terminate operator
 OperatorBuiltin *builtin_close	 = NULL;	// close stream
+OperatorBuiltin *builtin_frameclose	 = NULL;	// close frame on stream
 OperatorBuiltin *builtin_copy	 = NULL;	// copy stream to fanout
 //OperatorBuiltin *builtin_eos	 = NULL;	// end-of-stream predicate
 OperatorBuiltin *builtin_widthof = NULL;	// get bit-width of expr
@@ -84,6 +85,18 @@ void OperatorBuiltin::init ()
 				      retSym_i,symList,BUILTIN_CLOSE);
     TreeGC::addRoot(builtin_close);
   }
+
+  // builtin_frameclose (output)
+  {
+    list<Symbol*> *symList=new list<Symbol*>;
+    symList->append(new SymbolStream(NULL,"stream",
+				     type_any,STREAM_IN));	// stream name
+    Symbol *retSym_i=(Symbol*)sym_none->duplicate();
+    builtin_frameclose=new OperatorBuiltin(NULL,"frameclose",
+				      retSym_i,symList,BUILTIN_FRAMECLOSE);
+    TreeGC::addRoot(builtin_frameclose);
+  }
+
 
   // builtin_done ()
   {
