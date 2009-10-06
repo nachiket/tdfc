@@ -992,7 +992,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 		  int loc=caseIns->binary_search(ispec->getStream());
 		  *fout << "&&";
 		  if (!ispec->isEosCase() && !ispec->isEofrCase()) {
-		     *fout << "!eos_" << loc; // unchanged default case
+		     *fout << "!eos_" << loc << "&&!eofr_" << loc;
 		  } else if(ispec->isEosCase()) {
 			  *fout << "eos_" << loc; // single out eos
 		  } else if(ispec->isEofrCase()) {
