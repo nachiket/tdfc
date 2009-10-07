@@ -35,5 +35,5 @@
 using std::ofstream;
 
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep);
+	    string state_prefix, bool in_pagestep, bool retime=true);
 

@@ -32,3 +32,4 @@
 #define STATE_PREFIX "STATE_"
 
 void ccbody(Operator *op,int debug_logic);
+void ccmicroblazebody(Operator *op);

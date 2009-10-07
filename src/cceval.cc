@@ -45,19 +45,33 @@ Note: builtins expecting to handle here
    widthof
    bitsof
 ***********************************************************************/
+using std::cout;
+using std::endl;
 
-string retimeName(string name, Expr * dexpr)
+string retimeName(string name, Expr * dexpr, bool retime)
 {
 
-  if (dexpr==(Expr *)NULL)
-    return(string("%s_retime[0]",name));
-  else if (dexpr->getExprKind()==EXPR_VALUE)
-    return(string("%s_retime[%d]",name,((ExprValue *)dexpr)->getIntVal()));
-  else
-    // 6/22 think this is right?
-    return(string("%s_retime[%s]",(const char *)name,
-		  (const char *)ccEvalExpr(dexpr)));
-    
+ if(retime) {
+// cout << "Nonsense!!" << endl; exit(-1);
+   if (dexpr==(Expr *)NULL)
+      return(string("%s_retime[0]",name));
+   else if (dexpr->getExprKind()==EXPR_VALUE)
+      return(string("%s_retime[%d]",name,((ExprValue *)dexpr)->getIntVal()));
+   else
+      // 6/22 think this is right?
+      return(string("%s_retime[%s]",(const char *)name,
+		  (const char *)ccEvalExpr(dexpr, retime)));
+ } else {
+// cout << "Yeah?!!" << endl; exit(-1);
+   if (dexpr==(Expr *)NULL)
+      return(string("%s",name));
+   else if (dexpr->getExprKind()==EXPR_VALUE)
+      return(string("%s",name,((ExprValue *)dexpr)->getIntVal()));
+   else
+      // 6/22 think this is right?
+      return(string("%s",(const char *)name,
+		  (const char *)ccEvalExpr(dexpr, retime)));
+ }
 }
 
 string getWidth(Type *atype)
@@ -204,7 +218,7 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 }
 
-string ccEvalExpr(Expr *expr)
+string ccEvalExpr(Expr *expr, bool retime)
 {
   if (expr==(Expr *)NULL)
     {
@@ -233,7 +247,7 @@ string ccEvalExpr(Expr *expr)
 	if ((lexpr->getSymbol()->isStream())
 	    && (((SymbolStream *)(lexpr->getSymbol()))->getDir()==STREAM_IN))
 	  name=retimeName(lexpr->getSymbol()->getName(),
-			  lexpr->getRetime());
+			  lexpr->getRetime(), retime);
 	else
 	  name=lexpr->getSymbol()->getName();
 	if (lexpr->usesAllBits())
@@ -273,8 +287,8 @@ string ccEvalExpr(Expr *expr)
 		      if (first==1)
 			first=0;
 		      else
-			res=res+cast+ccEvalExpr(prevexp)+string(")")+
-			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp))
+			res=res+cast+ccEvalExpr(prevexp, retime)+string(")")+
+			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime)
 			  +string("))|");
 		      // NOTE: evaluate get width here is probably
 		      //  temporary until revamp bindvalues to use map2
@@ -283,7 +297,7 @@ string ccEvalExpr(Expr *expr)
 		      cast = (bexpr_cctype==exp_cctype)
 				? string() : ("("+bexpr_cctype+")");
 		    }
-		  res=res+string("(")+cast+ccEvalExpr(prevexp)+string("))");
+		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime)+string("))");
 		  return(res);
 		}
 	      else
@@ -327,9 +341,9 @@ string ccEvalExpr(Expr *expr)
     case EXPR_COND:
       {
 	ExprCond * cexpr=(ExprCond *)expr;
-	return("(("+ccEvalExpr(cexpr->getCond())+")?("+
-	       ccEvalExpr(cexpr->getThenPart())+"):("+
-	       ccEvalExpr(cexpr->getElsePart())+"))");
+	return("(("+ccEvalExpr(cexpr->getCond(), retime)+")?("+
+	       ccEvalExpr(cexpr->getThenPart(), retime)+"):("+
+	       ccEvalExpr(cexpr->getElsePart(), retime)+"))");
       }
     case EXPR_BOP:
       {
@@ -337,16 +351,16 @@ string ccEvalExpr(Expr *expr)
 
 	// wrong thing for "." operator...
         // TODO: deal properly with fixed point construction/representation
-	return("("+ccEvalExpr(bexpr->getExpr1())+
+	return("("+ccEvalExpr(bexpr->getExpr1(), retime)+
 	       opToString(bexpr->getOp())+
-	       ccEvalExpr(bexpr->getExpr2())+")");
+	       ccEvalExpr(bexpr->getExpr2(), retime)+")");
       }
     case EXPR_UOP:
       {
 	ExprUop *uexpr=(ExprUop *)expr;
 	string ops=opToString(uexpr->getOp());
 	Expr *iexpr=uexpr->getExpr();
-	string istr=ccEvalExpr(iexpr);
+	string istr=ccEvalExpr(iexpr, retime);
 	return(("("+ops)+("("+istr)+"))");
       }
     case EXPR_CAST:
@@ -371,9 +385,9 @@ string ccEvalExpr(Expr *expr)
 	        real_cctype = getCCvarType(real_type);
 
 	if (c_cctype!=real_cctype)
-	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr)+"))" );
+	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime)+"))" );
 	else
-	  return( ccEvalExpr(real_expr) );
+	  return( ccEvalExpr(real_expr, retime) );
 
 	// EC:  My code above generalizes Andre's code below.
 	//      Above code assumes that type checking was done,

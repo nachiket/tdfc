@@ -55,3 +55,19 @@ void constructor_signatures_notypes(ofstream *fout,
                                     list<Symbol*> *argtypes);
 
 void ccheader(Operator *op);
+
+int microblaze_noReturnValue(Symbol *rsym);
+
+void microblaze_functional_constructor(ofstream *fout,string name,
+			    string classname,Symbol *rsym,
+			    list<Symbol*> *argtypes);
+
+void microblaze_constructor_signatures(ofstream *fout,
+                            Symbol *rsym,
+                            list<Symbol*> *argtypes);
+
+void microblaze_constructor_signatures_notypes(ofstream *fout,
+                                    Symbol *rsym,
+                                    list<Symbol*> *argtypes);
+
+void ccmicroblazeheader(Operator *op);

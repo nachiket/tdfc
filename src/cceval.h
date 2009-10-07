@@ -30,7 +30,7 @@
 
 #include "expr.h" 
 
-string ccEvalExpr(Expr *exp);
+string ccEvalExpr(Expr *exp, bool retime=true);
 string getBits(Expr *expr);
 string getWidth(Expr *expr);
 string getWidth(Type *atype);

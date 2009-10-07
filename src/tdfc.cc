@@ -90,6 +90,7 @@ bool     gSynplify              = false; // true for "-synplify"
 
 enum Target { TARGET_TDF,
 	      TARGET_CC,
+	      TARGET_MICROBLAZE,
 	      TARGET_VERILOG,
 	      TARGET_NEWREP,
 	    //TARGET_CLUSTERS,
@@ -117,6 +118,7 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
+    << "         -embz        : emit C code for the Microblaze\n"
     << "         -everilog    : emit Verilog\n"
     << "         -eIR         : emit page synthesis info (implies -xc -mt)\n"
 				  // -mt avoids a core-dump, to be investigated
@@ -440,6 +442,9 @@ set<string> *instances (Operator *op, Target targ,
 	case TARGET_CC:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
+	case TARGET_MICROBLAZE:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
 	case TARGET_VERILOG:
 	  tdfToVerilog_instance(iop,&instance_list);
 	  if (gSynplify)
@@ -534,6 +539,24 @@ void emitCC (int dpr, int dps)
   }
 }
 
+void emitMicroblazeC ()
+{
+  // - emit C code for all operators  (-embz option)
+  
+  Operator *op;
+  forall(op,*(gSuite->getOperators()))
+    ccrename(op);
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    ccmicroblazeheader(op); 
+    ccmicroblazebody(op); 
+    cout << endl;
+  }
+}
 
 void emitVerilog ()
 {
@@ -651,6 +674,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_DFG;
     else if (strcmp(argv[arg],"-ecc")==0)	// -ecc      : emit C++
       optionTarget = TARGET_CC;
+    else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
+      optionTarget = TARGET_MICROBLAZE;
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
       optionTarget = TARGET_VERILOG;
     else if (strcmp(argv[arg],"-eIR")==0) {	// -eIR      : IntermRep/synth
@@ -889,6 +914,7 @@ int main(int argc, char *argv[])
       case TARGET_DFG:		emitDFG();			  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
 				       optionDebugPageStep);	  break;
+      case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
       case TARGET_VERILOG:	emitVerilog();			  break;
       case TARGET_NEWREP:	emitNewRep();			  break;
       case TARGET_RI:		emitRI();			  break;

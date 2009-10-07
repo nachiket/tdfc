@@ -51,7 +51,7 @@ Note: builtins expecting to handle here
 ***********************************************************************/
 
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep=0)
+	    string state_prefix, bool in_pagestep=0, bool retime)
 {
 
   switch (stmt->getStmtKind())
@@ -82,7 +82,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
       {
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond())) 
+	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
 	       early_close,state_prefix,in_pagestep);
@@ -172,9 +172,9 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
 			    //*fout << ", (long long)" --> Not sure if this is such a good idea in any case
 			    *fout << ", "
-				    << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
+				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime) << "";
 		    } else {
-			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i))) << "";
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime) << "";
 		    }
 	    }
 	    *fout << ");" << endl;
@@ -207,7 +207,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(")
 		     << "out[" << id << "]" 
 		     << ","
-		     << ccEvalExpr(EvaluateExpr(rexp)) << ");" << endl;
+		     << ccEvalExpr(EvaluateExpr(rexp), retime) << ");" << endl;
 	      }
 	    else
 	      {
@@ -222,14 +222,14 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    if (lval->usesAllBits())
 	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp))<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
 		Expr *high_expr=lval->getPosHigh();
-		string lstr=ccEvalExpr(EvaluateExpr(low_expr));
-		string hstr=ccEvalExpr(EvaluateExpr(high_expr));
-		string rstr=ccEvalExpr(EvaluateExpr(rexp));
+		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime);
+		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime);
+		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime);
 		string one =getCCvarType(asym).pos("long long")>=0 ? "1ll":"1";
 		*fout << indent
 		      << asym->getName() << "="
@@ -267,7 +267,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime) ;
 	    *fout << ";" << endl;
 	  }
 

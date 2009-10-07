@@ -46,46 +46,48 @@
      DOUBLE = 262,
      CAT = 263,
      CLOSE = 264,
-     COPY = 265,
-     DONE = 266,
-     ELSE = 267,
-     EOS = 268,
-     EQUALS = 269,
-     FALSE = 270,
-     GOTO = 271,
-     GTE = 272,
-     ID_ = 273,
-     IF = 274,
-     INPUT = 275,
-     LEFT_SHIFT = 276,
-     LOGIC_AND = 277,
-     LOGIC_OR = 278,
-     LTE = 279,
-     NOT_EQUALS = 280,
-     NUM = 281,
-     NUMDBL = 282,
-     OUTPUT = 283,
-     PARAM = 284,
-     PASS_THROUGH_EXCEPTION = 285,
-     PRINTF = 286,
-     RIGHT_SHIFT = 287,
-     SEGMENT_R_ = 288,
-     SEGMENT_RW_ = 289,
-     SEGMENT_SEQ_R_ = 290,
-     SEGMENT_SEQ_RW_ = 291,
-     SEGMENT_SEQ_W_ = 292,
-     SEGMENT_W_ = 293,
-     SIGNED = 294,
-     STATE = 295,
-     STAY = 296,
-     STRING = 297,
-     TRUE = 298,
-     UNSIGNED = 299,
-     WIDTHOF = 300,
-     EXP = 301,
-     LOG = 302,
-     SQRT = 303,
-     FLOOR = 304
+     FRAMECLOSE = 265,
+     COPY = 266,
+     DONE = 267,
+     ELSE = 268,
+     EOS = 269,
+     EOFR = 270,
+     EQUALS = 271,
+     FALSE = 272,
+     GOTO = 273,
+     GTE = 274,
+     ID_ = 275,
+     IF = 276,
+     INPUT = 277,
+     LEFT_SHIFT = 278,
+     LOGIC_AND = 279,
+     LOGIC_OR = 280,
+     LTE = 281,
+     NOT_EQUALS = 282,
+     NUM = 283,
+     NUMDBL = 284,
+     OUTPUT = 285,
+     PARAM = 286,
+     PASS_THROUGH_EXCEPTION = 287,
+     PRINTF = 288,
+     RIGHT_SHIFT = 289,
+     SEGMENT_R_ = 290,
+     SEGMENT_RW_ = 291,
+     SEGMENT_SEQ_R_ = 292,
+     SEGMENT_SEQ_RW_ = 293,
+     SEGMENT_SEQ_W_ = 294,
+     SEGMENT_W_ = 295,
+     SIGNED = 296,
+     STATE = 297,
+     STAY = 298,
+     STRING = 299,
+     TRUE = 300,
+     UNSIGNED = 301,
+     WIDTHOF = 302,
+     EXP = 303,
+     LOG = 304,
+     SQRT = 305,
+     FLOOR = 306
    };
 #endif
 /* Tokens.  */
@@ -96,46 +98,48 @@
 #define DOUBLE 262
 #define CAT 263
 #define CLOSE 264
-#define COPY 265
-#define DONE 266
-#define ELSE 267
-#define EOS 268
-#define EQUALS 269
-#define FALSE 270
-#define GOTO 271
-#define GTE 272
-#define ID_ 273
-#define IF 274
-#define INPUT 275
-#define LEFT_SHIFT 276
-#define LOGIC_AND 277
-#define LOGIC_OR 278
-#define LTE 279
-#define NOT_EQUALS 280
-#define NUM 281
-#define NUMDBL 282
-#define OUTPUT 283
-#define PARAM 284
-#define PASS_THROUGH_EXCEPTION 285
-#define PRINTF 286
-#define RIGHT_SHIFT 287
-#define SEGMENT_R_ 288
-#define SEGMENT_RW_ 289
-#define SEGMENT_SEQ_R_ 290
-#define SEGMENT_SEQ_RW_ 291
-#define SEGMENT_SEQ_W_ 292
-#define SEGMENT_W_ 293
-#define SIGNED 294
-#define STATE 295
-#define STAY 296
-#define STRING 297
-#define TRUE 298
-#define UNSIGNED 299
-#define WIDTHOF 300
-#define EXP 301
-#define LOG 302
-#define SQRT 303
-#define FLOOR 304
+#define FRAMECLOSE 265
+#define COPY 266
+#define DONE 267
+#define ELSE 268
+#define EOS 269
+#define EOFR 270
+#define EQUALS 271
+#define FALSE 272
+#define GOTO 273
+#define GTE 274
+#define ID_ 275
+#define IF 276
+#define INPUT 277
+#define LEFT_SHIFT 278
+#define LOGIC_AND 279
+#define LOGIC_OR 280
+#define LTE 281
+#define NOT_EQUALS 282
+#define NUM 283
+#define NUMDBL 284
+#define OUTPUT 285
+#define PARAM 286
+#define PASS_THROUGH_EXCEPTION 287
+#define PRINTF 288
+#define RIGHT_SHIFT 289
+#define SEGMENT_R_ 290
+#define SEGMENT_RW_ 291
+#define SEGMENT_SEQ_R_ 292
+#define SEGMENT_SEQ_RW_ 293
+#define SEGMENT_SEQ_W_ 294
+#define SEGMENT_W_ 295
+#define SIGNED 296
+#define STATE 297
+#define STAY 298
+#define STRING 299
+#define TRUE 300
+#define UNSIGNED 301
+#define WIDTHOF 302
+#define EXP 303
+#define LOG 304
+#define SQRT 305
+#define FLOOR 306
 
 
 
@@ -168,7 +172,7 @@ typedef union YYSTYPE
   Suite				*suite;
 }
 /* Line 1489 of yacc.c.  */
-#line 172 "parse_tdf.tab.hh"
+#line 176 "parse_tdf.tab.hh"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
