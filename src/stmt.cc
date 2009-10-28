@@ -835,3 +835,15 @@ void StmtBlock::map2 (Tree **h, TreeMap2 pre, TreeMap2 post,
   }
 }
 
+  string stmtkindToString(StmtKind t) {
+          switch(t) {
+  		case STMT_IF: return string("STMT_IF");
+  		case STMT_GOTO: return string("STMT_GOTO");
+  		case STMT_CALL: return string("STMT_CALL");
+  		case STMT_BUILTIN: return string("STMT_BUILTIN");
+  		case STMT_ASSIGN: return string("STMT_ASSIGN");
+  		case STMT_BLOCK: return string("STMT_BLOCK");
+  		default: return string("bs");
+  	}
+  }
+

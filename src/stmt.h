@@ -48,6 +48,8 @@ enum StmtKind { STMT_IF,     STMT_GOTO,    /*STMT_STAY,*/
 		STMT_CALL,   STMT_BUILTIN,
 		STMT_ASSIGN, STMT_BLOCK };
 
+extern string stmtkindToString(StmtKind t);
+
 class Stmt : public Tree
 {
 protected:

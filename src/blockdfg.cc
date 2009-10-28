@@ -296,7 +296,7 @@ bool createBlockDfg_map (Tree *t, void *i)
   
   BlockDfgInfo *dfgi=(BlockDfgInfo*)i;
 
-//  cout << "Nachiket is processing statement=" << t->toString() << endl;
+  //cout << "Nachiket is processing statement=" << t->toString() << endl;
   if (t->getKind()==TREE_STMT) {
     switch (((Stmt*)t)->getStmtKind()) {
       case STMT_ASSIGN:	{
@@ -333,6 +333,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  return false;
 			}
       case STMT_BLOCK:	{
+    	  //cout << "We've already touched the symtab for this stmtblock!" << endl;
 			  Symbol *sym;
 			  forall (sym,*((StmtBlock*)t)->getSymtab()
 						      ->getSymbolOrder()) {
@@ -356,6 +357,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  //Nachiket added this ...
 			  //I think I now know what is going on with IF processing...
 			  //An IF statement may enclose several assignments and it is important that we match these assignments properly... hence a good internal graph representation is useful here!
+
+			  cout << "Dealing with an IF statement" << endl;
+			  cout << ((StmtIf*)t)->toString() << endl;
+
 
     	      Expr *ec=((StmtIf*)t)->getCond();
 
@@ -390,13 +395,17 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  list<StmtAssign*>        deaddefsElse;
 			  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse);
 			  
+			  cout << "Generating THEN part of the DFG ->" << treekindToString(thenPart->getKind()) << endl;
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
+			  cout << "Generating ELSE part of the DFG ->" << treekindToString(elsePart->getKind()) << endl;
 			  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
 
 			  cout << "Printing THEN part of the DFG" << endl;
-			  printBlockDFG(&dfgThen);
+			  cout << printBlockDFG(&dfgThen) << endl;
 			  cout << "Printing ELSE part of the DFG" << endl;
-			  printBlockDFG(&dfgElse);			  
+			  cout << printBlockDFG(&dfgElse) << endl;
+
+			  return true; //yikes!
 			
 			  /* Commented by Nachiket on Oct 28th 2009
 			  Expr *cond=((StmtIf*)t)->getCond();
@@ -407,13 +416,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  */
 			}
       default:		{
+    	  cout << "Statement kind=" << stmtkindToString(((Stmt*)t)->getStmtKind()) << endl;
 			  fatal(1,"unknown statement kind in dfg creation",
 				t->getToken());
 			  return false;
 			}
     }
+  } else if(t->getKind()==TREE_SYMTAB) {
+	  cout << "Skipping symtab node" << endl;
+	  return false;
   } else {
-    cout << "What are you processing nitwit????????????????????????????" << endl;
+    cout << "What are you processing nitwit????????????????????????????" << treekindToString(t->getKind()) << endl;
+    //cout << ((SymTab*)t)->toString() << endl;
     return false;
   }
 }
