@@ -405,6 +405,27 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  cout << "Printing ELSE part of the DFG" << endl;
 			  cout << printBlockDFG(&dfgElse) << endl;
 
+			  // print a list of PO nodes from both then/else parts..
+			  node n1;
+			  list<node> n1_list;
+			  forall_nodes(n1, dfgThen) {
+				  if(dfgThen.outdeg(n1)==0) {
+					  n1_list.append(n1);
+					  Tree *t=(dfgThen)[n1];
+					  cout << "n1=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << endl;
+				  }
+			  }
+
+			  node n2;
+			  list<node> n2_list;
+			  forall_nodes(n2, dfgElse) {
+				  if(dfgElse.outdeg(n2)==0) {
+					  n2_list.append(n2);
+					  Tree *t=(dfgElse)[n2];
+					  cout << "n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << endl;
+				  }
+			  }
+
 			  return true; //yikes!
 			
 			  /* Commented by Nachiket on Oct 28th 2009
@@ -545,9 +566,8 @@ string printBlockDFG (BlockDFG *dfg,
   forall_nodes (n,*dfg) {
     nodenums[n] = nodenum++;
     ret += string("node %d ",nodenums[n]);
-// removed by Nachiket 
-//        +  (dfg->indeg (n)==0 ? "PI " :
-//            dfg->outdeg(n)==0 ? "PO " : "   ");
+    ret += (dfg->indeg (n)==0 ? "PI " :
+            dfg->outdeg(n)==0 ? "PO " : "in="+string("%d",dfg->indeg(n))+",out="+string("%d",dfg->outdeg(n)));
     if (areas)
       ret += string("A=%d ",(*areas)[n]);
     if (latencies)
