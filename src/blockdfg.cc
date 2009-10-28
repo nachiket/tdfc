@@ -352,26 +352,59 @@ bool createBlockDfg_map (Tree *t, void *i)
 			}
       case STMT_IF:	{
       			//cout << "Nachiket is processing an IF statement QUACK" << endl;
-			  /*
-			  Nachiket added this ...
-			  I think I now know what is going on with IF processing...
-			  An IF statement may enclose several assignments and it is important that we match these assignments properly... hence a good internal graph representation is useful here!
-			  node n=(*dfgi->dfg).new_node(e);
-			  (*dfgi->nodemap)[e]=n;
-
-			  Expr *ec=((ExprCond*)e)->getCond();
-			  Expr *et=((ExprCond*)e)->getThenPart();
-			  Expr *ef=((ExprCond*)e)->getElsePart();
-			  createBlockDfg_for_expr(ec,dfgi,n);
-			  createBlockDfg_for_expr(et,dfgi,n);
-			  createBlockDfg_for_expr(ef,dfgi,n);
-			  */
 			  
+			  //Nachiket added this ...
+			  //I think I now know what is going on with IF processing...
+			  //An IF statement may enclose several assignments and it is important that we match these assignments properly... hence a good internal graph representation is useful here!
+
+    	      Expr *ec=((StmtIf*)t)->getCond();
+
+			  node n=(*dfgi->dfg).new_node(ec);
+			  (*dfgi->nodemap)[ec]=n;
+
+			  Stmt *thenPart=((StmtIf*)t)->getThenPart();
+			  Stmt *elsePart=((StmtIf*)t)->getElsePart();
+			  createBlockDfg_for_expr(ec,dfgi,n);
+
+
+			  BlockDFG dfgThen; dfgThen.clear();
+			  BlockDFG dfgElse; dfgElse.clear();
+			  list<Stmt*> stmtsThen;
+			  list<Stmt*> stmtsElse;
+			  list<Stmt*> nondfstmtsThen;
+			  list<Stmt*> nondfstmtsElse;
+			  set<SymbolVar*> localsThen;
+			  set<SymbolVar*> localsElse;
+			  set<SymbolVar*> new_localsThen;
+			  set<SymbolVar*> new_localsElse;
+
+			  map<Expr*,node>          nodemapThen;
+			  map<Symbol*,StmtAssign*> livedefsThen(NULL);
+			  map<Symbol*,node>        extdefsThen;
+			  list<StmtAssign*>        deaddefsThen;
+			  BlockDfgInfo dfgtheni(&dfgThen,&nodemapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen);
+
+			  map<Expr*,node>          nodemapElse;
+			  map<Symbol*,StmtAssign*> livedefsElse(NULL);
+			  map<Symbol*,node>        extdefsElse;
+			  list<StmtAssign*>        deaddefsElse;
+			  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse);
+			  
+			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
+			  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
+
+			  cout << "Printing THEN part of the DFG" << endl;
+			  printBlockDFG(&dfgThen);
+			  cout << "Printing ELSE part of the DFG" << endl;
+			  printBlockDFG(&dfgElse);			  
+			
+			  /* Commented by Nachiket on Oct 28th 2009
 			  Expr *cond=((StmtIf*)t)->getCond();
 			  node  dummyBranchCond=(*dfgi->dfg).new_node(NULL);
 			  createBlockDfg_for_expr(cond,dfgi,dummyBranchCond);
 			  (*dfgi->nondfstmts).append((Stmt*)t);
 			  return false;
+			  */
 			}
       default:		{
 			  fatal(1,"unknown statement kind in dfg creation",
@@ -379,9 +412,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  return false;
 			}
     }
-  }
-  else
+  } else {
+    cout << "What are you processing nitwit????????????????????????????" << endl;
     return false;
+  }
 }
 
 
