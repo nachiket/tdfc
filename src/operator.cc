@@ -860,6 +860,13 @@ string OperatorBehavioral::toDFGString () const
 	forall (sc1,statecases) {
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
+		// debug start 10/28
+		Stmt* stmt;
+		forall(stmt, stmts1) {
+			cout << "Statement=\n" << stmt->toString() << endl;
+		}
+		// debug end
+
 		createBlockDfgSimple(&dfg,&stmts1);
 		string dfgStr = printBlockDFG(&dfg, NULL, NULL, NULL); 
 		//cout << dfgStr << endl;

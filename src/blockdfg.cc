@@ -296,7 +296,7 @@ bool createBlockDfg_map (Tree *t, void *i)
   
   BlockDfgInfo *dfgi=(BlockDfgInfo*)i;
 
-  //cout << "Nachiket is processing statement=" << t->toString() << endl;
+  //cout << "Nachiket is processing statement\n" << t->toString() << endl;
   if (t->getKind()==TREE_STMT) {
     switch (((Stmt*)t)->getStmtKind()) {
       case STMT_ASSIGN:	{
@@ -352,24 +352,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  return false;
 			}
       case STMT_IF:	{
-      			//cout << "Nachiket is processing an IF statement QUACK" << endl;
-			  
-			  //Nachiket added this ...
-			  //I think I now know what is going on with IF processing...
-			  //An IF statement may enclose several assignments and it is important that we match these assignments properly... hence a good internal graph representation is useful here!
 
-			  cout << "Dealing with an IF statement" << endl;
-			  cout << ((StmtIf*)t)->toString() << endl;
-
+			  cout << "Dealing with an IF statement " << &t << " in DFG " << dfgi << endl;
+			  //cout << ((StmtIf*)t)->toString() << endl;
 
     	      Expr *ec=((StmtIf*)t)->getCond();
 
-			  node n=(*dfgi->dfg).new_node(ec);
-			  (*dfgi->nodemap)[ec]=n;
+			  //node n=(*dfgi->dfg).new_node(ec);
+			  //(*dfgi->nodemap)[ec]=n;
 
 			  Stmt *thenPart=((StmtIf*)t)->getThenPart();
 			  Stmt *elsePart=((StmtIf*)t)->getElsePart();
-			  createBlockDfg_for_expr(ec,dfgi,n);
+			  //createBlockDfg_for_expr(ec,dfgi,n);
 
 
 			  BlockDFG dfgThen; dfgThen.clear();
@@ -389,44 +383,54 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  list<StmtAssign*>        deaddefsThen;
 			  BlockDfgInfo dfgtheni(&dfgThen,&nodemapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen);
 
-			  map<Expr*,node>          nodemapElse;
-			  map<Symbol*,StmtAssign*> livedefsElse(NULL);
-			  map<Symbol*,node>        extdefsElse;
-			  list<StmtAssign*>        deaddefsElse;
-			  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse);
-			  
-			  cout << "Generating THEN part of the DFG ->" << treekindToString(thenPart->getKind()) << endl;
+			  cout << "Generating THEN part of the DFG " << &dfgtheni << endl;
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
-			  cout << "Generating ELSE part of the DFG ->" << treekindToString(elsePart->getKind()) << endl;
-			  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
 
-			  cout << "Printing THEN part of the DFG" << endl;
-			  cout << printBlockDFG(&dfgThen) << endl;
-			  cout << "Printing ELSE part of the DFG" << endl;
-			  cout << printBlockDFG(&dfgElse) << endl;
+			  cout << "Printing THEN part of the DFG " << &dfgtheni << endl;
+//			  cout << printBlockDFG(&dfgThen) << endl;
+
+			  if(elsePart!=NULL) {
+				  map<Expr*,node>          nodemapElse;
+				  map<Symbol*,StmtAssign*> livedefsElse(NULL);
+				  map<Symbol*,node>        extdefsElse;
+				  list<StmtAssign*>        deaddefsElse;
+				  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse);
+
+				  cout << "Generating ELSE part of the DFG " << &dfgelsei << endl;
+				  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
+
+				  cout << "Printing ELSE part of the DFG " << &dfgelsei << endl;
+//				  cout << printBlockDFG(&dfgElse) << endl;
+			  } else {
+				  cout << "Skipping ELSE part of the DFG" << endl;
+			  }
 
 			  // print a list of PO nodes from both then/else parts..
 			  node n1;
 			  list<node> n1_list;
 			  forall_nodes(n1, dfgThen) {
+				  // cout << "crappy n1 "<< endl; scope is a PROBLEM in a NESTED if!
 				  if(dfgThen.outdeg(n1)==0) {
 					  n1_list.append(n1);
 					  Tree *t=(dfgThen)[n1];
-					  cout << "n1=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << endl;
+					  cout << "n1=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
 				  }
 			  }
 
-			  node n2;
-			  list<node> n2_list;
-			  forall_nodes(n2, dfgElse) {
-				  if(dfgElse.outdeg(n2)==0) {
-					  n2_list.append(n2);
-					  Tree *t=(dfgElse)[n2];
-					  cout << "n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << endl;
+			  if(elsePart!=NULL) {
+				  node n2;
+				  list<node> n2_list;
+				  forall_nodes(n2, dfgElse) {
+					  //cout << "crappy n2 "<< endl;
+					  if(dfgElse.outdeg(n2)==0) {
+						  n2_list.append(n2);
+						  Tree *t=(dfgElse)[n2];
+						  cout << "n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
+					  }
 				  }
 			  }
 
-			  return true; //yikes!
+			  return false; //yikes! DOUBLE yikes! maybe can define a merge function here in post?
 			
 			  /* Commented by Nachiket on Oct 28th 2009
 			  Expr *cond=((StmtIf*)t)->getCond();
@@ -443,11 +447,11 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  return false;
 			}
     }
-  } else if(t->getKind()==TREE_SYMTAB) {
-	  cout << "Skipping symtab node" << endl;
-	  return false;
+//  } else if(t->getKind()==TREE_SYMTAB) {
+//	  cout << "Skipping symtab node" << endl;
+//	  return false;
   } else {
-    cout << "What are you processing nitwit????????????????????????????" << treekindToString(t->getKind()) << endl;
+    //cout << "What are you processing nitwit????????????????????????????" << treekindToString(t->getKind()) << endl;
     //cout << ((SymTab*)t)->toString() << endl;
     return false;
   }
@@ -477,8 +481,11 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   BlockDfgInfo dfgi(dfg,&nodemap,&livedefs,&extdefs,&deaddefs,
 		    nondfstmts,locals);
   Stmt *s;
-  forall (s,*stmts)
+  forall (s,*stmts) {
     s->map(createBlockDfg_map,(TreeMap)NULL,&dfgi);
+  }
+
+  exit(-1);
 
   /*
   // - create + connect write node for each def that is live at exit - DEFUNCT
