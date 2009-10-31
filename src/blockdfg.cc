@@ -499,8 +499,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(n1_n2_dummyexpr);
 					  (*dfgi->nodemap)[n1_n2_dummyexpr]=n;
 					  importDfg(dfgi->dfg, dfgThen, n, ec, n1_n2_sym, dfgi);
-					  createBlockDfg_for_expr(ec,dfgi,n);
-					  //importDfg(dfgi->dfg, dfgElse, n, n1_n2_sym);
 				  }
 
 				  // Condition 2: when THEN part is missing!!
@@ -512,7 +510,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
 					  importDfg(dfgi->dfg, dfgElse, n, ec, only_n2_sym, dfgi);
-					  createBlockDfg_for_expr(ec,dfgi,n);
 				  }
 
 
@@ -526,7 +523,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
 					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi);
-					  createBlockDfg_for_expr(ec,dfgi,n);
 
 				  }
 
@@ -548,7 +544,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
 					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi);
-					  createBlockDfg_for_expr(ec,dfgi,n);
 				  }
 
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
@@ -610,6 +605,7 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symb
 	}
 
 
+	createBlockDfg_for_expr(ec,dfgi,conditionnode);
 }
 
 
@@ -753,9 +749,9 @@ cout << "inside" << endl;
 			}
 			if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
 				string t_str1 = t ? t->toString().replace_all("\n","") : string("<nil>");
-				Type typ=(*((Expr*)t)->getType());
-				cout << " DUckerppp" << t_str1 << endl;
-				cout << " YType=" << (*((Expr*)t)->getType()).toString() << endl;
+//				Type typ=(*((Expr*)t)->getType());
+//				cout << " DUckerppp" << t_str1 << endl;
+//				cout << " YType=" << (*((Expr*)t)->getType()).toString() << endl;
 				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 			}
 			// For now I am throwing out the typecasting.. not necessary
