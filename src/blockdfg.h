@@ -53,6 +53,7 @@ using leda::string;
 //  BlockDFG type
 
 typedef GRAPH<Expr*,StmtAssign*> BlockDFG;
+class BlockDfgInfo;
 
 // BlockDFG is a data-flow graph (DAG) for a state-case statement block.
 //
@@ -146,7 +147,8 @@ extern Operator* timing_instance (Operator *iop,
 				  list<OperatorBehavioral*> *page_ops,
 				  int cycleTime);
 
-extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Symbol* destsym);
+extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Symbol* destsym, BlockDfgInfo *dfgi);
 
 
 #endif	// #ifndef _TDF_BLOCKDFG_
+

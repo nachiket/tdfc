@@ -433,6 +433,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  node n2;
 				  set<node> n2_set;
 				  set<node> n1_n2_set;
+				  set<node> only_n2_set;
+				  set<node> only_n1_set;
 				  forall_nodes(n2, dfgElse) {
 					  //cout << "crappy n2 "<< endl;
 					  if(dfgElse.outdeg(n2)==0) {
@@ -440,19 +442,54 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 						  // if this also belongs to n1, then add to unified list..
 						  node n1_check;
+						  bool matched=false;
 						  forall(n1_check, n1_set) {
 							  Symbol* n1_symbol=(dfgThen)[n1_check]->getScope()->lookup((dfgThen)[n1_check]->toString());
 							  Symbol* n2_symbol=(dfgElse)[n2]->getScope()->lookup((dfgElse)[n2]->toString());
 							  if(n1_symbol==n2_symbol) {
+								  matched=true;
 								  n1_n2_set.insert(n2);
 								  Tree *t=(dfgElse)[n2];
 								  cout << "n1 and n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
 							  }
 						  }
+
+						  if(!matched) {
+								  only_n2_set.insert(n2);
+								  Tree *t=(dfgElse)[n2];
+								  cout << "ONLY n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
+
+						  }
 						  Tree *t=(dfgElse)[n2];
 						  cout << "n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
 					  }
 				  }
+
+				  // find n1-only stragglers..
+				  forall_nodes(n1, dfgThen) {
+					  if(dfgThen.outdeg(n1)==0) {
+						  node n2_check;
+						  bool matched=false;
+						  forall(n2_check, n2_set) {
+							  Symbol* n1_symbol=(dfgThen)[n1]->getScope()->lookup((dfgThen)[n1]->toString());
+							  Symbol* n2_symbol=(dfgElse)[n2_check]->getScope()->lookup((dfgElse)[n2_check]->toString());
+							  if(n1_symbol==n2_symbol) {
+								  matched=true;
+							  }
+						  }
+
+						  if(!matched) {
+							  only_n1_set.insert(n1);
+							  Tree *t=(dfgThen)[n1];
+							  cout << "ONLY n1=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
+
+						  }
+					  }
+				  }
+
+				  // Merge the DFGs and then just do cleanup...
+				  (*dfgi->dfg).join(dfgThen);
+				  (*dfgi->dfg).join(dfgElse);
 
 				  // Condition 1: THEN and ELSE halves both contain variable assignments... assume parent does not contain the assignment!
 				  node n1_n2_node;
@@ -460,14 +497,54 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // create a new node for each element of the set...
 					  Symbol* n1_n2_sym = (dfgThen)[n1_n2_node]->getScope()->lookup((dfgThen)[n1_n2_node]->toString());
 					  ExprLValue* n1_n2_dummyexpr = new ExprLValue(NULL, n1_n2_sym);
+					  // TODO: This should check if node already exists..
 					  node n=(*dfgi->dfg).new_node(n1_n2_dummyexpr);
 					  (*dfgi->nodemap)[n1_n2_dummyexpr]=n;
+					  importDfg(dfgi->dfg, dfgThen, n, n1_n2_sym, dfgi);
 					  createBlockDfg_for_expr(ec,dfgi,n);
-					  importDfg(dfgi->dfg, dfgThen, n, n1_n2_sym);
-					  importDfg(dfgi->dfg, dfgElse, n, n1_n2_sym);
+					  //importDfg(dfgi->dfg, dfgElse, n, n1_n2_sym);
+				  }
+
+				  // Condition 2: when THEN part is missing!!
+				  node only_n2_node;
+				  forall(only_n2_node, only_n2_set) {
+					  Symbol* only_n2_sym = (dfgElse[only_n2_node])->getScope()->lookup((dfgElse)[only_n2_node]->toString());
+					  ExprLValue* only_n2_dummyexpr = new ExprLValue(NULL, only_n2_sym);
+					  // TODO: this should check if node exists...
+					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
+					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
+					  importDfg(dfgi->dfg, dfgElse, n, only_n2_sym, dfgi);
+					  createBlockDfg_for_expr(ec,dfgi,n);
+				  }
+
+
+				  // Condition 3: when ELSE part is missing!!
+				  node only_n1_node;
+				  forall(only_n1_node, only_n1_set) {
+					  //cout << << endl;
+					  Symbol* only_n1_sym = (dfgThen[only_n1_node])->getScope()->lookup((dfgThen)[only_n1_node]->toString());
+					  ExprLValue* only_n1_dummyexpr = new ExprLValue(NULL, only_n1_sym);
+					  // TODO: this should check if node exists...
+					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
+					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_sym, dfgi);
+					  createBlockDfg_for_expr(ec,dfgi,n);
+
 				  }
 
 				  cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
+			  } else {
+				  // Condition 2: when ELSE part is missing!!
+				  node only_n1_node;
+				  forall(only_n1_node, n1_set) {
+					  Symbol* only_n1_sym = (dfgThen[only_n1_node])->getScope()->lookup((dfgThen)[only_n1_node]->toString());
+					  ExprLValue* only_n1_dummyexpr = new ExprLValue(NULL, only_n1_sym);
+					  // TODO: this should check if node exists...
+					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
+					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_sym, dfgi);
+					  createBlockDfg_for_expr(ec,dfgi,n);
+				  }
 			  }
 
 			  return false; //yikes! DOUBLE yikes! maybe can define a merge function here in post?
@@ -498,34 +575,37 @@ bool createBlockDfg_map (Tree *t, void *i)
 }
 
 // copy the DFG from source to dest and attach connections to destnode..
-void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Symbol* destsym) {
+void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Symbol* destsym, BlockDfgInfo *dfgi) {
 
-	(*destdfg).join(srcdfg);
+	//(*destdfg).join(srcdfg);
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
 
 	node srcnode, node, in_node;
 	forall_nodes(node, *destdfg) {
-		string name = (*destdfg)[node]->toString();
-		SymTab* scope = (*destdfg)[node]->getScope();
-		if(scope!=NULL) {
-//			cout << "Name=" << name << endl;
-			Symbol* sym = scope->lookup(name);
-			if(sym==destsym && node!=destnode) {
-				srcnode=node;
-				// replace srcnode with destnode
-				// find all inputs of srcnode and redirect them to destnode
-				edge in_edge;
-				forall_in_edges(in_edge, node) {
-					in_node = destdfg->source(in_edge);
-					if(destdfg->succ_node(in_node)!=destnode) { // avoid duplicate edges..
-						destdfg->new_edge(in_node,destnode,NULL);
+		if(destdfg->outdeg(node)==0) {
+			string name = (*destdfg)[node]->toString();
+			//SymTab* scope = ((*destdfg)[node])->getScope();
+			//if(scope==NULL) { // these nodes were imported from THEN/ELSE portions..
+			// Symbol* sym = scope->lookup(name);
 
-						destdfg->del_edge(in_edge); // remove the dependency as well..? concurrent modification error?
+			Symbol* sym = ((ExprLValue*)(*destdfg)[node])->getSymbol();
+
+			{
+				if(sym==destsym && node!=destnode) {
+					srcnode=node;
+					// replace srcnode with destnode
+					cout << "Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
+					// find all inputs of srcnode and redirect them to destnode
+					edge in_edge;
+					forall_in_edges(in_edge, node) {
+						in_node = destdfg->source(in_edge);
+						cout << "\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
+						destdfg->new_edge(in_node,destnode,NULL);
 					}
+					destdfg->del_node(node); // remove this duplicate node
 				}
-				destdfg->del_node(node); // remove this duplicate node
 			}
 		}
 	}
