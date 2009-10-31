@@ -39,10 +39,12 @@ class Operator;
 class OperatorCompose;
 class OperatorBehavioral;
 class SymbolVar;
+class Symbol;
 #include <LEDA/graph/graph.h>
 #include <LEDA/core/list.h>
 
 using leda::GRAPH;
+using leda::node;
 using leda::list;
 using leda::node_array;
 using leda::string;
@@ -143,6 +145,8 @@ extern string printBlockDFG (BlockDFG *dfg,
 extern Operator* timing_instance (Operator *iop,
 				  list<OperatorBehavioral*> *page_ops,
 				  int cycleTime);
+
+extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Symbol* destsym);
 
 
 #endif	// #ifndef _TDF_BLOCKDFG_

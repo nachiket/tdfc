@@ -41,6 +41,7 @@
 #include <LEDA/core/set.h>
 #include <LEDA/core/map.h>
 #include "ops.h"
+#include<set>
 
 using leda::list;
 using leda::map;
@@ -51,9 +52,12 @@ using leda::graph;
 using leda::node_array;
 using leda::edge_array;
 using leda::list_item;
-//using leda::set;
+
+//using std::set;
+
 
 using std::cerr;
+//using std::set;
 
 extern bool gPageTiming1;		  // - debug mode, in "tdfc.cc"
 
@@ -357,13 +361,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  //cout << ((StmtIf*)t)->toString() << endl;
 
     	      Expr *ec=((StmtIf*)t)->getCond();
-
-			  //node n=(*dfgi->dfg).new_node(ec);
-			  //(*dfgi->nodemap)[ec]=n;
-
+			  //createBlockDfg_for_expr(ec,dfgi,n);
 			  Stmt *thenPart=((StmtIf*)t)->getThenPart();
 			  Stmt *elsePart=((StmtIf*)t)->getElsePart();
-			  //createBlockDfg_for_expr(ec,dfgi,n);
+
 
 
 			  BlockDFG dfgThen; dfgThen.clear();
@@ -405,13 +406,24 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  cout << "Skipping ELSE part of the DFG" << endl;
 			  }
 
+			  // first identify nodes from parent dfg..
+			  node n0;
+			  set<node> n0_set;
+			  forall_nodes(n0, (*dfgi->dfg)) {
+				  if((*dfgi->dfg).outdeg(n0)==0) {
+					  n0_set.insert(n0);
+					  Tree *t=(*dfgi->dfg)[n0];
+					  cout << "n0=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
+				  }
+			  }
+
 			  // print a list of PO nodes from both then/else parts..
 			  node n1;
-			  list<node> n1_list;
+			  set<node> n1_set;
 			  forall_nodes(n1, dfgThen) {
 				  // cout << "crappy n1 "<< endl; scope is a PROBLEM in a NESTED if!
 				  if(dfgThen.outdeg(n1)==0) {
-					  n1_list.append(n1);
+					  n1_set.insert(n1);
 					  Tree *t=(dfgThen)[n1];
 					  cout << "n1=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
 				  }
@@ -419,15 +431,43 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 			  if(elsePart!=NULL) {
 				  node n2;
-				  list<node> n2_list;
+				  set<node> n2_set;
+				  set<node> n1_n2_set;
 				  forall_nodes(n2, dfgElse) {
 					  //cout << "crappy n2 "<< endl;
 					  if(dfgElse.outdeg(n2)==0) {
-						  n2_list.append(n2);
+						  n2_set.insert(n2);
+
+						  // if this also belongs to n1, then add to unified list..
+						  node n1_check;
+						  forall(n1_check, n1_set) {
+							  Symbol* n1_symbol=(dfgThen)[n1_check]->getScope()->lookup((dfgThen)[n1_check]->toString());
+							  Symbol* n2_symbol=(dfgElse)[n2]->getScope()->lookup((dfgElse)[n2]->toString());
+							  if(n1_symbol==n2_symbol) {
+								  n1_n2_set.insert(n2);
+								  Tree *t=(dfgElse)[n2];
+								  cout << "n1 and n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
+							  }
+						  }
 						  Tree *t=(dfgElse)[n2];
 						  cout << "n2=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
 					  }
 				  }
+
+				  // Condition 1: THEN and ELSE halves both contain variable assignments... assume parent does not contain the assignment!
+				  node n1_n2_node;
+				  forall(n1_n2_node, n1_n2_set) {
+					  // create a new node for each element of the set...
+					  Symbol* n1_n2_sym = (dfgThen)[n1_n2_node]->getScope()->lookup((dfgThen)[n1_n2_node]->toString());
+					  ExprLValue* n1_n2_dummyexpr = new ExprLValue(NULL, n1_n2_sym);
+					  node n=(*dfgi->dfg).new_node(n1_n2_dummyexpr);
+					  (*dfgi->nodemap)[n1_n2_dummyexpr]=n;
+					  createBlockDfg_for_expr(ec,dfgi,n);
+					  importDfg(dfgi->dfg, dfgThen, n, n1_n2_sym);
+					  importDfg(dfgi->dfg, dfgElse, n, n1_n2_sym);
+				  }
+
+				  cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
 			  }
 
 			  return false; //yikes! DOUBLE yikes! maybe can define a merge function here in post?
@@ -455,6 +495,42 @@ bool createBlockDfg_map (Tree *t, void *i)
     //cout << ((SymTab*)t)->toString() << endl;
     return false;
   }
+}
+
+// copy the DFG from source to dest and attach connections to destnode..
+void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Symbol* destsym) {
+
+	(*destdfg).join(srcdfg);
+
+	// connect all inputs of srcnode to destnode and delete srcnode...
+	// primary inputs are fucked aren't they?
+
+	node srcnode, node, in_node;
+	forall_nodes(node, *destdfg) {
+		string name = (*destdfg)[node]->toString();
+		SymTab* scope = (*destdfg)[node]->getScope();
+		if(scope!=NULL) {
+//			cout << "Name=" << name << endl;
+			Symbol* sym = scope->lookup(name);
+			if(sym==destsym && node!=destnode) {
+				srcnode=node;
+				// replace srcnode with destnode
+				// find all inputs of srcnode and redirect them to destnode
+				edge in_edge;
+				forall_in_edges(in_edge, node) {
+					in_node = destdfg->source(in_edge);
+					if(destdfg->succ_node(in_node)!=destnode) { // avoid duplicate edges..
+						destdfg->new_edge(in_node,destnode,NULL);
+
+						destdfg->del_edge(in_edge); // remove the dependency as well..? concurrent modification error?
+					}
+				}
+				destdfg->del_node(node); // remove this duplicate node
+			}
+		}
+	}
+
+
 }
 
 
@@ -573,8 +649,8 @@ string printBlockDFG (BlockDFG *dfg,
   forall_nodes (n,*dfg) {
     nodenums[n] = nodenum++;
     ret += string("node %d ",nodenums[n]);
-    ret += (dfg->indeg (n)==0 ? "PI " :
-            dfg->outdeg(n)==0 ? "PO " : "in="+string("%d",dfg->indeg(n))+",out="+string("%d",dfg->outdeg(n)));
+    //ret += (dfg->indeg (n)==0 ? "PI " :
+    //        dfg->outdeg(n)==0 ? "PO " : "in="+string("%d",dfg->indeg(n))+",out="+string("%d",dfg->outdeg(n)));
     if (areas)
       ret += string("A=%d ",(*areas)[n]);
     if (latencies)
