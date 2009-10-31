@@ -215,6 +215,17 @@ ExprCond::ExprCond (Token *token_i,    Expr *cond_i,
   elsePart->setParent(this);
 }
 
+// added NULL checks on 31st Oct 2009 for processing nested IFs..
+ExprCond::ExprCond (Token *token_i,    Expr *cond_i, Type *type_i)
+  : Expr(token_i, EXPR_COND, type_i),
+    cond(cond_i),
+    thenPart(NULL),
+    elsePart(NULL)
+{
+  // we do not type-match thenPart and elsePart here
+  cond    ->setParent(this);
+}
+
 
 ExprBop::ExprBop (Token *token_i, int bop_i, Expr *e1_i, Expr *e2_i)
   : Expr(token_i, EXPR_BOP, type_any),
@@ -1177,12 +1188,15 @@ Type* ExprBuiltin::typeCheck ()
 
 Type* ExprCond::typeCheck ()
 {
+	std::cout << "checking..1" << std::endl;
   Type *condType  = cond->typeCheck();
   if (condType->getTypeKind()!=TYPE_BOOL)
     fatal(1, string("incompatible type for predicate expression of '?', is ")+
 	     condType->toString()+", should be boolean", condType->getToken());
-  Type *thenType  = thenPart->typeCheck();
-  Type *elseType  = elsePart->typeCheck();
+  std::cout << "checking..2" << std::endl;
+  Type *thenType  = (thenPart!=(Expr*)0)?thenPart->typeCheck(): type;
+  Type *elseType  = (elsePart!=(Expr*)0)?elsePart->typeCheck(): type;
+  std::cout << "checking..3" << std::endl;
   Type *mergeType = thenType->merge(elseType);
   if (mergeType==NULL)
     fatal(1,
@@ -1895,6 +1909,8 @@ bool ExprUop::okInComposeOp () const
   // - warning:  not checking binding times!  uop ok only for bound e
 }
 
+using std::cout;
+using std::endl;
 
 ////////////////////////////////////////////////////////////////
 //  Type management
@@ -1904,10 +1920,13 @@ Type* Expr::getType () const
   Expr *this_=(Expr*)this;
   if (!type)
   {
+
+	        cout << "Internal type-checking error while regenerating type of \"" << this_->getParent()->toString() << "\" from top-level expression \"" << this_->toString() << "\"" << endl;
     // - regenerate all types from top of this expr tree
     // - top == (farthest Expr ancestor before hitting nearest non-Expr)
     Tree *t, *p;	// t=(tree node), p=(t's parent)
     TreeKind k;		// k=(p's kind)
+
     for (t=this_;
 	 t && (p=t->getParent()) && (k=p->getKind())==TREE_EXPR;
 	 t=p);
@@ -2251,11 +2270,16 @@ string ExprBuiltin::toString () const
 string ExprCond::toString () const
 {
   bool parens=requiresParens(this);
-  return (parens?string("("):string()) +
-	 cond->toString() + "?" +
-	 thenPart->toString() + ":" +
-	 elsePart->toString() +
-	 (parens?string(")"):string());
+  if(thenPart!=NULL && elsePart!=NULL) {
+	  return (parens?string("("):string()) +
+			  cond->toString() + "?" +
+			  thenPart->toString() + ":" +
+			  elsePart->toString() +
+			  (parens?string(")"):string());
+  } else {
+	  return (parens?string("("):string()) +
+	  			  cond->toString() + "? <duck>:<duck>";
+  }
 }
 
 

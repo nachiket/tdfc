@@ -236,6 +236,7 @@ private:
 public:
   ExprCond (Token *token_i,    Expr *cond_i,
 	    Expr  *thenPart_i, Expr *elsePart_i);
+  ExprCond (Token *token_i,    Expr *cond_i, Type *type_i);
   virtual ~ExprCond () {}
 
   Expr*			getCond		() const	{ return cond; }
