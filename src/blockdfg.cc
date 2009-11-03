@@ -265,7 +265,7 @@ void deleteBlockDfgCone (BlockDFG *dfg, node n)
   // - visit nodes in reverse topological order from n,
   //     removing each node, and going on to nodes with no remaining fanout
 
-  // warn("Before deleting: "+printBlockDFG(dfg));
+  warn("Before deleting: "+printBlockDFG(dfg));
 
   assert((*dfg).outdeg(n)==0);
 
@@ -499,6 +499,30 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  }
 				  }
 
+				  // check if n1_n2 nodes also lie in n0
+				  node n0_check;
+				  set<node> n0_blacklist;
+				  forall(n0_check, n0_set) {
+					  node n1_n2;
+					  forall(n1_n2, n1_n2_set) {
+						  Symbol* n0_symbol=((ExprLValue*)(*dfgi->dfg)[n0_check])->getSymbol();
+						  Symbol* n1_n2_symbol=((ExprLValue*)(dfgElse)[n1_n2])->getSymbol();
+						  if(n0_symbol==n1_n2_symbol) {
+							  // n0 will be overshadowed... get rid of it!
+							  n0_blacklist.insert(n0_check);
+							  Tree *t=(dfgElse)[n1_n2];
+							  cout << "--blacklisting n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+							  recursiveFaninDelete(dfgi, n0_check);
+						  }
+					  }
+				  }
+
+				  // get rid of blacklisted nodes..
+				  //node n0_del;
+				  //forall(n0_del, n0_blacklist) {
+					//
+				  //}
+
 				  // find n1-only stragglers..
 				  forall_nodes(n1, dfgThen) {
 					  if(dfgThen.outdeg(n1)==0) {
@@ -722,7 +746,7 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
       // - this asst is the var's only use, i.e. def is dead
       // - delete PO node and cone  (deletion leaves dangling ptrs in
       //      nodemap, but that's ok, since we don't need it anymore)
-      deleteBlockDfgCone(dfgi.dfg,po);
+//      deleteBlockDfgCone(dfgi.dfg,po);
     }
     else {
       // - this asst is not the var's only use, i.e. def is not dead
