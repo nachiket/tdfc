@@ -138,7 +138,12 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    asst=(*dfgi->livedefs)[sym];
 			    Expr *rval=asst->getRhs();
 			    // node n=...
-			    n=(*dfgi->nodemap)[rval];
+			    if(rval!=(Expr*)0) {
+			    	n=(*dfgi->nodemap)[rval];
+			    } else {
+			    	// Added by Nachiket on 11/3/2009
+			    	n=*(asst->getRhsnode());
+			    }
 			    // (*dfgi->nodemap)[e]=n;	// - moved below
 			    assert(n);
 			  }
@@ -290,6 +295,20 @@ void deleteBlockDfgCone (BlockDFG *dfg, node n)
   // warn("After deleting: "+printBlockDFG(dfg));
 }
 
+void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
+	edge edel;
+	list<edge> fanin = (*dfgi->dfg).in_edges(dead_po);
+    forall(edel, fanin) {
+    	node src=(*dfgi->dfg).source(edel);
+    	cout <<  "Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
+		(*dfgi->dfg).del_edge(edel);
+		if((*dfgi->dfg).outdeg(src)==0) {
+			recursiveFaninDelete(dfgi, src);
+			(*dfgi->dfg).del_node(src);
+		}
+	}
+}
+
 
 bool createBlockDfg_map (Tree *t, void *i)
 {
@@ -313,23 +332,40 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  node po=(*dfgi->dfg).new_node(lhs);
 			  (*dfgi->nodemap)[lhs]=po;
 			  // node n=
-			  createBlockDfg_for_expr(rhs,dfgi,po);
+			  //if(rhs!=(Expr*)0) {
+				  createBlockDfg_for_expr(rhs,dfgi,po);
+			  //} else{
+				//
+			  //}
 			  // - mark any old PO node as dead
 			  //     (but do not remove it yet!  temporarily,
 			  //      there may be multiple PO nodes for same var)
 			  if ((*dfgi->livedefs).defined(sym) &&
 			      (*dfgi->livedefs)[sym]           ) {
-			    StmtAssign *dead_asst=(*dfgi->livedefs)[sym]; // removing Assign 11/3/2009
+			    StmtAssign *dead_asst=(*dfgi->livedefs)[sym];
 			    (*dfgi->deaddefs).append(dead_asst);
-// DEFUNCT		    ExprLValue *dead_lval=dead_asst->getLValue();
-// -			    node        dead_po  =(*dfgi->nodemap)[dead_lval];
-// -			    (*dfgi->dfg).del_node(dead_po);
-// -			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
-// -			    (*dfgi->livedefs)[sym]=NULL;
-			    // warn("createBlockDfg_map:  assignment "+
-			    //      dead_asst->toString()+" is now dead, "+
-			    //      t->toString()        +" is now live");
-// LATER		    deleteBlockDfgCone(dfgi->dfg,dead_po);    // LATER
+		    ExprLValue *dead_lval=dead_asst->getLValue();
+			    node        dead_po  =(*dfgi->nodemap)[dead_lval];
+			    //edge		dead_edge=(*dfgi->dfg).first_in_edge(dead_po);
+			    //(*dfgi->dfg).del_edge(dead_edge);
+			    //(*dfgi->dfg).del_node(dead_po);
+			    list<edge> fanout = (*dfgi->dfg).out_edges(dead_po);
+			    edge edel;
+			    forall(edel, fanout) {
+			    	(*dfgi->dfg).del_edge(edel);
+			    }
+			    recursiveFaninDelete(dfgi, dead_po);
+			    (*dfgi->dfg).del_node(dead_po);
+
+			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
+			    (*dfgi->livedefs)[sym]=NULL;
+			     cout << "createBlockDfg_map:  assignment " << endl;
+			     cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
+			     cout << t->toString()+" is now live" << endl;
+			     //cout << printBlockDFG(dfgi->dfg) << endl;
+		    //deleteBlockDfgCone(dfgi->dfg,dead_po);    // LATER
+			     //(*dfgi->dfg).del_node(dead_po);
+		    //cout << printBlockDFG(dfgi->dfg) << endl;
 			    // WARNING: leaves dangling ptrs in nodemap
 			  }
 			  // - record live asst
@@ -459,7 +495,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 						  }
 						  Tree *t=(dfgElse)[n2];
-						  cout << "n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+						  cout << "--n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
 					  }
 				  }
 
@@ -498,7 +534,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: This should check if node already exists..
 					  node n=(*dfgi->dfg).new_node(n1_n2_dummyexpr);
 					  (*dfgi->nodemap)[n1_n2_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, ec, n1_n2_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgThen, n, n1_n2_dummyexpr, ec, n1_n2_sym, dfgi, (Stmt*)t);
 				  }
 
 				  // Condition 2: when THEN part is missing!!
@@ -509,7 +545,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgElse, n, ec, only_n2_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t);
 				  }
 
 
@@ -522,7 +558,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t);
 
 				  }
 
@@ -543,7 +579,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t);
 				  }
 
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
@@ -572,7 +608,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 }
 
 // copy the DFG from source to dest and attach connections to destnode..
-void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t) {
+void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t) {
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
@@ -584,11 +620,15 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symb
 
 	destdfg->new_edge(conditionnode, destnode, NULL);
 
+	StmtAssign* destnodeStmt = new StmtAssign(NULL, lval, &conditionnode); // lhs=lval, rhs=conditionnode
+
+	bool matched=false;
 	node srcnode, node, in_node;
 	forall_nodes(node, *destdfg) {
-		if(destdfg->outdeg(node)==0) {
+		if(destdfg->outdeg(node)==0 && ((*destdfg)[node])->isLValue()) {
 			Symbol* sym = ((ExprLValue*)(*destdfg)[node])->getSymbol();
 			if(sym==destsym && node!=destnode) {
+				matched=true;
 				srcnode=node;
 				// replace srcnode with destnode
 				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
@@ -604,16 +644,23 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symb
 		}
 	}
 
-	/*
-	// Don't know if this really needs to be done...
-	if((*dfgi->livedefs).defined(destsym) && (*dfgi->livedefs)[destsym]) {
-	        StmtAssign *dead_asst=(*dfgi->livedefs)[destsym];
-	        (*dfgi->deaddefs).append(dead_asst);
-	}
+	if(matched) {
 
-	// - record live asst
-	(*dfgi->livedefs)[sym]=(Stmt*)t;
-*/
+		// Don't know if this really needs to be done...
+		if((*dfgi->livedefs).defined(destsym)) {
+				StmtAssign *dead_asst=(*dfgi->livedefs)[destsym];
+				(*dfgi->deaddefs).append(dead_asst);
+				//cout << "Removing dead assignment " << endl;
+				//if((dead_asst->getRhs())==(Expr*)0) {
+				//	deleteBlockDfgCone(dfgi->dfg,*(dead_asst->getRhsnode()));
+				//}
+		}
+
+		// - record live asst
+		(*dfgi->livedefs)[destsym]=destnodeStmt;
+		cout << "-- Defined livedef for " << (*destdfg)[destnode]->toString() << endl;
+
+	}
 
 	createBlockDfg_for_expr(ec,dfgi,conditionnode);
 }
@@ -730,6 +777,7 @@ string printBlockDFG (BlockDFG *dfg,
 
   node n;
   forall_nodes (n,*dfg) {
+	  //cout << "Node..." << endl;
     nodenums[n] = nodenum++;
     ret += string("node %d ",nodenums[n]);
     //ret += (dfg->indeg (n)==0 ? "PI " :

@@ -36,6 +36,7 @@
 #include <LEDA/core/list.h>
 #include <LEDA/core/set.h>
 #include <LEDA/core/dictionary.h>
+#include <LEDA/graph/graph.h>
 #include "tree.h"
 #include "type.h"
 #include "expr.h"
@@ -43,6 +44,7 @@
 class State;
 class SymTab;
 
+using leda::node;
 
 enum StmtKind { STMT_IF,     STMT_GOTO,    /*STMT_STAY,*/
 		STMT_CALL,   STMT_BUILTIN,
@@ -198,13 +200,16 @@ class StmtAssign : public Stmt
 private:
   ExprLValue	*lvalue;
   Expr		*rhs;
+  node		*rhsnode; // Added on 11/3/2009 to enable using graph-structure when building the final BlockDFG! Sheesh!
 
 public:
   StmtAssign (Token *token_i, ExprLValue *lvalue_i, Expr *rhs_i);
+  StmtAssign (Token *token_i, ExprLValue *lvalue_i, node *rhs_i);
   virtual ~StmtAssign () {}
 
   ExprLValue*		getLValue	() const	{ return lvalue; }
   Expr*			getRhs		() const	{ return rhs; }
+  node*			getRhsnode	() const	{ return rhsnode; }
 
   virtual bool		okInComposeOp	() const	{ return true; }
 

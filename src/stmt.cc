@@ -106,6 +106,14 @@ StmtAssign::StmtAssign (Token *token_i, ExprLValue *lvalue_i, Expr *rhs_i)
   rhs   ->setParent(this);
 }
 
+StmtAssign::StmtAssign (Token *token_i, ExprLValue *lvalue_i, node *rhs_i)
+  : Stmt(token_i,STMT_ASSIGN),
+    lvalue(lvalue_i),
+    rhsnode(rhs_i)
+{
+  lvalue->setParent(this);
+}
+
 
 StmtBlock::StmtBlock (Token *token_i, SymTab *symtab_i, list<Stmt*> *stmts_i)
   : Stmt(token_i,STMT_BLOCK),
@@ -522,7 +530,11 @@ string StmtBuiltin::toString () const
 
 string StmtAssign::toString () const
 {
-  return indent + lvalue->toString() + "=" + rhs->toString() + ";\n";
+	if(rhs!=(Expr*)0) {
+		return indent + lvalue->toString() + "=" + rhs->toString() + ";\n";
+	} else {
+		return indent + lvalue->toString() + "(RHSNODE);\n";
+	}
 }
 
 
