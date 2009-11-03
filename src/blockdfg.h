@@ -147,7 +147,7 @@ extern Operator* timing_instance (Operator *iop,
 				  list<OperatorBehavioral*> *page_ops,
 				  int cycleTime);
 
-extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr* ec, Symbol* destsym, BlockDfgInfo *dfgi);
+extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr* ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t);
 
 
 #endif	// #ifndef _TDF_BLOCKDFG_

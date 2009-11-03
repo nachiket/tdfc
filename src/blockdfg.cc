@@ -319,7 +319,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  //      there may be multiple PO nodes for same var)
 			  if ((*dfgi->livedefs).defined(sym) &&
 			      (*dfgi->livedefs)[sym]           ) {
-			    StmtAssign *dead_asst=(*dfgi->livedefs)[sym];
+			    StmtAssign *dead_asst=(*dfgi->livedefs)[sym]; // removing Assign 11/3/2009
 			    (*dfgi->deaddefs).append(dead_asst);
 // DEFUNCT		    ExprLValue *dead_lval=dead_asst->getLValue();
 // -			    node        dead_po  =(*dfgi->nodemap)[dead_lval];
@@ -498,7 +498,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: This should check if node already exists..
 					  node n=(*dfgi->dfg).new_node(n1_n2_dummyexpr);
 					  (*dfgi->nodemap)[n1_n2_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, ec, n1_n2_sym, dfgi);
+					  importDfg(dfgi->dfg, dfgThen, n, ec, n1_n2_sym, dfgi, (Stmt*)t);
 				  }
 
 				  // Condition 2: when THEN part is missing!!
@@ -509,7 +509,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgElse, n, ec, only_n2_sym, dfgi);
+					  importDfg(dfgi->dfg, dfgElse, n, ec, only_n2_sym, dfgi, (Stmt*)t);
 				  }
 
 
@@ -522,7 +522,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi);
+					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi, (Stmt*)t);
 
 				  }
 
@@ -543,7 +543,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi);
+					  importDfg(dfgi->dfg, dfgThen, n, ec, only_n1_sym, dfgi, (Stmt*)t);
 				  }
 
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
@@ -572,7 +572,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 }
 
 // copy the DFG from source to dest and attach connections to destnode..
-void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi) {
+void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t) {
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
@@ -604,6 +604,16 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, Expr *ec, Symb
 		}
 	}
 
+	/*
+	// Don't know if this really needs to be done...
+	if((*dfgi->livedefs).defined(destsym) && (*dfgi->livedefs)[destsym]) {
+	        StmtAssign *dead_asst=(*dfgi->livedefs)[destsym];
+	        (*dfgi->deaddefs).append(dead_asst);
+	}
+
+	// - record live asst
+	(*dfgi->livedefs)[sym]=(Stmt*)t;
+*/
 
 	createBlockDfg_for_expr(ec,dfgi,conditionnode);
 }
@@ -713,7 +723,7 @@ string printBlockDFG (BlockDFG *dfg,
   string ret("BlockDFG  (%d nodes, %d edges)\n",
 	     dfg->number_of_nodes(), dfg->number_of_edges());
 
-cout << "inside" << endl;
+//cout << "inside" << endl;
 
   int nodenum=0;
   node_array<int> nodenums(*dfg);

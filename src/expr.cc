@@ -1188,15 +1188,15 @@ Type* ExprBuiltin::typeCheck ()
 
 Type* ExprCond::typeCheck ()
 {
-	std::cout << "checking..1" << std::endl;
+	//std::cout << "checking..1" << std::endl;
   Type *condType  = cond->typeCheck();
   if (condType->getTypeKind()!=TYPE_BOOL)
     fatal(1, string("incompatible type for predicate expression of '?', is ")+
 	     condType->toString()+", should be boolean", condType->getToken());
-  std::cout << "checking..2" << std::endl;
+  //std::cout << "checking..2" << std::endl;
   Type *thenType  = (thenPart!=(Expr*)0)?thenPart->typeCheck(): type;
   Type *elseType  = (elsePart!=(Expr*)0)?elsePart->typeCheck(): type;
-  std::cout << "checking..3" << std::endl;
+  //std::cout << "checking..3" << std::endl;
   Type *mergeType = thenType->merge(elseType);
   if (mergeType==NULL)
     fatal(1,
@@ -1921,7 +1921,7 @@ Type* Expr::getType () const
   if (!type)
   {
 
-	        cout << "Internal type-checking error while regenerating type of \"" << this_->getParent()->toString() << "\" from top-level expression \"" << this_->toString() << "\"" << endl;
+	        //cout << "Internal type-checking error while regenerating type of \"" << this_->getParent()->toString() << "\" from top-level expression \"" << this_->toString() << "\"" << endl;
     // - regenerate all types from top of this expr tree
     // - top == (farthest Expr ancestor before hitting nearest non-Expr)
     Tree *t, *p;	// t=(tree node), p=(t's parent)
@@ -2270,7 +2270,7 @@ string ExprBuiltin::toString () const
 string ExprCond::toString () const
 {
   bool parens=requiresParens(this);
-  if(thenPart!=NULL && elsePart!=NULL) {
+  if(thenPart!=(Expr*)0 && elsePart!=(Expr*)0) {
 	  return (parens?string("("):string()) +
 			  cond->toString() + "?" +
 			  thenPart->toString() + ":" +
