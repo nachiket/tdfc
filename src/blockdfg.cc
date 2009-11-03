@@ -300,7 +300,7 @@ void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
 	list<edge> fanin = (*dfgi->dfg).in_edges(dead_po);
     forall(edel, fanin) {
     	node src=(*dfgi->dfg).source(edel);
-    	cout <<  "Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
+    	cout <<  "--Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
 		(*dfgi->dfg).del_edge(edel);
 		if((*dfgi->dfg).outdeg(src)==0) {
 			recursiveFaninDelete(dfgi, src);
@@ -359,9 +359,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 			    (*dfgi->livedefs)[sym]=NULL;
-			     cout << "createBlockDfg_map:  assignment " << endl;
-			     cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
-			     cout << t->toString()+" is now live" << endl;
+			     //cout << "--createBlockDfg_map:  assignment " << endl;
+			     //cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
+			     //cout << t->toString()+" is now live" << endl;
 			     //cout << printBlockDFG(dfgi->dfg) << endl;
 		    //deleteBlockDfgCone(dfgi->dfg,dead_po);    // LATER
 			     //(*dfgi->dfg).del_node(dead_po);
@@ -447,7 +447,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  if((*dfgi->dfg).outdeg(n0)==0) {
 					  n0_set.insert(n0);
 					  Tree *t=(*dfgi->dfg)[n0];
-					  cout << "--n0=" << t->toString().replace_all("\n","") << " symbol=" << t->getScope()->lookup(t->toString()) << "for DFG=" << dfgi << endl;
+					  cout << "--n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
 				  }
 			  }
 
@@ -732,6 +732,7 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   }
   */
 
+if(0) {
   // - clean up multiple definitions
   // - for all assts to a var other than the last one:
   //     if def is dead, remove PO node & cone (dead-code elimination)
@@ -746,7 +747,7 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
       // - this asst is the var's only use, i.e. def is dead
       // - delete PO node and cone  (deletion leaves dangling ptrs in
       //      nodemap, but that's ok, since we don't need it anymore)
-//      deleteBlockDfgCone(dfgi.dfg,po);
+      deleteBlockDfgCone(dfgi.dfg,po);
     }
     else {
       // - this asst is not the var's only use, i.e. def is not dead
@@ -764,6 +765,8 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
       }
     }
   }
+}
+
 
   // return dfgi.dfg;
   // return dfgi.nondfstmts;
