@@ -845,6 +845,13 @@ string OperatorBehavioral::toString () const
 
 string OperatorBehavioral::toDFGString () const
 {
+
+// Added by Nachiket on 11/3/2009 to test where the state-machine variables are stored!
+//	cout << "Global variables=" << endl;
+//	cout << vars->toString() << endl;
+//	cout << "Finished..." <<  endl;
+
+
   // - create dfg + residual stmts
 	set<StateCase*> statecases;
 	StateCase *sc;
@@ -855,9 +862,14 @@ string OperatorBehavioral::toDFGString () const
 			statecases.insert(sc);
 		}
 	}
-			
+
+	string totalStr="";
+
 	StateCase *sc1;
 	forall (sc1,statecases) {
+
+		cout << "State=" << printStateCaseHead(sc1) << endl;
+
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
 		// debug start 10/28
@@ -867,15 +879,14 @@ string OperatorBehavioral::toDFGString () const
 		}
 		// debug end
 
-		createBlockDfgSimple(&dfg,&stmts1);
+		createBlockDfgSimple(&dfg,&stmts1,vars);
 		string dfgStr = printBlockDFG(&dfg, NULL, NULL, NULL); 
 		//cout << dfgStr << endl;
 
-		// ASSERT only 1 case statement!
-		return dfgStr; 
+		totalStr+=dfgStr;
 	}
 
-	return "";
+	return totalStr;
 }
 
 

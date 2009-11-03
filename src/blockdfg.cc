@@ -36,6 +36,7 @@
 #include "stmt.h"
 #include "canonical.h"
 #include "dismantle.h"
+#include "symbol.h"
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
 #include <LEDA/core/set.h>
@@ -78,6 +79,7 @@ public:
   list<StmtAssign*>        *deaddefs;		// non live defs
   list<Stmt*>              *nondfstmts;		// residual stmts not in dfg
   set<SymbolVar*>	   *locals;		// locals declared in block
+  SymTab				*vars;		// Added by Nachiket on 11/3/2009 to support access to state-machine variables..
   
   BlockDfgInfo (BlockDFG                 *dfg_i,
 		map<Expr*,node>          *nodemap_i,
@@ -85,14 +87,16 @@ public:
 		map<Symbol*,node>        *extdefs_i,
 		list<StmtAssign*>        *deaddefs_i,
 		list<Stmt*>              *nondfstmts_i,
-		set<SymbolVar*>          *locals_i)
+		set<SymbolVar*>          *locals_i,
+		SymTab					 *vars_i)
     : dfg       (dfg_i        ? dfg_i        : new BlockDFG()),
       nodemap   (nodemap_i    ? nodemap_i    : new map<Expr*,node>),
       livedefs  (livedefs_i   ? livedefs_i   : new map<Symbol*,StmtAssign*>),
       extdefs   (extdefs_i    ? extdefs_i    : new map<Symbol*,node>),
       deaddefs  (deaddefs_i   ? deaddefs_i   : new list<StmtAssign*>),
       nondfstmts(nondfstmts_i ? nondfstmts_i : new list<Stmt*>),
-      locals    (locals_i     ? locals_i     : new set<SymbolVar*>)	{}
+      locals    (locals_i     ? locals_i     : new set<SymbolVar*>)	,
+	  vars      (vars_i       ? vars_i       : new SymTab(SYMTAB_OP))	{}
 };
 
 using std::cout;
@@ -145,6 +149,9 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    	n=*(asst->getRhsnode());
 			    }
 			    // (*dfgi->nodemap)[e]=n;	// - moved below
+			    if(n==0u) {
+			    	cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << endl;
+			    }
 			    assert(n);
 			  }
 			  else if ((*dfgi->extdefs).defined(sym)) {
@@ -416,7 +423,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  map<Symbol*,StmtAssign*> livedefsThen(NULL);
 			  map<Symbol*,node>        extdefsThen;
 			  list<StmtAssign*>        deaddefsThen;
-			  BlockDfgInfo dfgtheni(&dfgThen,&nodemapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen);
+			  BlockDfgInfo dfgtheni(&dfgThen,&nodemapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen, dfgi->vars);
 
 			  cout << "--Generating THEN part of the DFG " << &dfgtheni << endl;
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
@@ -429,7 +436,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  map<Symbol*,StmtAssign*> livedefsElse(NULL);
 				  map<Symbol*,node>        extdefsElse;
 				  list<StmtAssign*>        deaddefsElse;
-				  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse);
+				  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse, dfgi->vars);
 
 				  cout << "--Generating ELSE part of the DFG " << &dfgelsei << endl;
 				  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
@@ -693,7 +700,8 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
 		                    list<Stmt*> *nondfstmts,
 				    set<SymbolVar*> *locals,
-				    set<SymbolVar*> *new_locals)
+				    set<SymbolVar*> *new_locals,
+				    SymTab* vars) // Added by Nachiket on 11/3/2009 to allow access to state-machine variables..
 {
   // - create DFG (fill *dfg) for a basic-block stmt list (*stmts)
   // - return in *nondfstmts any stmts not used to build dfg (e.g. goto)
@@ -711,7 +719,7 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   map<Symbol*,node>        extdefs;
   list<StmtAssign*>        deaddefs;
   BlockDfgInfo dfgi(dfg,&nodemap,&livedefs,&extdefs,&deaddefs,
-		    nondfstmts,locals);
+		    nondfstmts,locals, vars);
   Stmt *s;
   forall (s,*stmts) {
     s->map(createBlockDfg_map,(TreeMap)NULL,&dfgi);
@@ -774,13 +782,14 @@ if(0) {
   // return dfgi.new_locals;
 }
 
-void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts) 
+void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars)
 {
+
 	list<Stmt*> nondfstmts;
 	set<SymbolVar*> locals;
 	set<SymbolVar*> new_locals;
 
-	createBlockDfg(dfg, stmts, &nondfstmts, &locals, &new_locals);
+	createBlockDfg(dfg, stmts, &nondfstmts, &locals, &new_locals, vars);
 }
 
 using std::cout;
@@ -2731,7 +2740,7 @@ void timing_stateCase (OperatorBehavioral *op, StateCase *stateCase,
   list<Stmt*> nondfstmts;
   set<SymbolVar*> locals;
   set<SymbolVar*> new_locals;
-  createBlockDfg(&dfg,stateCase->getStmts(),&nondfstmts,&locals,&new_locals);
+  createBlockDfg(&dfg,stateCase->getStmts(),&nondfstmts,&locals,&new_locals, NULL); // stupid
   /*
   cerr << printBlockDFG(&dfg);
   cerr << "Residual statements:\n";

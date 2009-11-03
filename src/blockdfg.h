@@ -41,6 +41,7 @@ class OperatorCompose;
 class OperatorBehavioral;
 class SymbolVar;
 class Symbol;
+class SymTab;
 #include <LEDA/graph/graph.h>
 #include <LEDA/core/list.h>
 
@@ -138,7 +139,7 @@ class BlockDfgInfo;
 
 // extern void createBlockDfg (BlockDFG *dfg, list<Stmt*> stmtlist);
 
-extern void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts);
+extern void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars);
 
 extern string printBlockDFG (BlockDFG *dfg,
 			     node_array<int> *areas=NULL,	// "A=..."
