@@ -7699,7 +7699,9 @@ blockdfg.o: src/blockdfg.cc src/blockdfg.h \
   /opt/leda/incl/LEDA/core/dictionary.h src/operator.h src/expr.h \
   src/misc.h src/parse.h parse_tdf.tab.h src/stmt.h src/canonical.h \
   src/dismantle.h /opt/leda/incl/LEDA/core/array.h \
-  /opt/leda/incl/LEDA/core/bin_search.h src/ops.h \
+  /opt/leda/incl/LEDA/core/bin_search.h \
+  /opt/leda/incl/LEDA/core/h_array.h \
+  /opt/leda/incl/LEDA/core/impl/ch_hash.h src/ops.h \
   /usr/include/c++/4.1.3/set /usr/include/c++/4.1.3/bits/stl_tree.h \
   /usr/include/c++/4.1.3/bits/stl_set.h \
   /usr/include/c++/4.1.3/bits/stl_multiset.h

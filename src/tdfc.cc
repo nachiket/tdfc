@@ -278,6 +278,19 @@ set<string> *instances (Operator *op, Target targ,
   unsigned long param_locs=parameter_locs(op->getArgs());
 
   list <FeedbackRecord *>* ilist=new list<FeedbackRecord *>();
+
+  // Added by Nachiket on 11/4/2009 to get rid of the bs tdfc behavior
+  // There is no need to insist on having fuser.. only an idiot will require this.
+  int* init_params=new int[args];
+  for(int init_args=0;init_args<args;init_args++) {
+  	init_params[init_args]=0;
+  }
+  FeedbackRecord *init_record = new FeedbackRecord(args, param_locs, init_params);
+  ilist->push(init_record);
+
+  // End of Nachiket's additions..
+
+
   int spos=0;
   // search through path
   string colon=string(":");
