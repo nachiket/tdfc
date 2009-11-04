@@ -39,6 +39,7 @@
 #include "symbol.h"
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
+#include <LEDA/core/h_array.h>
 #include <LEDA/core/set.h>
 #include <LEDA/core/map.h>
 #include "ops.h"
@@ -53,6 +54,7 @@ using leda::graph;
 using leda::node_array;
 using leda::edge_array;
 using leda::list_item;
+using leda::h_array;
 
 //using std::set;
 
@@ -73,8 +75,9 @@ Type            *evalType (Type *orig);
 class BlockDfgInfo {
 public:
   BlockDFG                 *dfg;		// dfg being built
-  map<Expr*,node>          *nodemap;		// map AST expr --> dfg node
-  map<Symbol*,StmtAssign*> *livedefs;		// map sym --> asst
+  BlockDfgInfo			   *parent;			// Added by Nachiket on 11/4/2009 to allow searching higher up in the scope... Jeez I hate maps.
+  h_array<Expr*,node>          *nodemap;		// map AST expr --> dfg node
+  h_array<Symbol*,StmtAssign*> *livedefs;		// map sym --> asst
   map<Symbol*,node>	   *extdefs;		// map sym --> PI node
   list<StmtAssign*>        *deaddefs;		// non live defs
   list<Stmt*>              *nondfstmts;		// residual stmts not in dfg
@@ -82,16 +85,18 @@ public:
   SymTab				*vars;		// Added by Nachiket on 11/3/2009 to support access to state-machine variables..
   
   BlockDfgInfo (BlockDFG                 *dfg_i,
-		map<Expr*,node>          *nodemap_i,
-		map<Symbol*,StmtAssign*> *livedefs_i,
+		BlockDfgInfo			 *parent_i,
+		h_array<Expr*,node>          *nodemap_i,
+		h_array<Symbol*,StmtAssign*> *livedefs_i,
 		map<Symbol*,node>        *extdefs_i,
 		list<StmtAssign*>        *deaddefs_i,
 		list<Stmt*>              *nondfstmts_i,
 		set<SymbolVar*>          *locals_i,
 		SymTab					 *vars_i)
     : dfg       (dfg_i        ? dfg_i        : new BlockDFG()),
-      nodemap   (nodemap_i    ? nodemap_i    : new map<Expr*,node>),
-      livedefs  (livedefs_i   ? livedefs_i   : new map<Symbol*,StmtAssign*>),
+      parent	(parent_i), // top level will be NULL
+      nodemap   (nodemap_i    ? nodemap_i    : new h_array<Expr*,node>),
+      livedefs  (livedefs_i   ? livedefs_i   : new h_array<Symbol*,StmtAssign*>),
       extdefs   (extdefs_i    ? extdefs_i    : new map<Symbol*,node>),
       deaddefs  (deaddefs_i   ? deaddefs_i   : new list<StmtAssign*>),
       nondfstmts(nondfstmts_i ? nondfstmts_i : new list<Stmt*>),
@@ -141,16 +146,36 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    // StmtAssign *asst=...
 			    asst=(*dfgi->livedefs)[sym];
 			    Expr *rval=asst->getRhs();
+			    node* nrhs=asst->getRhsnode();
 			    // node n=...
-			    if(rval!=(Expr*)0) {
+			    if(rval!=NULL) {
+			    	cout << "Found rval" << rval << endl;
 			    	n=(*dfgi->nodemap)[rval];
-			    } else {
+			    } else if(nrhs!=NULL){
 			    	// Added by Nachiket on 11/3/2009
-			    	n=*(asst->getRhsnode());
+			    	cout << "Found rhsnode" << endl;
+			    	n=*nrhs;
 			    }
-			    // (*dfgi->nodemap)[e]=n;	// - moved below
+
+			    /*
 			    if(n==0u) {
-			    	cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << endl;
+			    	// is it a variable shared within the state machine?? create one here? ---> move this elsewhere later...
+			    	ExprLValue* newlval = new ExprLValue(NULL, sym);
+
+			    	// setup a new node wiht same symbol.. this is going to be a little ugly? possibly even wrong?
+			    	n=(*dfgi->dfg).new_node(newlval);
+			    	(*dfgi->nodemap)[newlval]=n;
+
+			    }
+			    */
+			    // (*dfgi->nodemap)[e]=n;	// - moved below
+
+			    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
+			    if(n==0u) {
+			    	Symbol* symtest;
+			    	forall (symtest,*((*dfgi->vars).getSymbolOrder())) {
+			    		cout << "Testing.." << symtest << endl;
+			    	}
 			    }
 			    assert(n);
 			  }
@@ -365,8 +390,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 			    (*dfgi->dfg).del_node(dead_po);
 
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
+			    //(*dfgi->nodemap)[rhs]=
 			    (*dfgi->livedefs)[sym]=NULL;
-			     //cout << "--createBlockDfg_map:  assignment " << endl;
+			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
 			     //cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
 			     //cout << t->toString()+" is now live" << endl;
 			     //cout << printBlockDFG(dfgi->dfg) << endl;
@@ -375,6 +401,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 		    //cout << printBlockDFG(dfgi->dfg) << endl;
 			    // WARNING: leaves dangling ptrs in nodemap
 			  }
+
+			  cout << "--Processed assignement " << t->toString() <<  " in DFG" << dfgi << " where RHS=" << rhs << "=" << po << endl;
 			  // - record live asst
 			  (*dfgi->livedefs)[sym]=(StmtAssign*)t;
 			  return false;
@@ -419,11 +447,11 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  set<SymbolVar*> new_localsThen;
 			  set<SymbolVar*> new_localsElse;
 
-			  map<Expr*,node>          nodemapThen;
-			  map<Symbol*,StmtAssign*> livedefsThen(NULL);
+			  h_array<Expr*,node>          nodemapThen;
+			  h_array<Symbol*,StmtAssign*> livedefsThen(NULL);
 			  map<Symbol*,node>        extdefsThen;
 			  list<StmtAssign*>        deaddefsThen;
-			  BlockDfgInfo dfgtheni(&dfgThen,&nodemapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen, dfgi->vars);
+			  BlockDfgInfo dfgtheni(&dfgThen,dfgi,&nodemapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen, dfgi->vars);
 
 			  cout << "--Generating THEN part of the DFG " << &dfgtheni << endl;
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
@@ -432,11 +460,11 @@ bool createBlockDfg_map (Tree *t, void *i)
 //			  cout << printBlockDFG(&dfgThen) << endl;
 
 			  if(elsePart!=NULL) {
-				  map<Expr*,node>          nodemapElse;
-				  map<Symbol*,StmtAssign*> livedefsElse(NULL);
+				  h_array<Expr*,node>          nodemapElse;
+				  h_array<Symbol*,StmtAssign*> livedefsElse(NULL);
 				  map<Symbol*,node>        extdefsElse;
 				  list<StmtAssign*>        deaddefsElse;
-				  BlockDfgInfo dfgelsei(&dfgElse,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse, dfgi->vars);
+				  BlockDfgInfo dfgelsei(&dfgElse,dfgi,&nodemapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse, dfgi->vars);
 
 				  cout << "--Generating ELSE part of the DFG " << &dfgelsei << endl;
 				  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
@@ -461,6 +489,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  // print a list of PO nodes from both then/else parts..
 			  node n1;
 			  set<node> n1_set;
+			  set<node> n1_fanin0_set;
 			  forall_nodes(n1, dfgThen) {
 				  // cout << "crappy n1 "<< endl; scope is a PROBLEM in a NESTED if!
 				  if(dfgThen.outdeg(n1)==0) {
@@ -468,11 +497,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  Tree *t=(dfgThen)[n1];
 					  cout << "--n1=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
 				  }
+
+				  if(dfgThen.indeg(n1)==0) {
+					  n1_fanin0_set.insert(n1);
+					  Tree *t=(dfgThen)[n1];
+					  cout << "--fanin0 n1=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+				  }
 			  }
 
 			  if(elsePart!=NULL) {
 				  node n2;
 				  set<node> n2_set;
+				  set<node> n2_fanin0_set;
 				  set<node> n1_n2_set;
 				  set<node> only_n2_set;
 				  set<node> only_n1_set;
@@ -504,9 +540,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 						  Tree *t=(dfgElse)[n2];
 						  cout << "--n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
 					  }
+
+					  if(dfgElse.indeg(n2)==0) {
+
+						  n2_fanin0_set.insert(n2);
+						  Tree *t=(dfgElse)[n2];
+						  cout << "--fanin0 n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+
+					  }
 				  }
 
 				  // check if n1_n2 nodes also lie in n0
+				  // TODO: condition node can still use the n0's portion of the graph! yikes!
 				  node n0_check;
 				  set<node> n0_blacklist;
 				  forall(n0_check, n0_set) {
@@ -552,6 +597,28 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  }
 				  }
 
+				  // Handle all primary inputs of the smaller graph and connect them to the larger graph..
+				  node fanout0_node;
+				  set<node> n0_fanout0_set;
+				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
+					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
+						  n0_fanout0_set.insert(fanout0_node);
+						  Tree *t=(*dfgi->dfg)[fanout0_node];
+						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+					  }
+				  }
+
+
+
+
+				  // Create the condition node prior to merging! FTW?
+				  node tempnode = (*dfgi->dfg).new_node(ec);
+				  createBlockDfg_for_expr(ec,dfgi,tempnode);
+				  edge conditionedge = (*dfgi->dfg).first_in_edge(tempnode); // extract the condition node...
+				  node conditionnode = (*dfgi->dfg).source(conditionedge);
+				  (*dfgi->dfg).del_edge(conditionedge);
+				  (*dfgi->dfg).del_node(tempnode);
+
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
 				  (*dfgi->dfg).join(dfgElse);
@@ -565,7 +632,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: This should check if node already exists..
 					  node n=(*dfgi->dfg).new_node(n1_n2_dummyexpr);
 					  (*dfgi->nodemap)[n1_n2_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, n1_n2_dummyexpr, ec, n1_n2_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgThen, n, n1_n2_dummyexpr, ec, n1_n2_sym, dfgi, (Stmt*)t, conditionnode);
 				  }
 
 				  // Condition 2: when THEN part is missing!!
@@ -576,7 +643,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, conditionnode);
 				  }
 
 
@@ -589,15 +656,52 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, conditionnode);
 
 				  }
 
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
 			  } else {
 
+
+				  // Handle all primary inputs of the smaller graph and connect them to the larger graph..
+				  node fanout0_node;
+				  h_array<Symbol*,node> *n0_fanout0_set = new h_array<Symbol*,node>;
+				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
+					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
+						  node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(fanout0_node)));
+						  assert(input_node);
+						  Tree *t=(*dfgi->dfg)[fanout0_node];
+						  Tree *t1=((*dfgi->dfg)[input_node]);
+						  (*n0_fanout0_set)[((ExprLValue*)t)->getSymbol()]=input_node;
+						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << " with input=" << t1->toString()  << "[" << input_node << "]"<< endl;
+					  }
+				  }
+
+
+				  node test_node;
+				  cout << "Graph=====" << endl;
+				  forall_nodes(test_node, *dfgi->dfg) {
+					  Tree* t = (Tree*)(*dfgi->dfg)[test_node];
+					  cout << "\tNode=" << test_node << "=" << t->toString() << endl;
+				  }
+
+				  cout << "Size of H-array=" << n0_fanout0_set->size() << endl;
+				  Symbol* symtest;
+				  forall_defined(symtest, *n0_fanout0_set) {
+					  cout << "Symbol:" << symtest << "Val:" << (*n0_fanout0_set)[symtest] << endl;
+				  }
 				  cout << "--Processing case where there is no ELSE part!" << endl;
 
+
+
+				  // Create the condition node prior to merging! FTW?
+				  node tempnode = (*dfgi->dfg).new_node(ec);
+				  createBlockDfg_for_expr(ec,dfgi,tempnode);
+				  edge conditionedge = (*dfgi->dfg).first_in_edge(tempnode); // extract the condition node...
+				  node conditionnode = (*dfgi->dfg).source(conditionedge);
+				  (*dfgi->dfg).del_edge(conditionedge);
+				  (*dfgi->dfg).del_node(tempnode);
 
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
@@ -610,7 +714,43 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
-					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t);
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, conditionnode);
+				  }
+
+				  test_node;
+				  cout << "Graph=====" << endl;
+				  forall_nodes(test_node, *dfgi->dfg) {
+					  Tree* t = (Tree*)(*dfgi->dfg)[test_node];
+					  cout << "\tNode=" << test_node << "=" << t->toString() << endl;
+				  }
+
+				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
+				  node n1_search;
+				  forall(n1_search, n1_fanin0_set) {
+					  node n0_search = (*n0_fanout0_set)[((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()];
+					  cout << "Dialing symbol=" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << " with ptr= " << n0_search << endl;
+					  if(n0_search!=NULL) {
+						  cout << "Matched... but now what?" << endl;
+						  ExprLValue* t=(ExprLValue*)(*dfgi->dfg)[n0_search];
+						  assert(t);
+						  cout << "Attempting to match n0_search=" << t->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n0_search])->getSymbol() << "]" << endl;
+						  cout << " with n1_search=" << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << "]" << endl;
+
+						  edge fanout_edge;
+						  forall(fanout_edge,(*dfgi->dfg).out_edges(n1_search)) {
+							  node sink_node = (*dfgi->dfg).target(fanout_edge);
+							  cout << "---------------------- Replacing matched node=" << ((Tree*)(*dfgi->dfg)[sink_node])->toString()
+												  << " oldinput=" << ((Tree*)(*dfgi->dfg)[n1_search])->toString()
+												  << " newinput=" << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
+							  (*dfgi->dfg).new_edge(n0_search, sink_node, NULL);
+						  }
+						  forall(fanout_edge,(*dfgi->dfg).out_edges(n1_search)) {
+							  (*dfgi->dfg).del_edge(fanout_edge);
+						  }
+						  (*dfgi->dfg).del_node(n1_search);
+
+
+					  }
 				  }
 
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
@@ -639,19 +779,19 @@ bool createBlockDfg_map (Tree *t, void *i)
 }
 
 // copy the DFG from source to dest and attach connections to destnode..
-void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t) {
+void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node conditionnode) {
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
 
 	// this become the MUX node! Yeah!
-	Expr *conditionexpr = new ExprCond(ec->getToken(), ec, (Type*)destsym->getType()->duplicate());
-	node conditionnode=(*dfgi->dfg).new_node(conditionexpr);
-	(*dfgi->nodemap)[conditionexpr]=conditionnode;
+	Expr *ifexpr = new ExprCond(ec->getToken(), ec, (Type*)destsym->getType()->duplicate());
+	node ifnode=(*dfgi->dfg).new_node(ifexpr);
+	(*dfgi->nodemap)[ifexpr]=ifnode;
 
-	destdfg->new_edge(conditionnode, destnode, NULL);
+	destdfg->new_edge(ifnode, destnode, NULL);
 
-	StmtAssign* destnodeStmt = new StmtAssign(NULL, lval, &conditionnode); // lhs=lval, rhs=conditionnode
+	StmtAssign* destnodeStmt = new StmtAssign(NULL, lval, &ifnode); // lhs=lval, rhs=conditionnode
 
 	bool matched=false;
 	node srcnode, node, in_node;
@@ -668,7 +808,7 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 				forall_in_edges(in_edge, node) {
 					in_node = destdfg->source(in_edge);
 					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
-					destdfg->new_edge(in_node,conditionnode,NULL); // replaced destnode with n
+					destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
 				}
 				destdfg->del_node(node); // remove this duplicate node
 			}
@@ -689,11 +829,12 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 
 		// - record live asst
 		(*dfgi->livedefs)[destsym]=destnodeStmt;
-		cout << "-- Defined livedef for " << (*destdfg)[destnode]->toString() << endl;
+		cout << "-- Defined livedef for " << (*destdfg)[destnode]->toString() << " when processing " << t->toString() << endl;
 
 	}
 
-	createBlockDfg_for_expr(ec,dfgi,conditionnode);
+	destdfg->new_edge(conditionnode, ifnode, NULL); // condition node is shared by all IFs..
+
 }
 
 
@@ -714,11 +855,11 @@ void createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   nondfstmts->clear();
   locals->clear();
   new_locals->clear();
-  map<Expr*,node>          nodemap;
-  map<Symbol*,StmtAssign*> livedefs(NULL);	// StmtAssign* has no default?
+  h_array<Expr*,node>          nodemap;
+  h_array<Symbol*,StmtAssign*> livedefs(NULL);	// StmtAssign* has no default?
   map<Symbol*,node>        extdefs;
   list<StmtAssign*>        deaddefs;
-  BlockDfgInfo dfgi(dfg,&nodemap,&livedefs,&extdefs,&deaddefs,
+  BlockDfgInfo dfgi(dfg,NULL,&nodemap,&livedefs,&extdefs,&deaddefs,
 		    nondfstmts,locals, vars);
   Stmt *s;
   forall (s,*stmts) {
