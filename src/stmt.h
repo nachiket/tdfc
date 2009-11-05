@@ -200,16 +200,16 @@ class StmtAssign : public Stmt
 private:
   ExprLValue	*lvalue;
   Expr		*rhs;
-  node		*rhsnode; // Added on 11/3/2009 to enable using graph-structure when building the final BlockDFG! Sheesh!
+  node		rhsnode; // Added on 11/3/2009 to enable using graph-structure when building the final BlockDFG! Sheesh!
 
 public:
   StmtAssign (Token *token_i, ExprLValue *lvalue_i, Expr *rhs_i);
-  StmtAssign (Token *token_i, ExprLValue *lvalue_i, node *rhs_i);
+  StmtAssign (Token *token_i, ExprLValue *lvalue_i, node rhs_i);
   virtual ~StmtAssign () {}
 
   ExprLValue*		getLValue	() const	{ return lvalue; }
   Expr*			getRhs		() const	{ return rhs; }
-  node*			getRhsnode	() const	{ return rhsnode; }
+  node			getRhsnode	() const	{ return rhsnode; }
 
   virtual bool		okInComposeOp	() const	{ return true; }
 

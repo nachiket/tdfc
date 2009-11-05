@@ -106,7 +106,7 @@ StmtAssign::StmtAssign (Token *token_i, ExprLValue *lvalue_i, Expr *rhs_i)
   rhs   ->setParent(this);
 }
 
-StmtAssign::StmtAssign (Token *token_i, ExprLValue *lvalue_i, node *rhs_i)
+StmtAssign::StmtAssign (Token *token_i, ExprLValue *lvalue_i, node rhs_i)
   : Stmt(token_i,STMT_ASSIGN),
     lvalue(lvalue_i),
     rhsnode(rhs_i)

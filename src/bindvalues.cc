@@ -794,6 +794,7 @@ Expr *EvaluateExpr(Expr *orig)
 	    long long v;
 	    float vf;
 	    double vd;
+	    TypeKind vKind;
 	    if (value1->getExprKind()==EXPR_VALUE) 
 	      {
 
@@ -814,10 +815,13 @@ Expr *EvaluateExpr(Expr *orig)
 						      value2)));
 		    else break;
 		  }
+		cout << "DEBUG: type=" << typekindToString((((ExprValue *)value1)->getType())->getTypeKind()) << " value=" << v1 << "," << v1f << "," << v1d << endl;
+
 		v=v1;
 		vf=v1f;
 		vd=v1d;
 		value_expr=value2;
+		vKind=(((ExprValue *)value1)->getType())->getTypeKind();
 	      }
 	    else
 	      {
@@ -899,6 +903,7 @@ Expr *EvaluateExpr(Expr *orig)
 		vf=v2f;
 		vd=v2d;
 		value_expr=value1;
+		vKind=(((ExprValue *)value2)->getType())->getTypeKind();
 	      }
 
 	    // handle cases where order not important
@@ -929,9 +934,9 @@ Expr *EvaluateExpr(Expr *orig)
 		else
 		  break;
 	      case('+'):   	  if(
-	      				((orig->getType())->getTypeKind()==TYPE_FLOAT && vf==0) ||
-	      				((orig->getType())->getTypeKind()==TYPE_DOUBLE && vd==0) ||
-	      				((orig->getType())->getTypeKind()==TYPE_INT && v==0))
+	      				(vKind==TYPE_FLOAT && vf==0) ||
+	      				(vKind==TYPE_DOUBLE && vd==0) ||
+	      				(vKind==TYPE_INT && v==0))
 					  {
 					    cerr << "folding out +0 on add [" << orig->toString() 
 						 << "]" << endl;
@@ -941,26 +946,27 @@ Expr *EvaluateExpr(Expr *orig)
 					  }
 				  else break;
 	      case('*'):   	  if(
-	      				((orig->getType())->getTypeKind()==TYPE_FLOAT && vf==0) || 
-	      				((orig->getType())->getTypeKind()==TYPE_DOUBLE && vd==0) || 
-	      				((orig->getType())->getTypeKind()==TYPE_INT && v==0))
+	      				(vKind==TYPE_FLOAT && vf==0) ||
+	      				(vKind==TYPE_DOUBLE && vd==0) ||
+	      				(vKind==TYPE_INT && v==0))
 					  {
-					    cerr << "folding out *1 on mult [" << orig->toString() 
+					    cerr << "folding out *0 on mult [" << orig->toString()
 						 << "]" << endl;
 					    return(new ExprCast(orig->getToken(),
-								(orig->getType()),
-								value_expr));
+					   								(orig->getType()),
+					   								0));
+
 					  }
 	      			  else if(
-				  	((orig->getType())->getTypeKind()==TYPE_FLOAT && vf==1) || 
-	      				((orig->getType())->getTypeKind()==TYPE_DOUBLE && vd==1) || 
-	      				((orig->getType())->getTypeKind()==TYPE_INT && v==1)) 
+				  	(vKind==TYPE_FLOAT && vf==1) ||
+	      				(vKind==TYPE_DOUBLE && vd==1) ||
+	      				(vKind==TYPE_INT && v==1))
 					  {
 					    cerr << "folding out *1 on mult [" << orig->toString() 
 						 << "]" << endl;
 					    return(new ExprCast(orig->getToken(),
-								(orig->getType()),
-								0));
+					    								(orig->getType()),
+					    								value_expr));
 					  }
 				  else break;
 	      case('|'): 
