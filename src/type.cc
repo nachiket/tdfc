@@ -405,6 +405,9 @@ bool Type::upgradable (const Type *t) const
     return true;
   if (typeKind==TYPE_NONE && t->typeKind==TYPE_NONE)
     return true;
+  // added rule on 11/5/2009
+  if((t->typeKind==TYPE_FLOAT || t->typeKind==TYPE_DOUBLE) && (typeKind==TYPE_INT || typeKind==TYPE_FIXED))
+	  return true;
   if (typeKind!=t->typeKind)
     return false;
   // now know typeKind==t->typeKind, and neither is TYPE_ANY or TYPE_NONE

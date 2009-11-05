@@ -463,11 +463,29 @@ Expr *EvaluateExpr(Expr *orig)
 						orig->getType(),
 						((ExprValue *)value)->
 							getFloatVal()));
-		      else if (orig->getType()->getTypeKind()==TYPE_DOUBLE)
-			return(new ExprValue   (orig->getToken(),
+		      else if (orig->getType()->getTypeKind()==TYPE_DOUBLE) {
+		    	  // Added special case with integer right hand sides...
+		    	  if(value->getType()->getTypeKind()==TYPE_INT) {
+		  			return(new ExprValue   (orig->getToken(),
+		  						orig->getType(),
+		  						(double)((ExprValue *)value)->
+		  							getIntVal()));
+		    	  } else if(value->getType()->getTypeKind()==TYPE_FIXED) {
+		    		  if(((ExprValue *)value)->getFracVal()==0) {
+		  			return(new ExprValue   (orig->getToken(),
+		  						orig->getType(),
+		  						(double)((ExprValue *)value)->getIntVal()
+		  						));
+		    		  } else {
+		    			  fatal(-1,"This sucks.. How do I deal with fixed-point types??");
+		    		  }
+		    	  } else {
+		    		  return(new ExprValue   (orig->getToken(),
 						orig->getType(),
 						((ExprValue *)value)->
 							getDoubleVal()));
+		    	  }
+		      }
 		      else
 			return(new ExprValue   (orig->getToken(),
 						orig->getType(),
@@ -828,6 +846,9 @@ Expr *EvaluateExpr(Expr *orig)
 		long long v2=((ExprValue *)value2)->getIntVal();
 		float v2f=((ExprValue *)value2)->getFloatVal();
 		double v2d=((ExprValue *)value2)->getDoubleVal();
+
+		cout << "DEBUG: type=" << typekindToString((((ExprValue *)value2)->getType())->getTypeKind()) << " value=" << v2<< "," << v2f << "," << v2d << endl;
+
 		switch (bexpr->getOp())
 		  {
 		  case('-'):
