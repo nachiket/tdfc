@@ -149,8 +149,12 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    node nrhs=asst->getRhsnode();
 			    // node n=...
 			    if(rval!=NULL) {
-			    	cout << "Found rval" << rval << endl;
+			    	cout << "Found rval " << rval << endl;
 			    	n=(*dfgi->nodemap)[rval];
+			    	if(n==NULL) {
+			    		cout << "Why is the assignment NULL? lval=" << lval << " assignment=" << asst  << endl;
+			    		//exit(-1);
+			    	}
 			    } else if(nrhs!=NULL){
 			    	// Added by Nachiket on 11/3/2009
 			    	n=nrhs;
@@ -761,8 +765,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 						  cout << "Outputs=" << (*dfgi->dfg).outdeg(n1_search) << endl;
 						  edge fanout_edge;
 						  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
+						  set<node> new_nodes;
 
-						  forall(fanout_edge,(*dfgi->dfg).out_edges(n1_search)) {
+						  forall(fanout_edge,replace_edges) {
 						  	  cout << "Processing crazy edge=" << fanout_edge << endl;
 							  cout << " oldinput=" << n1_search << endl; //" " << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << endl;
 							  cout << " newinput=" << n0_search << endl; //" " << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
@@ -776,10 +781,12 @@ bool createBlockDfg_map (Tree *t, void *i)
 							  // NACHIKET"S NOTE: 11/4/2009: This is the craziest bug ever... How does commenting the following line prevent fanout_edge from going NULL??
 							  //							  cout << "---------------------- Replacing matched node=" << sink_node << " "<< ((Tree*)(*dfgi->dfg)[sink_node])->toString() << endl;
 
+							  new_nodes.insert(sink_node);
 							  (*dfgi->dfg).new_edge(n0_search, sink_node, NULL);
 						  }
 
-						  forall(fanout_edge,(*dfgi->dfg).out_edges(n1_search)) {
+						  forall(fanout_edge,replace_edges) {
+							  cout << "Deleting edge=" << fanout_edge << endl;
 							  (*dfgi->dfg).del_edge(fanout_edge);
 						  }
 
@@ -830,7 +837,10 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 	StmtAssign* destnodeStmt = new StmtAssign(NULL, lval, ifnode); // lhs=lval, rhs=conditionnode
 
 	bool matched=false;
-	node srcnode, node, in_node;
+	set<node> deleting_nodes;
+	node srcnode, node, in_node, del_node;
+
+
 	forall_nodes(node, *destdfg) {
 		if(destdfg->outdeg(node)==0 && ((*destdfg)[node])->isLValue()) {
 			Symbol* sym = ((ExprLValue*)(*destdfg)[node])->getSymbol();
@@ -846,9 +856,13 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
 					destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
 				}
-				destdfg->del_node(node); // remove this duplicate node
+				deleting_nodes.insert(node);
 			}
 		}
+	}
+
+	forall(del_node, deleting_nodes) {
+		destdfg->del_node(del_node); // remove this duplicate node
 	}
 
 	if(matched) {
@@ -865,7 +879,7 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 
 		// - record live asst
 		(*dfgi->livedefs)[destsym]=destnodeStmt;
-		cout << "-- Defined livedef for " << (*destdfg)[destnode]->toString() << "[" << destnode << "] with lval=" << lval << ",rhs=" << ifnode << " " << &ifnode << " for assignment=" << destnodeStmt << endl;
+		cout << "-- Defined livedef for " << (*destdfg)[destnode]->toString() << "[" << destnode << "] with lval=" << lval << ",rhs=" << ifnode << " for assignment=" << destnodeStmt << endl;
 
 	}
 
