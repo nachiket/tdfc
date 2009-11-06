@@ -514,7 +514,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  }
 			  }
 
-			  if(elsePart!=NULL) {
+			  cout << "dfgThen numnodes=" << dfgThen.number_of_nodes() << endl;
+			  cout << "dfgElse numnodes=" << dfgElse.number_of_nodes() << endl;
+			  if(elsePart!=NULL && dfgElse.number_of_nodes()!=0) {
 				  node n2;
 				  set<node> n2_set;
 				  set<node> n2_fanin0_set;
@@ -664,7 +666,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  }
 
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
-			  } else {
+			  } else if(dfgThen.number_of_nodes()!=0){
 
 
 				  // Handle all primary inputs of the smaller graph and connect them to the larger graph..
