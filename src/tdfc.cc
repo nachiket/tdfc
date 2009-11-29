@@ -534,7 +534,7 @@ void emitCC (int dpr, int dps)
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
     ccheader(op); 
-    ccbody(op,dpr); 
+    ccdfgbody(op,dpr); // NACHIKET
     timestamp(string("begin instances for ")+op->getName());
     set<string>* instance_names=instances(op,TARGET_CC,dps); 
     
