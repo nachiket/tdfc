@@ -40,6 +40,7 @@
 #include "cceval.h"
 #include "ccstmt.h"
 
+using std::cout;
 using std::endl;
 using leda::list_item;
 
@@ -53,6 +54,10 @@ Note: builtins expecting to handle here
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep=0, bool retime)
 {
+
+//	if(retime) {
+//		cout << "Such bullshit" << endl; exit(1);
+//	}
 
   switch (stmt->getStmtKind())
     {
