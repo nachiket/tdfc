@@ -42,6 +42,9 @@ using leda::list_item;
 using leda::list;
 using leda::set;
 
+using std::cerr;
+using std::endl;
+
 ////////////////////////////////////////////////////////////////
 // pre-defined operators
 //  - initialized by OperatorBuiltin::init()
@@ -843,6 +846,37 @@ string OperatorBehavioral::toString () const
   return declToString() + "\n{\n" + varsStr + statesStr + "}\n";
 }
 
+// Added by Nachiket on 11/29/2009 to build dataflow graphs
+void OperatorBehavioral::buildDataflowGraph() const
+{
+
+	// - create dfg + residual stmts
+	set<StateCase*> statecases;
+	StateCase *sc;
+	dic_item i;
+	forall_items (i,*states) {
+		State *s = states->inf(i);
+		string sname=s->getName();
+		cout << "CREATING DFG for State=" << sname << "[" << s <<"]" << endl;
+		forall (sc,*s->getCases()) {
+			//cout << "Case=" << sc->toString() << endl;
+			statecases.insert(sc);
+		}
+	}
+
+	StateCase *sc1;
+	forall (sc1,statecases) {
+
+		BlockDFG dfg;
+		list<Stmt*> stmts1 = *sc1->getStmts();
+
+		createBlockDfgSimple(&dfg,&stmts1,vars);
+		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
+		cout << "Statecase=" << sc1 << " DFG=" << &dfg << endl;
+	}
+
+}
+
 string OperatorBehavioral::toDFGString () const
 {
 
@@ -880,6 +914,7 @@ string OperatorBehavioral::toDFGString () const
 		// debug end
 
 		createBlockDfgSimple(&dfg,&stmts1,vars);
+		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
 		string dfgStr = printBlockDFG(&dfg, NULL, NULL, NULL); 
 		//cout << dfgStr << endl;
 

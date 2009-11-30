@@ -96,7 +96,8 @@ enum Target { TARGET_TDF,
 	    //TARGET_CLUSTERS,
 	      TARGET_STREAMDEPTH,
 	      TARGET_RI,
-	      TARGET_DFG		// added by Nachiket on 9/10/2009
+	      TARGET_DFG,		// added by Nachiket on 9/10/2009
+	      TARGET_DFGCC,		// added by Nachiket on 11/29/2009
 	    };
 
 char *feedback_ext[2]={"fuser","fauto"};
@@ -452,6 +453,13 @@ set<string> *instances (Operator *op, Target targ,
 	    cout << ((OperatorBehavioral*)iop)->toDFGString();
 	  }
 	  break;
+	case TARGET_DFGCC:
+		if(iop->getOpKind()==OP_BEHAVIORAL) {
+			((OperatorBehavioral*)iop)->buildDataflowGraph();
+		} else {
+			cout << "Not behavioral??" << endl; exit(1);
+		}
+		break;
 	case TARGET_CC:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
@@ -512,12 +520,30 @@ void emitDFG ()
   // - emit DFG code for all operators  (-edfg option)
 
   Operator *op;
-  forall(op,*gSuite->getOperators())
+//  forall(op,*gSuite->getOperators())
 //    cout << "// DFG for Operator " << op->getName() << '\n';
 //  cout << '\n' << gSuite->toString();
   // not print instances
   forall(op,*gSuite->getOperators())
     instances(op,TARGET_DFG,0);
+}
+
+void emitDFGCC ()
+{
+	// - emit DFG and the associated C++ code (-edfgcc option)
+
+	Operator *op;
+	forall(op,*gSuite->getOperators()) {
+		//instances(op, TARGET_DFGCC,0); // CAUTION: DON'T NEED TO STORE DFGs INSIDE INSTANCE! KEEP IN ORIGINAL..
+		if(op->getOpKind()==OP_BEHAVIORAL) {
+			((OperatorBehavioral*)op)->buildDataflowGraph();
+		} else {
+			cout << "Non-behavioral operator!" << endl;
+		}
+		ccheader(op);
+		ccdfgbody(op,0);
+	}
+
 }
 
 void emitCC (int dpr, int dps)
@@ -534,7 +560,7 @@ void emitCC (int dpr, int dps)
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
     ccheader(op); 
-    ccdfgbody(op,dpr); // NACHIKET
+    ccbody(op,dpr); // NACHIKET
     timestamp(string("begin instances for ")+op->getName());
     set<string>* instance_names=instances(op,TARGET_CC,dps); 
     
@@ -685,6 +711,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_TDF;
     else if (strcmp(argv[arg],"-edfg")==0)	// -edfg     : emit DFG
       optionTarget = TARGET_DFG;
+    else if (strcmp(argv[arg],"-edfgcc")==0)	// -edfg : emit DFG and C++ code wrappers for verification
+      optionTarget = TARGET_DFGCC;
     else if (strcmp(argv[arg],"-ecc")==0)	// -ecc      : emit C++
       optionTarget = TARGET_CC;
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
@@ -925,6 +953,7 @@ int main(int argc, char *argv[])
     {
       case TARGET_TDF:		emitTDF();			  break;
       case TARGET_DFG:		emitDFG();			  break;
+      case TARGET_DFGCC:	emitDFGCC();		  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
 				       optionDebugPageStep);	  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;

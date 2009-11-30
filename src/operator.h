@@ -119,6 +119,7 @@ public:
   virtual BindTime	getBindTime	() const;
   virtual Tree*		duplicate	() const;
   virtual string	toString	() const;
+  virtual void		buildDataflowGraph() const;
   virtual string	toDFGString	() const;
   virtual void		map		(TreeMap pre,
 					 TreeMap post=NULL, void *i=NULL);

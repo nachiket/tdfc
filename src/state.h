@@ -40,6 +40,7 @@
 #include <LEDA/core/set.h>
 #include "type.h"
 #include "tree.h"
+#include "blockdfg.h" // Added by Nachiket on 11/29/2009
 
 class StateCase;
 class InputSpec;
@@ -95,6 +96,7 @@ class StateCase : public Tree
 private:
   list<InputSpec*>	*inputs;
   list<Stmt*>		*stmts;
+  BlockDFG			dfg; // Added by Nachiket on 11/29/2009 to store the dataflow graph for each case..
 
 public:
   StateCase (Token *token_i, list<InputSpec*> *inputs_i,
@@ -104,6 +106,8 @@ public:
 
   list<InputSpec*>*	getInputs	() const	{ return inputs; }
   list<Stmt*>*		getStmts	() const	{ return stmts; }
+  void			addDataflowGraph(BlockDFG dfg_i);
+  BlockDFG		getDataflowGraph() const 	{ return dfg;}
   void			addInput	(InputSpec *input_i);
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}

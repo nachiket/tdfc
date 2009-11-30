@@ -34,8 +34,12 @@
 #include "operator.h"
 #include "stmt.h"
 #include "expr.h"
+#include "blockdfg.h" // Added by Nachiket on 11/29/2009
 
 using leda::list_item;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 ////////////////////////////////////////////////////////////////
 //  constructors
@@ -292,6 +296,13 @@ bool State::setName (const string &newName)
   }
 }
 
+// Added by Nachiket on 11/29/2009 to remember the dataflow graph extracted per state case
+void StateCase::addDataflowGraph(BlockDFG dfg_i) {
+	if(&dfg_i==NULL) {
+		cerr << "Cannot accept a NULL dataflow graph" << endl;
+	}
+	dfg=dfg_i;
+}
 
 void StateCase::addInput (InputSpec *ispec_i)
 {

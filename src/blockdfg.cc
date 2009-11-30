@@ -1006,57 +1006,58 @@ string printBlockDFG (BlockDFG *dfg,
 
   node n;
   forall_nodes (n,*dfg) {
+
 	  //cout << "Node..." << endl;
-    nodenums[n] = nodenum++;
-    ret += string("node %d ",nodenums[n]);
-    //ret += (dfg->indeg (n)==0 ? "PI " :
-    //        dfg->outdeg(n)==0 ? "PO " : "in="+string("%d",dfg->indeg(n))+",out="+string("%d",dfg->outdeg(n)));
-    if (areas)
-      ret += string("A=%d ",(*areas)[n]);
-    if (latencies)
-      ret += string("L=%d ",(*latencies)[n]);
-    if (depths)
-      ret += string("D=%d ",(*depths)[n]);
-    Tree *t=(*dfg)[n];
+	  nodenums[n] = nodenum++;
+	  ret += string("node %d ",nodenums[n]);
+	  //ret += (dfg->indeg (n)==0 ? "PI " :
+	  //        dfg->outdeg(n)==0 ? "PO " : "in="+string("%d",dfg->indeg(n))+",out="+string("%d",dfg->outdeg(n)));
+	  if (areas)
+		  ret += string("A=%d ",(*areas)[n]);
+	  if (latencies)
+		  ret += string("L=%d ",(*latencies)[n]);
+	  if (depths)
+		  ret += string("D=%d ",(*depths)[n]);
+	  Tree *t=(*dfg)[n];
 
-    string opType;
-	if(t->getKind()==TREE_EXPR) {
-		if(((Expr*)t)->getExprKind()==EXPR_BOP) {
-			opType= opToString(((ExprBop*)t)->getOp());
-			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
-		} else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
-			opType=opToString(((ExprUop*)t)->getOp());
-			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
-		} else if(((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator IF \n";
-		} else {
-			string var="";
-			if(((Expr*)t)->getExprKind()==EXPR_VALUE) {
-				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " constant";
-			}
-			if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
-				string t_str1 = t ? t->toString().replace_all("\n","") : string("<nil>");
-//				Type typ=(*((Expr*)t)->getType());
-//				cout << " DUckerppp" << t_str1 << endl;
-//				cout << " YType=" << (*((Expr*)t)->getType()).toString() << endl;
-				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
-			}
-			// For now I am throwing out the typecasting.. not necessary
-			if(((Expr*)t)->getExprKind()==EXPR_CAST) {
-				var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
-			}
+	  string opType;
+	  if(t->getKind()==TREE_EXPR) {
+		  if(((Expr*)t)->getExprKind()==EXPR_BOP) {
+			  opType= opToString(((ExprBop*)t)->getOp());
+			  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
+		  } else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
+			  opType=opToString(((ExprUop*)t)->getOp());
+			  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
+		  } else if(((Expr*)t)->getExprKind()==EXPR_COND) {
+			  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator IF \n";
+		  } else {
+			  string var="";
+			  if(((Expr*)t)->getExprKind()==EXPR_VALUE) {
+				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " constant";
+			  }
+			  if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+				  string t_str1 = t ? t->toString().replace_all("\n","") : string("<nil>");
+				  //				Type typ=(*((Expr*)t)->getType());
+				  //				cout << " DUckerppp" << t_str1 << endl;
+				  //				cout << " YType=" << (*((Expr*)t)->getType()).toString() << endl;
+				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
+			  }
+			  // For now I am throwing out the typecasting.. not necessary
+			  if(((Expr*)t)->getExprKind()==EXPR_CAST) {
+				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
+			  }
 
-//			cout << "ExprType for weirdness=" << exprkindToString(((Expr*)t)->getExprKind()) << endl;
+			  //			cout << "ExprType for weirdness=" << exprkindToString(((Expr*)t)->getExprKind()) << endl;
 
-			string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-			//ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
-			ret += var + " "  + t_str + "\n";
-		}
-	} else {
+			  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+			  //ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
+			  ret += var + " "  + t_str + "\n";
+		  }
+	  } else {
 
-	    string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-	    ret += " "+treekindToString(t->getKind())+" "+ t_str + "\n";
-    	}
+		  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+		  ret += " "+treekindToString(t->getKind())+" "+ t_str + "\n";
+	  }
   }
 
   // attempt to generate graph by iterating over nodes and the input edges of node..

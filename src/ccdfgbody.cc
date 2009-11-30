@@ -55,7 +55,7 @@
 #include "ccmem.h"
 #include "instance.h" // blah, just for unique_name()
 #include "cccopy.h"
-//#include "ccbody.cc"
+#include "blockdfg.h" // Added by Nachiket on 11/29/2009
 
 /***********************************************************************
 Note:
@@ -67,6 +67,8 @@ Note:
 using leda::list_item;
 using leda::dic_item;
 using std::ofstream;
+using leda::node_array;
+
 
 void ccDfgComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
@@ -800,6 +802,11 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 	  State* cstate=states->inf(item);
 	  string sname=cstate->getName();
 
+//	  StateCase* case_inst;
+//	  forall(case_inst, *cstate->getCases()) {
+//		  cout << "Before processing=" << case_inst << endl;
+//	  }
+
 	  array<StateCase*>* cases=caseSort(cstate->getCases());
 	  array<Symbol*>* caseIns=allCaseIns(cases);
 	  array<int>* firstUsed=inFirstUsed(caseIns,cases);
@@ -945,11 +952,63 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 		    }
                   *fout << "<< \")\" << endl;" << endl;
 		}
-	      Stmt* stmt;
-	      forall(stmt,*(acase->getStmts()))
+	      BlockDFG dfgVal=(acase->getDataflowGraph());
+	      BlockDFG* dfg=&dfgVal;
+	      if(dfg==NULL) {
+	    	  cout << "No dataflow graph found in state=" << sname << "["<< cstate << "] acase="<< acase <<"!" << endl;
+	      } else {
+	    	  cout << "Dataflow graph found in state=" << sname << "["<< cstate << "] acase="<< acase <<" DFG="<< &dfgVal << "!" << endl;
+	    	  // dump out the dataflow graph..
+	    	  int nodenum=0;
+	    	  node_array<int> nodenums(*dfg);
+
+	    	  //cout << "Graph" << endl;
+	    	  printf("BlockDFG  (%d nodes, %d edges)\n",dfg->number_of_nodes(), dfg->number_of_edges());
+	    	  fflush(stdout);
+	    	  node n;
+	    	  forall_nodes(n,*dfg) {
+	    		  nodenums[n] = nodenum++;
+	    		  string ret = string("node %d ",nodenums[n]);
+	    		  cout << "Node=" << nodenums[n] << endl;
+	    		  string opType;
+	    		  Tree *t=(*dfg)[n];
+	    		  if(t->getKind()==TREE_EXPR) {
+	    			  if(((Expr*)t)->getExprKind()==EXPR_BOP) {
+	    				  opType= opToString(((ExprBop*)t)->getOp());
+	    				  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
+	    			  } else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
+	    				  opType=opToString(((ExprUop*)t)->getOp());
+	    				  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
+	    			  } else if(((Expr*)t)->getExprKind()==EXPR_COND) {
+	    				  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator IF \n";
+	    			  } else {
+	    				  string var="";
+	    				  if(((Expr*)t)->getExprKind()==EXPR_VALUE) {
+	    					  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " constant";
+	    				  }
+	    				  if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+	    					  string t_str1 = t ? t->toString().replace_all("\n","") : string("<nil>");
+	    					  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
+	    				  }
+	    				  // For now I am throwing out the typecasting.. not necessary
+	    				  if(((Expr*)t)->getExprKind()==EXPR_CAST) {
+	    					  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
+	    				  }
+
+	    				  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+	    				  ret += var + " "  + t_str + "\n";
+	    			  }
+	    		  } else {
+
+	    			  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+	    			  ret += " "+treekindToString(t->getKind())+" "+ t_str + "\n";
+	    		  }
+	    		  *fout << ret << endl;
+	    	  }
+	      }
 		{
-		  ccStmt(fout,string("          "),stmt,early_close,
-			 STATE_PREFIX,0, false); // 0 was default for ccStmt.h
+		  //ccStmt(fout,string("          "),stmt,early_close,
+			// STATE_PREFIX,0, false); // 0 was default for ccStmt.h
 		}
 	      *fout << "        }" << endl;
 	      *fout << "        else" << endl;
@@ -1061,8 +1120,7 @@ void ccdfgbody (Operator *op, int debug_logic)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
-  
-  
+
   string name=op->getName();
   Symbol *rsym=op->getRetSym();
   string classname;
