@@ -53,3 +53,28 @@ string opToString (int op)
 			else		return string("%c",op);
   }
 }
+
+string opToNodename (int op)
+{
+  switch (op)
+  {
+    case EQUALS:	return string("eq");
+    case GTE:		return string("gte");
+    case LEFT_SHIFT:	return string("lsh");
+    case LOGIC_AND:	return string("land");
+    case LOGIC_OR:	return string("lor");
+    case LTE:		return string("lte");
+    case NOT_EQUALS:	return string("neq");
+    case RIGHT_SHIFT:	return string("rsh");
+    case EXP:		return string("exp");
+    case LOG:		return string("log");
+    case SQRT:		return string("sqrt");
+    case FLOOR:		return string("floor");
+    default:		if (op=='%')	return string("perc");
+    			if (op=='+')	return string("plus");
+    			if (op=='-')	return string("minus");
+    			if (op=='*')	return string("multiply");
+    			if (op=='/')	return string("divide");
+			else		return string("%c",op);
+  }
+}

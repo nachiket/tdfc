@@ -81,6 +81,8 @@ using leda::array;
 
 void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
 string nodetostring(node n, Tree* t, int nodenum);
+string nodetovarstring(node n, Tree* t);
+string nodetofnstring(node n, Tree* t);
 
 void ccDfgComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
@@ -995,16 +997,75 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 		  computeASAPOrdering(dfg, &arranged_list, &depths);
 
 		  //cout << "Started" << endl;
+		  node_array<int> nodenums(*dfg);		    
+		  forall(n,arranged_list) {
+		  	nodenums[n]=nodenum++;
+		  }
 
 		  // TODO: From the ASAP ordering, start printing out nodes... How about just building the dataflow expression?
 		  forall(n,arranged_list) {
 		  	if(!dfg->indeg(n)==0) {
 				if(dfg->indeg(n)==2) {
 					// binary operator
-					cout << "Binary Node=" << n << " Name=" << nodetostring(n,(dfgVal)[n],nodenum++) << " Depth=" << depths[n] << endl;
+					*fout << "          // Binary Node" << endl;
+					*fout << "          " << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ";
+					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+					int edgenum=0;
+					edge e;
+					forall (e,dfg_in_edges_n) {
+						// - examine inputs of n
+						node src=(*dfg).source(e);
+						if(dfg->indeg(src)==0) {
+							Tree* t=(dfgVal)[src];
+							if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+								Symbol *asym=((ExprLValue*)t)->getSymbol();
+								if (asym!=NULL && asym->isStream())
+								{
+									SymbolStream *ssym=(SymbolStream *)asym;
+									if (ssym->getDir()==STREAM_IN)
+									{
+										*fout << nodetovarstring(src, (dfgVal)[src]) << " ";
+									}
+								}
+							}
+
+						} else {
+							*fout << nodetostring(src, (dfgVal)[src],nodenums[src]) << " ";
+						}
+						if(edgenum==0) {
+							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
+						}
+						edgenum++;
+					}
+					*fout << ";" << endl;
 				} else if(dfg->indeg(n)==1) {
 					// unary operator or function?
-					cout << "Unary Node=" << n << " Name=" << nodetostring(n,(dfgVal)[n],nodenum++) << " Depth=" << depths[n] << endl;
+					*fout << "          // Unary Node" << endl;
+					*fout << "          " << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ";
+					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+					edge e;
+					forall (e,dfg_in_edges_n) {
+						// - examine inputs of n
+						node src=(*dfg).source(e);
+						if(dfg->indeg(src)==0) {
+							Tree* t=(dfgVal)[src];
+							if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+								Symbol *asym=((ExprLValue*)t)->getSymbol();
+								if (asym!=NULL && asym->isStream())
+								{
+									SymbolStream *ssym=(SymbolStream *)asym;
+									if (ssym->getDir()==STREAM_IN)
+									{
+										*fout << nodetovarstring(src, (dfgVal)[src]) << " ";
+									}
+								}
+							}						
+						} else {
+							*fout << nodetostring(src, (dfgVal)[src],nodenums[src]) << " ";
+						}
+					}
+
+					*fout << ";" << endl;
 				}
 			}
 		  }
@@ -1022,7 +1083,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 						  if (ssym->getDir()==STREAM_OUT)
 						  {
 							  int id=(int)(ssym->getAnnote(CC_STREAM_ID));
-							  cout  << "out[" << id << "] = " << asym->toString() << endl;
+							  *fout  << "out[" << id << "] = " << nodetostring(n,(dfgVal)[n],nodenums[n]) << ";" << endl; // asym->toString();
 						  }
 					  }
 				  }
@@ -1324,16 +1385,42 @@ string nodetostring(node n, Tree* t, int nodenum) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP || 
 			((Expr*)t)->getExprKind()==EXPR_UOP ||
 			((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += opToString(((ExprBop*)t)->getOp());
+			ret += opToNodename(((ExprBop*)t)->getOp());
 		} else {
 			ret += t ? t->toString().replace_all("\n","") : string("<nil>");
 		}
 	} else {
-
 		string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 		ret += " "+treekindToString(t->getKind())+" "+ t_str;
 	}
 
 	ret += "_"+string(out.str().c_str());
 	return ret;
+}
+
+/**
+ * Convert a node to its operation string
+ */
+string nodetofnstring(node n, Tree* t) {
+	string ret;
+	if(t->getKind()==TREE_EXPR) {
+		if(((Expr*)t)->getExprKind()==EXPR_BOP || 
+			((Expr*)t)->getExprKind()==EXPR_UOP ||
+			((Expr*)t)->getExprKind()==EXPR_COND) {
+			ret += opToString(((ExprBop*)t)->getOp());
+		} else {
+			cerr << "Wrong optype for string conversion?" << endl;
+		}
+	} else {
+		cerr << "Wrong kind for string conversion" << endl;
+	}
+
+	return ret;
+}
+
+/**
+ * Simply return name of input
+ */
+string nodetovarstring(node n, Tree* t) {
+	return t ? t->toString().replace_all("\n","") : string("<nil>");
 }

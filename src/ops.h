@@ -91,6 +91,7 @@ bool isProdOp (int op)
 
 
 extern string opToString (int op);
+extern string opToNodename (int op);
 
 
 #endif  // #ifndef _TDF_OPS_
