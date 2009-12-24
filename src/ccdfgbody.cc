@@ -1082,8 +1082,14 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 						  SymbolStream *ssym=(SymbolStream *)asym;
 						  if (ssym->getDir()==STREAM_OUT)
 						  {
-							  int id=(int)(ssym->getAnnote(CC_STREAM_ID));
-							  *fout  << "out[" << id << "] = " << nodetostring(n,(dfgVal)[n],nodenums[n]) << ";" << endl; // asym->toString();
+						  	TypeKind outType = ((ExprLValue*)t)->typeCheck()->getTypeKind();
+							bool floattype = (outType==TYPE_FLOAT);
+						        bool doubletype = (outType==TYPE_DOUBLE);
+
+							int id=(int)(ssym->getAnnote(CC_STREAM_ID));
+							*fout << "          " ;
+							*fout  << (floattype?"STREAM_WRITE_FLOAT":doubletype?"STREAM_WRITE_DOUBLE":"STREAM_WRITE_NOACC")
+								<< "(out[" << id << "]," << nodetostring(n,(dfgVal)[n],nodenums[n]) << ");" << endl; // asym->toString();
 						  }
 					  }
 				  }
