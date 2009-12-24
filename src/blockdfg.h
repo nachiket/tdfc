@@ -44,12 +44,14 @@ class Symbol;
 class SymTab;
 #include <LEDA/graph/graph.h>
 #include <LEDA/core/list.h>
+#include <LEDA/core/h_array.h>
 
 using leda::GRAPH;
 using leda::node;
 using leda::list;
 using leda::node_array;
 using leda::string;
+using leda::h_array;
 
 ////////////////////////////////////////////////////////////////
 //  BlockDFG type
@@ -139,7 +141,7 @@ class BlockDfgInfo;
 
 // extern void createBlockDfg (BlockDFG *dfg, list<Stmt*> stmtlist);
 
-extern void createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars);
+extern h_array<node,Symbol*> createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars);
 
 extern string printBlockDFG (BlockDFG *dfg,
 			     node_array<int> *areas=NULL,	// "A=..."

@@ -36,6 +36,7 @@
 #include "symbol.h"
 #include <LEDA/core/string.h>
 #include <LEDA/core/list.h>
+#include <LEDA/core/h_array.h>
 #include <LEDA/core/dictionary.h>
 #include <LEDA/core/set.h>
 #include "type.h"
@@ -52,6 +53,7 @@ class Symbol;
 
 using leda::set;
 using leda::string;
+using leda::h_array;
 
 class State : public Tree
 {
@@ -97,6 +99,7 @@ private:
   list<InputSpec*>	*inputs;
   list<Stmt*>		*stmts;
   BlockDFG			dfg; // Added by Nachiket on 11/29/2009 to store the dataflow graph for each case..
+  h_array<node, Symbol*>		symbolmap; // Added by Nachiket on 12/14/2009 to allow recovering output symbols! Jesus!
 
 public:
   StateCase (Token *token_i, list<InputSpec*> *inputs_i,
@@ -107,7 +110,9 @@ public:
   list<InputSpec*>*	getInputs	() const	{ return inputs; }
   list<Stmt*>*		getStmts	() const	{ return stmts; }
   void			addDataflowGraph(BlockDFG dfg_i);
+  void			addSymbolMap(h_array<node, Symbol*> symbolmap_i);
   BlockDFG		getDataflowGraph() const 	{ return dfg;}
+  h_array<node,Symbol*> getSymbolMap() const 	{ return symbolmap;}
   void			addInput	(InputSpec *input_i);
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}

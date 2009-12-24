@@ -304,6 +304,14 @@ void StateCase::addDataflowGraph(BlockDFG dfg_i) {
 	dfg=dfg_i;
 }
 
+// Added by Nachiket on 11/29/2009 to remember the dataflow graph extracted per state case
+void StateCase::addSymbolMap(h_array<node, Symbol*> symbolmap_i) {
+	if(&symbolmap_i==NULL) {
+		cerr << "Cannot accept a NULL symbolnode map object" << endl;
+	}
+	symbolmap=symbolmap_i;
+}
+
 void StateCase::addInput (InputSpec *ispec_i)
 {
   inputs->append(ispec_i);

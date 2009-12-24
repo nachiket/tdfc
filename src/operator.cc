@@ -41,6 +41,7 @@ using leda::dic_item;
 using leda::list_item;
 using leda::list;
 using leda::set;
+using leda::h_array;
 
 using std::cerr;
 using std::endl;
@@ -870,8 +871,9 @@ void OperatorBehavioral::buildDataflowGraph() const
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
 
-		createBlockDfgSimple(&dfg,&stmts1,vars);
+		h_array<node, Symbol*> symbolmap = createBlockDfgSimple(&dfg,&stmts1,vars);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
+		sc1->addSymbolMap(symbolmap); // Whoa?
 		cout << "Statecase=" << sc1 << " DFG=" << &dfg << endl;
 	}
 

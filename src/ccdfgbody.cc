@@ -30,9 +30,13 @@
 #include "compares.h"
 #include <time.h>
 #include <iostream>
+#include <sstream>
 #include <fstream>
+#include <LEDA/core/sortseq.h>
 #include <LEDA/core/string.h>
 #include <LEDA/core/array.h>
+#include <LEDA/graph/node_set.h>
+#include <LEDA/graph/node_list.h>
 #include "operator.h"
 #include "expr.h"
 #include "misc.h"
@@ -64,11 +68,19 @@ Note:
   * not handle IPC with HSRA simulator
 ***********************************************************************/    
 
+using leda::sortseq;
 using leda::list_item;
 using leda::dic_item;
 using std::ofstream;
 using leda::node_array;
+using leda::node;
+using leda::edge;
+using leda::node_set;
+using leda::node_list;
+using leda::array;
 
+void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
+string nodetostring(node n, Tree* t, int nodenum);
 
 void ccDfgComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
@@ -953,6 +965,16 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
                   *fout << "<< \")\" << endl;" << endl;
 		}
 	      BlockDFG dfgVal=(acase->getDataflowGraph());
+	      h_array<node, Symbol*> symbolmap=(acase->getSymbolMap());
+	      /*
+	      // 12/14/2009 The following debugging code shows that symbolmap is not being faithfully populated fully..
+	      node n1;
+		forall_defined(n1, symbolmap) {
+			cout << "Symbolmap testing.. Node=" << n1 <<  " Symbol=" << symbolmap[n1] << endl;
+		}
+		// What a horrible waste of time? ExprLVAl is obtained from merely typecasting Tree*
+		*/
+
 	      BlockDFG* dfg=&dfgVal;
 	      if(dfg==NULL) {
 	    	  cout << "No dataflow graph found in state=" << sname << "["<< cstate << "] acase="<< acase <<"!" << endl;
@@ -960,51 +982,56 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 	    	  cout << "Dataflow graph found in state=" << sname << "["<< cstate << "] acase="<< acase <<" DFG="<< &dfgVal << "!" << endl;
 	    	  // dump out the dataflow graph..
 	    	  int nodenum=0;
-	    	  node_array<int> nodenums(*dfg);
 
 	    	  //cout << "Graph" << endl;
 	    	  printf("BlockDFG  (%d nodes, %d edges)\n",dfg->number_of_nodes(), dfg->number_of_edges());
 	    	  fflush(stdout);
 	    	  node n;
-	    	  forall_nodes(n,*dfg) {
-	    		  nodenums[n] = nodenum++;
-	    		  string ret = string("node %d ",nodenums[n]);
-	    		  cout << "Node=" << nodenums[n] << endl;
-	    		  string opType;
-	    		  Tree *t=(*dfg)[n];
-	    		  if(t->getKind()==TREE_EXPR) {
-	    			  if(((Expr*)t)->getExprKind()==EXPR_BOP) {
-	    				  opType= opToString(((ExprBop*)t)->getOp());
-	    				  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
-	    			  } else if(((Expr*)t)->getExprKind()==EXPR_UOP) {
-	    				  opType=opToString(((ExprUop*)t)->getOp());
-	    				  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator "+opType+" \n";
-	    			  } else if(((Expr*)t)->getExprKind()==EXPR_COND) {
-	    				  ret += " " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " operator IF \n";
-	    			  } else {
-	    				  string var="";
-	    				  if(((Expr*)t)->getExprKind()==EXPR_VALUE) {
-	    					  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " constant";
-	    				  }
-	    				  if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
-	    					  string t_str1 = t ? t->toString().replace_all("\n","") : string("<nil>");
-	    					  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
-	    				  }
-	    				  // For now I am throwing out the typecasting.. not necessary
-	    				  if(((Expr*)t)->getExprKind()==EXPR_CAST) {
-	    					  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
-	    				  }
 
-	    				  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-	    				  ret += var + " "  + t_str + "\n";
-	    			  }
-	    		  } else {
+		  // compute latency ordered list of nodes based on ASAP scheduling
+		  node_list arranged_list;
+		  node_array<int> depths;
 
-	    			  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-	    			  ret += " "+treekindToString(t->getKind())+" "+ t_str + "\n";
-	    		  }
-	    		  *fout << ret << endl;
-	    	  }
+		  computeASAPOrdering(dfg, &arranged_list, &depths);
+
+		  //cout << "Started" << endl;
+
+		  // TODO: From the ASAP ordering, start printing out nodes... How about just building the dataflow expression?
+		  forall(n,arranged_list) {
+		  	if(!dfg->indeg(n)==0) {
+				if(dfg->indeg(n)==2) {
+					// binary operator
+					cout << "Binary Node=" << n << " Name=" << nodetostring(n,(dfgVal)[n],nodenum++) << " Depth=" << depths[n] << endl;
+				} else if(dfg->indeg(n)==1) {
+					// unary operator or function?
+					cout << "Unary Node=" << n << " Name=" << nodetostring(n,(dfgVal)[n],nodenum++) << " Depth=" << depths[n] << endl;
+				}
+			}
+		  }
+
+		  // Assign output nodes
+		  forall(n,arranged_list) {
+			  // fanout-0 nodes
+			  if(dfg->outdeg(n)==0) {
+				  Tree* t=(dfgVal)[n];
+				  if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+					  Symbol *asym=((ExprLValue*)t)->getSymbol();
+					  if (asym!=NULL && asym->isStream())
+					  {
+						  SymbolStream *ssym=(SymbolStream *)asym;
+						  if (ssym->getDir()==STREAM_OUT)
+						  {
+							  int id=(int)(ssym->getAnnote(CC_STREAM_ID));
+							  cout  << "out[" << id << "] = " << asym->toString() << endl;
+						  }
+					  }
+				  }
+			  }
+		  }
+		  //cout << "Ended.." << endl;
+		  //exit(-1);
+
+
 	      }
 		{
 		  //ccStmt(fout,string("          "),stmt,early_close,
@@ -1212,6 +1239,101 @@ void ccdfgbody (Operator *op, int debug_logic)
 
 }
 
+/*
+ * Compute a sorted sequence based on ASAP ordering
+ * Borrowed code from blockdfg.cc's getTimingDepth
+ */
+void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths) {
+	//cout << "Started.." << endl;
+	node_array<int> touched;
 
+	(*depths).init(*dfg,-1); // initialize depths
+	touched.init(*dfg, -1); // initialized touch counts [This was crucial to access the array later! Whoa? 12/2/2009 9.34pm Philly time @US447]
+	node_set frontier=node_set(*dfg);
+	node n;
+	forall_nodes (n,*dfg) {
+		//cout << "Initialized Node=" << n << " Name=" << ((dfg)[n])->toString() << " Depth=" << depths[n] << endl;
+		// - initialize numUnvisitedPreds and frontier
+		int preds = touched[n] = dfg->indeg(n);
+		if (preds==0) {                         // - initial frontier same as
+			frontier.insert(n);             //   getInputNodes(*dfg),
+			(*depths)[n]=1;             	//   node latency=1
+		}
+	}
+	//cout << "Seeded/initialized.." << endl;
 
+	while (!frontier.empty()) {
+	    // Get node
+	    node n=frontier.choose();
+	    frontier.del(n);
 
+	    // update depth
+	    edge outedge;
+	    list<edge> outedges = dfg->out_edges(n);
+	    forall (outedge,outedges) {
+		    node succ=dfg->target(outedge);
+		    if (succ==n)      // ignore self-loops
+			    continue;
+		    int depth = (*depths)[n] + 1;
+		    if ((*depths)[succ]<depth)
+			   (*depths)[succ]=depth;
+
+		    if (--touched[succ]==0)
+			    // - add successor to frontier
+			    frontier.insert(succ);
+	    }
+
+	}
+	//cout << "Depth annotated.." << endl;
+
+	// check if we screwed up..
+	int max_depth=0;
+	forall_nodes (n,*dfg) {
+		assert(touched[n]==0);    // - assert BFS visited node
+		assert((*depths)[n]!=-1);           // - assert valid depth
+		if((*depths)[n]>max_depth)
+			max_depth=(*depths)[n];
+	}
+
+	int current_depth=0;
+	for(current_depth=0;current_depth<=max_depth;current_depth++) {
+		forall_nodes (n,*dfg) {
+			if((*depths)[n]==current_depth) {
+				arranged_list->append(n);
+			}
+		}
+	}
+
+}
+
+/*
+ * Convert a node into it's string representation
+		Tree *t=(*dfg)[n];
+ *
+ */
+string nodetostring(node n, Tree* t, int nodenum) {
+	std::stringstream out;
+	out << nodenum;
+//	std::string str;
+//	str = out.str();
+//	char *buf = new char[std::strlen(str.c_str())];
+//	std::strcpy(buf,str.c_str());
+
+	string ret;
+	if(t->getKind()==TREE_EXPR) {
+		if(((Expr*)t)->getExprKind()==EXPR_BOP || 
+			((Expr*)t)->getExprKind()==EXPR_UOP ||
+			((Expr*)t)->getExprKind()==EXPR_COND) {
+			ret += opToString(((ExprBop*)t)->getOp());
+		} else {
+			ret += t ? t->toString().replace_all("\n","") : string("<nil>");
+		}
+	} else {
+
+		string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+		ret += " "+treekindToString(t->getKind())+" "+ t_str;
+	}
+
+	ret += "_"+string(out.str().c_str());
+	return ret;
+}
