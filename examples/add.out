@@ -14,4 +14,25 @@ unsigned[n] add (param unsigned[8] n, input unsigned[n] a, input unsigned[n] b)
     add=a+b;
 }
 
+warning: Generating instance add8(,)
+
+// operator instance [compositional] add8_d1_ScOrEtMp0(,)
+
+unsigned[9] add8_d1_ScOrEtMp0 (input unsigned[8] a, input unsigned[8] b)
+{
+  state only (a,b) :
+    add8_d1_ScOrEtMp0=a+b;
+}
+warning: Generating instance add(0,,)
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+
+// operator instance [compositional] add_d1_ScOrEtMp1(0,,)
+
+unsigned[0] add_d1_ScOrEtMp1 (param unsigned[8] n, input unsigned[0] a, input unsigned[0] b)
+{
+  state only (a,b) :
+    add_d1_ScOrEtMp1=a+b;
+}
 warning: Exiting...

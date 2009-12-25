@@ -209,5 +209,6 @@ extern /*const*/ Type	*type_sint64;
 void rmType(Tree *t);
 
 extern string typekindToString(TypeKind t);
+extern string typekindToCplusplus(TypeKind t);
 
 #endif  // #ifndef _TDF_TYPE_

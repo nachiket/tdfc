@@ -1315,3 +1315,24 @@ string typekindToString(TypeKind t) {
 		default: return string("bs");
 	}
 }
+
+using std::cerr;
+using std::endl;
+/**
+ * convert to c++ types
+ */
+string typekindToCplusplus(TypeKind t) {
+	switch(t) {
+		case TYPE_BOOL: return string("bool");
+		case TYPE_INT: return string("int");
+		case TYPE_FLOAT: return string("float");
+		case TYPE_DOUBLE: return string("double");
+		case TYPE_FIXED: 
+		case TYPE_ARRAY: 
+		case TYPE_ANY: 
+		case TYPE_NONE: 
+		default:
+			cerr << "Not supported" << endl;
+			return "";
+	}
+}

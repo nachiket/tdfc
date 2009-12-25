@@ -83,6 +83,7 @@ void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int
 string nodetostring(node n, Tree* t, int nodenum);
 string nodetovarstring(node n, Tree* t);
 string nodetofnstring(node n, Tree* t);
+string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums); // simplify node name generation for all types of operations
 
 void ccDfgComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
@@ -1004,68 +1005,63 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 
 		  // TODO: From the ASAP ordering, start printing out nodes... How about just building the dataflow expression?
 		  forall(n,arranged_list) {
+			Tree* t=(dfgVal)[n];
+			TypeKind type = ((ExprLValue*)t)->typeCheck()->getTypeKind();
 		  	if(!dfg->indeg(n)==0) {
-				if(dfg->indeg(n)==2) {
+				if(dfg->indeg(n)==3) {
 					// binary operator
-					*fout << "          // Binary Node" << endl;
-					*fout << "          " << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ";
+					*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
+					*fout << "          " << typekindToCplusplus(type) << " ";
+					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ";
+					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+					int edgenum=0;
+					edge e;
+					string ifstr=" ( ";
+					forall (e,dfg_in_edges_n) {
+						// - examine inputs of n
+						node src=(*dfg).source(e);
+						if(edgenum==0) {
+							ifstr = ifstr + nodetofout(dfg, src, nodenums) + " : ";
+						} else if(edgenum==1) {
+							ifstr = ifstr + nodetofout(dfg, src, nodenums) + " ";
+						} else if(edgenum==2) {
+							ifstr = nodetofout(dfg, src, nodenums) + " ? " + ifstr;
+						}
+						edgenum++;
+					}
+					*fout << ifstr << ");" << endl;
+				} else if(dfg->indeg(n)==2) {
+					// binary operator
+					*fout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
+					*fout << "          " << typekindToCplusplus(type) << " ";
+					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						if(dfg->indeg(src)==0) {
-							Tree* t=(dfgVal)[src];
-							if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
-								Symbol *asym=((ExprLValue*)t)->getSymbol();
-								if (asym!=NULL && asym->isStream())
-								{
-									SymbolStream *ssym=(SymbolStream *)asym;
-									if (ssym->getDir()==STREAM_IN)
-									{
-										*fout << nodetovarstring(src, (dfgVal)[src]) << " ";
-									}
-								}
-							}
-
-						} else {
-							*fout << nodetostring(src, (dfgVal)[src],nodenums[src]) << " ";
-						}
+						*fout << nodetofout(dfg, src, nodenums) << " ";
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
 						edgenum++;
 					}
-					*fout << ";" << endl;
+					*fout << ");" << endl;
 				} else if(dfg->indeg(n)==1) {
 					// unary operator or function?
-					*fout << "          // Unary Node" << endl;
-					*fout << "          " << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ";
+					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
+					*fout << "          " << typekindToCplusplus(type) << " ";
+					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					edge e;
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						if(dfg->indeg(src)==0) {
-							Tree* t=(dfgVal)[src];
-							if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
-								Symbol *asym=((ExprLValue*)t)->getSymbol();
-								if (asym!=NULL && asym->isStream())
-								{
-									SymbolStream *ssym=(SymbolStream *)asym;
-									if (ssym->getDir()==STREAM_IN)
-									{
-										*fout << nodetovarstring(src, (dfgVal)[src]) << " ";
-									}
-								}
-							}						
-						} else {
-							*fout << nodetostring(src, (dfgVal)[src],nodenums[src]) << " ";
-						}
+						*fout << nodetofout(dfg, src, nodenums) << " ";
 					}
 
-					*fout << ";" << endl;
+					*fout << ");" << endl;
 				}
 			}
 		  }
@@ -1429,4 +1425,38 @@ string nodetofnstring(node n, Tree* t) {
  */
 string nodetovarstring(node n, Tree* t) {
 	return t ? t->toString().replace_all("\n","") : string("<nil>");
+}
+
+/**
+ * Share code that generates the name to use for an input node
+ */
+string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
+
+	if(dfg->indeg(src)==0) {
+		Tree* t=(*dfg)[src];
+		if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+			Symbol *asym=((ExprLValue*)t)->getSymbol();
+			if (asym!=NULL && asym->isStream())
+			{
+				SymbolStream *ssym=(SymbolStream *)asym;
+				if (ssym->getDir()==STREAM_IN)
+				{
+					return nodetovarstring(src, (*dfg)[src]);
+				} else {
+					cerr << "STREAM_IN fail during name generation" << endl;
+					exit(-1);
+				}
+			} else {
+				cerr << "node is not a stream.. is this an internal/local variable? This should not be an error, fix this!" << endl;
+				exit(-1);
+			}
+		} else {
+			// this is a constant? what can we check?
+			return nodetovarstring(src, (*dfg)[src]);
+		}
+
+	} else {
+		return nodetostring(src, (*dfg)[src],nodenums[src]);
+	}
+
 }
