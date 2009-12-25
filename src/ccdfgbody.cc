@@ -1384,10 +1384,10 @@ string nodetostring(node n, Tree* t, int nodenum) {
 
 	string ret;
 	if(t->getKind()==TREE_EXPR) {
-		if(((Expr*)t)->getExprKind()==EXPR_BOP || 
-			((Expr*)t)->getExprKind()==EXPR_UOP ||
-			((Expr*)t)->getExprKind()==EXPR_COND) {
+		if(((Expr*)t)->getExprKind()==EXPR_BOP || ((Expr*)t)->getExprKind()==EXPR_UOP) {
 			ret += opToNodename(((ExprBop*)t)->getOp());
+		} else if (((Expr*)t)->getExprKind()==EXPR_COND) {
+			ret += "if";
 		} else {
 			ret += t ? t->toString().replace_all("\n","") : string("<nil>");
 		}

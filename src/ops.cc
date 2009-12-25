@@ -70,11 +70,12 @@ string opToNodename (int op)
     case LOG:		return string("log");
     case SQRT:		return string("sqrt");
     case FLOOR:		return string("floor");
+    case IF:		return string("if");
     default:		if (op=='%')	return string("perc");
     			if (op=='+')	return string("plus");
     			if (op=='-')	return string("minus");
     			if (op=='*')	return string("multiply");
     			if (op=='/')	return string("divide");
-			else		return string("%c",op);
+			else		return string(op);
   }
 }
