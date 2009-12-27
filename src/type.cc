@@ -689,7 +689,10 @@ Type* Type::merge (const Type *t) const
   */
   Expr *newPredExpr = NULL;
 
-  if (typeKind==TYPE_BOOL)
+  if(typeKind==TYPE_STATE) {
+	  Type *ret = new Type(TYPE_STATE);
+	  return ret;
+  } else if (typeKind==TYPE_BOOL)
   {
     Type *ret=new Type(TYPE_BOOL,newPredExpr);
     return ret;

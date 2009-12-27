@@ -1052,12 +1052,11 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 				} else if(dfg->indeg(n)==1) {
 					// unary operator or function?
 					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
-					*fout << "          " << typekindToCplusplus(type) << " ";
-
 					if(type!=TYPE_STATE) {
+						*fout << "          " << typekindToCplusplus(type) << " ";
 						*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
 					} else {
-						*fout << "state = ( ";
+						*fout << "          state = ( ";
 					}
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					edge e;
