@@ -862,6 +862,7 @@ void OperatorBehavioral::buildDataflowGraph() const
 		forall (sc,*s->getCases()) {
 			//cout << "Case=" << sc->toString() << endl;
 			statecases.insert(sc);
+			sc->setStateName(s->getName()); // stupid!! 12/27/2009 4.53pm
 		}
 	}
 
@@ -875,6 +876,7 @@ void OperatorBehavioral::buildDataflowGraph() const
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
 		sc1->addSymbolMap(symbolmap); // Whoa?
 		cout << "Statecase=" << sc1 << " DFG=" << &dfg << endl;
+		cout << printBlockDFG(sc1->getStateName(), &dfg, NULL, NULL, NULL) << endl;
 	}
 
 }
@@ -896,7 +898,7 @@ string OperatorBehavioral::toDFGString () const
     		State *s = states->inf(i);
 		forall (sc,*s->getCases()) {
 			statecases.insert(sc);
-			sc->setState(s);
+			sc->setStateName(s->getName());
 		}
 	}
 
@@ -909,12 +911,15 @@ string OperatorBehavioral::toDFGString () const
 
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
+
+		/*
 		// debug start 10/28
 		Stmt* stmt;
 		forall(stmt, stmts1) {
 			cout << "Statement=\n" << stmt->toString() << endl;
 		}
 		// debug end
+		 */
 
 		createBlockDfgSimple(sc1,&dfg,&stmts1,vars);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..

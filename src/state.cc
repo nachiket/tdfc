@@ -75,7 +75,7 @@ StateCase::StateCase (Token *token_i, list<InputSpec*> *inputs_i,
 StateCase::StateCase (Token *token_i, State *state_i, list<InputSpec*> *inputs_i,
 		      list<Stmt*> *stmts_i)
   : Tree(token_i,TREE_STATECASE),
-    state(state_i),
+    state(state_i->getName()),
     inputs(inputs_i),
     stmts(stmts_i)
 {

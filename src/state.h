@@ -96,7 +96,7 @@ public:
 class StateCase : public Tree
 {
 private:
-  State				*state; // Added by Nachiket on 12/27/2009 to store a reverse ptr to state
+  string			state; // Added by Nachiket on 12/27/2009 to store a reverse ptr to state
   list<InputSpec*>	*inputs;
   list<Stmt*>		*stmts;
   BlockDFG			dfg; // Added by Nachiket on 11/29/2009 to store the dataflow graph for each case..
@@ -117,9 +117,8 @@ public:
   BlockDFG		getDataflowGraph() const 	{ return dfg;}
   h_array<node,Symbol*> getSymbolMap() const 	{ return symbolmap;}
   void			addInput	(InputSpec *input_i);
-  void			setState	(State *state_i) { state=state_i;}
-  State*		getState() 		{ return state;}
-  string		getStateName()	{ return state->getName();}
+  void			setStateName	(string state_i) { state=state_i;}
+  string		getStateName()	{ return state;}
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}
   virtual void		setParent	(Tree *p);

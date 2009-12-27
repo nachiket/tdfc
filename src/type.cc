@@ -1329,6 +1329,7 @@ string typekindToCplusplus(TypeKind t) {
 		case TYPE_INT: return string("int");
 		case TYPE_FLOAT: return string("float");
 		case TYPE_DOUBLE: return string("double");
+		case TYPE_STATE: return string("state_syms ");
 		case TYPE_FIXED: 
 		case TYPE_ARRAY: 
 		case TYPE_ANY: 

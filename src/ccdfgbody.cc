@@ -1006,7 +1006,8 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 		  // TODO: From the ASAP ordering, start printing out nodes... How about just building the dataflow expression?
 		  forall(n,arranged_list) {
 			Tree* t=(dfgVal)[n];
-			TypeKind type = ((ExprLValue*)t)->typeCheck()->getTypeKind();
+			cout << "Processing " << nodetostring(n,(dfgVal)[n],nodenums[n]);
+			TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
 		  	if(!dfg->indeg(n)==0) {
 				if(dfg->indeg(n)==3) {
 					// binary operator
@@ -1052,18 +1053,28 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					// unary operator or function?
 					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
+
+					if(type!=TYPE_STATE) {
+						*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
+					} else {
+						*fout << "state = ( ";
+					}
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					edge e;
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						*fout << nodetofout(dfg, src, nodenums) << " ";
+						if(type!=TYPE_STATE) {
+							*fout << nodetofout(dfg, src, nodenums) << " ";
+						} else {
+							*fout << "STATE_" << nodetofout(dfg, src, nodenums) << " ";
+						}
 					}
 
 					*fout << ");" << endl;
 				}
 			}
+		  	cout << " finished" << endl;
 		  }
 
 		  // Assign output nodes

@@ -452,19 +452,19 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  // Updated on 12/27/2009...
 
 			  //Symbol* sym = (*dfgi->symbolmap)[dfgi->nextstate];
-			  Symbol* sym = dfgi->nextstate;
+			  SymbolVar* sym = dfgi->nextstate;
 			  ExprLValue* stateVal = new ExprLValue(NULL, dfgi->nextstate);
 			  node statenode = (*dfgi->dfg).new_node(stateVal);
 			  (*dfgi->nodemap)[stateVal] = statenode;
 			  (*dfgi->symbolmap)[statenode] = sym;
 
 			  State* gotoState = ((StmtGoto*)t)->getState();
-			  ExprValue* gotoStateVal = new ExprValue(NULL, gotoState);
+			  ExprValue* gotoStateVal = new ExprValue(NULL, gotoState->getName());
 			  node gotonode = (*dfgi->dfg).new_node(gotoStateVal);
 			  (*dfgi->nodemap)[gotoStateVal]=gotonode;
 			  (*dfgi->dfg).new_edge(gotonode, statenode);
 
-			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->toString() << endl;
+			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->getName() << endl;
 
 			  // override previous definition
 			  if ((*dfgi->livedefs).defined(sym) &&
@@ -977,15 +977,14 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 
   // Initialize with next-state variable 12/27/2009
   const string nextstate_name = string("__nextstate");
-  Type nextstate_type = Type(TYPE_ANY);
-  SymbolVar* nextstate_sym = new SymbolVar(NULL, nextstate_name , &nextstate_type, NULL, NULL);
+  Type* nextstate_type = new Type(TYPE_STATE);
+  SymbolVar* nextstate_sym = new SymbolVar(NULL, nextstate_name , nextstate_type, NULL, NULL);
   ExprLValue* nextstate_dummylval = new ExprLValue(NULL, nextstate_sym);
   node nextstate=dfg->new_node(nextstate_dummylval);
   nodemap[nextstate_dummylval]=nextstate;
   symbolmap[nextstate]=nextstate_sym;
 
-  State* currentState = sc->getState();
-  ExprValue* currentStateVal = new ExprValue(NULL, currentState);
+  ExprValue* currentStateVal = new ExprValue(NULL, sc->getStateName());
   node currentnode = dfg->new_node(currentStateVal);
   nodemap[currentStateVal]=currentnode;
   dfg->new_edge(currentnode, nextstate);
