@@ -124,6 +124,7 @@ Type::Type (TypeKind typeKind_i, Expr *predExpr_i)	// TYPE_BOOL, ANY, NONE
   	 || typeKind==TYPE_DOUBLE
 	 || typeKind==TYPE_ANY
 	 || typeKind==TYPE_NONE
+	 || typeKind==TYPE_STATE // should be necessary only here..
 	 || typeKind==TYPE_ARRAY);
   if (widthExpr)
     widthExpr->setParent(this);

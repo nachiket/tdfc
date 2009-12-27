@@ -84,7 +84,7 @@ public:
   list<Stmt*>              *nondfstmts;		// residual stmts not in dfg
   set<SymbolVar*>	   *locals;		// locals declared in block
   SymTab				*vars;		// Added by Nachiket on 11/3/2009 to support access to state-machine variables..
-  node				nextstate;	// Added by Nachiket on 12/27/2009 to support dataflow construction of next-state variables..
+  SymbolVar				*nextstate;	// Added by Nachiket on 12/27/2009 to support dataflow construction of next-state variables..
   
   BlockDfgInfo (BlockDFG                 *dfg_i,
 		BlockDfgInfo			 *parent_i,
@@ -96,7 +96,7 @@ public:
 		list<Stmt*>              *nondfstmts_i,
 		set<SymbolVar*>          *locals_i,
 		SymTab					 *vars_i,
-		node					 nextstate_i)
+		SymbolVar				 *nextstate_i)
     : dfg       (dfg_i        ? dfg_i        : new BlockDFG()),
       parent	(parent_i), // top level will be NULL
       nodemap   (nodemap_i    ? nodemap_i    : new h_array<Expr*,node>),
@@ -317,7 +317,7 @@ void deleteBlockDfgCone (BlockDFG *dfg, node n)
   // - visit nodes in reverse topological order from n,
   //     removing each node, and going on to nodes with no remaining fanout
 
-  warn("Before deleting: "+printBlockDFG(dfg));
+  warn("Before deleting: "+printBlockDFG("",dfg));
 
   assert((*dfg).outdeg(n)==0);
 
@@ -448,10 +448,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  // (*dfgi->nondfstmts).append((Stmt*)t);
 			  // Updated on 12/27/2009...
 
-			  node nextstate = dfgi->nextstate;
-			  Symbol* sym = (*dfgi->symbolmap)[nextstate];
+			  //Symbol* sym = (*dfgi->symbolmap)[dfgi->nextstate];
+			  Symbol* sym = dfgi->nextstate;
+			  ExprLValue* stateVal = new ExprLValue(NULL, dfgi->nextstate);
+			  node statenode = (*dfgi->dfg).new_node(stateVal);
+			  (*dfgi->nodemap)[stateVal] = statenode;
+			  (*dfgi->symbolmap)[statenode] = sym;
+
 			  State* gotoState = ((StmtGoto*)t)->getState();
 			  ExprValue* gotoStateVal = new ExprValue(NULL, gotoState);
+			  node gotonode = (*dfgi->dfg).new_node(gotoStateVal);
+			  (*dfgi->nodemap)[gotoStateVal]=gotonode;
+			  (*dfgi->dfg).new_edge(gotonode, statenode);
 
 			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->toString() << endl;
 
@@ -974,27 +982,12 @@ h_array<node, Symbol*> createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   symbolmap[nextstate]=nextstate_sym;
 
   BlockDfgInfo dfgi(dfg,NULL,&nodemap,&symbolmap,&livedefs,&extdefs,&deaddefs,
-    		    nondfstmts,locals, vars, nextstate);
+    		    nondfstmts,locals, vars, nextstate_sym);
 
   Stmt *s;
   forall (s,*stmts) {
     s->map(createBlockDfg_map,(TreeMap)NULL,&dfgi);
   }
-
-  /*
-  // - create + connect write node for each def that is live at exit - DEFUNCT
-  StmtAssign *asst;
-  forall (asst,*dfgi.livedefs) {
-
-    // ***
-    cerr << "createBlockDfg: adding write node for " << asst->toString()<<'\n';
-    // ***
-
-    node def =(*dfgi.nodemap)[asst->getRhs()];
-    node n   =(*dfgi.dfg).new_node(asst->getLValue());
-    (*dfgi.dfg).new_edge(def,n,asst);
-  }
-  */
 
 if(0) {
   // - clean up multiple definitions
@@ -1055,12 +1048,12 @@ using std::endl;
 ////////////////////////////////////////////////////////////////
 //  Print BlockDFG
 
-string printBlockDFG (BlockDFG *dfg,
+string printBlockDFG (string statename, BlockDFG *dfg,
 		      node_array<int> *areas,		// "A=..."
 		      node_array<int> *latencies,		// "L=..."
 		      node_array<int> *depths)		// "D=..."
 {
-  string ret("BlockDFG  (%d nodes, %d edges)\n",
+  string ret("BlockDFG "+statename+" (%d nodes, %d edges)\n",
 	     dfg->number_of_nodes(), dfg->number_of_edges());
 
 //cout << "inside" << endl;

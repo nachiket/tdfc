@@ -57,10 +57,25 @@ State::State (Token *token_i, const string &name_i,
   // - pedantic: should call State::addCase(c) / associateScopes()
 }
 
-
 StateCase::StateCase (Token *token_i, list<InputSpec*> *inputs_i,
 		      list<Stmt*> *stmts_i)
   : Tree(token_i,TREE_STATECASE),
+    inputs(inputs_i),
+    stmts(stmts_i)
+{
+  InputSpec *i;
+  forall (i,*inputs)
+    i->setParent(this);
+  Stmt *s;
+  forall (s,*stmts)
+    s->setParent(this);
+}
+
+
+StateCase::StateCase (Token *token_i, State *state_i, list<InputSpec*> *inputs_i,
+		      list<Stmt*> *stmts_i)
+  : Tree(token_i,TREE_STATECASE),
+    state(state_i),
     inputs(inputs_i),
     stmts(stmts_i)
 {

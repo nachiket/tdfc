@@ -113,9 +113,10 @@ ExprValue::ExprValue (Token *token_i, Type *type_i, double doubleVal_i)
  * Added by Nachiket on 12/27/2009 to support nextstate values
  */
 ExprValue::ExprValue (Token *token_i, State* state_i)
-  : Expr(token_i,EXPR_VALUE,NULL),
+  : Expr(token_i,EXPR_VALUE,new Type(TYPE_STATE)),
     state(state_i)
 {
+
 }
 
 
@@ -2187,6 +2188,8 @@ string ExprValue::toString () const
     case TYPE_ANY:
     case TYPE_NONE:
       return string("<nil value>");	  // not sure if this ever happens
+    case TYPE_STATE:
+    	return string(state->getName());
     case TYPE_BOOL:
       return string(intVal?"true":"false");
     case TYPE_FLOAT:

@@ -46,7 +46,8 @@ enum TypeKind { TYPE_BOOL,		// boolean
 		// floating-point types added by Nachiket
 		TYPE_FLOAT,		// single-precision float		
 		TYPE_DOUBLE,		// double-precision float
-		TYPE_NONE };		// for non-typed tree nodes
+		TYPE_NONE,		// for non-typed tree nodes
+		TYPE_STATE};	// Added by Nachiket on 12/27/2009 to deal with state cases...
 
 class Type : public Tree
 {

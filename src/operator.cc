@@ -896,6 +896,7 @@ string OperatorBehavioral::toDFGString () const
     		State *s = states->inf(i);
 		forall (sc,*s->getCases()) {
 			statecases.insert(sc);
+			sc->setState(s);
 		}
 	}
 
@@ -917,7 +918,7 @@ string OperatorBehavioral::toDFGString () const
 
 		createBlockDfgSimple(&dfg,&stmts1,vars);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
-		string dfgStr = printBlockDFG(&dfg, NULL, NULL, NULL); 
+		string dfgStr = printBlockDFG(sc1->getStateName(), &dfg, NULL, NULL, NULL);
 		//cout << dfgStr << endl;
 
 		totalStr+=dfgStr;
