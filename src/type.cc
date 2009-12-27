@@ -1313,6 +1313,7 @@ string typekindToString(TypeKind t) {
 		case TYPE_FLOAT: return string("float");
 		case TYPE_DOUBLE: return string("double");
 		case TYPE_NONE: return string("none");
+		case TYPE_STATE: return string("state"); // Added on 12/27/2009 to support state types.. will need to modify SPICE static scheduling parser :(
 		default: return string("bs");
 	}
 }

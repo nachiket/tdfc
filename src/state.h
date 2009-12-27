@@ -118,6 +118,7 @@ public:
   h_array<node,Symbol*> getSymbolMap() const 	{ return symbolmap;}
   void			addInput	(InputSpec *input_i);
   void			setState	(State *state_i) { state=state_i;}
+  State*		getState() 		{ return state;}
   string		getStateName()	{ return state->getName();}
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}

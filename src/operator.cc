@@ -871,7 +871,7 @@ void OperatorBehavioral::buildDataflowGraph() const
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
 
-		h_array<node, Symbol*> symbolmap = createBlockDfgSimple(&dfg,&stmts1,vars);
+		h_array<node, Symbol*> symbolmap = createBlockDfgSimple(sc1,&dfg,&stmts1,vars);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
 		sc1->addSymbolMap(symbolmap); // Whoa?
 		cout << "Statecase=" << sc1 << " DFG=" << &dfg << endl;
@@ -916,7 +916,7 @@ string OperatorBehavioral::toDFGString () const
 		}
 		// debug end
 
-		createBlockDfgSimple(&dfg,&stmts1,vars);
+		createBlockDfgSimple(sc1,&dfg,&stmts1,vars);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
 		string dfgStr = printBlockDFG(sc1->getStateName(), &dfg, NULL, NULL, NULL);
 		//cout << dfgStr << endl;

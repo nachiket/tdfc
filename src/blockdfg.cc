@@ -75,6 +75,7 @@ Type            *evalType (Type *orig);
 class BlockDfgInfo {
 public:
   BlockDFG                 *dfg;		// dfg being built
+  StateCase				   *sc;			// State case.. Added by Nachiket on 12/27/2009
   BlockDfgInfo			   *parent;			// Added by Nachiket on 11/4/2009 to allow searching higher up in the scope... Jeez I hate maps.
   h_array<Expr*,node>          *nodemap;		// map AST expr --> dfg node
   h_array<node, Symbol*>	*symbolmap;		// added by Nachiket on 12/14/2009 to allow recording symbol at a node !!!!!!!!!!!!!!!!! OBSOLETE !!!!!!!!!!!!!!
@@ -87,6 +88,7 @@ public:
   SymbolVar				*nextstate;	// Added by Nachiket on 12/27/2009 to support dataflow construction of next-state variables..
   
   BlockDfgInfo (BlockDFG                 *dfg_i,
+		StateCase				 *sc_i,
 		BlockDfgInfo			 *parent_i,
 		h_array<Expr*,node>          *nodemap_i,
 		h_array<node,Symbol*>          *symbolmap_i, // 12/14/2009 addition
@@ -98,6 +100,7 @@ public:
 		SymTab					 *vars_i,
 		SymbolVar				 *nextstate_i)
     : dfg       (dfg_i        ? dfg_i        : new BlockDFG()),
+      sc        (sc_i         ? sc_i        : NULL), // 12/27/2009
       parent	(parent_i), // top level will be NULL
       nodemap   (nodemap_i    ? nodemap_i    : new h_array<Expr*,node>),
       symbolmap   (symbolmap_i    ? symbolmap_i    : new h_array<node,Symbol*>),
@@ -463,10 +466,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->toString() << endl;
 
-			  /*
+			  // override previous definition
 			  if ((*dfgi->livedefs).defined(sym) &&
 			      (*dfgi->livedefs)[sym]           ) {
-			    StmtGoto *dead_asst=(*dfgi->livedefs)[sym];
+			    StmtAssign *dead_asst=(*dfgi->livedefs)[sym];
 			    (*dfgi->deaddefs).append(dead_asst);
 			    ExprLValue *dead_lval=dead_asst->getLValue();
 			    node        dead_po  =(*dfgi->nodemap)[dead_lval];
@@ -483,8 +486,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 			     cout << "GOTO Processing Overriding=" << t->toString() << endl;
 			  }
 
-			  (*dfgi->livedefs)[sym]=(StmtGoto*)t;
-			  */
+			  StmtAssign* t1=new StmtAssign(NULL, stateVal, gotonode);
+			  (*dfgi->livedefs)[sym]=t1;
 
 			  return false;
 			}
@@ -514,7 +517,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  map<Symbol*,node>        extdefsThen;
 			  h_array<node, Symbol*>	   symbolmapThen;
 			  list<StmtAssign*>        deaddefsThen;
-			  BlockDfgInfo dfgtheni(&dfgThen,dfgi,&nodemapThen,&symbolmapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen, dfgi->vars, dfgi->nextstate);
+			  BlockDfgInfo dfgtheni(&dfgThen,dfgi->sc, dfgi,&nodemapThen,&symbolmapThen,&livedefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen, dfgi->vars, dfgi->nextstate);
 
 			  cout << "--Generating THEN part of the DFG " << &dfgtheni << endl;
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
@@ -528,7 +531,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  map<Symbol*,node>        extdefsElse;
 			  	  h_array<node, Symbol*>	   symbolmapElse;
 				  list<StmtAssign*>        deaddefsElse;
-				  BlockDfgInfo dfgelsei(&dfgElse,dfgi,&nodemapElse,&symbolmapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse, dfgi->vars, dfgi->nextstate);
+				  BlockDfgInfo dfgelsei(&dfgElse,dfgi->sc,dfgi,&nodemapElse,&symbolmapElse,&livedefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse, dfgi->vars, dfgi->nextstate);
 
 				  cout << "--Generating ELSE part of the DFG " << &dfgelsei << endl;
 				  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
@@ -949,7 +952,7 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 }
 
 
-h_array<node, Symbol*> createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
+h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*> *stmts,
 		                    list<Stmt*> *nondfstmts,
 				    set<SymbolVar*> *locals,
 				    set<SymbolVar*> *new_locals,
@@ -981,7 +984,16 @@ h_array<node, Symbol*> createBlockDfg (BlockDFG *dfg, list<Stmt*> *stmts,
   nodemap[nextstate_dummylval]=nextstate;
   symbolmap[nextstate]=nextstate_sym;
 
-  BlockDfgInfo dfgi(dfg,NULL,&nodemap,&symbolmap,&livedefs,&extdefs,&deaddefs,
+  State* currentState = sc->getState();
+  ExprValue* currentStateVal = new ExprValue(NULL, currentState);
+  node currentnode = dfg->new_node(currentStateVal);
+  nodemap[currentStateVal]=currentnode;
+  dfg->new_edge(currentnode, nextstate);
+
+  StmtAssign* t1=new StmtAssign(NULL, nextstate_dummylval, currentnode);
+  livedefs[nextstate_sym]=t1;
+
+  BlockDfgInfo dfgi(dfg,sc,NULL,&nodemap,&symbolmap,&livedefs,&extdefs,&deaddefs,
     		    nondfstmts,locals, vars, nextstate_sym);
 
   Stmt *s;
@@ -1032,14 +1044,14 @@ if(0) {
   // return dfgi.new_locals;
 }
 
-h_array<node, Symbol*> createBlockDfgSimple (BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars)
+h_array<node, Symbol*> createBlockDfgSimple (StateCase* sc, BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars)
 {
 
 	list<Stmt*> nondfstmts;
 	set<SymbolVar*> locals;
 	set<SymbolVar*> new_locals;
 
-	return createBlockDfg(dfg, stmts, &nondfstmts, &locals, &new_locals, vars);
+	return createBlockDfg(sc, dfg, stmts, &nondfstmts, &locals, &new_locals, vars);
 }
 
 using std::cout;
@@ -2991,7 +3003,7 @@ void timing_stateCase (OperatorBehavioral *op, StateCase *stateCase,
   list<Stmt*> nondfstmts;
   set<SymbolVar*> locals;
   set<SymbolVar*> new_locals;
-  createBlockDfg(&dfg,stateCase->getStmts(),&nondfstmts,&locals,&new_locals, NULL); // stupid
+  createBlockDfg(stateCase,&dfg,stateCase->getStmts(),&nondfstmts,&locals,&new_locals, NULL); // stupid
   /*
   cerr << printBlockDFG(&dfg);
   cerr << "Residual statements:\n";
