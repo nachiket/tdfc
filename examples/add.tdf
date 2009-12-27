@@ -1,7 +1,7 @@
 // a specific add
 unsigned[9] add8(input unsigned[8] a, input unsigned[8] b, input unsigned[1] c)
 {
-	state only(a,b,c): if(c==1) {add8=a+b;} else {add8=a-b;};
+	state only(a,b,c): if(c==1) {add8=a+b;};
 }
 
 

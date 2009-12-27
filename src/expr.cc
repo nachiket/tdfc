@@ -109,6 +109,17 @@ ExprValue::ExprValue (Token *token_i, Type *type_i, double doubleVal_i)
   assert(type->getTypeKind()==TYPE_DOUBLE);
 }
 
+/**
+ * Added by Nachiket on 12/27/2009 to support nextstate values
+ */
+ExprValue::ExprValue (Token *token_i, State* state_i)
+  : Expr(token_i,EXPR_VALUE,NULL),
+    state(state_i)
+{
+}
+
+
+
 ExprLValue::ExprLValue (Token *token_i, Symbol *sym_i,
 			Expr  *posLow_i, Expr *posHigh_i,
 			Expr  *retime_i, Expr *arrayLoc_i)
