@@ -987,7 +987,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 	    	  int nodenum=0;
 
 	    	  //cout << "Graph" << endl;
-	    	  printf("BlockDFG  (%d nodes, %d edges)\n",dfg->number_of_nodes(), dfg->number_of_edges());
+	    	  printf("dfg statistics->  %d nodes, %d edges\n",dfg->number_of_nodes(), dfg->number_of_edges());
 	    	  fflush(stdout);
 	    	  node n;
 
@@ -1122,7 +1122,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 							int id=(int)(ssym->getAnnote(CC_STREAM_ID));
 							*fout << "          " ;
 							*fout  << (floattype?"STREAM_WRITE_FLOAT":doubletype?"STREAM_WRITE_DOUBLE":"STREAM_WRITE_NOACC")
-								<< "(out[" << id << "]," << nodetostring(n,(dfgVal)[n],nodenums[n]) << ");" << endl; // asym->toString();
+								<< "(out[" << id << "]," << nodetofout(dfg,n,nodenums) << ");" << endl; // asym->toString();
 						  }
 					  }
 				  }

@@ -833,7 +833,7 @@ Expr *EvaluateExpr(Expr *orig)
 						      value2)));
 		    else break;
 		  }
-		cout << "DEBUG: type=" << typekindToString((((ExprValue *)value1)->getType())->getTypeKind()) << " value=" << v1 << "," << v1f << "," << v1d << endl;
+		// removed on 12-28- 2009 cout << "DEBUG: type=" << typekindToString((((ExprValue *)value1)->getType())->getTypeKind()) << " value=" << v1 << "," << v1f << "," << v1d << endl;
 
 		v=v1;
 		vf=v1f;
@@ -847,7 +847,7 @@ Expr *EvaluateExpr(Expr *orig)
 		float v2f=((ExprValue *)value2)->getFloatVal();
 		double v2d=((ExprValue *)value2)->getDoubleVal();
 
-		cout << "DEBUG: type=" << typekindToString((((ExprValue *)value2)->getType())->getTypeKind()) << " value=" << v2<< "," << v2f << "," << v2d << endl;
+		// removed on 12-28-2009 cout << "DEBUG: type=" << typekindToString((((ExprValue *)value2)->getType())->getTypeKind()) << " value=" << v2<< "," << v2f << "," << v2d << endl;
 
 		switch (bexpr->getOp())
 		  {
