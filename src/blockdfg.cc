@@ -975,7 +975,9 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   h_array<node, Symbol*>	   symbolmap;
   list<StmtAssign*>        deaddefs;
 
+  //-------------------------------------------------------------------
   // Initialize with next-state variable 12/27/2009
+  //-------------------------------------------------------------------
   const string nextstate_name = string("__nextstate");
   Type* nextstate_type = new Type(TYPE_STATE);
   SymbolVar* nextstate_sym = new SymbolVar(NULL, nextstate_name , nextstate_type, NULL, NULL);
@@ -991,6 +993,23 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 
   StmtAssign* t1=new StmtAssign(NULL, nextstate_dummylval, currentnode);
   livedefs[nextstate_sym]=t1;
+
+  //-------------------------------------------------------------------
+  // Initialize all local variables with dummy nodes
+  //-------------------------------------------------------------------
+  Symbol* localsym;
+  forall (localsym,*(vars->getSymbolOrder())) {
+	  ExprLValue* localvar_dummylval = new ExprLValue(NULL, localsym);
+	  node localvarnode=dfg->new_node(localvar_dummylval);
+	  nodemap[localvar_dummylval]=localvarnode;
+	  symbolmap[localvarnode]=localsym;
+
+	  ExprLValue* defaultVal = new ExprLValue(NULL, localsym);
+	  node defaultnode = dfg->new_node(defaultVal);
+	  nodemap[defaultVal]=defaultnode;
+	  dfg->new_edge(defaultnode, localvarnode);
+  }
+
 
   BlockDfgInfo dfgi(dfg,sc,NULL,&nodemap,&symbolmap,&livedefs,&extdefs,&deaddefs,
     		    nondfstmts,locals, vars, nextstate_sym);

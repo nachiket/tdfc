@@ -1010,10 +1010,10 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 			TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
 		  	if(!dfg->indeg(n)==0) {
 				if(dfg->indeg(n)==3) {
-					// binary operator
+					// if operator
 					*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ";
+					*fout << nodetofout(dfg, n, nodenums) << " = ";
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
@@ -1031,11 +1031,31 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 						edgenum++;
 					}
 					*fout << ifstr << ");" << endl;
+				} else if(dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) {
+					// if operator
+					*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
+					*fout << "          " << typekindToCplusplus(type) << " ";
+					*fout << nodetofout(dfg, n, nodenums) << " = ";
+					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+					int edgenum=0;
+					edge e;
+					string ifstr=" ( ";
+					forall (e,dfg_in_edges_n) {
+						// - examine inputs of n
+						node src=(*dfg).source(e);
+						if(edgenum==0) {
+							ifstr = ifstr + nodetofout(dfg, src, nodenums) + " : " + nodetofout(dfg,n,nodenums);
+						} else if(edgenum==1) {
+							ifstr = nodetofout(dfg, src, nodenums) + " ? " + ifstr;
+						}
+						edgenum++;
+					}
+					*fout << ifstr << ");" << endl;
 				} else if(dfg->indeg(n)==2) {
 					// binary operator
 					*fout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
+					*fout << nodetofout(dfg,n,nodenums) << " = ( ";
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
@@ -1053,7 +1073,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					// unary operator or function?
 					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetostring(n,(dfgVal)[n],nodenums[n]) << " = ( ";
+					*fout << nodetofout(dfg,n,nodenums) << " = ( ";
 
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					edge e;
@@ -1449,7 +1469,7 @@ string nodetovarstring(node n, Tree* t) {
  */
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 
-	if(dfg->indeg(src)==0) {
+	if(dfg->indeg(src)==0 || dfg->outdeg(src)==0) { // shouldn't we process outputs similarly as well?
 		Tree* t=(*dfg)[src];
 		if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
 			Symbol *asym=((ExprLValue*)t)->getSymbol();
@@ -1459,12 +1479,18 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 				if (ssym->getDir()==STREAM_IN)
 				{
 					return nodetovarstring(src, (*dfg)[src]);
+				} else if(ssym->getDir()==STREAM_OUT){
+					return nodetovarstring(src, (*dfg)[src]);
+
 				} else {
-					cerr << "STREAM_IN fail during name generation" << endl;
+					cerr << "STREAM directions fail during name generation" << endl;
 					exit(-1);
 				}
+			} else if(asym!=NULL && asym->isReg()){ // local variables are "registers" you idiot! nomenclature!!
+				//cout << "Found register! " << nodetovarstring(src, (*dfg)[src]) << endl;
+				return nodetovarstring(src, (*dfg)[src]);
 			} else {
-				cerr << "node is not a stream.. is this an internal/local variable? This should not be an error, fix this!" << endl;
+				cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
 				exit(-1);
 			}
 		} else {
