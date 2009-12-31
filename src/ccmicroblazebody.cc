@@ -505,7 +505,7 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 
 
   // create instance name and resolve
-  *fout << "  char * name=mangle(" << op->getName() << "_name," << params 
+  *fout << "  char *name=mangle(" << op->getName() << "_name," << params 
 	<< ",params);" << endl;
 
   if (!noReturnValue(rsym))
@@ -522,7 +522,8 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 
   if (op->getOpKind()!=OP_COMPOSE)
     {
-      *fout << "    declareIO(" << ins << "," << outs << ");" << endl;
+      *fout << endl;
+      *fout << "  declareIO(" << ins << "," << outs << ");" << endl;
 
       if (!noReturnValue(rsym))
 	{
@@ -536,7 +537,7 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 		}
 	      else
 		{
-		  *fout << "    bindOutput(" << ocnt<< "," << "result," 
+		  *fout << "  bindOutput(" << ocnt<< "," << "result," 
 			<< getCCStreamType(rsym) << ");" << endl;
 		  ocnt++;
 		}
@@ -553,22 +554,16 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 	      SymbolStream *ssym=(SymbolStream *)sym;
 	      if (ssym->getDir()==STREAM_OUT)
 		{
-		  *fout << "    bindOutput(" << ocnt << "," << prefix 
+		  *fout << "  bindOutput(" << ocnt << "," << prefix 
 			<< sym->getName() << ","
 			<< getCCStreamType(sym) << ");" << endl;
-                  *fout << "    SCORE_MARKWRITESTREAM(" << prefix
-                        << sym->getName() << ",globalCounter->threadCounter);"
-                        << endl;
 		  ocnt++;
 		}
 	      else if (ssym->getDir()==STREAM_IN)
 		{
-		  *fout << "    bindInput(" << icnt << ","<< prefix 
+		  *fout << "  bindInput(" << icnt << ","<< prefix 
 			<< sym->getName() << ","
 			<< getCCStreamType(sym) << ");" << endl;
-                  *fout << "    SCORE_MARKREADSTREAM(" << prefix
-                        << sym->getName() << ",globalCounter->threadCounter);"
-                        << endl;
 		  icnt++;
 		}
 	      
@@ -948,7 +943,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	  // close the nesting brackets.
 	  *fout << "        ";
 	  for (; numNestings>0; numNestings--) {
-	    *fout << "}";
+	    *fout << "}" << endl;
 	  }
 
 	  if (num_states>1)
@@ -1038,7 +1033,8 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	    
     }
 
-  *fout << "  return((void*)NULL); }" << endl;
+  *fout << "  return((void*)NULL);" << endl;
+  *fout << "}" << endl;
   
 }
 
@@ -1063,17 +1059,21 @@ void ccmicroblazebody (Operator *op)
   string fname=name+".c";
   // how convert string -> char * ?
   ofstream *fout=new ofstream(fname);
-  *fout << "// cctdfc autocompiled header file" << endl;
+  *fout << "// tdfc-microblaze backend autocompiled body file" << endl;
   *fout << "// tdfc version " << TDFC_VERSION << endl;
   time_t currentTime;
   time (&currentTime);
   *fout << "// " << ctime(&currentTime) << endl;
 
   // some includes
-  *fout << "#include \"Score.h\"" << endl;
-  *fout << "#include <stdio.h>" << endl;
-  *fout << "#include <stdlib.h>" << endl;
+  *fout << "#include \"xilscore.h\"" << endl; // port the stream library over to Microblaze..
+//  *fout << "#include <stdio.h>" << endl;
+//  *fout << "#include <stdlib.h>" << endl;
   *fout << "#include \"" << name << ".h\"" << endl;
+
+  // microblaze xparameters etc
+  *fout << "#include \"xparameters.h\"" << endl;
+//  *fout << "#include \"xtmrctr.h\"" << endl;
 
   // include anythying I depend upon
   ccprep(op); // generic for things need to be done on pre pass
@@ -1090,7 +1090,8 @@ void ccmicroblazebody (Operator *op)
     }
 
   // broiler name
-  *fout << "char * " << name << "_name=\"" << name << "\";" << endl;
+  *fout << "char *" << name << "_name=\"" << name << "\";" << endl;
+  *fout << endl;
 
   // constructor
   ccmicroblazeconstruct(fout,classname,op);
@@ -1104,7 +1105,7 @@ void ccmicroblazebody (Operator *op)
 
   // if necessary, functional version
   if (!noReturnValue(rsym))
-    functional_constructor(fout,name,classname,rsym,argtypes);
+    microblaze_functional_constructor(fout,name,classname,rsym,argtypes);
 
   // close up
   fout->close();

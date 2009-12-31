@@ -152,7 +152,7 @@ void microblaze_functional_constructor(ofstream *fout,
       *fout << "\texpr: " << pstr << "\");" << endl;
     }
 
-  *fout << "   " << classname << " *res=new " << classname << "(";
+  *fout << " " << classname << " *res=new " << classname << "(";
 
   int first=1;
   Symbol *sym;
@@ -166,7 +166,8 @@ void microblaze_functional_constructor(ofstream *fout,
     }
   *fout << ");" << endl;
 
-  *fout << " return(res->getResult()); }" << endl;
+  *fout << " return(res->getResult());" << endl;
+  *fout << "}" << endl;
 }
 
 

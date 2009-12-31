@@ -119,6 +119,8 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
+    << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
+    << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
     << "         -embz        : emit C code for the Microblaze\n"
     << "         -everilog    : emit Verilog\n"
     << "         -eIR         : emit page synthesis info (implies -xc -mt)\n"
