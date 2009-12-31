@@ -1,0 +1,6 @@
+// a specific add
+double add8(input double a, input double b)
+{
+	state only(a,b): add8=a+b;
+}
+

@@ -1069,7 +1069,7 @@ void ccmicroblazebody (Operator *op)
     classname=NON_FUNCTIONAL_PREFIX + name;
   list<Symbol*> *argtypes=op->getArgs();
   // start new output file
-  string fname=name+".c";
+  string fname=name+".cc";
   // how convert string -> char * ?
   ofstream *fout=new ofstream(fname);
   *fout << "// tdfc-microblaze backend autocompiled body file" << endl;
