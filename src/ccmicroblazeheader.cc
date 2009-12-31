@@ -192,33 +192,45 @@ void ccmicroblazeheader (Operator *op)
   time (&currentTime);
   *fout << "// " << ctime(&currentTime) << endl;
   // some includes
-  *fout << "#include \"Score.h\"" << endl;
+  *fout << "#include \"xilscore.h\"" << endl;
+  *fout << endl;
   // define class
-  *fout << "class " << classname  << ": public ScoreOperator {" <<endl;
-  *fout << "public: " << endl;
-  *fout << "  " << classname << "(" ;
+  *fout << "class " << classname  << " {" <<endl;
+  *fout << "  public: " << endl;
+  *fout << "    " << classname << "(" ;
   microblaze_constructor_signatures(fout,rsym,argtypes);
-  *fout << ");" << endl;
+  *fout << "  );" << endl;
   if (!microblaze_noReturnValue(rsym))
-    *fout << "  " << getCCtype(rsym) << " getResult() "
+    *fout << "    " << getCCtype(rsym) << " getResult() "
 	  << "{ return result;}" << endl;
-  *fout << "  void *proc_run();" << endl;
+  *fout << "    void *proc_run();" << endl;
+  *fout << endl;
+  *fout << "  private: " << endl;
+  if (op->getOpKind()==OP_BEHAVIORAL) {
+    *fout << "    pthread_t rpt;" << endl;
+  } else if(op->getOpKind()==OP_COMPOSE) {
+    *fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
+  } else {
+    cerr << "Unsupported opKind in ccmicroblazeheader.h" << endl;
+    exit(1);
+  }
   if (!microblaze_noReturnValue(rsym))
-    *fout << "  " << getCCtype(rsym) << " result;" << endl;
+    *fout << "    " << getCCtype(rsym) << " result;" << endl;
   *fout << "};" << endl;
+  *fout << endl;
   // if necessary, functional version
   if (!microblaze_noReturnValue(rsym))
     microblaze_functional_signature(fout,name,rsym,argtypes,";");
   // output a dummy NEW constructor.
   *fout << "typedef " << classname << "* OPERATOR_" << classname << ";" << endl;
   *fout << "#define NEW_" << classname << " " << "new " << classname << endl;
-  *fout << "#else" << endl;
-  // output a C linkable pseudo constructor.
-  *fout << "typedef void* OPERATOR_" << classname << ";" << endl;
-  *fout << "void *NEW_" << classname << "(" ;
-  microblaze_constructor_signatures(fout,rsym,argtypes);
-  *fout << ");" << endl;
-  *fout << "#endif" << endl;
+  // output a C linkable pseudo constructor. 12/30/2009--Why??
+//  *fout << "#else" << endl;
+//  *fout << "typedef void* OPERATOR_" << classname << ";" << endl;
+//  *fout << "void *NEW_" << classname << "(" ;
+//  microblaze_constructor_signatures(fout,rsym,argtypes);
+//  *fout << ");" << endl;
+//  *fout << "#endif" << endl;
   // close file
   fout->close();
 

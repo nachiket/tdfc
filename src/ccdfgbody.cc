@@ -1022,11 +1022,11 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						if(edgenum==0) {
-							ifstr = ifstr + nodetofout(dfg, src, nodenums) + " : ";
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
 						} else if(edgenum==1) {
-							ifstr = ifstr + nodetofout(dfg, src, nodenums) + " ";
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ";
 						} else if(edgenum==2) {
-							ifstr = nodetofout(dfg, src, nodenums) + " ? " + ifstr;
+							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
 						}
 						edgenum++;
 					}
@@ -1039,18 +1039,18 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
-					string ifstr=" ( ";
+					string ifstr=" ";
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						if(edgenum==0) {
-							ifstr = ifstr + nodetofout(dfg, src, nodenums) + " : " + nodetofout(dfg,n,nodenums);
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : (" + nodetofout(dfg,n,nodenums) + ")";
 						} else if(edgenum==1) {
-							ifstr = nodetofout(dfg, src, nodenums) + " ? " + ifstr;
+							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
 						}
 						edgenum++;
 					}
-					*fout << ifstr << ");" << endl;
+					*fout << ifstr << ";" << endl;
 				} else if(dfg->indeg(n)==2) {
 					// binary operator
 					*fout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;

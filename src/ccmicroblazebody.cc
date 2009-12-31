@@ -465,20 +465,20 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 
 
   // parameter assignments and registration
-  *fout << "  int *params=(int *)malloc(" << params << "*sizeof(int));" << endl;
-  int pi=0;
-  forall(sym,*argtypes)
-    {
-      if (ccParamCausesInstance(sym))
-	{
-	  *fout << "  " << sym->getName() << "=" 
-		<< prefix << sym->getName() << ";" << endl ;
-	  *fout << "  " << "params[" << pi << "]=" 
-		<< prefix << sym->getName() << ";" << endl ;
-	  pi++;
-	}
-    }
-
+//  *fout << "  int *params=(int *)malloc(" << params << "*sizeof(int));" << endl;
+//  int pi=0;
+//  forall(sym,*argtypes)
+//    {
+//      if (ccParamCausesInstance(sym))
+//	{
+//	  *fout << "  " << sym->getName() << "=" 
+//		<< prefix << sym->getName() << ";" << endl ;
+//	  *fout << "  " << "params[" << pi << "]=" 
+//		<< prefix << sym->getName() << ";" << endl ;
+//	  pi++;
+//	}
+//    }
+//
   // check type expressions for all arguments
   forall(sym,*argtypes)
     {
@@ -505,8 +505,8 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 
 
   // create instance name and resolve
-  *fout << "  char *name=mangle(" << op->getName() << "_name," << params 
-	<< ",params);" << endl;
+//  *fout << "  char *name=mangle(" << op->getName() << "_name," << params 
+//	<< ",params);" << endl;
 
   if (!noReturnValue(rsym))
     {
@@ -575,34 +575,45 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 	}
     }
 
-  if (op->getOpKind()==OP_COMPOSE)
-    {
 
-      // bind up / rename inputs
-      forall(sym,*argtypes)
-	{
-	  if (sym->isStream() || sym->isArray())
-	    {
-	      *fout << "    " << getCCtype(sym) << " " 
-		    << sym->getName() << "=" << prefix << sym->getName() 
-		    << ";" << endl;
-	    }
-	  else
-	    {
-	      // already complained
-	    }
-	}
+  if (op->getOpKind()==OP_BEHAVIORAL)
+  {
+	  // launch pthread on xilkernel... this is going to be tricky
+	  *fout << endl;
+	  *fout << "  // setup pthread for this leaf-level operator" << endl;
+	  *fout   << "  pthread_attr_t *a_thread_attribute=(pthread_attr_t *)malloc(sizeof(pthread_attr_t));\n"
+		  << "  pthread_attr_init(a_thread_attribute);\n"
+		  << "  pthread_attr_setdetachstate(a_thread_attribute,PTHREAD_CREATE_DETACHED);\n"
+		  << "  pthread_create(&rpt,a_thread_attribute,&"
+		  << op->getName() << "_proc_run, this);"
+		  << endl;
+  }
+  else if (op->getOpKind()==OP_COMPOSE)
+  {
 
-      ccMicroblazeCompose(fout,name,(OperatorCompose *)op);
-    }
-  else if(!op->getOpKind()==OP_BEHAVIORAL)
-    {
-    	cout << "Kind=" << op->getOpKind() << endl;
-      // maybe print getOpKind for offending...
-      error(-1,"FUBAR: don't know how to handle op kind omitting ",
-	    op->getToken());
-    }
+	  // bind up / rename inputs
+	  forall(sym,*argtypes)
+	  {
+		  if (sym->isStream() || sym->isArray())
+		  {
+			  *fout << "    " << getCCtype(sym) << " "
+				  << sym->getName() << "=" << prefix << sym->getName()
+				  << ";" << endl;
+		  }
+		  else
+		  {
+			  // already complained
+		  }
+	  }
 
+	  ccMicroblazeCompose(fout,name,(OperatorCompose *)op);
+  }
+  else
+  {
+	  // maybe print getOpKind for offending...
+	  error(-1,"FUBAR: don't know how to handle op kind omitting ",
+			  op->getToken());
+  }
 
   *fout << "}" << endl; // end of constructor
   
@@ -853,6 +864,8 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 		    }
 		  
 		}
+	      
+	      *fout << endl;
 	      *fout << "       ";
 	      *fout << " if (1" ;
               // walk over and list vars/polarity
@@ -1090,7 +1103,7 @@ void ccmicroblazebody (Operator *op)
     }
 
   // broiler name
-  *fout << "char *" << name << "_name=\"" << name << "\";" << endl;
+//  *fout << "char *" << name << "_name=\"" << name << "\";" << endl;
   *fout << endl;
 
   // constructor
