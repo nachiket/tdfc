@@ -312,6 +312,8 @@ type
 			{ $$=new Type(TYPE_FLOAT); }
 | DOUBLE
 			{ $$=new Type(TYPE_DOUBLE); }
+| DOUBLE arraySize
+			{ $$=new TypeArray(new Type(TYPE_DOUBLE),$2); }
 | BOOLEAN arraySize
 			{ $$=new TypeArray(new Type(TYPE_BOOL),$2); }
 | sizedType '[' expr ']'

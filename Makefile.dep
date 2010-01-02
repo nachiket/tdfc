@@ -3011,7 +3011,8 @@ ccdfgbody.o: src/ccdfgbody.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/bits/ostream.tcc /usr/include/c++/4.1.3/locale \
   /usr/include/c++/4.1.3/bits/locale_facets.tcc \
   /usr/include/c++/4.1.3/typeinfo /usr/include/c++/4.1.3/istream \
-  /usr/include/c++/4.1.3/bits/istream.tcc /usr/include/c++/4.1.3/fstream \
+  /usr/include/c++/4.1.3/bits/istream.tcc /usr/include/c++/4.1.3/sstream \
+  /usr/include/c++/4.1.3/bits/sstream.tcc /usr/include/c++/4.1.3/fstream \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/basic_file.h \
   /usr/include/c++/4.1.3/bits/fstream.tcc \
   /opt/leda/incl/LEDA/core/sortseq.h \
@@ -3024,7 +3025,6 @@ ccdfgbody.o: src/ccdfgbody.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/iomanip /usr/include/c++/4.1.3/functional \
   /opt/leda/incl/LEDA/internal/std/fstream.h \
   /opt/leda/incl/LEDA/internal/std/sstream.h \
-  /usr/include/c++/4.1.3/sstream /usr/include/c++/4.1.3/bits/sstream.tcc \
   /opt/leda/incl/LEDA/internal/std/stddef.h \
   /opt/leda/incl/LEDA/internal/std/stdlib.h \
   /opt/leda/incl/LEDA/internal/std/math.h /usr/include/c++/4.1.3/cmath \

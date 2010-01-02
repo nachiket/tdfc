@@ -471,6 +471,13 @@ Expr *EvaluateExpr(Expr *orig)
 		  						(double)((ExprValue *)value)->
 		  							getIntVal()));
 		    	  } else if(value->getType()->getTypeKind()==TYPE_FIXED) {
+			  	TypeFixed *tf=(TypeFixed*)value->getType();
+				double fixedVal=((ExprValue*)value)->getIntVal()+(((ExprValue*)value)->getFracVal()/pow(10,tf->getFracWidth()));
+		  			return(new ExprValue   (orig->getToken(),
+		  						orig->getType(),
+		  						fixedVal
+		  						));
+				/*
 		    		  if(((ExprValue *)value)->getFracVal()==0) {
 		  			return(new ExprValue   (orig->getToken(),
 		  						orig->getType(),
@@ -479,6 +486,7 @@ Expr *EvaluateExpr(Expr *orig)
 		    		  } else {
 		    			  fatal(-1,"This sucks.. How do I deal with fixed-point types??");
 		    		  }
+				*/
 		    	  } else {
 		    		  return(new ExprValue   (orig->getToken(),
 						orig->getType(),

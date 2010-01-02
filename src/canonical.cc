@@ -1777,7 +1777,7 @@ OperatorBehavioral* makeCopyOperator (Token *token_i,
 				      new ExprLValue(NULL,stream_i));
     stmts->append(assign);
   }
-  InputSpec *ispec=new InputSpec(NULL,stream_i,NULL,false,false);
+  InputSpec *ispec=new InputSpec(NULL,stream_i,NULL,false,false); 
   list<InputSpec*> *ispecs=new list<InputSpec*>;
   ispecs->append(ispec);
   StateCase *stateCase=new StateCase(NULL,ispecs,stmts);
@@ -1787,6 +1787,27 @@ OperatorBehavioral* makeCopyOperator (Token *token_i,
   stmts->append(new StmtGoto(NULL,state));	// - 'stay' stmt
   dictionary<string,State*> *states=new dictionary<string,State*>;
   states->insert("only",state);
+
+  // - create EOFR escape path (Added by Nachiket onn 1/2/2010 after an awesome debugging session)
+  list<Stmt*> *stmts1=new list<Stmt*>;
+  for (n=0; n<fanout; n++) {
+    // copied from parse_tdf.y
+    ExprLValue *el=new ExprLValue(NULL,stream_o[n]);
+    list<Expr*> *args=new list<Expr*>;
+    args->append(el);
+    ExprBuiltin *eb=new ExprBuiltin(NULL,args,builtin_frameclose);
+    StmtBuiltin *builtin=new StmtBuiltin(NULL,eb);
+    stmts1->append(builtin);
+  }
+  InputSpec *ispec1=new InputSpec(NULL,stream_i,NULL,false,true); // set as EOFR case
+  list<InputSpec*> *ispecs1=new list<InputSpec*>;
+  ispecs1->append(ispec1);
+  StateCase *stateCase1=new StateCase(NULL,ispecs1,stmts1);
+  stateCases->insert(stateCase1);
+  State *state1=new State(NULL,"only",stateCases);
+  stmts1->append(new StmtGoto(NULL,state1));	// - 'stay' stmt
+
+
   OperatorBehavioral *bop
     = new OperatorBehavioral(token_i, opName,
 			     (Symbol*)sym_none->duplicate(),
