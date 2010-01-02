@@ -1613,6 +1613,8 @@ Type* ExprUop::typeCheck ()
   return NULL;	// dummy
 }
 
+using std::cout;
+using std::endl;
 
 Type* ExprCast::typeCheck ()
 {
@@ -1629,14 +1631,20 @@ Type* ExprCast::typeCheck ()
   {
     if (      eType->getTypeKind()==TYPE_INT
 	&& castType->getTypeKind()==TYPE_INT
-	&&    eType->isSigned()==castType->isSigned())
+	&&    eType->isSigned()==castType->isSigned()) {
       // - HACK:    Allow casting int to narrower int of same sign
       //            (there is no other 'easy' syntax for narrowing signed int)
       // - WARNING: Should sub-range instead;
       //            this violates Eylon's philosophy that type conversion is
       //            non-destructive, and destruction is explicit by bit ops
-      warn(string("casting from type ")+eType->toString()+
+      if(e->getExprKind()==EXPR_BOP && ((ExprBop*)e)->getOp()==38 && eType->getWidth()==castType->getWidth()+1) {
+//	cout << "HAPPINESS:" << e->toString() << " " << opToNodename(((ExprBop*)e)->getOp()) << " Width=" <<  eType->getWidth() << " and " << castType->getWidth() << endl;
+//	exit(1);
+      } else {
+      	warn(string("casting from type ")+eType->toString()+
            " to type "+castType->toString()+" may lose information", token);
+      }
+    }
     else
       fatal(1, string("cannot cast type ")+eType->toString()+
 		      " to type "+castType->toString(), token);

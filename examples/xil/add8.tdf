@@ -1,6 +1,6 @@
 // a specific add
-double add8(input double a, input double b)
+add8(input double a, input double b, output double c)
 {
-	state only(a,b): add8=a+b;
+	state only(a,b): c=a+b;
 }
 
