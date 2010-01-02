@@ -50,7 +50,7 @@ string opToString (int op)
     case SQRT:		return string("sqrt");
     case FLOOR:		return string("floor");
     default:		if (op=='%')	return string('%');
-    			if (op==38)	return string('%'); // don't know why op=='%' didn't work
+    //			if (op==38)	return string('%'); // don't know why op=='%' didn't work....... GOT IT! turning into mask! Jesus!
 			else		return string("%c",op);
   }
 }
@@ -72,7 +72,7 @@ string opToNodename (int op)
     case SQRT:		return string("sqrt");
     case FLOOR:		return string("floor");
     case IF:		return string("if");
-    default:		if (op==38)	return string("perc");
+    default:		if (op=='%')	return string("perc");
     			if (op=='+')	return string("plus");
     			if (op=='-')	return string("minus");
     			if (op=='*')	return string("multiply");
