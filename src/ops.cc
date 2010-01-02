@@ -49,7 +49,8 @@ string opToString (int op)
     case LOG:		return string("log");
     case SQRT:		return string("sqrt");
     case FLOOR:		return string("floor");
-    default:		if (op==38)	return string('%'); // don't know why op=='%' didn't work
+    default:		if (op=='%')	return string('%');
+    			if (op==38)	return string('%'); // don't know why op=='%' didn't work
 			else		return string("%c",op);
   }
 }

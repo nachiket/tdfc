@@ -172,6 +172,11 @@ void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
         // TODO: deal properly with fixed point construction/representation
 	*fout << "(";
 	ccComposeEvalExpr(fout,bexpr->getExpr1(),rsym);
+// 1-2-2010: Don't understand the deal with processing %..
+//	if(bexpr->getOp()=='%') {
+//		cout << "WTF!!" << endl;
+//		exit(0);
+//	}
 	*fout <<  opToString(bexpr->getOp());
 	ccComposeEvalExpr(fout,bexpr->getExpr2(),rsym);
 	*fout << ")";
