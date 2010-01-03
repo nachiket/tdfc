@@ -891,6 +891,7 @@ string OperatorBehavioral::toDFGString () const
 
 
   // - create dfg + residual stmts
+  	int total_states=0;
 	set<StateCase*> statecases;
 	StateCase *sc;
   	dic_item i;
@@ -899,10 +900,13 @@ string OperatorBehavioral::toDFGString () const
 		forall (sc,*s->getCases()) {
 			statecases.insert(sc);
 			sc->setStateName(s->getName());
+			total_states++;
 		}
 	}
 
-	string totalStr="";
+	std::stringstream out;
+	out << total_states;
+	string totalStr="TotalStates "+string(out.str().c_str())+"\n";
 
 	StateCase *sc1;
 	forall (sc1,statecases) {
