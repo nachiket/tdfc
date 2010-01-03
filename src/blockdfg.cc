@@ -139,7 +139,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  (*dfgi->nodemap)[e]=n;			  
 			  if (uses_e)
 			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
-			    cout << "VAL:" << n << endl;
+//			    cout << "VAL:" << n << endl;
 			  return n;
 			}
     case EXPR_LVALUE:	{
@@ -159,10 +159,10 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    node nrhs=asst->getRhsnode();
 			    // node n=...
 			    if(rval!=NULL) {
-			    	cout << "Found rval " << rval << endl;
+//			    	cout << "Found rval " << rval << endl;
 			    	n=(*dfgi->nodemap)[rval];
 				(*dfgi->symbolmap)[n]=sym; // recording symbols 12/14/2009
-				cout << "------------------Added symbol=" << sym << " for node=" << n << endl;
+//				cout << "------------------Added symbol=" << sym << " for node=" << n << endl;
 			    	if(n==NULL) {
 			    		cout << "Why is the assignment NULL? lval=" << lval << " assignment=" << asst  << endl;
 			    		//exit(-1);
@@ -191,7 +191,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    */
 			    // (*dfgi->nodemap)[e]=n;	// - moved below
 
-			    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
+//			    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
 			    if(n==0u) {
 			    	Symbol* symtest;
 			    	forall (symtest,*((*dfgi->vars).getSymbolOrder())) {
@@ -217,7 +217,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  }			  
 			  if (lval->usesAllBits()) {
 			    (*dfgi->nodemap)[e]=n;
-			    cout << "NEWLVAL:" << n << endl;
+//			    cout << "NEWLVAL:" << n << endl;
 			    if (uses_e)
 			      (*dfgi->dfg).new_edge(n,uses_e,asst);
 			    return n;
@@ -265,7 +265,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  Expr *e2=((ExprBop*)e)->getExpr2();
 			  createBlockDfg_for_expr(e1,dfgi,n);
 			  createBlockDfg_for_expr(e2,dfgi,n);
-			  cout << "BOP: " << n << endl;
+//			  cout << "BOP: " << n << endl;
 			  if (uses_e)
 			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
 			  return n;
@@ -355,7 +355,7 @@ void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
 	list<edge> fanin = (*dfgi->dfg).in_edges(dead_po);
     forall(edel, fanin) {
     	node src=(*dfgi->dfg).source(edel);
-    	cout <<  "--Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
+//    	cout <<  "--Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
 		(*dfgi->dfg).del_edge(edel);
 		if((*dfgi->dfg).outdeg(src)==0) {
 			recursiveFaninDelete(dfgi, src);
@@ -381,16 +381,14 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  Expr       *rhs=((StmtAssign*)t)->getRhs();
 			  ExprLValue *lhs=((StmtAssign*)t)->getLValue();
 			  Symbol     *sym=lhs->getSymbol();
-			  cout << "Detected string=" << sym->toString() << endl;
+//			  cout << "Detected string=" << sym->toString() << endl;
 			  assert(lhs->usesAllBits());	// - ignoring bit asst
 			  // - create RHS tree and connect to a new PO node
 			  node po=(*dfgi->dfg).new_node(lhs);
 			  (*dfgi->nodemap)[lhs]=po;
-			  // node n=
-			  //if(rhs!=(Expr*)0) {
-				  createBlockDfg_for_expr(rhs,dfgi,po);
+			  createBlockDfg_for_expr(rhs,dfgi,po);
 			  (*dfgi->symbolmap)[po]=sym; // recording symbols 12/14/2009
-			  cout << "------------------Added STMTASSIGN symbol=" << sym << " for node=" << po << endl;
+//			  cout << "------------------Added STMTASSIGN symbol=" << sym << " for node=" << po << endl;
 			  //} else{
 				//
 			  //}
@@ -417,7 +415,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 			    //(*dfgi->nodemap)[rhs]=
 			    (*dfgi->livedefs)[sym]=NULL;
-			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
+//			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
 			     //cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
 			     //cout << t->toString()+" is now live" << endl;
 			     //cout << printBlockDFG(dfgi->dfg) << endl;
@@ -427,7 +425,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			    // WARNING: leaves dangling ptrs in nodemap
 			  }
 
-			  cout << "--Processed assignement " << t->toString() <<  " in DFG" << dfgi << " where RHS=" << rhs << "=" << po << endl;
+//			  cout << "--Processed assignement " << t->toString() <<  " in DFG" << dfgi << " where RHS=" << rhs << "=" << po << endl;
 			  // - record live asst
 			  (*dfgi->livedefs)[sym]=(StmtAssign*)t;
 			  return false;
@@ -464,7 +462,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  (*dfgi->nodemap)[gotoStateVal]=gotonode;
 			  (*dfgi->dfg).new_edge(gotonode, statenode);
 
-			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->getName() << endl;
+//			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->getName() << endl;
 
 			  // override previous definition
 			  if ((*dfgi->livedefs).defined(sym) &&
@@ -483,7 +481,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 			    (*dfgi->livedefs)[sym]=NULL;
-			     cout << "GOTO Processing Overriding=" << t->toString() << endl;
+//			     cout << "GOTO Processing Overriding=" << t->toString() << endl;
 			  }
 
 			  StmtAssign* t1=new StmtAssign(NULL, stateVal, gotonode);
