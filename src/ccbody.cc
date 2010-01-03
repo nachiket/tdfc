@@ -82,6 +82,7 @@ Note:
 
 using leda::list_item;
 using leda::dic_item;
+using leda::string;
 using std::ofstream;
 
 void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
@@ -948,6 +949,9 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	  if (num_states>1)
 	    *fout << "      case " << STATE_PREFIX << sname
 		  << ": { " << endl;
+
+	string atomiceofrcase="0";
+
 	  for (int i=cases->low();i<=cases->high();i++)
 	    {
 	      // walk over inputs to case
@@ -992,6 +996,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	      *fout << "       ";
 	      *fout << " if (1" ;
               // walk over and list vars/polarity
+	      bool eofr_detected=false; 
 	      forall (ispec,*(acase->getInputs()))
 		{
 		  int loc=caseIns->binary_search(ispec->getStream());
@@ -1002,6 +1007,10 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 			  *fout << "eos_" << loc; // single out eos
 		  } else if(ispec->isEofrCase()) {
 			  *fout << "eofr_" << loc; // add eofr support
+
+			  std::stringstream out; out<<loc;
+			  atomiceofrcase+="|| eofr_" + string(out.str().c_str()); 
+
 		  } // both eofr and eos cannot be set simultaneously!
 		  //*fout << "eos_" << loc;
 		}
@@ -1113,8 +1122,13 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	      *fout << "        }" << endl;
 	      *fout << "        else" << endl;
 	    }
-	  // default case will be to punt out of loop (exit/done)
+	    // default case will be to punt out of loop (exit/done)
+	    // For now. split eofr cases into separate statecases.. wtf!?
+	  *fout << "        {" << endl ;
+	  *fout << "        if (" << atomiceofrcase.cstring() << ") {}" << endl ;
+	  *fout << "        else" << endl;
 	  *fout << "         done=1;" << endl;
+	  *fout << "        }" << endl;
 	    
 	  // close the nesting brackets.
 	  *fout << "        ";
