@@ -906,7 +906,7 @@ string OperatorBehavioral::toDFGString () const
 
 	std::stringstream out;
 	out << total_states;
-	string totalStr="TotalStates "+string(out.str().c_str())+"\n";
+	string totalStr="ScoreOperator "+getName()+" ("+string(out.str().c_str())+" states)\n";
 
 	StateCase *sc1;
 	forall (sc1,statecases) {

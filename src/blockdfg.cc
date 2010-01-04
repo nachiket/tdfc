@@ -1055,7 +1055,7 @@ string printBlockDFG (string statename, BlockDFG *dfg,
 		      node_array<int> *latencies,		// "L=..."
 		      node_array<int> *depths)		// "D=..."
 {
-  string ret("BlockDFG "+statename+" (%d nodes, %d edges)\n",
+  string ret("StateDfg "+statename+" (%d nodes, %d edges)\n",
 	     dfg->number_of_nodes(), dfg->number_of_edges());
 
 //cout << "inside" << endl;
