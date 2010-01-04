@@ -389,17 +389,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  (*dfgi->nodemap)[lhs]=po;
 			  createBlockDfg_for_expr(rhs,dfgi,po);
 			  (*dfgi->symbolmap)[po]=sym; // recording symbols 12/14/2009
-			  cout << "------------------Added STMTASSIGN symbol=" << sym->toString() << " for node=" << po << endl;
+//			  cout << "------------------Added STMTASSIGN symbol=" << sym->toString() << " for node=" << po << endl;
 
-//list<edge> dfg_in_edges_n=(*dfgi->dfg).in_edges(po);
-//edge e;
-//forall (e,dfg_in_edges_n) {
-//	cout << "input=" << (*dfgi->dfg).source(e);
-//}
-
-			  //} else{
-				//
-			  //}
 			  // - mark any old PO node as dead
 			  //     (but do not remove it yet!  temporarily,
 			  //      there may be multiple PO nodes for same var)
@@ -409,9 +400,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 			    (*dfgi->deaddefs).append(dead_asst);
 		    ExprLValue *dead_lval=dead_asst->getLValue();
 			    node        dead_po  =(*dfgi->nodemap)[dead_lval];
-			    //edge		dead_edge=(*dfgi->dfg).first_in_edge(dead_po);
-			    //(*dfgi->dfg).del_edge(dead_edge);
-			    //(*dfgi->dfg).del_node(dead_po);
 			    list<edge> fanout = (*dfgi->dfg).out_edges(dead_po);
 			    edge edel;
 			    forall(edel, fanout) {
@@ -423,17 +411,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 			    //(*dfgi->nodemap)[rhs]=
 			    (*dfgi->livedefs)[sym]=NULL;
-			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
-			     //cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
-			     //cout << t->toString()+" is now live" << endl;
-			     //cout << printBlockDFG(dfgi->dfg) << endl;
-		    //deleteBlockDfgCone(dfgi->dfg,dead_po);    // LATER
-			     //(*dfgi->dfg).del_node(dead_po);
-		    //cout << printBlockDFG(dfgi->dfg) << endl;
+//			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
 			    // WARNING: leaves dangling ptrs in nodemap
 			  }
 
-//			  cout << "--Processed assignement " << t->toString() <<  " in DFG" << dfgi << " where RHS=" << rhs << "=" << po << endl;
 			  // - record live asst
 			  (*dfgi->livedefs)[sym]=(StmtAssign*)t;
 			  return false;
