@@ -518,7 +518,13 @@ void emitDFG ()
 
   Operator *op;
 
-  cout << "TotalOperators " << (*gSuite->getOperators()).size() << endl;
+  int leaf_operators=0;
+  forall(op,*gSuite->getOperators()) {
+	if(op->getOpKind()==OP_BEHAVIORAL) {
+		leaf_operators++;
+	}
+  }
+  cout << "TotalOperators " << leaf_operators << endl;
 
   forall(op,*gSuite->getOperators())
     instances(op,TARGET_DFG,0);
