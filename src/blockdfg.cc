@@ -159,7 +159,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    node nrhs=asst->getRhsnode();
 			    // node n=...
 			    if(rval!=NULL) {
-			    	cout << "Found rval " << rval << " for " << e->toString() << endl;
+//			    	cout << "Found rval " << rval << " for " << e->toString() << endl;
 			    	n=(*dfgi->nodemap)[rval];
 				(*dfgi->symbolmap)[n]=sym; // recording symbols 12/14/2009
 //				cout << "------------------Added symbol=" << sym << " for node=" << n << endl;
@@ -170,7 +170,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    } else if(nrhs!=NULL){
 			    	// Added by Nachiket on 11/3/2009
 			    	n=nrhs;
-			    	cout << "Found rhs=" << n  << " " << nrhs << " for " << e->toString() << endl;
+//			    	cout << "Found rhs=" << n  << " " << nrhs << " for " << e->toString() << endl;
 			    	if(!(*dfgi->dfg).member(n)) {
 			    		cout << n << " is not member of graph dfg=" << *dfgi->dfg << endl;
 			    		cout << "" << endl;
@@ -178,20 +178,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    	}
 			    }
 
-			    /*
-			    if(n==0u) {
-			    	// is it a variable shared within the state machine?? create one here? ---> move this elsewhere later...
-			    	ExprLValue* newlval = new ExprLValue(NULL, sym);
-
-			    	// setup a new node wiht same symbol.. this is going to be a little ugly? possibly even wrong?
-			    	n=(*dfgi->dfg).new_node(newlval);
-			    	(*dfgi->nodemap)[newlval]=n;
-
-			    }
-			    */
-			    // (*dfgi->nodemap)[e]=n;	// - moved below
-
-			    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
+			    //cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
 			    if(n==0u) {
 			    	Symbol* symtest;
 			    	forall (symtest,*((*dfgi->vars).getSymbolOrder())) {
@@ -780,22 +767,22 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall(n1_search, n1_fanin0_set) {
 					  node n0_search = (*n0_fanout0_set)[((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()];
 					  if(n0_search!=NULL) {
-					  	cout << "Dialing symbol=" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()->getName() << " with ptr= " << n0_search << endl;
+//					  	cout << "Dialing symbol=" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()->getName() << " with ptr= " << n0_search << endl;
 //						  cout << "Matched... but now what?" << endl;
 						  ExprLValue* t=(ExprLValue*)(*dfgi->dfg)[n0_search];
 						  assert(t);
-						  cout << "Attempting to match n0_search=" << t->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n0_search])->getSymbol() << "]" << endl;
-						  cout << " with n1_search=" << n1_search << " "<< ((Tree*)(*dfgi->dfg)[n1_search])->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << "]" << endl;
+//						  cout << "Attempting to match n0_search=" << t->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n0_search])->getSymbol() << "]" << endl;
+//						  cout << " with n1_search=" << n1_search << " "<< ((Tree*)(*dfgi->dfg)[n1_search])->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << "]" << endl;
 
-						  cout << "Outputs=" << (*dfgi->dfg).outdeg(n1_search) << endl;
+//						  cout << "Outputs=" << (*dfgi->dfg).outdeg(n1_search) << endl;
 						  edge fanout_edge;
 						  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
 						  set<node> new_nodes;
 
 						  forall(fanout_edge,replace_edges) {
-						  	  cout << "Processing crazy edge=" << fanout_edge << endl;
-							  cout << " oldinput=" << n1_search << " " << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << endl;
-							  cout << " newinput=" << n0_search << " " << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
+//						  	  cout << "Processing crazy edge=" << fanout_edge << endl;
+//							  cout << " oldinput=" << n1_search << " " << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << endl;
+//							  cout << " newinput=" << n0_search << " " << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
 
 							  //node src_node  = (*dfgi->dfg).source(fanout_edge);
 							  node sink_node = (*dfgi->dfg).target(fanout_edge);
