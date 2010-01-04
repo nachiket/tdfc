@@ -1076,20 +1076,15 @@ string printBlockDFG (string statename, BlockDFG *dfg,
 			  }
 			  if(((Expr*)t)->getExprKind()==EXPR_LVALUE) {
 				  string t_str1 = t ? t->toString().replace_all("\n","") : string("<nil>");
-				  //				Type typ=(*((Expr*)t)->getType());
-				  //				cout << " DUckerppp" << t_str1 << endl;
-				  //				cout << " YType=" << (*((Expr*)t)->getType()).toString() << endl;
 				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 			  }
+			  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 			  // For now I am throwing out the typecasting.. not necessary
 			  if(((Expr*)t)->getExprKind()==EXPR_CAST) {
 				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
+				  t_str = "auto_inserted_cast_node_being_ignored_for_world_peace";
 			  }
 
-			  //			cout << "ExprType for weirdness=" << exprkindToString(((Expr*)t)->getExprKind()) << endl;
-
-			  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-			  //ret += " " +treekindToString(t->getKind())+" " + exprkindToString(((Expr*)t)->getExprKind()) + " "  + t_str + "\n";
 			  ret += var + " "  + t_str + "\n";
 		  }
 	  } else {
