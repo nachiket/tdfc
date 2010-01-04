@@ -159,7 +159,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    node nrhs=asst->getRhsnode();
 			    // node n=...
 			    if(rval!=NULL) {
-//			    	cout << "Found rval " << rval << endl;
+			    	cout << "Found rval " << rval << " for " << e->toString() << endl;
 			    	n=(*dfgi->nodemap)[rval];
 				(*dfgi->symbolmap)[n]=sym; // recording symbols 12/14/2009
 //				cout << "------------------Added symbol=" << sym << " for node=" << n << endl;
@@ -170,7 +170,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    } else if(nrhs!=NULL){
 			    	// Added by Nachiket on 11/3/2009
 			    	n=nrhs;
-//			    	cout << "Found rhs=" << n  << " " << nrhs << " for " << lval << " assignment=" << asst << endl;
+			    	cout << "Found rhs=" << n  << " " << nrhs << " for " << e->toString() << endl;
 			    	if(!(*dfgi->dfg).member(n)) {
 			    		cout << n << " is not member of graph dfg=" << *dfgi->dfg << endl;
 			    		cout << "" << endl;
@@ -191,7 +191,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    */
 			    // (*dfgi->nodemap)[e]=n;	// - moved below
 
-//			    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
+			    cout << "Nachiket detected EXPR_LVALUE node=" << e->toString() << " for symbol" << sym << endl;
 			    if(n==0u) {
 			    	Symbol* symtest;
 			    	forall (symtest,*((*dfgi->vars).getSymbolOrder())) {
@@ -209,6 +209,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    assert(n);
 			  }
 			  else {
+//			  cout << "No PI node for " << e->toString() << endl;
 			    // - symbol has no live/ext def; create PI node
 			    // node n=...
 			    n=(*dfgi->dfg).new_node(e);
@@ -388,7 +389,14 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  (*dfgi->nodemap)[lhs]=po;
 			  createBlockDfg_for_expr(rhs,dfgi,po);
 			  (*dfgi->symbolmap)[po]=sym; // recording symbols 12/14/2009
-//			  cout << "------------------Added STMTASSIGN symbol=" << sym << " for node=" << po << endl;
+			  cout << "------------------Added STMTASSIGN symbol=" << sym->toString() << " for node=" << po << endl;
+
+//list<edge> dfg_in_edges_n=(*dfgi->dfg).in_edges(po);
+//edge e;
+//forall (e,dfg_in_edges_n) {
+//	cout << "input=" << (*dfgi->dfg).source(e);
+//}
+
 			  //} else{
 				//
 			  //}
@@ -415,7 +423,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 			    //(*dfgi->nodemap)[rhs]=
 			    (*dfgi->livedefs)[sym]=NULL;
-//			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
+			     cout << "-- Assignment is being overriden.. for " << t->toString() << endl;
 			     //cout <<  ((Tree *)((*dfgi->dfg)[dead_po]))->toString()+" is now dead, " << endl;
 			     //cout << t->toString()+" is now live" << endl;
 			     //cout << printBlockDFG(dfgi->dfg) << endl;
@@ -790,23 +798,23 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  node n1_search;
 				  forall(n1_search, n1_fanin0_set) {
 					  node n0_search = (*n0_fanout0_set)[((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()];
-//					  cout << "Dialing symbol=" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << " with ptr= " << n0_search << endl;
 					  if(n0_search!=NULL) {
+					  	cout << "Dialing symbol=" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()->getName() << " with ptr= " << n0_search << endl;
 //						  cout << "Matched... but now what?" << endl;
 						  ExprLValue* t=(ExprLValue*)(*dfgi->dfg)[n0_search];
 						  assert(t);
-//						  cout << "Attempting to match n0_search=" << t->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n0_search])->getSymbol() << "]" << endl;
-//						  cout << " with n1_search=" << n1_search << " "<< ((Tree*)(*dfgi->dfg)[n1_search])->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << "]" << endl;
+						  cout << "Attempting to match n0_search=" << t->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n0_search])->getSymbol() << "]" << endl;
+						  cout << " with n1_search=" << n1_search << " "<< ((Tree*)(*dfgi->dfg)[n1_search])->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << "]" << endl;
 
-//						  cout << "Outputs=" << (*dfgi->dfg).outdeg(n1_search) << endl;
+						  cout << "Outputs=" << (*dfgi->dfg).outdeg(n1_search) << endl;
 						  edge fanout_edge;
 						  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
 						  set<node> new_nodes;
 
 						  forall(fanout_edge,replace_edges) {
-//						  	  cout << "Processing crazy edge=" << fanout_edge << endl;
-//							  cout << " oldinput=" << n1_search << endl; //" " << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << endl;
-//							  cout << " newinput=" << n0_search << endl; //" " << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
+						  	  cout << "Processing crazy edge=" << fanout_edge << endl;
+							  cout << " oldinput=" << n1_search << " " << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << endl;
+							  cout << " newinput=" << n0_search << " " << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
 
 							  //node src_node  = (*dfgi->dfg).source(fanout_edge);
 							  node sink_node = (*dfgi->dfg).target(fanout_edge);
@@ -980,6 +988,10 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 	  node defaultnode = dfg->new_node(defaultVal);
 	  nodemap[defaultVal]=defaultnode;
 	  dfg->new_edge(defaultnode, localvarnode);
+	  
+	  // Why didn't we just initialize this as an assignment?
+	  StmtAssign* t2=new StmtAssign(NULL, localvar_dummylval, defaultnode);
+	  livedefs[localsym]=t2;
   }
 
 
