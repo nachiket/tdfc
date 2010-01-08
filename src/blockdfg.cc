@@ -1043,6 +1043,7 @@ string printBlockDFG (string statename, BlockDFG *dfg,
   int nodenum=0;
   node_array<int> nodenums(*dfg);
 
+  int cast_count=0;
   node n;
   forall_nodes (n,*dfg) {
 
@@ -1082,7 +1083,9 @@ string printBlockDFG (string statename, BlockDFG *dfg,
 			  // For now I am throwing out the typecasting.. not necessary
 			  if(((Expr*)t)->getExprKind()==EXPR_CAST) {
 				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
-				  t_str = "auto_inserted_cast_node_being_ignored_for_world_peace";
+				  std::stringstream out; out<<cast_count;
+				  t_str = "auto_inserted_cast_node_being_ignored_for_world_peace_"+string(out.str().c_str());
+				  cast_count++;
 			  }
 
 			  ret += var + " "  + t_str + "\n";
