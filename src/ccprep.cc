@@ -53,12 +53,12 @@ void ccPrepComposeExpr(Operator *op, Expr* expr)
 	  if (((OperatorBuiltin *)cop)->getBuiltinKind()==BUILTIN_SEGMENT)
 	    {
 	      op->setAnnote(CC_SEGMENTS,
-			    (void *)((int)(op->getAnnote(CC_SEGMENTS))+1));
+			    (void *)((long)(op->getAnnote(CC_SEGMENTS))+1));
 	    }
 	  else if (((OperatorBuiltin *)cop)->getBuiltinKind()==BUILTIN_COPY)
 	    {
 	      op->setAnnote(CC_PAGES,
-			    (void *)((int)(op->getAnnote(CC_PAGES))+1));
+			    (void *)((long)(op->getAnnote(CC_PAGES))+1));
 	    }
 	  else if (((OperatorBuiltin *)cop)->getBuiltinKind()==BUILTIN_TERMINATE)
 	    {
@@ -68,7 +68,7 @@ void ccPrepComposeExpr(Operator *op, Expr* expr)
       else // not builtin == page
 	{
 	  op->setAnnote(CC_PAGES,
-			(void *)((int)(op->getAnnote(CC_PAGES))+1));
+			(void *)((long)(op->getAnnote(CC_PAGES))+1));
 	}
 
       // recurse
