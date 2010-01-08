@@ -1315,7 +1315,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
       *fout << "         if (0";
       for (int i=caseIns->low();i<=caseIns->high();i++)
 	{
-	  int iloc=(long)((*caseIns)[i])->getAnnote(CC_STREAM_ID); 
+	  long iloc=(long)((*caseIns)[i])->getAnnote(CC_STREAM_ID); 
 	  *fout << " || (data_" << iloc << " && eos_" << iloc <<")" ;
 	}
       *fout << ") done=1; else canfire=0;" << endl;

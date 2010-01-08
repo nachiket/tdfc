@@ -44,6 +44,9 @@ using leda::dictionary;
 using leda::list;
 //using leda::set;
 
+using std::cout;
+using std::endl;
+
 class Operator;
 class Expr;
 class BindTime;

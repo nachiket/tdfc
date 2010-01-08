@@ -46,6 +46,9 @@ class OperatorBuiltin;
 class Symbol;
 class Token;
 
+using std::cout;
+using std::endl;
+
 
 enum ExprKind { EXPR_VALUE, EXPR_LVALUE, EXPR_CALL, EXPR_BUILTIN,
 		EXPR_COND,  EXPR_BOP,    EXPR_UOP,  EXPR_CAST,    EXPR_ARRAY,
@@ -64,6 +67,7 @@ public:
 
   static void		init		();
 
+//  ExprKind	 	getExprKind	() const	{ if(exprKind!=(ExprKind)NULL) {return exprKind;} else { cout << "exprkind is null" << endl; exit(1);} }
   ExprKind	 	getExprKind	() const	{ return exprKind; }
 
   virtual bool		isLValue	() const;	// - is assignable

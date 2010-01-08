@@ -344,7 +344,7 @@ VarCodePair *flatten(Expr *expr, SymTab *env)
 		      Symbol *envsym=newenv->lookup(sym->getName());
 		      if (envsym!=(Symbol *)NULL)
 			if (envsym->getSymKind()==SYMBOL_VAR)
-			  if (((long)(envsym)->getAnnote(CC_FORMAL))==1)
+			  if ((long)(envsym->getAnnote(CC_FORMAL))==1)
 			    syms->append(envsym);
 		      // debug
 		      //else  cerr << "not formal " << endl;
@@ -359,12 +359,13 @@ VarCodePair *flatten(Expr *expr, SymTab *env)
 		      Symbol *envsym=newenv->lookup(sym->getName());
 		      if (envsym!=(Symbol *)NULL)
 			if (envsym->getSymKind()==SYMBOL_VAR)
-			  if (((long)(envsym)->getAnnote(CC_FORMAL))==1)
+			  if ((long)(envsym->getAnnote(CC_FORMAL))==1)
 			    {
 			      if (rval->getAnnote(CC_ENVIRONMENT)==
 				  (SymTab *)NULL)
 				rval->setAnnote(CC_ENVIRONMENT,(void *)newenv2);
 			      ((SymbolVar *)envsym)->setValue(rval);
+//			      cout << "int->long... symbol=" << sym->toString() << endl;
 			    }
 					   
 		      // n.b. drop statement in this case
@@ -487,11 +488,12 @@ VarCodePair *flatten(Stmt *stmt, SymTab *env)
 	  Symbol *envsym=env->lookup(sym->getName());
 	  if (envsym!=(Symbol *)NULL)
 	    if (sym->getSymKind()==SYMBOL_VAR)
-	      if (((long)(sym)->getAnnote(CC_FORMAL))==1)
+	      if ((long)(sym->getAnnote(CC_FORMAL))==1)
 		{
 		  // don't think this guy should be setting environment
 		  //(epair->getExpr())->setAnnote(CC_ENVIRONMENT,(void *)env);
 		  ((SymbolVar *) envsym)->setValue(epair->getExpr());
+//			      cout << "int->long... symbol=" << ((SymbolVar*)envsym)->toString() << endl;
 		  if ((SymTab *)(envsym->getAnnote(CC_ENVIRONMENT))==env)
 		    {
 		      cerr << "WARNING: assigning value in same environment as formal" << endl;
@@ -584,7 +586,7 @@ bool resolve_pop_environments(Tree **t, void *aux)
 	  SymTab *oldenv=envs->pop();
 
 #ifdef DEBUG_RESOLVE_INSTANCE
-	  cerr << "POP  env=" << oldenv << " " << (int)*t << " " << (int)t 
+	  cerr << "POP  env=" << oldenv << " " << *t << " " << t 
 	       << " depth now=" 
 	       << envs->size()
 	       << endl;
@@ -620,7 +622,7 @@ bool resolve_pop_environments(Tree **t, void *aux)
 	  SymTab *oldenv=envs->pop();
 
 #ifdef DEBUG_RESOLVE_INSTANCE
-	  cerr << "POP  env=" << oldenv << " " << (int)*t << " " << (int)t 
+	  cerr << "POP  env=" << oldenv << " " << *t << " " << t 
 	       << " depth now=" 
 	       << envs->size()
 	       << endl;
@@ -658,7 +660,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
       envs->push(env);
 
 #ifdef DEBUG_RESOLVE_INSTANCE
-      cerr << "PUSH " << "env=" << env << " " << (int)*t << " " << (int)t 
+      cerr << "PUSH " << "env=" << env << " " << *t << " " << t 
 	   << " depth now=" 
 	   << envs->size()
 	   << endl;
@@ -699,6 +701,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
 		    if (envsym->getSymKind()==SYMBOL_VAR)
 		      if ((long)(envsym->getAnnote(CC_FORMAL))==1)
 			{
+				cout << "Processing symbol=" << envsym->toString() << endl;
 			  bexpr=((SymbolVar *)envsym)->getValue();
 			  // note: the looked up symbol may have
 			  //   a new environment!
@@ -728,8 +731,8 @@ bool resolve_bound_formals(Tree **t, void *aux)
 	  if (lastexpr!=(Expr *)*t)
 	    {
 #ifdef DEBUG_RESOLVE_INSTANCE
-	      cerr << "RPLC " << (int)*t << " with " 
-		   << (int)lastexpr << endl;
+	      cerr << "RPLC " << *t << " with " 
+		   << lastexpr << endl;
 	      cerr << "  using formal " << ((Expr *)*t)->toString() << " in " 
 		   << envs->top() << " becomes " << lastexpr->toString() << " in " << env << endl;
 #endif
@@ -747,7 +750,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
 		    envs->push(env);
 #ifdef DEBUG_RESOLVE_INSTANCE
 		    cerr << "PUSH " << "env=" << env << " "
-			 << (int)*t << " " << (int)t 
+			 << *t << " " << t 
 			 << " (from resolved value) depth now=" 
 			 << envs->size()
 			 << endl;
@@ -761,7 +764,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
 		    envs->push(env); // put in the replacement environment instead
 #ifdef DEBUG_RESOLVE_INSTANCE
 		    cerr << "POP/PUSH " << "env=" << env << " " 
-			 << (int)*t << " " << (int)t 
+			 << *t << " " << t 
 			 << " (replacing from resolved value) depth now=" 
 			 << envs->size()
 			 << endl;
@@ -775,7 +778,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
 		  if (newenv!=(SymTab *)NULL)
 		    {
 #ifdef DEBUG_RESOLVE_INSTANCE
-		      cerr << "POP  " << (int)*t << " " << (int)t 
+		      cerr << "POP  " << *t << " " << t 
 			   << " (from resolved value) depth now=" 
 			   << envs->size()
 			   << endl;

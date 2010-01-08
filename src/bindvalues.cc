@@ -408,6 +408,9 @@ Expr *EvaluateExpr(Expr *orig)
       {
 	ExprLValue *lexpr=(ExprLValue *)orig;
 	Symbol *lsym=lexpr->getSymbol();
+
+//cout << "debug:" << lexpr->toString() << "," << lsym->getAnnote(ANNOTE_IS_READ) << endl;
+
 	if (  lsym->isParam() ||
 	    ( lsym->getAnnote(ANNOTE_IS_READ) &&
 	     !lsym->getAnnote(ANNOTE_IS_WRITTEN)))
@@ -436,14 +439,16 @@ Expr *EvaluateExpr(Expr *orig)
 	    else {
 	      // - lexpr is not subscripted array --> get symbol value
 	      value = ((SymbolVar*)lsym)->getValue();
+	      cout << "Value=" << value << endl;
 	    }
-	    if (value==(Expr*)NULL)
+	    if (value==(ExprValue*)NULL)
 	      {
 		/*
 		  cerr << "lvalue " << lsym->getName() 
 		  << " in " << lsym->getOperator()->getName()
 		  << " has no value " << endl;
 		  */
+		  cout << "Huh?" << endl;
 		return(orig);
 	      }
 	    else
