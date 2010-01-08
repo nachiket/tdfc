@@ -848,7 +848,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 			    << loc
 			    << "=STREAM_EOS(" 
 			    << "in[" 
-			    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			    << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << "]" 
 			    << ");" << endl;
 
@@ -857,7 +857,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 			    << loc
 			    << "=STREAM_EOFR("
 			    << "in["
-			    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
+			    << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 			    << "]"
 			    << ");" << endl;
 
@@ -899,7 +899,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 		      *fout << "          " 
 			    << ispec->getStream()->getName() 
 			    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : "=STREAM_READ_NOACC(") 
-			    << "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			    << "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << "]"
 			    << ");" << endl;
 
@@ -908,17 +908,17 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 		    {
 		    *fout << "          "
 			  << "if (!input_free[" 
-			  << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			  << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			  << "])" << endl;
 		      *fout << "          " 
 			    << "STREAM_FREE(" 
-			    << "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			    << "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << "]"
 			    << ");" << endl;
-		       early_free[(int)(ispec->getStream()->getAnnote(CC_STREAM_ID))]=1;
+		       early_free[(long)(ispec->getStream()->getAnnote(CC_STREAM_ID))]=1;
 		       *fout << "          " 
 			     << "input_free[" 
-			     << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
+			     << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 			     << "]=1;" << endl;
 		    }
 			  // Special case of End-of-Frame
@@ -933,7 +933,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 					// dummy read of the token..
 				    *fout << "          "
 					    << (floattyp? "STREAM_READ_FLOAT(" : (doubletyp)? "STREAM_READ_DOUBLE(" : "STREAM_READ_NOACC(")
-					    << "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
+					    << "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 					    << "]"
 					    << ");" << endl;
 
@@ -977,19 +977,19 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
       *fout << "  }" << endl;
       // any final stuff
       if (!noReturnValue(rsym))
-	if (early_close[(int)(rsym->getAnnote(CC_STREAM_ID))])
+	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
 	  {
 	    *fout <<"  if (!output_close[" 
-		  <<  (int)(rsym->getAnnote(CC_STREAM_ID))
+		  <<  (long)(rsym->getAnnote(CC_STREAM_ID))
 		  << "])" << endl;
 	    *fout << "  STREAM_CLOSE(" 
-		  << "out[" << (int)(rsym->getAnnote(CC_STREAM_ID))
+		  << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		  << "]" 
 		  << ");" << endl;
 	  }
 	else
 	  *fout << "  STREAM_CLOSE(" 
-		<< "out[" << (int)(rsym->getAnnote(CC_STREAM_ID))
+		<< "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		<< "]"
 		<< ");" << endl;
       forall(sym,*argtypes)
@@ -999,40 +999,40 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	      SymbolStream *ssym=(SymbolStream *)sym;
 	      if (ssym->getDir()==STREAM_OUT)
 		{
-		  if (early_close[(int)(ssym->getAnnote(CC_STREAM_ID))])
+		  if (early_close[(long)(ssym->getAnnote(CC_STREAM_ID))])
 		    {
 		      *fout <<"  if (!output_close[" 
-			    <<  (int)(ssym->getAnnote(CC_STREAM_ID))
+			    <<  (long)(ssym->getAnnote(CC_STREAM_ID))
 			    << "])" << endl;
 		      *fout << "  STREAM_CLOSE(" 
-			    << "out[" << (int)(ssym->getAnnote(CC_STREAM_ID))
+			    << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			    << "]" 
 			    << ");" << endl;
 		    }
 		  else
 		    *fout << "  STREAM_CLOSE(" 
-			  << "out[" << (int)(ssym->getAnnote(CC_STREAM_ID)) 
+			  << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
 			  << "]" 
 			  << ");" << endl;
 		}
 	      else
-		if (early_free[(int)(ssym->getAnnote(CC_STREAM_ID))])
+		if (early_free[(long)(ssym->getAnnote(CC_STREAM_ID))])
 		  {
-		    cerr << "DEBUG early free[" << (int)(ssym->getAnnote(CC_STREAM_ID))
-			 << "]=" << early_free[(int)(ssym->getAnnote(CC_STREAM_ID))]
+		    cerr << "DEBUG early free[" << (long)(ssym->getAnnote(CC_STREAM_ID))
+			 << "]=" << early_free[(long)(ssym->getAnnote(CC_STREAM_ID))]
 			 << endl;
 		    
 		    *fout <<"  if (!input_free[" 
-			  << (int)(ssym->getAnnote(CC_STREAM_ID)) 
+			  << (long)(ssym->getAnnote(CC_STREAM_ID)) 
 			  << "])" << endl;
 		    *fout << "    STREAM_FREE(" 
-			  << "in[" << (int)(ssym->getAnnote(CC_STREAM_ID))
+			  << "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			  << "]" 
 			  << ");" << endl;
 		  }
 		else
 		  *fout << "  STREAM_FREE(" 
-			<< "in[" << (int)(ssym->getAnnote(CC_STREAM_ID))
+			<< "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			<< "]" 
 			<< ");" << endl;
 	    }

@@ -344,7 +344,7 @@ VarCodePair *flatten(Expr *expr, SymTab *env)
 		      Symbol *envsym=newenv->lookup(sym->getName());
 		      if (envsym!=(Symbol *)NULL)
 			if (envsym->getSymKind()==SYMBOL_VAR)
-			  if (((int)(envsym)->getAnnote(CC_FORMAL))==1)
+			  if (((long)(envsym)->getAnnote(CC_FORMAL))==1)
 			    syms->append(envsym);
 		      // debug
 		      //else  cerr << "not formal " << endl;
@@ -359,7 +359,7 @@ VarCodePair *flatten(Expr *expr, SymTab *env)
 		      Symbol *envsym=newenv->lookup(sym->getName());
 		      if (envsym!=(Symbol *)NULL)
 			if (envsym->getSymKind()==SYMBOL_VAR)
-			  if (((int)(envsym)->getAnnote(CC_FORMAL))==1)
+			  if (((long)(envsym)->getAnnote(CC_FORMAL))==1)
 			    {
 			      if (rval->getAnnote(CC_ENVIRONMENT)==
 				  (SymTab *)NULL)
@@ -487,7 +487,7 @@ VarCodePair *flatten(Stmt *stmt, SymTab *env)
 	  Symbol *envsym=env->lookup(sym->getName());
 	  if (envsym!=(Symbol *)NULL)
 	    if (sym->getSymKind()==SYMBOL_VAR)
-	      if (((int)(sym)->getAnnote(CC_FORMAL))==1)
+	      if (((long)(sym)->getAnnote(CC_FORMAL))==1)
 		{
 		  // don't think this guy should be setting environment
 		  //(epair->getExpr())->setAnnote(CC_ENVIRONMENT,(void *)env);
@@ -565,7 +565,7 @@ bool resolve_pop_environments(Tree **t, void *aux)
 
   // cerr << "<--on entry depth=" << envs->size() << endl;
 
-  int null_environment=(int)((*t)->getAnnote(CC_NULL_ENVIRONMENT));
+  long null_environment=(long)((*t)->getAnnote(CC_NULL_ENVIRONMENT));
   
   if (null_environment==1)
     {
@@ -573,7 +573,7 @@ bool resolve_pop_environments(Tree **t, void *aux)
 	{
 	  cerr << "----------ENVIRONMENT STACKING ERROR-------------" << endl;
 	  cerr << "  should be popping null environment at node " 
-	       << (int) (*t) << " " << (int)t << endl; 
+	       << (long) (*t) << " " << (long)t << endl; 
 	  cerr << "  but there are no environmnets to pop!" << endl;
 	  cerr << "-------------------------------------------------" << endl;
 	  if ((*t)->getKind()==TREE_EXPR)
@@ -697,7 +697,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
 		  Symbol *envsym=env->lookup(sym->getName());
 		  if (envsym!=(Symbol *)NULL)
 		    if (envsym->getSymKind()==SYMBOL_VAR)
-		      if ((int)(envsym->getAnnote(CC_FORMAL))==1)
+		      if ((long)(envsym->getAnnote(CC_FORMAL))==1)
 			{
 			  bexpr=((SymbolVar *)envsym)->getValue();
 			  // note: the looked up symbol may have

@@ -128,7 +128,7 @@ ARGMASK_TYPE allConsumers(State *astate)
       forall(in,*ispec)
 	{
 	  Symbol *sym=in->getStream();
-	  int loc=(int)sym->getAnnote(CC_STREAM_ID);
+	  long loc=(long)sym->getAnnote(CC_STREAM_ID);
 	  res=res|(((ARGMASK_TYPE)1)<<loc);
 	}
     }
@@ -159,7 +159,7 @@ bool mark_set_syms(Tree *t, void *aux)
 	  Symbol *sym=lval->getSymbol();
 	  if (sym->isStream())
 	    {
-	      int loc=(int)sym->getAnnote(CC_STREAM_ID);
+	      long loc=(long)sym->getAnnote(CC_STREAM_ID);
 	      ARGMASK_TYPE *locs=(ARGMASK_TYPE*)aux;
 	      *locs=*locs|(((ARGMASK_TYPE)1)<<loc);
 	    }
@@ -193,7 +193,7 @@ bool mark_set_syms(Tree *t, void *aux)
 			if (actual->getExprKind()==EXPR_LVALUE)
 			  {
 			    Symbol *asym=((ExprLValue *)actual)->getSymbol();
-			    int loc=(int)asym->getAnnote(CC_STREAM_ID);
+			    int loc=(long)asym->getAnnote(CC_STREAM_ID);
 			    ARGMASK_TYPE *locs=(ARGMASK_TYPE*)aux;
 			    *locs=*locs|(((ARGMASK_TYPE)1)<<loc);
 			  }
@@ -885,7 +885,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 	      else 
 		rlen=0;
 	      *fout << "    retime_length_"
-		    << (int)sym->getAnnote(CC_STREAM_ID)
+		    << (long)sym->getAnnote(CC_STREAM_ID)
 		    << "=" << rlen
 		    << ";" << endl;
 	      *fout << "    " 
@@ -894,12 +894,12 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 		    << "new "
 		    << getCCvarType(sym) << " " 
 		    << "[retime_length_"
-		    << (int)sym->getAnnote(CC_STREAM_ID)
+		    << (long)sym->getAnnote(CC_STREAM_ID)
 		    << "+1]" // 0->max retiming depth seen
 		    << ";" << endl;
 	      *fout << "    " 
 		    << "for (int j=retime_length_"
-		    << (int)sym->getAnnote(CC_STREAM_ID)
+		    << (long)sym->getAnnote(CC_STREAM_ID)
 		    << ";j>=0;j--)" << endl;
 	      *fout << "      " 
 		    << sym->getName() 
@@ -1172,24 +1172,24 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 	      if ((*firstUsed)[loc]==i)
 		{
 		  *fout << "        int data_" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "=STREAM_DATA_ARRAY(" 
 			<< "in[" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "]" 
 			<< ");" << endl;
 
 		  *fout << "        int eos_" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "=0;" << endl;
 		  *fout << "        if (data_" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< ") " 
 			<< "eos_" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "=STREAM_EOS_ARRAY(" 
 			<< "in[" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "]" 
 			<< ");" << endl;
 		}
@@ -1201,12 +1201,12 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 	  forall (ispec,*(acase->getInputs()))
 	    {
 	      *fout << " && data_" 
-		    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) ; 
+		    << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) ; 
 	      *fout << " && ";
 	      if (!ispec->isEosCase()) 	// Nachiket: Not supporting EOFR in _instance.cc file since it runs on HSRA.. and who ares about such crazy acronyms!? :)
 		*fout << "!";
 	      *fout << "eos_" 
-		    << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) ;
+		    << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) ;
 	    }
 	  *fout << ") {" << endl;
 	  // check on the FULLness of all of the output streams of this
@@ -1241,7 +1241,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 		  *fout << "            " 
 			<< ispec->getStream()->getName() 
 			<< "=STREAM_READ_ARRAY(" 
-			<< "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "]"
 			<< ");" << endl;
 		  // move around data in retime (if necessary)
@@ -1250,7 +1250,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 		  //   but most straightforward
 		  *fout << "            " 
 			<< "for (int j=retime_length_"
-			<< (int)ispec->getStream()->getAnnote(CC_STREAM_ID)
+			<< (long)ispec->getStream()->getAnnote(CC_STREAM_ID)
 			<< ";j>0;j--)" << endl;
 		  *fout << "              " 
 			<< ispec->getStream()->getName() 
@@ -1267,13 +1267,13 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 		{
 		  *fout << "            " 
 			<< "STREAM_FREE(" 
-			<< "in[" << (int)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
+			<< "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			<< "]"
 			<< ");" << endl;
-		  early_free[(int)(ispec->getStream()->getAnnote(CC_STREAM_ID))]=1;
+		  early_free[(long)(ispec->getStream()->getAnnote(CC_STREAM_ID))]=1;
 		  *fout << "            " 
 			<< "input_free[" 
-			<< (int)(ispec->getStream()->getAnnote(CC_STREAM_ID))
+			<< (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 			<< "]=1;" << endl;
 		}
 	    }
@@ -1315,7 +1315,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
       *fout << "         if (0";
       for (int i=caseIns->low();i<=caseIns->high();i++)
 	{
-	  int iloc=(int)((*caseIns)[i])->getAnnote(CC_STREAM_ID); 
+	  int iloc=(long)((*caseIns)[i])->getAnnote(CC_STREAM_ID); 
 	  *fout << " || (data_" << iloc << " && eos_" << iloc <<")" ;
 	}
       *fout << ") done=1; else canfire=0;" << endl;
@@ -1354,19 +1354,19 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
   *fout << "    if (done) {" << endl;
   // any final stuff
   if (!noReturnValue(rsym))
-    if (early_close[(int)(rsym->getAnnote(CC_STREAM_ID))])
+    if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
       {
 	*fout <<"      if (!output_close[" 
-	      <<  (int)(rsym->getAnnote(CC_STREAM_ID))
+	      <<  (long)(rsym->getAnnote(CC_STREAM_ID))
 	      << "])" << endl;
 	*fout << "        STREAM_CLOSE(" 
-	      << "out[" << (int)(rsym->getAnnote(CC_STREAM_ID))
+	      << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 	      << "]" 
 	      << ");" << endl;
       }
     else
       *fout << "      STREAM_CLOSE(" 
-	    << "out[" << (int)(rsym->getAnnote(CC_STREAM_ID))
+	    << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 	    << "]"
 	    << ");" << endl;
   forall(sym,*argtypes)
@@ -1376,24 +1376,24 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 	  SymbolStream *ssym=(SymbolStream *)sym;
 	  if (ssym->getDir()==STREAM_OUT)
 	    {
-	      if (early_close[(int)(ssym->getAnnote(CC_STREAM_ID))])
+	      if (early_close[(long)(ssym->getAnnote(CC_STREAM_ID))])
 		{
 		  *fout <<"      if (!output_close[" 
-			<<  (int)(ssym->getAnnote(CC_STREAM_ID))
+			<<  (long)(ssym->getAnnote(CC_STREAM_ID))
 			<< "])" << endl;
 		  *fout << "        STREAM_CLOSE(" 
-			<< "out[" << (int)(ssym->getAnnote(CC_STREAM_ID))
+			<< "out[" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			<< "]" 
 			<< ");" << endl;
 		}
 	      else
 		*fout << "      STREAM_CLOSE(" 
-		      << "out[" << (int)(ssym->getAnnote(CC_STREAM_ID)) 
+		      << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
 		      << "]" 
 		      << ");" << endl;
 	    }
 	  else
-	    if (early_free[(int)(ssym->getAnnote(CC_STREAM_ID))])
+	    if (early_free[(long)(ssym->getAnnote(CC_STREAM_ID))])
 	      {
 		/*
 		  cerr << "DEBUG early free[" << (int)(ssym->getAnnote(CC_STREAM_ID))
@@ -1402,16 +1402,16 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 		  */
 		
 		*fout <<"      if (!input_free[" 
-		      << (int)(ssym->getAnnote(CC_STREAM_ID)) 
+		      << (long)(ssym->getAnnote(CC_STREAM_ID)) 
 		      << "])" << endl;
 		*fout << "        STREAM_FREE(" 
-		      << "in[" << (int)(ssym->getAnnote(CC_STREAM_ID))
+		      << "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
 		      << "]" 
 		      << ");" << endl;
 	      }
 	    else
 	      *fout << "      STREAM_FREE(" 
-		    << "in[" << (int)(ssym->getAnnote(CC_STREAM_ID))
+		    << "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
 		    << "]" 
 		    << ");" << endl;
 	}
@@ -1483,7 +1483,7 @@ void ccpage(ofstream *fout, Operator *op, int debug_logic)
 	  if (ssym->getDir()==STREAM_IN)
 	    {
 	      *fout << "  int retime_length_"
-		    << (int)sym->getAnnote(CC_STREAM_ID)
+		    << (long)sym->getAnnote(CC_STREAM_ID)
 		    << ";" << endl;
 	      *fout << "  " << getCCvarType(sym) << " " 
 		    << "*"
@@ -1609,15 +1609,15 @@ string ccinstance(Operator *op, const char *basename, FeedbackRecord *rec,
 
   // for each operator==page
   // ?? will I need to clear this annotation and redo this?
-  int pages=0;
-  int segments=0;
+  long pages=0;
+  long segments=0;
   if (op->getOpKind()==OP_COMPOSE)
     {
 
       ccprep(op); // generic for things need to be done on pre pass
       set<Operator *>* called_ops=(set<Operator *>*)op->getAnnote(CC_CALL_SET);
-      pages=(int)(op->getAnnote(CC_PAGES)); 
-      segments=(int)(op->getAnnote(CC_SEGMENTS)); 
+      pages=(long)(op->getAnnote(CC_PAGES)); 
+      segments=(long)(op->getAnnote(CC_SEGMENTS)); 
       if (called_ops!=(set<Operator *>*)NULL)
 	{
 	  Operator *cop;

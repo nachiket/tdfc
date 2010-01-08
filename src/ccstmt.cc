@@ -125,7 +125,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    else
 	      {
 	      	ExprLValue *lexpr=(ExprLValue *)first;
-		int id=(int)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
+		long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
 		*fout << indent << "STREAM_CLOSE(" 
 		      << "out[" << id << "]" 
 		      << ");" << endl;
@@ -146,7 +146,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		    else
 		      {
 		      	ExprLValue *lexpr=(ExprLValue *)first;
-			int id=(int)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
+			long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
 			*fout << indent << "FRAME_CLOSE("
 			      << "out[" << id << "]"
 			      << ");" << endl;
@@ -206,7 +206,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    SymbolStream *ssym=(SymbolStream *)asym;
 	    if (ssym->getDir()==STREAM_OUT)
 	      {
-		int id=(int)(ssym->getAnnote(CC_STREAM_ID));
+		long id=(long)(ssym->getAnnote(CC_STREAM_ID));
 		*fout<<indent
 		     <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(")
