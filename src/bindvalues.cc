@@ -408,7 +408,9 @@ Expr *EvaluateExpr(Expr *orig)
       {
 	ExprLValue *lexpr=(ExprLValue *)orig;
 	Symbol *lsym=lexpr->getSymbol();
-	cout << "debug:" << lexpr->toString() << "," << lsym->getAnnote(ANNOTE_IS_READ) << endl;
+
+//cout << "debug:" << lexpr->toString() << "," << lsym->getAnnote(ANNOTE_IS_READ) << endl;
+
 	if (  lsym->isParam() ||
 	    ( lsym->getAnnote(ANNOTE_IS_READ) &&
 	     !lsym->getAnnote(ANNOTE_IS_WRITTEN)))
@@ -439,7 +441,7 @@ Expr *EvaluateExpr(Expr *orig)
 	      value = ((SymbolVar*)lsym)->getValue();
 	      cout << "Value=" << value << endl;
 	    }
-	    if (value==(Expr*)NULL)
+	    if (value==(ExprValue*)NULL)
 	      {
 		/*
 		  cerr << "lvalue " << lsym->getName() 
