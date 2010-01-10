@@ -701,7 +701,7 @@ bool resolve_bound_formals(Tree **t, void *aux)
 		    if (envsym->getSymKind()==SYMBOL_VAR)
 		      if ((long)(envsym->getAnnote(CC_FORMAL))==1)
 			{
-				cout << "Processing symbol=" << envsym->toString() << endl;
+//				cout << "Processing symbol=" << envsym->toString() << endl;
 			  bexpr=((SymbolVar *)envsym)->getValue();
 			  // note: the looked up symbol may have
 			  //   a new environment!
