@@ -526,8 +526,13 @@ void emitDFG ()
   }
   cout << "TotalOperators " << leaf_operators << endl;
 
-  forall(op,*gSuite->getOperators())
-    instances(op,TARGET_DFG,0);
+  forall(op,*gSuite->getOperators()) {
+    if(op->getOpKind()==OP_BEHAVIORAL) {
+       cout << ((OperatorBehavioral*)op)->toDFGString();
+    }
+    // avoiding call to instances due to inexplicable crash on 64-bit machines
+    //instances(op,TARGET_DFG,0);
+  }
 }
 
 void emitDFGCC ()
