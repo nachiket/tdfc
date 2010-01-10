@@ -439,7 +439,7 @@ Expr *EvaluateExpr(Expr *orig)
 	    else {
 	      // - lexpr is not subscripted array --> get symbol value
 	      value = ((SymbolVar*)lsym)->getValue();
-	      cout << "Value=" << value << endl;
+	      //cout << "Value=" << value << endl;
 	    }
 	    if (value==(ExprValue*)NULL)
 	      {
@@ -448,7 +448,7 @@ Expr *EvaluateExpr(Expr *orig)
 		  << " in " << lsym->getOperator()->getName()
 		  << " has no value " << endl;
 		  */
-		  cout << "Huh?" << endl;
+		//  cout << "Huh?" << endl;
 		return(orig);
 	      }
 	    else
