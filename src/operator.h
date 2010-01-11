@@ -85,6 +85,7 @@ public:
   virtual void		deleteType	()	 {}
   virtual void		clearType	()	 {}
   virtual SymTab*	getScope	() const { return symtab; }
+  virtual string	toDOTString	(string offset) const;
   virtual string	declToString	() const;
 };
 

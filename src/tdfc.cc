@@ -96,6 +96,7 @@ enum Target { TARGET_TDF,
 	    //TARGET_CLUSTERS,
 	      TARGET_STREAMDEPTH,
 	      TARGET_RI,
+	      TARGET_DOT,		// added by Nachiket on 1/10/2010
 	      TARGET_DFG,		// added by Nachiket on 9/10/2009
 	      TARGET_DFGCC,		// added by Nachiket on 11/29/2009
 	    };
@@ -119,6 +120,7 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
+    << "         -edot        : emit dataflow graph for Graphviz visualization\n"
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
     << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
     << "         -embz        : emit C code for the Microblaze\n"
@@ -535,6 +537,35 @@ void emitDFG ()
   }
 }
 
+// Added on 1/10/2010 to support visualization of SCORE graphs
+void emitDOT ()
+{
+  // - emit Graphviz DOT code for all operators  (-edot option)
+
+  Operator *op;
+
+  cout << "digraph G {" << endl;
+  cout << endl;
+
+
+  int leaf_operators=0;
+  forall(op,*gSuite->getOperators()) {
+	if(op->getOpKind()==OP_BEHAVIORAL) {
+		leaf_operators++;
+	}
+  }
+//  cout << "TotalOperators " << leaf_operators << endl;
+
+  forall(op,*gSuite->getOperators()) {
+//    if(op->getOpKind()==OP_COMPOSE) {
+       cout << ((Operator*)op)->toDOTString("\t");
+       cout << endl;
+//    }
+  }
+
+  cout << "}" << endl;
+}
+
 void emitDFGCC ()
 {
 	// - emit DFG and the associated C++ code (-edfgcc option)
@@ -719,6 +750,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_TDF;
     else if (strcmp(argv[arg],"-edfg")==0)	// -edfg     : emit DFG
       optionTarget = TARGET_DFG;
+    else if (strcmp(argv[arg],"-edot")==0)	// -edot     : emit Graphviz DOT
+      optionTarget = TARGET_DOT;
     else if (strcmp(argv[arg],"-edfgcc")==0)	// -edfg : emit DFG and C++ code wrappers for verification
       optionTarget = TARGET_DFGCC;
     else if (strcmp(argv[arg],"-ecc")==0)	// -ecc      : emit C++
@@ -934,7 +967,7 @@ int main(int argc, char *argv[])
     // - Canonical form xforms (exline, etc.)
     if (optionCanonical)
     {
-      timestamp(string("begin canonical-form xforms"));
+      warn(string("begin canonical-form xforms"));
       canonicalForm((Tree**)&gSuite);
     }
 
@@ -960,8 +993,9 @@ int main(int argc, char *argv[])
     switch (optionTarget)
     {
       case TARGET_TDF:		emitTDF();			  break;
+      case TARGET_DOT:		emitDOT();			  break;
       case TARGET_DFG:		emitDFG();			  break;
-      case TARGET_DFGCC:	emitDFGCC();		  break;
+      case TARGET_DFGCC:	emitDFGCC();		  	  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
 				       optionDebugPageStep);	  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;

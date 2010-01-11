@@ -63,6 +63,18 @@ void microblaze_parameter_variables(ofstream *fout,
 	}
     }
 }
+
+void microblaze_score_streams_declarations(ofstream *fout,
+				list<Symbol*> *argtypes)
+{
+	int i=0;
+	Symbol *sym;
+	forall(sym, *argtypes) {
+		*fout << "ScoreStream* n_" << sym->getName() << ";" << endl;
+	}
+	*fout << endl;
+}
+
 void microblaze_constructor_signatures(ofstream *fout,
 			    Symbol *rsym,
 			    list<Symbol*> *argtypes)
@@ -73,7 +85,7 @@ void microblaze_constructor_signatures(ofstream *fout,
   forall(sym,*argtypes)
     {
       if (i>0) *fout << ",";
-      *fout << getCCtype(sym) << " i" << i ;
+      *fout << "ScoreStream* n_" << sym->getName() ;
       i++;
     }
 
@@ -90,7 +102,7 @@ void microblaze_constructor_signatures_notypes(ofstream *fout,
   forall(sym,*argtypes)
     {
       if (i>0) *fout << ",";
-      *fout << " i" << i ;
+      *fout << " n_" << sym->getName() ;
       i++;
     }
 
@@ -191,46 +203,60 @@ void ccmicroblazeheader (Operator *op)
   time_t currentTime;
   time (&currentTime);
   *fout << "// " << ctime(&currentTime) << endl;
-  // some includes
-  *fout << "#include \"xilscore.h\"" << endl;
   *fout << endl;
-  // define class
-  *fout << "class " << classname  << " {" <<endl;
-  *fout << "  public: " << endl;
-  *fout << "    " << classname << "(" ;
-  microblaze_constructor_signatures(fout,rsym,argtypes);
-  *fout << "  );" << endl;
-  if (!microblaze_noReturnValue(rsym))
-    *fout << "    " << getCCtype(rsym) << " getResult() "
-	  << "{ return result;}" << endl;
-  *fout << "    void *proc_run();" << endl;
+
+  *fout << "#ifndef "+classname+"_H_" << endl;
+  *fout << "#define "+classname+"_H_" << endl;
   *fout << endl;
-  *fout << "  private: " << endl;
+
+  *fout << "#ifdef __cplusplus" << endl;
+  *fout << "extern \"C\" {" << endl;
+  *fout << "#endif" << endl;
+  *fout << endl;
+
+  // define shared variables for this class..
+  *fout << "int id=0;" << endl;
   if (op->getOpKind()==OP_BEHAVIORAL) {
-    *fout << "    pthread_t rpt;" << endl;
+    *fout << "pthread_t rpt;" << endl;
   } else if(op->getOpKind()==OP_COMPOSE) {
     *fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
   } else {
     cerr << "Unsupported opKind in ccmicroblazeheader.h" << endl;
     exit(1);
   }
+  *fout << endl;
+
+  // define all scorestreams used in this operator.. grr
+  microblaze_score_streams_declarations(fout, argtypes);
+
+  *fout << classname << "_create(" ;
+  microblaze_constructor_signatures(fout,rsym,argtypes);
+  *fout << "  );" << endl;
+  *fout << "void* "+classname+"_proc_run(void*);" << endl;
+
+  if (!microblaze_noReturnValue(rsym))
+    *fout << "    " << getCCtype(rsym) << " getResult() "
+	  << "{ return result;}" << endl;
+  
   if (!microblaze_noReturnValue(rsym))
     *fout << "    " << getCCtype(rsym) << " result;" << endl;
-  *fout << "};" << endl;
+
   *fout << endl;
+
   // if necessary, functional version
   if (!microblaze_noReturnValue(rsym))
     microblaze_functional_signature(fout,name,rsym,argtypes,";");
-  // output a dummy NEW constructor.
-  *fout << "typedef " << classname << "* OPERATOR_" << classname << ";" << endl;
-  *fout << "#define NEW_" << classname << " " << "new " << classname << endl;
-  // output a C linkable pseudo constructor. 12/30/2009--Why??
-//  *fout << "#else" << endl;
-//  *fout << "typedef void* OPERATOR_" << classname << ";" << endl;
-//  *fout << "void *NEW_" << classname << "(" ;
-//  microblaze_constructor_signatures(fout,rsym,argtypes);
-//  *fout << ");" << endl;
-//  *fout << "#endif" << endl;
+
+
+
+  *fout << "#ifdef __cplusplus" << endl;
+  *fout << "}" << endl;
+  *fout << "#endif" << endl;
+  *fout << endl;
+
+  *fout << "#endif /*"+classname+"_H_*/" << endl;
+  *fout << endl;
+
   // close file
   fout->close();
 

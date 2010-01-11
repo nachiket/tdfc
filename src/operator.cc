@@ -881,6 +881,79 @@ void OperatorBehavioral::buildDataflowGraph() const
 
 }
 
+string Operator::toDOTString (string offset) const
+{
+	string str;
+	if(getOpKind()==OP_BEHAVIORAL) {
+		str+=string(offset+"node "+getName()+";\n");
+		/*
+		// IOs
+		str+=string("\t\t// IOs\n");
+		Symbol* sym;
+		forall(sym, *(getArgs())) {
+			if(sym->isStream()) {
+				str+=string("\t\t//"+sym->getName()+"\n");
+			}
+		}
+		*/
+		return str;
+	}
+
+	// internal streams
+	if(getOpKind()==OP_COMPOSE) {
+		str+=string(offset+"subgraph "+getName()+" {\n");
+		str+=string(offset+"\t// Internals\n");
+		SymTab *symtab=((OperatorCompose*)this)->getVars();
+		list<Symbol*>* lsyms=symtab->getSymbolOrder();
+		Symbol* sym;
+		forall(sym, *lsyms) {
+			str+=string(offset+"\t"+sym->getName()+"\n");
+		}
+
+		// Now process call statements
+		set<Expr*>* ops = new set<Expr*>();
+		Stmt* statement;
+		str+= offset+"\t// Operators\n";
+		forall(statement,*(((OperatorCompose*)this)->getStmts())) {
+			if ((statement->getStmtKind()==STMT_CALL)) {
+				Expr *expr=((StmtCall *)statement)->getCall();
+				ExprCall *ecall=(ExprCall *)expr;
+				Operator *cop=ecall->getOp();
+				str+= cop->toDOTString(offset+"\t");
+				ops->insert(ecall);
+			}
+		}
+
+
+		// Match our internal signal list against this...
+		forall(sym, *lsyms) {
+			Expr *ecall;
+			forall(ecall, *ops) {
+				list<Expr*>* args=((ExprCall*)ecall)->getArgs();
+				Operator *cop=((ExprCall*)ecall)->getOp();
+				Expr *earg;
+				forall(earg,*args) {
+					if(earg->getExprKind()==EXPR_LVALUE) {
+						if(((ExprLValue *)earg)->getSymbol()==sym) {
+							str+=offset+"\t matched="+sym->getName()+" oneend="+cop->getName()+"\n";
+							list<Symbol*>* lsyms=cop->getArgs();
+							Symbol* sym;
+							forall(sym, *lsyms) {
+								str+=string(offset+"\t"+sym->getName()+"\n");
+							}
+
+						}
+					}
+				}
+			}
+		}
+		
+		str+=offset+"}\n";
+		return str;
+	}
+
+}
+
 string OperatorBehavioral::toDFGString () const
 {
 

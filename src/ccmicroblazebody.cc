@@ -424,7 +424,7 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
   string prefix="n_";
 
   // dump signature and count ins, outs, params
-  *fout << name << "::" << name << "(";
+  *fout << "void* " << name << "_create(";
 
   int ins=0;
   int outs=0;
@@ -437,7 +437,7 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
     {
       if (i>0) *fout << ",";
 
-      *fout << getCCtype(sym) << " " << prefix << sym->getName();
+      *fout << " ScoreStream* " << prefix << sym->getName();
       if (sym->isStream())
 	{
 	  SymbolStream *ssym=(SymbolStream *)sym;
@@ -505,8 +505,6 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 
 
   // create instance name and resolve
-//  *fout << "  char *name=mangle(" << op->getName() << "_name," << params 
-//	<< ",params);" << endl;
 
   if (!noReturnValue(rsym))
     {
@@ -523,7 +521,7 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
   if (op->getOpKind()!=OP_COMPOSE)
     {
       *fout << endl;
-      *fout << "  declareIO(" << ins << "," << outs << ");" << endl;
+//      *fout << "  declareIO(" << ins << "," << outs << ");" << endl;
 
       if (!noReturnValue(rsym))
 	{
@@ -554,16 +552,12 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 	      SymbolStream *ssym=(SymbolStream *)sym;
 	      if (ssym->getDir()==STREAM_OUT)
 		{
-		  *fout << "  bindOutput(" << ocnt << "," << prefix 
-			<< sym->getName() << ","
-			<< getCCStreamType(sym) << ");" << endl;
+		  *fout << "  out_" << ocnt << "=" << prefix << sym->getName() << ";" << endl;
 		  ocnt++;
 		}
 	      else if (ssym->getDir()==STREAM_IN)
 		{
-		  *fout << "  bindInput(" << icnt << ","<< prefix 
-			<< sym->getName() << ","
-			<< getCCStreamType(sym) << ");" << endl;
+		  *fout << "  in_" << icnt << "=" << prefix << sym->getName() << ";" << endl;
 		  icnt++;
 		}
 	      
@@ -581,16 +575,16 @@ void ccmicroblazeconstruct(ofstream *fout,string name, Operator *op)
 	  // launch pthread on xilkernel... this is going to be tricky
 	  *fout << endl;
 	  *fout << "  // setup pthread for this leaf-level operator" << endl;
-	  *fout   << "  pthread_attr_t *a_thread_attribute=(pthread_attr_t *)malloc(sizeof(pthread_attr_t));\n"
-		  << "  pthread_attr_init(a_thread_attribute);\n"
-		  << "  pthread_attr_setdetachstate(a_thread_attribute,PTHREAD_CREATE_DETACHED);\n"
-		  << "  pthread_create(&rpt,a_thread_attribute,&"
-		  << op->getName() << "_proc_run, this);"
+	  *fout   << "  pthread_attr_t thread_attribute;\n"
+		  << "  pthread_attr_init(&thread_attribute);\n"
+		  << "  pthread_attr_setdetachstate(&thread_attribute,PTHREAD_CREATE_DETACHED);\n"
+		  << "  pthread_create(&rpt,&thread_attribute,&"
+		  << op->getName() << "_proc_run, &id);"
 		  << endl;
   }
   else if (op->getOpKind()==OP_COMPOSE)
   {
-
+	  // TODO: 1/11/2010.. I need to think about this part..
 	  // bind up / rename inputs
 	  forall(sym,*argtypes)
 	  {
@@ -665,7 +659,7 @@ bool microblaze_collect_retime_exprs(Tree *t, void *aux)
 
 void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 {
-  *fout << "void *" << name << "::proc_run() {"  << endl;
+  *fout << "void *" << name << "_proc_run(void* dummy) {"  << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -823,6 +817,9 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	  if (num_states>1)
 	    *fout << "      case " << STATE_PREFIX << sname
 		  << ": { " << endl;
+
+	  string atomiceofrcase="0";
+
 	  for (int i=cases->low();i<=cases->high();i++)
 	    {
 	      // walk over inputs to case
@@ -847,18 +844,16 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 		      *fout << "        int eos_" 
 			    << loc
 			    << "=STREAM_EOS(" 
-			    << "in[" 
+			    << "in_" 
 			    << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
-			    << "]" 
 			    << ");" << endl;
 
 		      // EOF support added by Nachiket for C++ code generation on October 5th 2009
 		      *fout << "        int eofr_"
 			    << loc
 			    << "=STREAM_EOFR("
-			    << "in["
+			    << "in_"
 			    << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
-			    << "]"
 			    << ");" << endl;
 
 		    }
@@ -879,6 +874,10 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 			  *fout << "eos_" << loc; // single out eos
 		  } else if(ispec->isEofrCase()) {
 			  *fout << "eofr_" << loc; // add eofr support
+
+			  std::stringstream out; out<<loc;
+                          atomiceofrcase+="|| eofr_" + string(out.str().c_str());
+
 		  } // both eofr and eos cannot be set simultaneously!
 		  //*fout << "eos_" << loc;
 		}
@@ -899,27 +898,25 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 		      *fout << "          " 
 			    << ispec->getStream()->getName() 
 			    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : "=STREAM_READ_NOACC(") 
-			    << "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
-			    << "]"
+			    << "in_" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << ");" << endl;
 
 		    }
 		  else if(ispec->isEosCase())
 		    {
 		    *fout << "          "
-			  << "if (!input_free[" 
+			  << "if (!input_free_" 
 			  << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
-			  << "])" << endl;
+			  << ")" << endl;
 		      *fout << "          " 
 			    << "STREAM_FREE(" 
-			    << "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
-			    << "]"
+			    << "in_" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << ");" << endl;
 		       early_free[(long)(ispec->getStream()->getAnnote(CC_STREAM_ID))]=1;
 		       *fout << "          " 
-			     << "input_free[" 
+			     << "input_free_" 
 			     << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
-			     << "]=1;" << endl;
+			     << "=1;" << endl;
 		    }
 			  // Special case of End-of-Frame
 			  // consume token and simply move to a different state...
@@ -933,8 +930,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 					// dummy read of the token..
 				    *fout << "          "
 					    << (floattyp? "STREAM_READ_FLOAT(" : (doubletyp)? "STREAM_READ_DOUBLE(" : "STREAM_READ_NOACC(")
-					    << "in[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
-					    << "]"
+					    << "in_" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 					    << ");" << endl;
 
 			  }
@@ -951,8 +947,14 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	      *fout << "        else" << endl;
 	    }
 	  // default case will be to punt out of loop (exit/done)
+
+	  // For now. split eofr cases into separate statecases.. wtf!?
+	  *fout << "        {" << endl ;
+	  *fout << "        if (" << atomiceofrcase.cstring() << ") {}" << endl ;
+	  *fout << "        else" << endl;
 	  *fout << "         done=1;" << endl;
-	    
+	  *fout << "        }" << endl;
+
 	  // close the nesting brackets.
 	  *fout << "        ";
 	  for (; numNestings>0; numNestings--) {
@@ -979,9 +981,9 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
       if (!noReturnValue(rsym))
 	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
 	  {
-	    *fout <<"  if (!output_close[" 
+	    *fout <<"  if (!output_close_" 
 		  <<  (long)(rsym->getAnnote(CC_STREAM_ID))
-		  << "])" << endl;
+		  << ")" << endl;
 	    *fout << "  STREAM_CLOSE(" 
 		  << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		  << "]" 
@@ -989,8 +991,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	  }
 	else
 	  *fout << "  STREAM_CLOSE(" 
-		<< "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		<< "]"
+		<< "out_" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		<< ");" << endl;
       forall(sym,*argtypes)
 	{
@@ -1001,39 +1002,35 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 		{
 		  if (early_close[(long)(ssym->getAnnote(CC_STREAM_ID))])
 		    {
-		      *fout <<"  if (!output_close[" 
+		      *fout <<"  if (!output_close_" 
 			    <<  (long)(ssym->getAnnote(CC_STREAM_ID))
-			    << "])" << endl;
+			    << ")" << endl;
 		      *fout << "  STREAM_CLOSE(" 
-			    << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			    << "]" 
+			    << "out_" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			    << ");" << endl;
 		    }
 		  else
 		    *fout << "  STREAM_CLOSE(" 
-			  << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
-			  << "]" 
+			  << "out_" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
 			  << ");" << endl;
 		}
 	      else
 		if (early_free[(long)(ssym->getAnnote(CC_STREAM_ID))])
 		  {
-		    cerr << "DEBUG early free[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			 << "]=" << early_free[(long)(ssym->getAnnote(CC_STREAM_ID))]
+		    cerr << "DEBUG early free_" << (long)(ssym->getAnnote(CC_STREAM_ID))
+			 << "=" << early_free[(long)(ssym->getAnnote(CC_STREAM_ID))]
 			 << endl;
 		    
-		    *fout <<"  if (!input_free[" 
+		    *fout <<"  if (!input_free_" 
 			  << (long)(ssym->getAnnote(CC_STREAM_ID)) 
-			  << "])" << endl;
+			  << ")" << endl;
 		    *fout << "    STREAM_FREE(" 
-			  << "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			  << "]" 
+			  << "in_" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			  << ");" << endl;
 		  }
 		else
 		  *fout << "  STREAM_FREE(" 
-			<< "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			<< "]" 
+			<< "in_" << (long)(ssym->getAnnote(CC_STREAM_ID))
 			<< ");" << endl;
 	    }
 	}
@@ -1079,14 +1076,10 @@ void ccmicroblazebody (Operator *op)
   *fout << "// " << ctime(&currentTime) << endl;
 
   // some includes
-  *fout << "#include \"xilscore.h\"" << endl; // port the stream library over to Microblaze..
-//  *fout << "#include <stdio.h>" << endl;
-//  *fout << "#include <stdlib.h>" << endl;
+  *fout << "#include \"xilscore.h\"" << endl;
+  *fout << "#include <stdio.h>" << endl;
   *fout << "#include \"" << name << ".h\"" << endl;
-
-  // microblaze xparameters etc
   *fout << "#include \"xparameters.h\"" << endl;
-//  *fout << "#include \"xtmrctr.h\"" << endl;
 
   // include anythying I depend upon
   ccprep(op); // generic for things need to be done on pre pass
@@ -1103,7 +1096,6 @@ void ccmicroblazebody (Operator *op)
     }
 
   // broiler name
-//  *fout << "char *" << name << "_name=\"" << name << "\";" << endl;
   *fout << endl;
 
   // constructor
