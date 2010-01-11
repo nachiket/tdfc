@@ -1,0 +1,9 @@
+// a specific add
+wrapper(input unsigned[16] a, input unsigned[16] b, input unsigned[16] c, output unsigned[16] d)
+{
+	unsigned[16] temp; 
+
+	add8(a,b,temp);
+	add8(temp,c,d);
+}
+
