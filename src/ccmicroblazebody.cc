@@ -70,18 +70,18 @@ void ccmicroblaze_state_definition(ofstream *fout, string classname,
 {
 
 	// define shared variables for this class..
-	*fout << "int "<<classname<<"_id=0;" << endl;
 	if (op->getOpKind()==OP_BEHAVIORAL) {
+		*fout << "int "<<classname<<"_id=0;" << endl;
 		*fout << "pthread_t "<<classname<<"_rpt;" << endl;
+		*fout << "struct Operator* " << op->getName() << "_ptr;" << endl;
 	} else if(op->getOpKind()==OP_COMPOSE) {
-		*fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
+		*fout << "// skipping id, pthread and local structure of stream pointers.." << endl;
 	} else {
 		cerr << "Unsupported opKind in ccmicroblazebody.h" << endl;
 		exit(1);
 	}
 	*fout << endl;
 
-	*fout << "struct Operator* " << op->getName() << "_ptr;" << endl;
 
 //	list<Symbol*> *argtypes=op->getArgs();
 //	Symbol *sym;
@@ -292,13 +292,13 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 
   // n.b. result exists in header definition of operator
   // doesn't need to be declared here
+  *fout << endl;
 
   forall_items(item,*lsyms)
     {
       Symbol *asum=lsyms->inf(item);
       syms->insert(asum);
-      *fout << "    " << getCCtype(asum,1) << " " << asum->getName()
-	    << ";" << endl;
+      *fout << "    ScoreStream* " << asum->getName()  << ";" << endl;
       
     }
   
@@ -339,10 +339,10 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
   forall(sym,*syms)
     {
       if (sym==returnValue)
-	*fout << "    " << classname << "_ptr->result" << "=&(new_stream(16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+	*fout << "    result" << "=&(new_stream(16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
 //	      << getCCtypeConstructor(sym,1) << ";" << endl;
       else
-	*fout << "    " << classname << "_ptr->" << sym->getName() << "=&(new_stream(16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+	*fout << "    " << sym->getName() << "=&(new_stream(16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
 
       if (sym->isArray())
 	{
@@ -386,6 +386,8 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 	    }
 	}
     }
+
+    *fout << endl;
   
   // walk over stms
   //   creating instances
@@ -616,7 +618,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 	  {
 		  if (sym->isStream() || sym->isArray())
 		  {
-			  *fout << "    " << getCCtype(sym) << " "
+			  *fout << "    ScoreStream* "
 				  << sym->getName() << "=" << prefix << sym->getName()
 				  << ";" << endl;
 		  }
@@ -1102,7 +1104,7 @@ void ccmicroblazebody (Operator *op)
   *fout << "#include \"" << name << ".h\"" << endl;
   *fout << "#include \"xparameters.h\"" << endl;
   *fout << "#include \"shared_pool.h\"" << endl;
-
+  *fout << endl;
 
   // include anythying I depend upon
   ccprep(op); // generic for things need to be done on pre pass
