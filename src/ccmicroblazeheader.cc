@@ -64,17 +64,6 @@ void microblaze_parameter_variables(ofstream *fout,
     }
 }
 
-void microblaze_score_streams_declarations(ofstream *fout,
-				list<Symbol*> *argtypes)
-{
-	int i=0;
-	Symbol *sym;
-	forall(sym, *argtypes) {
-		*fout << "ScoreStream* n_" << sym->getName() << ";" << endl;
-	}
-	*fout << endl;
-}
-
 void microblaze_constructor_signatures(ofstream *fout,
 			    Symbol *rsym,
 			    list<Symbol*> *argtypes)
@@ -225,9 +214,6 @@ void ccmicroblazeheader (Operator *op)
     exit(1);
   }
   *fout << endl;
-
-  // define all scorestreams used in this operator.. grr
-  microblaze_score_streams_declarations(fout, argtypes);
 
   *fout << classname << "_create(" ;
   microblaze_constructor_signatures(fout,rsym,argtypes);

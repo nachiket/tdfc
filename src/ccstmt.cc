@@ -52,7 +52,7 @@ Note: builtins expecting to handle here
 ***********************************************************************/
 
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep=0, bool retime)
+	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, string classname)
 {
 
 //	if(retime) {
@@ -126,14 +126,23 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	      {
 	      	ExprLValue *lexpr=(ExprLValue *)first;
 		long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
-		*fout << indent << "STREAM_CLOSE(" 
-		      << "out[" << id << "]" 
-		      << ");" << endl;
+		*fout << indent << "STREAM_CLOSE(";
+		
+		if(!mblaze) {
+			*fout << "out[" << id << "]";
+		} else {
+			*fout << classname<<"_ptr->outputs[" << id  <<"]";
+		}
+		*fout << ");" << endl;
 
 		early_close[id]=1;
-		*fout << indent 
-		      << "output_close[" << id << "]=1;" 
-		      << endl;
+		*fout << indent ;
+		if(!mblaze) {
+			*fout << "output_close[" << id << "]=1;" ;
+		} else {
+			*fout << classname<<"_ptr->output_close[" << id << "]=1;" ;
+		}
+		*fout << endl;
 	      }
 	  }
 	// Added by Nachiket on 10/6/2009 to support frameclose operation
@@ -147,9 +156,13 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		      {
 		      	ExprLValue *lexpr=(ExprLValue *)first;
 			long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
-			*fout << indent << "FRAME_CLOSE("
-			      << "out[" << id << "]"
-			      << ");" << endl;
+			*fout << indent << "FRAME_CLOSE(";
+			if(!mblaze) {
+				*fout << "out[" << id << "]";
+			} else {
+				*fout << classname<<"_ptr->outputs[" << id << "]";
+			}
+			*fout << ");" << endl;
 
 			/* Nachiket: Don't think any of these are valid.. are they?
 			early_close[id]=1;
@@ -209,9 +222,13 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		long id=(long)(ssym->getAnnote(CC_STREAM_ID));
 		*fout<<indent
 		     <<(in_pagestep?"STREAM_WRITE_ARRAY("
-				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(")
-		     << "out[" << id << "]" 
-		     << ","
+				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
+		if(!mblaze) {
+			*fout << "out[" << id << "]" ;
+		} else {
+			*fout << classname<<"_ptr->outputs[" << id << "]";
+		}
+		*fout << ","
 		     << ccEvalExpr(EvaluateExpr(rexp), retime) << ");" << endl;
 	      }
 	    else
