@@ -294,14 +294,16 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
   // doesn't need to be declared here
   *fout << endl;
 
+
   forall_items(item,*lsyms)
     {
       Symbol *asum=lsyms->inf(item);
       syms->insert(asum);
-      *fout << "    ScoreStream* " << asum->getName()  << ";" << endl;
+//      *fout << "    ScoreStream* " << asum->getName()  << ";" << endl;
       
     }
-  
+
+
   // walk over stmts
   //   subtracting LHS from set
       
@@ -343,14 +345,11 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
   forall(sym,*syms)
     {
       if (sym==returnValue) {
-	*fout << "    ScoreStream* result_malloc = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
-	*fout << "    ScoreStream result_val" << "=new_stream(result_malloc, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
-	*fout << "    result" << "=&result_val;"  << endl;
-//	      << getCCtypeConstructor(sym,1) << ";" << endl;
+	*fout << "    ScoreStream* result= (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+	*fout << "    new_stream(result, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
       } else {
-	*fout << "    ScoreStream* " << sym->getName() << "_malloc = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
-	*fout << "    ScoreStream " << sym->getName() << "_val = new_stream("<<sym->getName()<<"_malloc, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
-	*fout << "    " << sym->getName() << " =&" << sym->getName() << "_val;" << endl;
+	*fout << "    ScoreStream* " << sym->getName() << " = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+	*fout << "    new_stream("<<sym->getName()<<", 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
       }
 
       if (sym->isArray())
