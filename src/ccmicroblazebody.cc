@@ -335,14 +335,23 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 
   // walk over set
   //   creating streams AND segments
+  // TEMPLATE
+  // === ScoreStream *cc_temp_ptr=(ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));
+  // === ScoreStream cc_temp_val = new_stream_basic(cc_temp_ptr,16,0,16,SCORE_STREAM_UNSIGNED_TYPE,16,pool);
+  // === ScoreStream *cc_temp=&cc_temp_val;	
   Symbol *sym;
   forall(sym,*syms)
     {
-      if (sym==returnValue)
-	*fout << "    result" << "=&(new_stream(16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+      if (sym==returnValue) {
+	*fout << "    ScoreStream* result_malloc = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+	*fout << "    ScoreStream result_val" << "=new_stream(result_malloc, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+	*fout << "    result" << "=&result_val;"  << endl;
 //	      << getCCtypeConstructor(sym,1) << ";" << endl;
-      else
-	*fout << "    " << sym->getName() << "=&(new_stream(16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+      } else {
+	*fout << "    ScoreStream* " << sym->getName() << "_malloc = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+	*fout << "    ScoreStream " << sym->getName() << "_val = new_stream("<<sym->getName()<<"_malloc, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+	*fout << "    " << sym->getName() << " =&" << sym->getName() << "_val;" << endl;
+      }
 
       if (sym->isArray())
 	{
@@ -549,7 +558,8 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
   if (op->getOpKind()!=OP_COMPOSE)
     {
       *fout << endl;
-      *fout << "  "+classname+"_ptr=&(new_operator(" << ins << "," << outs << ", pool));" << endl;
+      *fout << "  struct Operator* " << classname << "_ptr=(Operator*)bufmalloc(pool,sizeof(Operator));" << endl;
+      *fout << "  new_operator(" << classname << "_ptr" << "," << ins << "," << outs << ", pool);" << endl;
       *fout << endl;
 
       if (!noReturnValue(rsym))
@@ -607,7 +617,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 		  << "  pthread_attr_init(&thread_attribute);\n"
 		  << "  pthread_attr_setdetachstate(&thread_attribute,PTHREAD_CREATE_DETACHED);\n"
 		  << "  pthread_create(&"<<classname<<"rpt,&thread_attribute,&"
-		  << op->getName() << "_proc_run, &"<<classname<<"_id);"
+		  << op->getName() << "_proc_run, "<<classname<<"_ptr);"
 		  << endl;
   }
   else if (op->getOpKind()==OP_COMPOSE)
@@ -698,6 +708,10 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
       OperatorBehavioral *bop=(OperatorBehavioral *)op;
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
+
+      *fout << endl;
+      *fout << "  struct Operator* " << classname << "_ptr = (struct Operator*)dummy;"<< endl;
+      *fout << endl;
 
       *fout << "  enum state_syms {" ;
 	
