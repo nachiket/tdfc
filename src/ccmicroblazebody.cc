@@ -956,7 +956,7 @@ void ccmicroblazeprocrun(ofstream *fout, string name, Operator *op)
 	  *fout << "        }" << endl;
 
 	  // close the nesting brackets.
-	  *fout << "        ";
+	  *fout << "      ";
 	  for (; numNestings>0; numNestings--) {
 	    *fout << "}" << endl;
 	  }
