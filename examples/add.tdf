@@ -2,11 +2,11 @@ unsigned[8] add(input unsigned[8] a, input unsigned[8] b)
 {
 	state only(a,b): 
 		add=a+b;
-		goto not_only;
+//		goto not_only;
 	
-	// add a second nonsense state...
-	state not_only(a,b):
-		add=a-b;
-		goto only;
+//	// add a second nonsense state...
+//	state not_only(a,b):
+//		add=a-b;
+//		goto only;
 }
 

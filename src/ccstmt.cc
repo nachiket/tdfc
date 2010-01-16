@@ -90,14 +90,14 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep);
+	       early_close,state_prefix,in_pagestep, retime, mblaze, classname);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
 	  {
 	    *fout << indent << "else {" << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep);
+		   state_prefix,in_pagestep, retime, mblaze, classname);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -222,7 +222,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		long id=(long)(ssym->getAnnote(CC_STREAM_ID));
 		*fout<<indent
 		     <<(in_pagestep?"STREAM_WRITE_ARRAY("
-				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
+				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC2(");
 		if(!mblaze) {
 			*fout << "out[" << id << "]" ;
 		} else {
@@ -297,7 +297,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	forall(astmt,*(bstmt->getStmts()))
 	  {
 	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-								in_pagestep);
+			in_pagestep, retime, mblaze, classname);
 	  }
 
 	*fout << indent << "}" << endl;

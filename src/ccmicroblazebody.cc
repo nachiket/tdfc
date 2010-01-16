@@ -70,17 +70,17 @@ void ccmicroblaze_state_definition(ofstream *fout, string classname,
 {
 
 	// define shared variables for this class..
-	if (op->getOpKind()==OP_BEHAVIORAL) {
-		*fout << "int "<<classname<<"_id=0;" << endl;
-		*fout << "pthread_t "<<classname<<"_rpt;" << endl;
-		*fout << "struct Operator* " << op->getName() << "_ptr;" << endl;
-	} else if(op->getOpKind()==OP_COMPOSE) {
-		*fout << "// skipping id, pthread and local structure of stream pointers.." << endl;
-	} else {
-		cerr << "Unsupported opKind in ccmicroblazebody.h" << endl;
-		exit(1);
-	}
-	*fout << endl;
+//	if (op->getOpKind()==OP_BEHAVIORAL) {
+//		*fout << "int "<<classname<<"_id=0;" << endl;
+//		*fout << "pthread_t "<<classname<<"_rpt;" << endl;
+//		*fout << "struct Operator* " << op->getName() << "_ptr;" << endl;
+//	} else if(op->getOpKind()==OP_COMPOSE) {
+//		*fout << "// skipping id, pthread and local structure of stream pointers.." << endl;
+//	} else {
+//		cerr << "Unsupported opKind in ccmicroblazebody.h" << endl;
+//		exit(1);
+//	}
+//	*fout << endl;
 
 
 //	list<Symbol*> *argtypes=op->getArgs();
@@ -615,7 +615,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 	  *fout   << "  pthread_attr_t thread_attribute;\n"
 		  << "  pthread_attr_init(&thread_attribute);\n"
 		  << "  pthread_attr_setdetachstate(&thread_attribute,PTHREAD_CREATE_DETACHED);\n"
-		  << "  pthread_create(&"<<classname<<"rpt,&thread_attribute,&"
+		  << "  pthread_create(&"<<classname<<"_ptr->thread,&thread_attribute,&"
 		  << op->getName() << "_proc_run, "<<classname<<"_ptr);"
 		  << endl;
   }

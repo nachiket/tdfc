@@ -204,18 +204,18 @@ void ccmicroblazeheader (Operator *op)
   *fout << endl;
 
   // define shared variables for this class..
-  *fout << "int id=0;" << endl;
-  if (op->getOpKind()==OP_BEHAVIORAL) {
-    *fout << "pthread_t rpt;" << endl;
-  } else if(op->getOpKind()==OP_COMPOSE) {
-    *fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
-  } else {
-    cerr << "Unsupported opKind in ccmicroblazeheader.h" << endl;
-    exit(1);
-  }
-  *fout << endl;
+//  *fout << "int id=0;" << endl;
+//  if (op->getOpKind()==OP_BEHAVIORAL) {
+//    *fout << "pthread_t rpt;" << endl;
+//  } else if(op->getOpKind()==OP_COMPOSE) {
+//    *fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
+//  } else {
+//    cerr << "Unsupported opKind in ccmicroblazeheader.h" << endl;
+//    exit(1);
+//  }
+//  *fout << endl;
 
-  *fout << classname << "_create(" ;
+  *fout << "void* " << classname << "_create(" ;
   microblaze_constructor_signatures(fout,rsym,argtypes);
   *fout << "  );" << endl;
   *fout << "void* "+classname+"_proc_run(void*);" << endl;
