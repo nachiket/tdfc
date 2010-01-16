@@ -1015,7 +1015,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
       if (num_states>1)
 	{
 	  *fout << "      default: printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
-	  *fout << "        exit(1);" << endl;
+	  *fout << "        return((void*)NULL);" << endl;
 	  *fout << "    }" << endl;
 	}
 
