@@ -212,6 +212,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	TypeKind lvalTypeKind = lval->typeCheck()->getTypeKind();
 	bool floattyp = (lvalTypeKind==TYPE_FLOAT);
 	bool doubletyp = (lvalTypeKind==TYPE_DOUBLE);
+	bool unsignedtyp = (lvalTypeKind==TYPE_INT);
 	Expr *rexp=astmt->getRhs();
 	Symbol *asym=lval->getSymbol();
 	if (asym->isStream())
@@ -220,12 +221,14 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    if (ssym->getDir()==STREAM_OUT)
 	      {
 		long id=(long)(ssym->getAnnote(CC_STREAM_ID));
-		*fout<<indent
-		     <<(in_pagestep?"STREAM_WRITE_ARRAY("
-				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC2(");
+		*fout<<indent;
 		if(!mblaze) {
+		     *fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
+				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]" ;
 		} else {
+		     *fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
+				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(": (unsignedtyp)? "STREAM_WRITE_UNSIGNED(" : "STREAM_WRITE_UNSIGNED(");
 			*fout << classname<<"_ptr->outputs[" << id << "]";
 		}
 		*fout << ","

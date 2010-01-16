@@ -700,7 +700,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 
   if (op->getOpKind()==OP_COMPOSE)
     {
-      *fout << "  cerr << \"proc_run should never be called for a compose operator!\" << endl;" << endl;
+      *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
     }
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
@@ -933,12 +933,13 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 			TypeKind intyp = ispec->getStream()->typeCheck()->getTypeKind();
 			bool floattyp=(intyp==TYPE_FLOAT);
 			bool doubletyp=(intyp==TYPE_DOUBLE);
+			bool unsignedtyp=(intyp==TYPE_INT);
 
 			// cout << "Type=" << typekindToString(intyp) << " for stream " << ispec->getStream()->getName() << endl;
 
 		      *fout << "          " 
 			    << ispec->getStream()->getName() 
-			    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : "=STREAM_READ_NOACC(") 
+			    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : (unsignedtyp)? "=STREAM_READ_UNSIGNED(" : "=STREAM_READ_UNSIGNED(") 
 			    << classname<<"_ptr->inputs[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID)) 
 			    << "]);" << endl;
 
@@ -967,10 +968,11 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 					TypeKind intyp = ispec->getStream()->typeCheck()->getTypeKind();
 					bool floattyp=(intyp==TYPE_FLOAT);
 					bool doubletyp=(intyp==TYPE_DOUBLE);
+					bool unsignedtyp=(intyp==TYPE_INT);
 
 					// dummy read of the token..
 				    *fout << "          "
-					    << (floattyp? "STREAM_READ_FLOAT(" : (doubletyp)? "STREAM_READ_DOUBLE(" : "STREAM_READ_NOACC(")
+			    		    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : (unsignedtyp)? "=STREAM_READ_UNSIGNED(" : "=STREAM_READ_UNSIGNED(") 
 					    << classname << "_ptr->inputs[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 					    << "]);" << endl;
 
@@ -1012,7 +1014,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	}
       if (num_states>1)
 	{
-	  *fout << "      default: cerr << \"ERROR unknown state [\" << (int)state << \"] encountered in " << classname << "::proc_run\" << endl;" << endl;
+	  *fout << "      default: printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
 	  *fout << "        abort();" << endl;
 	  *fout << "    }" << endl;
 	}
