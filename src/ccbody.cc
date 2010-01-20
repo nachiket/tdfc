@@ -85,7 +85,7 @@ using leda::dic_item;
 using leda::string;
 using std::ofstream;
 
-void ccEvalGraphvizCall(ofstream *fout, Expr* expr) {
+/*void ccEvalGraphvizCall(ofstream *fout, Expr* expr) {
   if ((expr->getExprKind()==EXPR_CALL)
 	   || ((expr->getExprKind()==EXPR_BUILTIN) &&
 	       (((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
@@ -115,7 +115,7 @@ void ccEvalGraphvizCall(ofstream *fout, Expr* expr) {
 
 
     }
-}
+}*/
 
 void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
@@ -695,7 +695,6 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 	    }
 	}
 
-	*fout << "get_graphviz_strings();" << endl;
     }
   if (op->getOpKind()==OP_BEHAVIORAL)
     {
@@ -790,6 +789,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	       int debug_logic)
 {
   *fout << "void *" << name << "::proc_run() {"  << endl;
+	*fout << "get_graphviz_strings();" << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -1265,8 +1265,8 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 
 // Added by Nachiket on 1/20/2010 @ 1.29pm
 void ccgraphviz(ofstream *fout, string classname, Operator *op) {
-	*fout << "void " << classname << "::get_graphviz_strings(ofstream *fout) {"  << endl;
-	*fout << "flockfile(fout);" << endl;
+	*fout << "void " << classname << "::get_graphviz_strings() {"  << endl;
+	*fout << "flockfile(stdout);" << endl;
 
 	if(op->getOpKind()!=OP_COMPOSE) {
 	      int ocnt=0, icnt=0;
@@ -1300,7 +1300,7 @@ void ccgraphviz(ofstream *fout, string classname, Operator *op) {
 		}
 	}
   
-	*fout << "funlockfile(fout);" << endl;
+	*fout << "funlockfile(stdout);" << endl;
 	*fout << "}" << endl;
 }
 
@@ -1342,6 +1342,7 @@ void ccbody (Operator *op, int debug_logic)
   *fout << "#include <sys/ipc.h>" << endl;
   *fout << "#include <sys/msg.h>" << endl;
   *fout << "#include \"" << name << ".h\"" << endl;
+  *fout << "using namespace std;" << endl;
 
   // include anythying I depend upon
   ccprep(op); // generic for things need to be done on pre pass

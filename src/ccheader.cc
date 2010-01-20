@@ -228,7 +228,9 @@ void ccheader (Operator *op)
   // some includes
   *fout << "#include \"Score.h\"" << endl;
   *fout << "#include <iostream>" << endl;
+  *fout << "#include <fstream>" << endl;
   *fout << "#include <pthread.h>" << endl;
+  *fout << "using namespace std;" << endl;
   *fout << "#ifdef __cplusplus" << endl;
   // arg pass struct
   *fout << "typedef struct {" << endl;
@@ -245,10 +247,12 @@ void ccheader (Operator *op)
     *fout << "  " << getCCtype(rsym) << " getResult() "
 	  << "{ return result;}" << endl;
   *fout << "  void *proc_run();" << endl;
-  *fout << "  void get_graphviz_strings(ofstream *fout);" << endl;
+  *fout << "  void get_graphviz_strings();" << endl;
+  *fout << "  void set_graphviz_fout(ofstream *fout_arg) {fout=fout_arg;};" << endl;
   *fout << "private: " << endl;
   parameter_variables(fout,argtypes);
   *fout << "  pthread_t rpt;" << endl;
+  *fout << "  ofstream *fout;" << endl;
   if (!noReturnValue(rsym))
     *fout << "  " << getCCtype(rsym) << " result;" << endl;
   *fout << "  static ScoreOperatorElement *instances;" << endl;
