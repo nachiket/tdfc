@@ -640,7 +640,7 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 		  *fout << "    bindOutput(" << ocnt << "," << prefix 
 			<< sym->getName() << ","
 			<< getCCStreamType(sym) << ");" << endl;
-		  *fout << "    out["<<ocnt<<"].setName("<<sym->getName()<<");" << endl;
+		  *fout << "    out["<<ocnt<<"]->setName(\""<<sym->getName()<<"\");" << endl;
                   *fout << "    SCORE_MARKWRITESTREAM(" << prefix
                         << sym->getName() << ",globalCounter->threadCounter);"
                         << endl;
@@ -651,7 +651,7 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 		  *fout << "    bindInput(" << icnt << ","<< prefix 
 			<< sym->getName() << ","
 			<< getCCStreamType(sym) << ");" << endl;
-		  *fout << "    in["<<icnt<<"].setName("<<sym->getName()<<");" << endl;
+		  *fout << "    in["<<icnt<<"]->setName(\""<<sym->getName()<<"\");" << endl;
                   *fout << "    SCORE_MARKREADSTREAM(" << prefix
                         << sym->getName() << ",globalCounter->threadCounter);"
                         << endl;
