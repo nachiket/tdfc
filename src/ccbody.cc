@@ -790,8 +790,9 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 {
   *fout << "void *" << name << "::proc_run() {"  << endl;
 
-  	*fout << "if(fout!=NULL) {" << endl;
-	*fout << "get_graphviz_strings(); return NULL;}" << endl;
+  	*fout << "\tif(ScoreOperator::fout!=NULL) {" << endl;
+	*fout << "\t\tget_graphviz_strings(); return NULL;" << endl;
+	*fout << "\t}" << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -1283,8 +1284,10 @@ void ccgraphviz(ofstream *fout, string classname, Operator *op) {
 				if (ssym->getDir()==STREAM_OUT)
 				{
 					*fout << "\tif(out["<<ocnt<<"]->src!=NULL && out["<<ocnt<<"]->sink!=NULL) {" << endl;
-					*fout << "\t\t*fout << \"\\t\" << out["<<ocnt<<"]->src->getName() << \"->\" << out["<<ocnt<<"]->sink->getName() << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
-					*fout << "\t} else {*fout << \"dummy\" << endl;}" << endl;
+					*fout << "\t\t*(ScoreOperator::fout) << \"\\t\" << out["<<ocnt<<"]->src->getName() << \"->\" << out["<<ocnt<<"]->sink->getName() << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
+					*fout << "\t\tcout << \"\\t\" << out["<<ocnt<<"]->src->getName() << \"->\" << out["<<ocnt<<"]->sink->getName() << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
+					//*fout << "\t}" << endl; 
+					*fout << "\t} else {cout<<\"cannot connect "<< sym->getName() <<" \"<<endl;}" << endl;
 //					*fout << "*fout << \"\\t\" << (out["<<ocnt<<"]->src!=NULL)? out["<<ocnt<<"]->src->getName():stupid << \"->\" << (out["<<ocnt<<"]->sink!=NULL)? out["<<ocnt<<"]->sink->getName():stupid << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
 					ocnt++;
 				}
@@ -1306,7 +1309,7 @@ void ccgraphviz(ofstream *fout, string classname, Operator *op) {
 		}
 	}
   
-	*fout << "funlockfile(stdout);" << endl;
+	*fout << "\tfunlockfile(stdout);" << endl;
 	*fout << "}" << endl;
 }
 
@@ -1379,6 +1382,7 @@ void ccbody (Operator *op, int debug_logic)
 	<< ccParameterLocs(argtypes) << "));  }" << endl;
   *fout << "ScoreOperatorElement *" << classname 
 	<< "::instances="<< classname <<"init_instances();" << endl;
+//  *fout << "ofstream *ScoreOperator::fout=NULL;" << endl;
 
   *fout << endl;
 

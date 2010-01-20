@@ -248,11 +248,9 @@ void ccheader (Operator *op)
 	  << "{ return result;}" << endl;
   *fout << "  void *proc_run();" << endl;
   *fout << "  void get_graphviz_strings();" << endl;
-  *fout << "  void set_graphviz_fout(ofstream *fout_arg) {fout=fout_arg;};" << endl;
   *fout << "private: " << endl;
   parameter_variables(fout,argtypes);
   *fout << "  pthread_t rpt;" << endl;
-  *fout << "  ofstream *fout;" << endl;
   if (!noReturnValue(rsym))
     *fout << "  " << getCCtype(rsym) << " result;" << endl;
   *fout << "  static ScoreOperatorElement *instances;" << endl;
