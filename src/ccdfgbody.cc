@@ -550,7 +550,7 @@ void ccdfgconstruct(ofstream *fout,string name, Operator *op)
 
   if (op->getOpKind()!=OP_COMPOSE)
     {
-      *fout << "    declareIO(" << ins << "," << outs << ");" << endl;
+      *fout << "    declareIO(" << ins << "," << outs << ", "<<op->getName()<<"_name);" << endl;
 
       if (!noReturnValue(rsym))
 	{
