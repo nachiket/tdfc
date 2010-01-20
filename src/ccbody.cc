@@ -85,38 +85,6 @@ using leda::dic_item;
 using leda::string;
 using std::ofstream;
 
-/*void ccEvalGraphvizCall(ofstream *fout, Expr* expr) {
-  if ((expr->getExprKind()==EXPR_CALL)
-	   || ((expr->getExprKind()==EXPR_BUILTIN) &&
-	       (((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
-		==BUILTIN_SEGMENT)
-	       ||((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
-		==BUILTIN_COPY)
-	       ||((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
-		==BUILTIN_TERMINATE))))
-    {
-
-      ExprCall *ecall=(ExprCall *)expr;
-      Operator *cop=ecall->getOp();
-      list<Expr*>* args=ecall->getArgs();
-      if (expr->getExprKind()==EXPR_BUILTIN)
-	{
-
-	  if ((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
-		==BUILTIN_COPY)
-	    {
-	      *fout << "\t" << SCORE_COPY_NAME << "->get_graphviz_strings();" << endl;
-	    }
-	}
-      else
-	{
-	  *fout << "\t" << cop->getName() << "->get_graphviz_strings();" << endl;
-	}
-
-
-    }
-}*/
-
 void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
   if (expr->getExprKind()==EXPR_VALUE)
@@ -538,7 +506,7 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 	  pi++;
 	}
     }
-  *fout << "  addInstance(instances,params);" << endl;
+  *fout << "  addInstance(instances,this,params);" << endl;
 
   // check type expressions for all arguments
   forall(sym,*argtypes)
@@ -672,6 +640,7 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 		  *fout << "    bindOutput(" << ocnt << "," << prefix 
 			<< sym->getName() << ","
 			<< getCCStreamType(sym) << ");" << endl;
+		  *fout << "    out["<<ocnt<<"].setName("<<sym->getName()<<");" << endl;
                   *fout << "    SCORE_MARKWRITESTREAM(" << prefix
                         << sym->getName() << ",globalCounter->threadCounter);"
                         << endl;
@@ -682,6 +651,7 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 		  *fout << "    bindInput(" << icnt << ","<< prefix 
 			<< sym->getName() << ","
 			<< getCCStreamType(sym) << ");" << endl;
+		  *fout << "    in["<<icnt<<"].setName("<<sym->getName()<<");" << endl;
                   *fout << "    SCORE_MARKREADSTREAM(" << prefix
                         << sym->getName() << ",globalCounter->threadCounter);"
                         << endl;
@@ -790,9 +760,9 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 {
   *fout << "void *" << name << "::proc_run() {"  << endl;
 
-  	*fout << "\tif(ScoreOperator::fout!=NULL) {" << endl;
-	*fout << "\t\tget_graphviz_strings(); return NULL;" << endl;
-	*fout << "\t}" << endl;
+//  	*fout << "\tif(ScoreOperator::fout!=NULL) {" << endl;
+//	*fout << "\t\tget_graphviz_strings(); return NULL;" << endl;
+//	*fout << "\t}" << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -1396,7 +1366,7 @@ void ccbody (Operator *op, int debug_logic)
   *fout << endl;
 
   // graphviz structure
-  ccgraphviz(fout, classname, op);
+//  ccgraphviz(fout, classname, op);
   *fout << endl;
 
   // if necessary, functional version
