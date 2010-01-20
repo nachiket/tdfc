@@ -247,7 +247,7 @@ void ccheader (Operator *op)
     *fout << "  " << getCCtype(rsym) << " getResult() "
 	  << "{ return result;}" << endl;
   *fout << "  void *proc_run();" << endl;
-//  *fout << "  void get_graphviz_strings();" << endl;
+  *fout << "  void get_graphviz_strings();" << endl;
   *fout << "private: " << endl;
   parameter_variables(fout,argtypes);
   *fout << "  pthread_t rpt;" << endl;

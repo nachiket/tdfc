@@ -506,7 +506,6 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 	  pi++;
 	}
     }
-  *fout << "  addInstance(instances,this,params);" << endl;
 
   // check type expressions for all arguments
   forall(sym,*argtypes)
@@ -607,6 +606,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
   if (op->getOpKind()!=OP_COMPOSE)
     {
       *fout << "    declareIO(" << ins << "," << outs << ", "<<op->getName()<<"_name);" << endl;
+//      *fout << "  cout << \"TDF: Setting operator=\" << this->getName() << \"in=\" << this->getInputs() << \" out=\" << this->getOutputs() << endl; " << endl;
+	      
+  *fout << "  addInstance(instances,this,params);" << endl;
 
       if (!noReturnValue(rsym))
 	{
@@ -760,9 +762,10 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 {
   *fout << "void *" << name << "::proc_run() {"  << endl;
 
-//  	*fout << "\tif(ScoreOperator::fout!=NULL) {" << endl;
-//	*fout << "\t\tget_graphviz_strings(); return NULL;" << endl;
-//	*fout << "\t}" << endl;
+	*fout << "\tsleep(1);" << endl;
+  	*fout << "\tif(ScoreOperator::fout!=NULL) {" << endl;
+	*fout << "\t\tget_graphviz_strings(); return NULL;" << endl;
+	*fout << "\t}" << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -1366,7 +1369,7 @@ void ccbody (Operator *op, int debug_logic)
   *fout << endl;
 
   // graphviz structure
-//  ccgraphviz(fout, classname, op);
+  ccgraphviz(fout, classname, op);
   *fout << endl;
 
   // if necessary, functional version
