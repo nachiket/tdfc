@@ -789,7 +789,9 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	       int debug_logic)
 {
   *fout << "void *" << name << "::proc_run() {"  << endl;
-	*fout << "get_graphviz_strings();" << endl;
+
+  	*fout << "if(fout!=NULL) {" << endl;
+	*fout << "get_graphviz_strings(); return NULL;}" << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -1266,7 +1268,8 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 // Added by Nachiket on 1/20/2010 @ 1.29pm
 void ccgraphviz(ofstream *fout, string classname, Operator *op) {
 	*fout << "void " << classname << "::get_graphviz_strings() {"  << endl;
-	*fout << "flockfile(stdout);" << endl;
+	*fout << "\tconst char* stupid=\"null\";" << endl;
+	*fout << "\tflockfile(stdout);" << endl;
 
 	if(op->getOpKind()!=OP_COMPOSE) {
 	      int ocnt=0, icnt=0;
@@ -1279,7 +1282,10 @@ void ccgraphviz(ofstream *fout, string classname, Operator *op) {
 				SymbolStream *ssym=(SymbolStream *)sym;
 				if (ssym->getDir()==STREAM_OUT)
 				{
-					*fout << "*fout << \"\\t\" << out["<<ocnt<<"]->src->getName() << \"->\" << out["<<ocnt<<"]->sink->getName() << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
+					*fout << "\tif(out["<<ocnt<<"]->src!=NULL && out["<<ocnt<<"]->sink!=NULL) {" << endl;
+					*fout << "\t\t*fout << \"\\t\" << out["<<ocnt<<"]->src->getName() << \"->\" << out["<<ocnt<<"]->sink->getName() << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
+					*fout << "\t} else {*fout << \"dummy\" << endl;}" << endl;
+//					*fout << "*fout << \"\\t\" << (out["<<ocnt<<"]->src!=NULL)? out["<<ocnt<<"]->src->getName():stupid << \"->\" << (out["<<ocnt<<"]->sink!=NULL)? out["<<ocnt<<"]->sink->getName():stupid << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
 					ocnt++;
 				}
 				else if (ssym->getDir()==STREAM_IN)
