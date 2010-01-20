@@ -64,17 +64,6 @@ void microblaze_parameter_variables(ofstream *fout,
     }
 }
 
-void microblaze_score_streams_declarations(ofstream *fout,
-				list<Symbol*> *argtypes)
-{
-	int i=0;
-	Symbol *sym;
-	forall(sym, *argtypes) {
-		*fout << "ScoreStream* n_" << sym->getName() << ";" << endl;
-	}
-	*fout << endl;
-}
-
 void microblaze_constructor_signatures(ofstream *fout,
 			    Symbol *rsym,
 			    list<Symbol*> *argtypes)
@@ -215,21 +204,18 @@ void ccmicroblazeheader (Operator *op)
   *fout << endl;
 
   // define shared variables for this class..
-  *fout << "int id=0;" << endl;
-  if (op->getOpKind()==OP_BEHAVIORAL) {
-    *fout << "pthread_t rpt;" << endl;
-  } else if(op->getOpKind()==OP_COMPOSE) {
-    *fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
-  } else {
-    cerr << "Unsupported opKind in ccmicroblazeheader.h" << endl;
-    exit(1);
-  }
-  *fout << endl;
+//  *fout << "int id=0;" << endl;
+//  if (op->getOpKind()==OP_BEHAVIORAL) {
+//    *fout << "pthread_t rpt;" << endl;
+//  } else if(op->getOpKind()==OP_COMPOSE) {
+//    *fout << "    // skipping pthread for composite operator... // pthread_t rpt;" << endl;
+//  } else {
+//    cerr << "Unsupported opKind in ccmicroblazeheader.h" << endl;
+//    exit(1);
+//  }
+//  *fout << endl;
 
-  // define all scorestreams used in this operator.. grr
-  microblaze_score_streams_declarations(fout, argtypes);
-
-  *fout << classname << "_create(" ;
+  *fout << "void* " << classname << "_create(" ;
   microblaze_constructor_signatures(fout,rsym,argtypes);
   *fout << "  );" << endl;
   *fout << "void* "+classname+"_proc_run(void*);" << endl;
