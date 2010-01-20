@@ -85,6 +85,38 @@ using leda::dic_item;
 using leda::string;
 using std::ofstream;
 
+void ccEvalGraphvizCall(ofstream *fout, Expr* expr) {
+  if ((expr->getExprKind()==EXPR_CALL)
+	   || ((expr->getExprKind()==EXPR_BUILTIN) &&
+	       (((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
+		==BUILTIN_SEGMENT)
+	       ||((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
+		==BUILTIN_COPY)
+	       ||((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
+		==BUILTIN_TERMINATE))))
+    {
+
+      ExprCall *ecall=(ExprCall *)expr;
+      Operator *cop=ecall->getOp();
+      list<Expr*>* args=ecall->getArgs();
+      if (expr->getExprKind()==EXPR_BUILTIN)
+	{
+
+	  if ((((OperatorBuiltin *)((ExprBuiltin *)expr)->getOp())->getBuiltinKind())
+		==BUILTIN_COPY)
+	    {
+	      *fout << "\t" << SCORE_COPY_NAME << "->get_graphviz_strings();" << endl;
+	    }
+	}
+      else
+	{
+	  *fout << "\t" << cop->getName() << "->get_graphviz_strings();" << endl;
+	}
+
+
+    }
+}
+
 void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
   if (expr->getExprKind()==EXPR_VALUE)
@@ -309,6 +341,8 @@ void ccCompose (ofstream *fout, string name, OperatorCompose *op)
     {
       if (statement->okInComposeOp())
 	{
+
+
 	  if (statement->getStmtKind()==STMT_ASSIGN)
 	    {
 	      ExprLValue *lval=((StmtAssign *)statement)->getLValue();
@@ -660,6 +694,8 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 		}
 	    }
 	}
+
+	*fout << "get_graphviz_strings();" << endl;
     }
   if (op->getOpKind()==OP_BEHAVIORAL)
     {
@@ -1226,6 +1262,48 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
   
 }
 
+
+// Added by Nachiket on 1/20/2010 @ 1.29pm
+void ccgraphviz(ofstream *fout, string classname, Operator *op) {
+	*fout << "void " << classname << "::get_graphviz_strings(ofstream *fout) {"  << endl;
+	*fout << "flockfile(fout);" << endl;
+
+	if(op->getOpKind()!=OP_COMPOSE) {
+	      int ocnt=0, icnt=0;
+	      list<Symbol*> *argtypes=op->getArgs();
+	      Symbol *sym;
+		forall(sym,*argtypes)
+		{
+			if (sym->isStream())
+			{
+				SymbolStream *ssym=(SymbolStream *)sym;
+				if (ssym->getDir()==STREAM_OUT)
+				{
+					*fout << "*fout << \"\\t\" << out["<<ocnt<<"]->src->getName() << \"->\" << out["<<ocnt<<"]->sink->getName() << \"[ label= \\\" " << sym->getName() << "\\\" ]\" << endl;" << endl;
+					ocnt++;
+				}
+				else if (ssym->getDir()==STREAM_IN)
+				{
+// only one-side is adequate					*fout << "cout << \"\\t\" << in["<<icnt<<"]->src->getName() << \"->\" << in["<<icnt<<"]->sink->getName() << \"[ label= \\\" \"" << sym->getName() << "\\\" \" << \"]\" << endl;" << endl;
+//					*fout << "//wtf? in" << endl;
+					icnt++;
+				}
+
+				else
+				{
+//					*fout << "//wtf?" << endl;
+					// already complained
+				}
+			} else {
+//				*fout << "//wtf? not stream" << endl;
+			}
+		}
+	}
+  
+	*fout << "funlockfile(fout);" << endl;
+	*fout << "}" << endl;
+}
+
 //
 ////////////////////////////////////////////////////////////////////////
 // Top level routine to create master C++ code
@@ -1304,7 +1382,10 @@ void ccbody (Operator *op, int debug_logic)
 
   // proc_run
   ccprocrun(fout,classname,op,debug_logic);
+  *fout << endl;
 
+  // graphviz structure
+  ccgraphviz(fout, classname, op);
   *fout << endl;
 
   // if necessary, functional version

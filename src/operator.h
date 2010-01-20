@@ -49,6 +49,20 @@ class Stmt;
 
 enum OperatorKind { OP_BEHAVIORAL, OP_COMPOSE, OP_BUILTIN };
 
+
+/*string operatorKindToString(OperatorKind kind) {
+	if(kind==OP_BEHAVIORAL) {
+		return string("OP_BEHAVIORAL");
+	} else if(kind==OP_COMPOSE) {
+		return string("OP_COMPOSE");
+	} else if(kind==OP_BUILTIN) {
+		return string("OP_BUILTIN");
+	} else {
+		return string("what?");
+	}
+}
+*/
+
 class Operator : public Tree
 {
 protected:

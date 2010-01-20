@@ -227,6 +227,7 @@ void ccheader (Operator *op)
   *fout << "// " << ctime(&currentTime) << endl;
   // some includes
   *fout << "#include \"Score.h\"" << endl;
+  *fout << "#include <iostream>" << endl;
   *fout << "#include <pthread.h>" << endl;
   *fout << "#ifdef __cplusplus" << endl;
   // arg pass struct
@@ -244,6 +245,7 @@ void ccheader (Operator *op)
     *fout << "  " << getCCtype(rsym) << " getResult() "
 	  << "{ return result;}" << endl;
   *fout << "  void *proc_run();" << endl;
+  *fout << "  void get_graphviz_strings(ofstream *fout);" << endl;
   *fout << "private: " << endl;
   parameter_variables(fout,argtypes);
   *fout << "  pthread_t rpt;" << endl;
