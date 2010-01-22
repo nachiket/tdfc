@@ -972,7 +972,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 
 					// dummy read of the token..
 				    *fout << "          "
-			    		    << (floattyp? "=STREAM_READ_FLOAT(" : (doubletyp)? "=STREAM_READ_DOUBLE(" : (unsignedtyp)? "=STREAM_READ_UNSIGNED(" : "=STREAM_READ_UNSIGNED(") 
+			    		    << (floattyp? "STREAM_READ_FLOAT(" : (doubletyp)? "STREAM_READ_DOUBLE(" : (unsignedtyp)? "STREAM_READ_UNSIGNED(" : "STREAM_READ_UNSIGNED(") 
 					    << classname << "_ptr->inputs[" << (long)(ispec->getStream()->getAnnote(CC_STREAM_ID))
 					    << "]);" << endl;
 
