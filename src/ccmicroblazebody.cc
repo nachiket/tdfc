@@ -144,7 +144,7 @@ void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 	{
 //	  if (noReturnValue(cop->getRetSym()))
 //	    *fout << "new " ;
-	  *fout << "create_" << cop->getName();
+	  *fout << cop->getName() << "_create";
 	}
       *fout << "(" ;
       Expr *earg;
