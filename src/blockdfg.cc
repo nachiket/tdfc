@@ -1062,7 +1062,7 @@ string printBlockDFG (string statename, int eofr_case, int eos_case, BlockDFG *d
 		      node_array<int> *latencies,		// "L=..."
 		      node_array<int> *depths)		// "D=..."
 {
-  string ret("StateDfg "+statename+" (%d nodes, %d edges, %d eofr, %d eos) \n",
+  string ret("StateDfg "+statename+" (%d nodes, %d edges, %d eofr_case, %d eos_case) \n",
 	     dfg->number_of_nodes(), dfg->number_of_edges(), eofr_case, eos_case);
 
 //cout << "inside" << endl;
