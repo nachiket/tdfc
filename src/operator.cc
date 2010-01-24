@@ -876,7 +876,18 @@ void OperatorBehavioral::buildDataflowGraph() const
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
 		sc1->addSymbolMap(symbolmap); // Whoa?
 		//cout << "Statecase=" << sc1 << " DFG=" << &dfg << endl;
-		cout << printBlockDFG(sc1->getStateName(), &dfg, NULL, NULL, NULL) << endl;
+		InputSpec *ispec;
+		int eofr_case=0;
+		int eos_case=0;
+		forall (ispec,*(sc1->getInputs())) {
+			if(ispec->isEofrCase()) {
+				eofr_case=1;
+			}
+			if(ispec->isEosCase()) {
+				eos_case=1;
+			}
+		}
+		cout << printBlockDFG(sc1->getStateName(), eofr_case, eos_case, &dfg, NULL, NULL, NULL) << endl;
 	}
 
 }
@@ -1000,7 +1011,18 @@ string OperatorBehavioral::toDFGString () const
 
 		createBlockDfgSimple(sc1,&dfg,&stmts1,vars);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
-		string dfgStr = printBlockDFG(sc1->getStateName(), &dfg, NULL, NULL, NULL);
+		InputSpec *ispec;
+		int eofr_case=0;
+		int eos_case=0;
+		forall (ispec,*(sc1->getInputs())) {
+			if(ispec->isEofrCase()) {
+				eofr_case=1;
+			}
+			if(ispec->isEosCase()) {
+				eos_case=1;
+			}
+		}
+		string dfgStr = printBlockDFG(sc1->getStateName(), eofr_case, eos_case, &dfg, NULL, NULL, NULL);
 		//cout << dfgStr << endl;
 
 		totalStr+=dfgStr;

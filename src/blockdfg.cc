@@ -1057,13 +1057,13 @@ using std::endl;
 ////////////////////////////////////////////////////////////////
 //  Print BlockDFG
 
-string printBlockDFG (string statename, BlockDFG *dfg,
+string printBlockDFG (string statename, int eofr_case, int eos_case, BlockDFG *dfg,
 		      node_array<int> *areas,		// "A=..."
 		      node_array<int> *latencies,		// "L=..."
 		      node_array<int> *depths)		// "D=..."
 {
-  string ret("StateDfg "+statename+" (%d nodes, %d edges)\n",
-	     dfg->number_of_nodes(), dfg->number_of_edges());
+  string ret("StateDfg "+statename+" (%d nodes, %d edges, %d eofr, %d eos) \n",
+	     dfg->number_of_nodes(), dfg->number_of_edges(), eofr_case, eos_case);
 
 //cout << "inside" << endl;
 
