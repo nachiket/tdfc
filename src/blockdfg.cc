@@ -259,6 +259,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  return n;
 			}
     case EXPR_COND:	{
+//    			cout << "Found EXPR_COND" << endl;
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *ec=((ExprCond*)e)->getCond();
@@ -976,25 +977,36 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 
   // 1/24/2010: Remove initializations of unused local variables
   forall (localsym,*(vars->getSymbolOrder())) {
-	if(initialdefs[localsym]==livedefs[localsym]) {
-//		cout << "Found unused variable " << localsym->getName() << endl;
-
-	 	StmtAssign* asst=livedefs[localsym];
-//	        Expr *rval=asst->getRhs();
+  	// check if anyone updated it
+  	if(livedefs[localsym]==initialdefs[localsym]) {
+		StmtAssign* asst=livedefs[localsym];
 		node n=asst->getRhsnode();
-
-		if(n!=NULL) {
+		if(n!=NULL) {	
+//			cout << "Found unused output variable " << localsym->getName() << " in " << sc->getStateName() << endl;
 			edge e=dfg->first_out_edge(n);
 			node n_out=dfg->target(e);
-	
-			// now delete this unused variable assignment
-			dfg->del_node(n);
 			dfg->del_node(n_out);
-		} else {
-			cout << "Why is this null?" << endl;		
 		}
 	}
 
+	// check if anyone used it
+	StmtAssign* asst=livedefs[localsym];
+	node n=asst->getRhsnode();
+	if(n!=NULL) {
+		list<edge> out_edges=dfg->out_edges(n);
+		if(out_edges.length()==1) { 
+//			cout << "Found unused variable " << localsym->getName() << " in " << sc->getStateName() << endl;
+	
+			edge e=dfg->first_out_edge(n);
+			node n_out=dfg->target(e);
+			Symbol* targetsym=symbolmap[n_out];
+			if(localsym==targetsym) {
+				// now delete this unused variable assignment
+				dfg->del_node(n);
+				dfg->del_node(n_out);
+			}
+		}
+	}
   }
 
 
