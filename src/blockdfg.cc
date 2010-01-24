@@ -977,7 +977,7 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   // 1/24/2010: Remove initializations of unused local variables
   forall (localsym,*(vars->getSymbolOrder())) {
 	if(initialdefs[localsym]==livedefs[localsym]) {
-		cout << "Found unused variable " << localsym->getName() << endl;
+//		cout << "Found unused variable " << localsym->getName() << endl;
 
 	 	StmtAssign* asst=livedefs[localsym];
 //	        Expr *rval=asst->getRhs();
