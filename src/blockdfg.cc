@@ -919,6 +919,7 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   new_locals->clear();
   h_array<Expr*,node>          nodemap;
   h_array<Symbol*,StmtAssign*> livedefs(NULL);	// StmtAssign* has no default?
+  h_array<Symbol*,StmtAssign*> initialdefs(NULL);	// 1-24/2010 for local variables
   map<Symbol*,node>        extdefs;
   h_array<node, Symbol*>	   symbolmap;
   list<StmtAssign*>        deaddefs;
@@ -960,6 +961,7 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 	  // Why didn't we just initialize this as an assignment?
 	  StmtAssign* t2=new StmtAssign(NULL, localvar_dummylval, defaultnode);
 	  livedefs[localsym]=t2;
+	  initialdefs[localsym]=t2;
   }
 
 
@@ -970,6 +972,31 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   forall (s,*stmts) {
     s->map(createBlockDfg_map,(TreeMap)NULL,&dfgi);
   }
+
+
+  // 1/24/2010: Remove initializations of unused local variables
+  forall (localsym,*(vars->getSymbolOrder())) {
+	if(initialdefs[localsym]==livedefs[localsym]) {
+		cout << "Found unused variable " << localsym->getName() << endl;
+
+	 	StmtAssign* asst=livedefs[localsym];
+//	        Expr *rval=asst->getRhs();
+		node n=asst->getRhsnode();
+
+		if(n!=NULL) {
+			edge e=dfg->first_out_edge(n);
+			node n_out=dfg->target(e);
+	
+			// now delete this unused variable assignment
+			dfg->del_node(n);
+			dfg->del_node(n_out);
+		} else {
+			cout << "Why is this null?" << endl;		
+		}
+	}
+
+  }
+
 
 if(0) {
   // - clean up multiple definitions
