@@ -308,7 +308,7 @@ void deleteBlockDfgCone (BlockDFG *dfg, node n)
   // - visit nodes in reverse topological order from n,
   //     removing each node, and going on to nodes with no remaining fanout
 
-  warn("Before deleting: "+printBlockDFG("",dfg));
+  warn("Before deleting: "+printBlockDFG("",0,0,dfg));
 
   assert((*dfg).outdeg(n)==0);
 
