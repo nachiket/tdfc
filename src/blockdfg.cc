@@ -754,7 +754,17 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  cout << "===== Fninishing IFTHEN block\n" << endl;
 			  } else if(dfgThen.number_of_nodes()!=0){
 
-/* 1/24/2010.. search by symbol instead.. */
+				  node fanout0_node;
+				  set<node> n0_fanout0_set;
+				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
+					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
+						  n0_fanout0_set.insert(fanout0_node);
+						  Tree *t=(*dfgi->dfg)[fanout0_node];
+						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+					  }
+				  }
+
+/* 1/24/2010.. search by symbol instead.. 
 				  // Handle all primary inputs of the smaller graph and connect them to the larger graph..
 				  node fanout0_node;
 				  h_array<Symbol*,node> *n0_fanout0_set = new h_array<Symbol*,node>;
@@ -768,7 +778,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol()->getName() << " with input=" << t1->toString()  << "[" << input_node << "]"<< endl;
 					  }
 				  }
-
+*/
 
 				  /*
 				  node test_node;
@@ -816,6 +826,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  }
 
 				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
+				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set);
+				  /*
 				  node n1_search;
 				  forall(n1_search, n1_fanin0_set) {
 					  node n0_search = (*n0_fanout0_set)[((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()];
@@ -842,7 +854,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 					  }
 				  }
-
+				  */
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
 			  }
 
