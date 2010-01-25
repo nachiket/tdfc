@@ -380,7 +380,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  (*dfgi->nodemap)[lhs]=po;
 			  createBlockDfg_for_expr(rhs,dfgi,po);
 			  (*dfgi->symbolmap)[po]=sym; // recording symbols 12/14/2009
-			  cout << "------------------Added STMTASSIGN symbol=" << sym->toString() << "[" << sym  << "]" << " for node=" << po << "->" << (*dfgi->livedefs).defined(sym) << endl;
+//			  cout << "------------------Added STMTASSIGN symbol=" << sym->toString() << "[" << sym  << "]" << " for node=" << po << "->" << (*dfgi->livedefs).defined(sym) << endl;
 
 			  // - mark any old PO node as dead
 			  //     (but do not remove it yet!  temporarily,
@@ -402,7 +402,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 				  //(*dfgi->nodemap)[rhs]=
 				  (*dfgi->livedefs)[sym]=NULL;
-				  			     cout << "------------ Assignment is being overriden.. for " << t->toString() << endl;
+//  			          cout << "------------ Assignment is being overriden.. for " << t->toString() << endl;
 				  // WARNING: leaves dangling ptrs in nodemap
 			  }
 
@@ -626,7 +626,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 							  n0_blacklist.insert(n0_check);
 							  Tree *t=(dfgElse)[n1_n2];
 							  cout << "--blacklisting n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
-							  recursiveFaninDelete(dfgi, n0_check);
+							  //recursiveFaninDelete(dfgi, n0_check);
 						  }
 					  }
 				  }
@@ -678,6 +678,57 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
 				  (*dfgi->dfg).join(dfgElse);
+
+
+				  // Find inputs in merged set that correspond to fanout-0 nodes of n0
+				  //
+
+				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
+				  node n1_search;
+				  forall(n1_search, n2_fanin0_set) {
+					  Tree *t_n1=(*dfgi->dfg)[n1_search];
+					  Symbol* n1_sym=((ExprLValue*)t_n1)->getSymbol();
+					  node n0_search;
+					  forall(n0_search, n0_fanout0_set) {
+						  Tree *t_n0=(*dfgi->dfg)[n0_search];
+						  Symbol* n0_sym=((ExprLValue*)t_n0)->getSymbol();
+
+						  if(n0_sym==n1_sym && n0_sym!=NULL) {
+							node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_search)));
+						  	cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << endl;
+
+							  edge fanout_edge;
+							  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
+							  set<node> new_nodes;
+
+							  forall(fanout_edge,replace_edges) {
+								  node sink_node = (*dfgi->dfg).target(fanout_edge);
+								  new_nodes.insert(sink_node);
+								  (*dfgi->dfg).new_edge(input_node, sink_node, NULL);
+							  }
+
+							  forall(fanout_edge,replace_edges) {
+								  (*dfgi->dfg).del_edge(fanout_edge);
+							  }
+
+							  (*dfgi->dfg).del_node(n1_search);
+
+						  }
+					  }
+				  }
+				  //
+				  // eliminate blacklisted nodes now..
+				  node n0_blacklist_node;
+				  forall(n0_blacklist_node, n0_blacklist) {
+					  node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_blacklist_node)));
+					  if((*dfgi->dfg).outdeg(input_node)==1) {
+					  	cout << "blacklisted detect: " << n0_blacklist_node << endl;
+						  recursiveFaninDelete(dfgi, n0_blacklist_node);
+					  } else {
+					  	(*dfgi->dfg).del_node(n0_blacklist_node);
+					  }
+				  }
+
 
 				  // Condition 1: THEN and ELSE halves both contain variable assignments... assume parent does not contain the assignment!
 				  node n1_n2_node;
@@ -800,38 +851,20 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall(n1_search, n1_fanin0_set) {
 					  node n0_search = (*n0_fanout0_set)[((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()];
 					  if(n0_search!=NULL) {
-					  	  cout << "Dialing symbol=" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()->getName() << " with ptr= " << n0_search << endl;
-//						  cout << "Matched... but now what?" << endl;
 						  ExprLValue* t=(ExprLValue*)(*dfgi->dfg)[n0_search];
 						  assert(t);
-//						  cout << "Attempting to match n0_search=" << t->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n0_search])->getSymbol() << "]" << endl;
-//						  cout << " with n1_search=" << n1_search << " "<< ((Tree*)(*dfgi->dfg)[n1_search])->toString() << "[" << ((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol() << "]" << endl;
-
-//						  cout << "Outputs=" << (*dfgi->dfg).outdeg(n1_search) << endl;
+						  
 						  edge fanout_edge;
 						  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
 						  set<node> new_nodes;
 
 						  forall(fanout_edge,replace_edges) {
-//						  	  cout << "Processing crazy edge=" << fanout_edge << endl;
-//							  cout << " oldinput=" << n1_search << " " << ((Tree*)(*dfgi->dfg)[n1_search])->toString() << endl;
-//							  cout << " newinput=" << n0_search << " " << ((Tree*)(*dfgi->dfg)[n0_search])->toString() << endl;
-
-							  //node src_node  = (*dfgi->dfg).source(fanout_edge);
 							  node sink_node = (*dfgi->dfg).target(fanout_edge);
-
-//							  cout << "src_node=" << src_node << endl;
-//							  cout << "sink_node=" << sink_node << endl;
-
-							  // NACHIKET"S NOTE: 11/4/2009: This is the craziest bug ever... How does commenting the following line prevent fanout_edge from going NULL??
-							  //							  cout << "---------------------- Replacing matched node=" << sink_node << " "<< ((Tree*)(*dfgi->dfg)[sink_node])->toString() << endl;
-
 							  new_nodes.insert(sink_node);
 							  (*dfgi->dfg).new_edge(n0_search, sink_node, NULL);
 						  }
 
 						  forall(fanout_edge,replace_edges) {
-//							  cout << "Deleting edge=" << fanout_edge << endl;
 							  (*dfgi->dfg).del_edge(fanout_edge);
 						  }
 
@@ -895,12 +928,12 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 				matched=true;
 				srcnode=node;
 				// replace srcnode with destnode
-//				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
+				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
 				// find all inputs of srcnode and redirect them to destnode
 				edge in_edge;
 				forall_in_edges(in_edge, node) {
 					in_node = destdfg->source(in_edge);
-//					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
+					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
 					destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
 				}
 				deleting_nodes.insert(node);
