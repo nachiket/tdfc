@@ -119,6 +119,7 @@ public:
 using std::cout;
 using std::endl;
 
+void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set);
 
 node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 {
@@ -681,41 +682,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 
 				  // Find inputs in merged set that correspond to fanout-0 nodes of n0
-				  //
+				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set);
+				  match_fanin0_fanout0_nodes(dfgi, &n2_fanin0_set, &n0_fanout0_set);
 
-				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
-				  node n1_search;
-				  forall(n1_search, n2_fanin0_set) {
-					  Tree *t_n1=(*dfgi->dfg)[n1_search];
-					  Symbol* n1_sym=((ExprLValue*)t_n1)->getSymbol();
-					  node n0_search;
-					  forall(n0_search, n0_fanout0_set) {
-						  Tree *t_n0=(*dfgi->dfg)[n0_search];
-						  Symbol* n0_sym=((ExprLValue*)t_n0)->getSymbol();
-
-						  if(n0_sym==n1_sym && n0_sym!=NULL) {
-							node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_search)));
-						  	cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << endl;
-
-							  edge fanout_edge;
-							  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
-							  set<node> new_nodes;
-
-							  forall(fanout_edge,replace_edges) {
-								  node sink_node = (*dfgi->dfg).target(fanout_edge);
-								  new_nodes.insert(sink_node);
-								  (*dfgi->dfg).new_edge(input_node, sink_node, NULL);
-							  }
-
-							  forall(fanout_edge,replace_edges) {
-								  (*dfgi->dfg).del_edge(fanout_edge);
-							  }
-
-							  (*dfgi->dfg).del_node(n1_search);
-
-						  }
-					  }
-				  }
 				  //
 				  // eliminate blacklisted nodes now..
 				  node n0_blacklist_node;
@@ -897,6 +866,44 @@ bool createBlockDfg_map (Tree *t, void *i)
   } else {
     return false;
   }
+}
+
+
+void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set) {
+
+	// Now match the fanin0 nodes in the THEN part with the earlier nodes..
+	node n1_search;
+	forall(n1_search, *n1_fanin0_set) {
+		Tree *t_n1=(*dfgi->dfg)[n1_search];
+		Symbol* n1_sym=((ExprLValue*)t_n1)->getSymbol();
+		node n0_search;
+		forall(n0_search, *n0_fanout0_set) {
+			Tree *t_n0=(*dfgi->dfg)[n0_search];
+			Symbol* n0_sym=((ExprLValue*)t_n0)->getSymbol();
+
+			if(n0_sym==n1_sym && n0_sym!=NULL) {
+				node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_search)));
+//				cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << endl;
+
+				edge fanout_edge;
+				list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
+				set<node> new_nodes;
+
+				forall(fanout_edge,replace_edges) {
+					node sink_node = (*dfgi->dfg).target(fanout_edge);
+					new_nodes.insert(sink_node);
+					(*dfgi->dfg).new_edge(input_node, sink_node, NULL);
+				}
+
+				forall(fanout_edge,replace_edges) {
+					(*dfgi->dfg).del_edge(fanout_edge);
+				}
+
+				(*dfgi->dfg).del_node(n1_search);
+
+			}
+		}
+	}
 }
 
 // copy the DFG from source to dest and attach connections to destnode..

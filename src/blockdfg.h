@@ -160,6 +160,5 @@ extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLVa
 extern void initialize_dfginfo(BlockDfgInfo* dfgi, SymTab* vars);
 extern void finalize_dfginfo(StateCase* sc, BlockDfgInfo* dfgi, SymTab* vars);
 
-
 #endif	// #ifndef _TDF_BLOCKDFG_
 
