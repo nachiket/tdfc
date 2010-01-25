@@ -830,6 +830,9 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 	  if (num_states>1)
 	    *fout << "      case " << STATE_PREFIX << sname
 		  << ": { " << endl;
+
+	string atomiceofrcase="0";
+
 	  for (int i=cases->low();i<=cases->high();i++)
 	    {
 	      // walk over inputs to case
@@ -884,6 +887,10 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 			  *fout << "eos_" << loc; // single out eos
 		  } else if(ispec->isEofrCase()) {
 			  *fout << "eofr_" << loc; // add eofr support
+
+			  std::stringstream out; out<<loc;
+			  atomiceofrcase+="|| eofr_" + string(out.str().c_str()); 
+
 		  } // both eofr and eos cannot be set simultaneously!
 		  //*fout << "eos_" << loc;
 		}
@@ -1017,7 +1024,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
-					string ifstr=" ( ";
+					string ifstr=" ";
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
@@ -1030,10 +1037,10 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 						}
 						edgenum++;
 					}
-					*fout << ifstr << ");" << endl;
+					*fout << ifstr << ";" << endl;
 				} else if(dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) {
 					// if operator
-					*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
+					*fout << "          // IF ? Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          " << typekindToCplusplus(type) << " ";
 					*fout << nodetofout(dfg, n, nodenums) << " = ";
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
@@ -1073,20 +1080,21 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					// unary operator or function?
 					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetofout(dfg,n,nodenums) << " = ( ";
+					*fout << nodetofout(dfg,n,nodenums) << " = ";
+					*fout << nodetofnstring(n,(dfgVal)[n]) + " ( ";
 
-					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
-					edge e;
-					forall (e,dfg_in_edges_n) {
+//					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+					edge e=dfg->first_in_edge(n);
+//					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						*fout << nodetofout(dfg, src, nodenums) << " ";
-					}
+//					}
 
 					*fout << ");" << endl;
 				} else if(dfg->indeg(n)==1 && type==TYPE_STATE && num_states>1) {
 					// unary operator or function?
-					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
+					*fout << "          // Unary State Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          state = ( ";
 
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
@@ -1140,8 +1148,13 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 	      *fout << "        }" << endl;
 	      *fout << "        else" << endl;
 	    }
-	  // default case will be to punt out of loop (exit/done)
+	    // default case will be to punt out of loop (exit/done)
+	    // For now. split eofr cases into separate statecases.. wtf!?
+	  *fout << "        {" << endl ;
+	  *fout << "        if (" << atomiceofrcase.cstring() << ") {}" << endl ;
+	  *fout << "        else" << endl;
 	  *fout << "         done=1;" << endl;
+	  *fout << "        }" << endl;
 	    
 	  // close the nesting brackets.
 	  *fout << "        ";
@@ -1446,9 +1459,11 @@ string nodetofnstring(node n, Tree* t) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP || 
 			((Expr*)t)->getExprKind()==EXPR_UOP ||
 			((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += opToString(((ExprBop*)t)->getOp());
+			ret = opToString(((ExprBop*)t)->getOp());
 		} else {
-			cerr << "Wrong optype for string conversion?" << endl;
+			// unary is a simple assignment
+			ret = "";
+			//cerr << "Wrong optype for string conversion? ExprKind=" << exprkindToString(((Expr*)t)->getExprKind()) << endl;
 		}
 	} else {
 		cerr << "Wrong kind for string conversion" << endl;

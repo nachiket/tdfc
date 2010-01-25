@@ -77,6 +77,8 @@ string opToNodename (int op)
     			if (op=='-')	return string("minus");
     			if (op=='*')	return string("multiply");
     			if (op=='/')	return string("divide");
+			if (op=='>')	return string("grt");
+			if (op=='<')	return string("less");
 			else		return string("wtf");
   }
 }

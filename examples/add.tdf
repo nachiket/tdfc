@@ -1,13 +1,17 @@
-unsigned[8] add(input unsigned[8] a, input unsigned[8] b)
+double add(input double a, input double b)
 {
 	double temp;
-	state only(a,b): 
-		add=a+b;
-		goto not_only;
-	
-	// add a second nonsense state...
-	state not_only():
-		temp=a+b;
-		goto only;
-}
+	state only(a,b):
+		temp=0;
+		if(a>1) {
+			temp=1;
+		} else if(a>2) {
+			temp=2;
+		}
 
+		if(temp>3) {
+			add=a+b+temp;
+//		} else {
+//			temp=-1;
+		}
+}
