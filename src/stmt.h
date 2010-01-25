@@ -210,6 +210,7 @@ public:
   ExprLValue*		getLValue	() const	{ return lvalue; }
   Expr*			getRhs		() const	{ return rhs; }
   node			getRhsnode	() const	{ return rhsnode; }
+  void			setRhsnode	(node n);
 
   virtual bool		okInComposeOp	() const	{ return true; }
 

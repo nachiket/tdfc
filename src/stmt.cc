@@ -116,6 +116,10 @@ StmtAssign::StmtAssign (Token *token_i, ExprLValue *lvalue_i, node rhs_i)
   lvalue->setParent(this);
 }
 
+void StmtAssign::setRhsnode(node rhs_i) {
+	rhsnode=rhs_i;
+}
+
 
 StmtBlock::StmtBlock (Token *token_i, SymTab *symtab_i, list<Stmt*> *stmts_i)
   : Stmt(token_i,STMT_BLOCK),

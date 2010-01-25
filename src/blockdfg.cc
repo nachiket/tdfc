@@ -463,7 +463,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 			    (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
 			    (*dfgi->livedefs)[sym]=NULL;
+#ifdef DEBUG			    
 			     cout << "GOTO Processing Overriding=" << t->toString() << endl;
+#endif			     
 			  }
 
 			  StmtAssign* t1=new StmtAssign(NULL, stateVal, gotonode);
@@ -564,18 +566,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 //				  cout << "crappy n1 " << t->toString().replace_all("\n","") << endl; //scope is a PROBLEM in a NESTED if!
 				  if(dfgThen.outdeg(n1)==0) {				  	
 					  n1_set.insert(n1);
-//#ifdef DEBUG						  
+#ifdef DEBUG						  
                                           node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n1)));
 					  cout << "--fanout=0 n1=" << t->toString().replace_all("\n","") << "[" << t << "]"<< " symbol=" << ((ExprLValue*)t)->getSymbol() << " for input=" << input_node << endl;
-//#endif					  
+#endif					  
 				  }
 
 				  if(dfgThen.indeg(n1)==0) {
 					  n1_fanin0_set.insert(n1);
-//#ifdef DEBUG						  
+#ifdef DEBUG						  
                                           node output_node = ((*dfgi->dfg).target((*dfgi->dfg).first_out_edge(n1)));
 					  cout << "--fanin=0 n1=" << t->toString().replace_all("\n","") << "[" << t << "]" << " symbol=" << ((ExprLValue*)t)->getSymbol() << " for output=" << output_node << endl;
-//#endif					  
+#endif					  
 				  }
 			  }
 #ifdef DEBUG						  
@@ -790,7 +792,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 				  }
 
+#ifdef DEBUG
 				  cout << "===== Fninishing IFTHEN block\n" << endl;
+#endif				  
 			  } else if(dfgThen.number_of_nodes()!=0){
 
 
@@ -799,10 +803,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
 					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
 						  n0_fanout0_set.insert(fanout0_node);
-//#ifdef DEBUG						  
+#ifdef DEBUG						  
 						  Tree *t=(*dfgi->dfg)[fanout0_node];
 						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << " with inputs==" << (*dfgi->dfg).indeg(fanout0_node) << endl;
-//#endif						  
+#endif						  
 					  }
 				  }
 /*
@@ -1037,6 +1041,8 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   // - return in *new_locals any new locals created for pseudo-SSA form
   // - modify *stmts into pseudo-SSA form
 
+  cout << "Processing state " << sc->getStateName() << endl;
+
   // - build DFG from stmts  (chain assignment cones)
   dfg->clear();
   nondfstmts->clear();
@@ -1187,7 +1193,9 @@ void finalize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 			  if(n!=NULL) {	
 				  edge e=dfg->first_out_edge(n);
 				  node n_out=dfg->target(e);
+#ifdef DEBUG				  
 				  cout << "Found unused nextstate variable " << nextstate_sym->getName() << " in " << dfgi->sc->getStateName() << " outs=" << (*dfgi->dfg).outdeg(n) << " ins=" << (*dfgi->dfg).indeg(n_out) << endl;
+#endif				  
 				  dfg->del_node(n_out);
 				  dfg->del_node(n);
 			  }
@@ -1199,20 +1207,6 @@ void finalize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
   // 1/24/2010: Remove initializations of unused local variables
   Symbol* localsym;
   forall (localsym,*(dfgi->vars->getSymbolOrder())) {
-  	// check if anyone updated it
-  	if((*livedefs)[localsym]==(*initialdefs)[localsym]) {
-		StmtAssign* asst=(*livedefs)[localsym];
-		if(asst!=NULL) {
-			node n=asst->getRhsnode();
-			if(n!=NULL) {	
-				cout << "Found unused output variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << endl;
-				edge e=dfg->first_out_edge(n);
-				node n_out=dfg->target(e);
-				dfg->del_node(n_out);
-			}
-		}
-	}
-
 
 	// check if anyone used it
 	StmtAssign* asst=(*livedefs)[localsym];
@@ -1224,18 +1218,45 @@ void finalize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 				node n_out=dfg->target(e);
 
 				if(dfg->indeg(n)==1) {
-					cout << "Found unused variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << endl;
 
 					Symbol* targetsym=(*symbolmap)[n_out];
 					if(localsym==targetsym) {
+//#ifdef DEBUG				
+					cout << "Found unused variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << endl;
+//#endif					
 						// now delete this unused variable assignment
 						dfg->del_node(n);
 						dfg->del_node(n_out);
+//						dfg->del_edge(e);
+						asst->setRhsnode(NULL);
 					}
 				}
 			}
 		}
 	}
+
+  	// check if anyone updated it
+  	if((*livedefs)[localsym]==(*initialdefs)[localsym]) {
+		StmtAssign* asst=(*livedefs)[localsym];
+		if(asst!=NULL) {
+			node n=asst->getRhsnode();
+			if(n!=NULL) {	
+				edge e=dfg->first_out_edge(n);
+				node n_out=dfg->target(e);
+//#ifdef DEBUG			
+				cout << "Found unused output variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << " outs=" << (*dfgi->dfg).outdeg(n) << " ins=" << (*dfgi->dfg).indeg(n_out) << endl;
+//#endif				
+				if(dfg->outdeg(n)==1) {
+					dfg->del_node(n);
+				}
+				dfg->del_node(n_out);
+//				dfg->del_edge(e);
+			}
+		}
+	}
+
+
+
   }
 }
 

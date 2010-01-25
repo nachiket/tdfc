@@ -2,10 +2,10 @@ double add(input double a, input double b)
 {
 	double temp;
 /*
-	state temp1():
-		goto temp2;
-	state temp2():
-		goto temp1;
+	state a_only():
+		goto b_only;
+	state b_only():
+		goto a_only;
 */
 	state only(a,b):
 /*
@@ -26,9 +26,12 @@ double add(input double a, input double b)
 		if(a>1) {
 			temp=2;
 			goto only;
-		} else if(temp>2) {
+		} else {
 			temp=temp*2;
+			goto only;
 		}
+
+//		goto only;
 
 //		add=temp;
 
