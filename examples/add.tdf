@@ -22,12 +22,12 @@ double add(input double a, input double b)
 			goto temp2;
 		}
 */
-		temp=0;
+//		temp=0;
 		if(a>1) {
 			temp=2;
 			goto only;
-//		} else if(temp>2) {
-//			temp=temp*2;
+		} else if(temp>2) {
+			temp=temp*2;
 		}
 
 //		add=temp;
