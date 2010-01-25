@@ -1041,7 +1041,9 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   // - return in *new_locals any new locals created for pseudo-SSA form
   // - modify *stmts into pseudo-SSA form
 
+#ifdef DEBUG
   cout << "Processing state " << sc->getStateName() << endl;
+#endif
 
   // - build DFG from stmts  (chain assignment cones)
   dfg->clear();
@@ -1221,9 +1223,9 @@ void finalize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 
 					Symbol* targetsym=(*symbolmap)[n_out];
 					if(localsym==targetsym) {
-//#ifdef DEBUG				
+#ifdef DEBUG				
 					cout << "Found unused variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << endl;
-//#endif					
+#endif					
 						// now delete this unused variable assignment
 						dfg->del_node(n);
 						dfg->del_node(n_out);
@@ -1243,9 +1245,9 @@ void finalize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 			if(n!=NULL) {	
 				edge e=dfg->first_out_edge(n);
 				node n_out=dfg->target(e);
-//#ifdef DEBUG			
+#ifdef DEBUG			
 				cout << "Found unused output variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << " outs=" << (*dfgi->dfg).outdeg(n) << " ins=" << (*dfgi->dfg).indeg(n_out) << endl;
-//#endif				
+#endif				
 				if(dfg->outdeg(n)==1) {
 					dfg->del_node(n);
 				}
