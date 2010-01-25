@@ -120,7 +120,7 @@ public:
 using std::cout;
 using std::endl;
 
-void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set);
+void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set, int n1_n2);
 
 node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 {
@@ -503,12 +503,12 @@ bool createBlockDfg_map (Tree *t, void *i)
 #ifdef DEBUG						  
 			  cout << "======== Generating THEN part of the DFG " << &dfgtheni << endl;
 #endif			  
-			  initialize_dfginfo(&dfgtheni, dfgi->vars);
+			  initialize_dfginfo(&dfgtheni);
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
 #ifdef DEBUG						  
 			  cout << "======== Finishing " << &dfgtheni << endl;
 #endif			  
-  			  finalize_dfginfo(dfgi->sc, &dfgtheni, dfgi->vars);
+  			  finalize_dfginfo(&dfgtheni);
 
 //			  cout << "Printing THEN part of the DFG " << &dfgtheni << endl;
 //			  cout << printBlockDFG(&dfgThen) << endl;
@@ -524,13 +524,13 @@ bool createBlockDfg_map (Tree *t, void *i)
 #ifdef DEBUG						  
 				  cout << "====== Generating ELSE part of the DFG " << &dfgelsei << endl;
 #endif				  
-  				  initialize_dfginfo(&dfgelsei, dfgi->vars);
+  				  initialize_dfginfo(&dfgelsei);
 				  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
 #ifdef DEBUG						  
 			  	  cout << "======== Finishing " << &dfgelsei << endl;
 #endif				  
 
- 				  finalize_dfginfo(dfgi->sc, &dfgelsei, dfgi->vars);
+ 				  finalize_dfginfo(&dfgelsei);
 
 //				  cout << "Printing ELSE part of the DFG " << &dfgelsei << endl;
 //				  cout << printBlockDFG(&dfgElse) << endl;
@@ -712,8 +712,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 
 				  // Find inputs in merged set that correspond to fanout-0 nodes of n0
-				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set);
-				  match_fanin0_fanout0_nodes(dfgi, &n2_fanin0_set, &n0_fanout0_set);
+				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set, 0);
+				  match_fanin0_fanout0_nodes(dfgi, &n2_fanin0_set, &n0_fanout0_set, 1);
 
 				  //
 				  // eliminate blacklisted nodes now..
@@ -799,10 +799,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
 					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
 						  n0_fanout0_set.insert(fanout0_node);
-#ifdef DEBUG						  
+//#ifdef DEBUG						  
 						  Tree *t=(*dfgi->dfg)[fanout0_node];
-						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
-#endif						  
+						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << " with inputs==" << (*dfgi->dfg).indeg(fanout0_node) << endl;
+//#endif						  
 					  }
 				  }
 /*
@@ -837,6 +837,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
 
+				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
+				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set, 2);
+
 				  // Condition 2: when ELSE part is missing!!
 				  node only_n1_node;
 				  forall(only_n1_node, n1_set) {
@@ -851,10 +854,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  (*dfgi->symbolmap)[n]=only_n1_sym; // recording symbols 12/14/2009
 					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
 				  }
-
-				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
-				  
-				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set);
 
 /*
 				  node n1_search;
@@ -911,7 +910,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 }
 
 
-void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set) {
+void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set, int n1_n2) {
 
 	// Now match the fanin0 nodes in the THEN part with the earlier nodes..
 	node n1_search;
@@ -926,7 +925,7 @@ void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, se
 			if(n0_sym==n1_sym && n0_sym!=NULL) {
 				if((*dfgi->dfg).indeg(n0_search)>=1) {
 					node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_search)));
-					cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << endl;
+					cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << "n1_n2=" << n1_n2 << endl;
 
 					edge fanout_edge;
 					list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
@@ -943,6 +942,8 @@ void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, se
 					}
 
 //					(*dfgi->dfg).del_node(n1_search);
+				} else {
+					cout << "===================== NOT FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << " n1_n2=" << n1_n2 << endl;
 				}
 			}
 		}
@@ -1048,37 +1049,19 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   h_array<node, Symbol*>	   symbolmap;
   list<StmtAssign*>        deaddefs;
 
-  //-------------------------------------------------------------------
-  // Initialize with next-state variable 12/27/2009
-  //-------------------------------------------------------------------
-  const string nextstate_name = string("__nextstate");
-  Type* nextstate_type = new Type(TYPE_STATE);
-  SymbolVar* nextstate_sym = new SymbolVar(NULL, nextstate_name , nextstate_type, NULL, NULL);
-  ExprLValue* nextstate_dummylval = new ExprLValue(NULL, nextstate_sym);
-  node nextstate=dfg->new_node(nextstate_dummylval);
-  nodemap[nextstate_dummylval]=nextstate;
-  symbolmap[nextstate]=nextstate_sym;
-
-  ExprValue* currentStateVal = new ExprValue(NULL, sc->getStateName());
-  node currentnode = dfg->new_node(currentStateVal);
-  nodemap[currentStateVal]=currentnode;
-  dfg->new_edge(currentnode, nextstate);
-
-  StmtAssign* t1=new StmtAssign(NULL, nextstate_dummylval, currentnode);
-  livedefs[nextstate_sym]=t1;
 
 
   BlockDfgInfo dfgi(dfg,sc,NULL,&nodemap,&symbolmap,&livedefs,&initialdefs, &extdefs,&deaddefs,
-    		    nondfstmts,locals, vars, nextstate_sym);
+    		    nondfstmts,locals, vars, NULL);
 
-  initialize_dfginfo(&dfgi, vars);
+  initialize_dfginfo(&dfgi);
 
   Stmt *s;
   forall (s,*stmts) {
     s->map(createBlockDfg_map,(TreeMap)NULL,&dfgi);
   }
 
-  finalize_dfginfo(sc, &dfgi, vars);
+  finalize_dfginfo(&dfgi);
 
 
 if(0) {
@@ -1127,19 +1110,41 @@ if(0) {
 
 // need to initialize symbols for nested DFGinfos..
 
-void initialize_dfginfo(BlockDfgInfo* dfgi, SymTab* vars) {
+void initialize_dfginfo(BlockDfgInfo* dfgi) {
 
 	BlockDFG* dfg=dfgi->dfg;
   	h_array<Expr*,node>          *nodemap=(dfgi->nodemap);
 	h_array<Symbol*,StmtAssign*> *livedefs = (dfgi->livedefs);
 	h_array<Symbol*,StmtAssign*> *initialdefs = (dfgi->initialdefs);
 	h_array<node, Symbol*>	     *symbolmap = (dfgi->symbolmap);
+
+	//-------------------------------------------------------------------
+	// Initialize with next-state variable 12/27/2009
+	//-------------------------------------------------------------------
+	const string nextstate_name = string("__nextstate");
+	Type* nextstate_type = new Type(TYPE_STATE);
+	SymbolVar* nextstate_sym = new SymbolVar(NULL, nextstate_name , nextstate_type, NULL, NULL);
+	ExprLValue* nextstate_dummylval = new ExprLValue(NULL, nextstate_sym);
+	node nextstate=dfg->new_node(nextstate_dummylval);
+	(*nodemap)[nextstate_dummylval]=nextstate;
+	(*symbolmap)[nextstate]=nextstate_sym;
+
+	ExprValue* currentStateVal = new ExprValue(NULL, dfgi->sc->getStateName());
+	node currentnode = dfg->new_node(currentStateVal);
+	(*nodemap)[currentStateVal]=currentnode;
+	dfg->new_edge(currentnode, nextstate);
+
+	StmtAssign* t1=new StmtAssign(NULL, nextstate_dummylval, currentnode);
+	(*livedefs)[nextstate_sym]=t1;
+	(*initialdefs)[nextstate_sym]=t1;
+	dfgi->nextstate=nextstate_sym;
+
 	//-------------------------------------------------------------------
 	// Initialize all local variables with dummy nodes
 	//-------------------------------------------------------------------
 
 	Symbol* localsym;
-	forall (localsym,*(vars->getSymbolOrder())) {
+	forall (localsym,*(dfgi->vars->getSymbolOrder())) {
 		ExprLValue* localvar_dummylval = new ExprLValue(NULL, localsym);
 		node localvarnode=dfg->new_node(localvar_dummylval);
 		(*nodemap)[localvar_dummylval]=localvarnode;
@@ -1161,24 +1166,40 @@ void initialize_dfginfo(BlockDfgInfo* dfgi, SymTab* vars) {
 }
 
 
-void finalize_dfginfo(StateCase* sc, BlockDfgInfo* dfgi, SymTab* vars) {
+void finalize_dfginfo(BlockDfgInfo* dfgi) {
 
   BlockDFG* dfg=dfgi->dfg;
   h_array<Expr*,node>          *nodemap=(dfgi->nodemap);
   h_array<Symbol*,StmtAssign*> *livedefs = (dfgi->livedefs);
   h_array<Symbol*,StmtAssign*> *initialdefs = (dfgi->initialdefs);
   h_array<node, Symbol*>       *symbolmap = (dfgi->symbolmap);
-  // 1/24/2010: Remove initializations of unused local variables
 
+  // 1/25/2010: Remove initialization of unused nextstate update
+  Symbol* nextstate_sym=dfgi->nextstate;
+  if((*livedefs)[nextstate_sym]==(*initialdefs)[nextstate_sym]) {
+	  StmtAssign* asst=(*livedefs)[nextstate_sym];
+	  if(asst!=NULL) {
+		  node n=asst->getRhsnode();
+		  if(n!=NULL) {	
+			  cout << "Found unused nextstate variable " << nextstate_sym->getName() << " in " << dfgi->sc->getStateName() << endl;
+			  edge e=dfg->first_out_edge(n);
+			  node n_out=dfg->target(e);
+			  dfg->del_node(n_out);
+		  }
+	  }
+  }
+
+
+  // 1/24/2010: Remove initializations of unused local variables
   Symbol* localsym;
-  forall (localsym,*(vars->getSymbolOrder())) {
+  forall (localsym,*(dfgi->vars->getSymbolOrder())) {
   	// check if anyone updated it
   	if((*livedefs)[localsym]==(*initialdefs)[localsym]) {
 		StmtAssign* asst=(*livedefs)[localsym];
 		if(asst!=NULL) {
 			node n=asst->getRhsnode();
 			if(n!=NULL) {	
-				cout << "Found unused output variable " << localsym->getName() << " in " << sc->getStateName() << endl;
+				cout << "Found unused output variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << endl;
 				edge e=dfg->first_out_edge(n);
 				node n_out=dfg->target(e);
 				dfg->del_node(n_out);
@@ -1197,7 +1218,7 @@ void finalize_dfginfo(StateCase* sc, BlockDfgInfo* dfgi, SymTab* vars) {
 				node n_out=dfg->target(e);
 
 				if(dfg->indeg(n)==1) {
-					cout << "Found unused variable " << localsym->getName() << " in " << sc->getStateName() << endl;
+					cout << "Found unused variable " << localsym->getName() << " in " << dfgi->sc->getStateName() << endl;
 
 					Symbol* targetsym=(*symbolmap)[n_out];
 					if(localsym==targetsym) {

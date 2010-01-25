@@ -157,8 +157,8 @@ extern Operator* timing_instance (Operator *iop,
 extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr* ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode);
 
 
-extern void initialize_dfginfo(BlockDfgInfo* dfgi, SymTab* vars);
-extern void finalize_dfginfo(StateCase* sc, BlockDfgInfo* dfgi, SymTab* vars);
+extern void initialize_dfginfo(BlockDfgInfo* dfgi);
+extern void finalize_dfginfo(BlockDfgInfo* dfgi);
 
 #endif	// #ifndef _TDF_BLOCKDFG_
 
