@@ -58,6 +58,7 @@ using leda::h_array;
 
 //using std::set;
 
+#undef DEBUG
 
 using std::cerr;
 //using std::set;
@@ -499,10 +500,14 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  list<StmtAssign*>        deaddefsThen;
 			  BlockDfgInfo dfgtheni(&dfgThen,dfgi->sc, dfgi,&nodemapThen,&symbolmapThen,&livedefsThen,&initialdefsThen,&extdefsThen,&deaddefsThen, &nondfstmtsThen,&localsThen, dfgi->vars, dfgi->nextstate);
 
+#ifdef DEBUG						  
 			  cout << "======== Generating THEN part of the DFG " << &dfgtheni << endl;
+#endif			  
 			  initialize_dfginfo(&dfgtheni, dfgi->vars);
 			  thenPart->map(createBlockDfg_map,(TreeMap)NULL,&dfgtheni);
+#ifdef DEBUG						  
 			  cout << "======== Finishing " << &dfgtheni << endl;
+#endif			  
   			  finalize_dfginfo(dfgi->sc, &dfgtheni, dfgi->vars);
 
 //			  cout << "Printing THEN part of the DFG " << &dfgtheni << endl;
@@ -516,10 +521,14 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  	  h_array<node, Symbol*>	   symbolmapElse;
 				  list<StmtAssign*>        deaddefsElse;
 				  BlockDfgInfo dfgelsei(&dfgElse,dfgi->sc,dfgi,&nodemapElse,&symbolmapElse,&livedefsElse,&initialdefsElse,&extdefsElse,&deaddefsElse, &nondfstmtsElse,&localsElse, dfgi->vars, dfgi->nextstate);
+#ifdef DEBUG						  
 				  cout << "====== Generating ELSE part of the DFG " << &dfgelsei << endl;
+#endif				  
   				  initialize_dfginfo(&dfgelsei, dfgi->vars);
 				  elsePart->map(createBlockDfg_map,(TreeMap)NULL,&dfgelsei);
+#ifdef DEBUG						  
 			  	  cout << "======== Finishing " << &dfgelsei << endl;
+#endif				  
 
  				  finalize_dfginfo(dfgi->sc, &dfgelsei, dfgi->vars);
 
@@ -532,39 +541,46 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  // first identify fanout=0 nodes from all parent dfg..
 			  node n0;
 			  set<node> n0_set;
-			  BlockDfgInfo* parent=dfgi;
-//			  while(parent!=NULL) {
-				  forall_nodes(n0, (*parent->dfg)) {
-					  if((*parent->dfg).outdeg(n0)==0 && !n0_set.member(n0)) { // set property should enforce !member anyway.. skip?
-						  n0_set.insert(n0);
-						  Tree *t=(*dfgi->dfg)[n0];
-						  cout << "--n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol()->getName() << " for DFG=" << dfgi << endl;
-					  }
+			  forall_nodes(n0, (*dfgi->dfg)) {
+//			  	cout << "Node=" << n0 << " count=" << (*dfgi->dfg).number_of_nodes() << endl;
+				  if((*dfgi->dfg).outdeg(n0)==0 && !n0_set.member(n0)) { // set property should enforce !member anyway.. skip?
+					  n0_set.insert(n0);
+#ifdef DEBUG					  
+					  Tree *t=(*dfgi->dfg)[n0];
+					  cout << "--n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol()->getName() << " for DFG=" << dfgi << endl;
+#endif					  
 				  }
-//				  parent=parent->parent;
-//			  }
+			  }
 
 			  // print a list of PO nodes from both then/else parts..
+#ifdef DEBUG						  
 			  cout << "===N1===" << endl;
+#endif			  
 			  node n1;
 			  set<node> n1_set;
 			  set<node> n1_fanin0_set;
 			  forall_nodes(n1, dfgThen) {
 				  Tree *t=(dfgThen)[n1];
 //				  cout << "crappy n1 " << t->toString().replace_all("\n","") << endl; //scope is a PROBLEM in a NESTED if!
-				  if(dfgThen.outdeg(n1)==0) {
-                                          node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n1)));
+				  if(dfgThen.outdeg(n1)==0) {				  	
 					  n1_set.insert(n1);
+#ifdef DEBUG						  
+                                          node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n1)));
 					  cout << "--fanout=0 n1=" << t->toString().replace_all("\n","") << "[" << t << "]"<< " symbol=" << ((ExprLValue*)t)->getSymbol() << " for input=" << input_node << endl;
+#endif					  
 				  }
 
 				  if(dfgThen.indeg(n1)==0) {
-                                          node output_node = ((*dfgi->dfg).target((*dfgi->dfg).first_out_edge(n1)));
 					  n1_fanin0_set.insert(n1);
+#ifdef DEBUG						  
+                                          node output_node = ((*dfgi->dfg).target((*dfgi->dfg).first_out_edge(n1)));
 					  cout << "--fanin=0 n1=" << t->toString().replace_all("\n","") << "[" << t << "]" << " symbol=" << ((ExprLValue*)t)->getSymbol() << " for output=" << output_node << endl;
+#endif					  
 				  }
 			  }
+#ifdef DEBUG						  
 			  cout << "===N1===" << endl;
+#endif
 
 //			  cout << "dfgThen numnodes=" << dfgThen.number_of_nodes() << endl;
 //			  cout << "dfgElse numnodes=" << dfgElse.number_of_nodes() << endl;
@@ -590,25 +606,33 @@ bool createBlockDfg_map (Tree *t, void *i)
 								  matched=true;
 								  n1_n2_set.insert(n2);
 								  Tree *t=(dfgElse)[n2];
+#ifdef DEBUG						  
 								  cout << "--n1 and n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol()->getName() << "for DFG=" << dfgi << endl;
+#endif								  
 							  }
 						  }
 
 						  if(!matched) {
 								  only_n2_set.insert(n2);
 								  Tree *t=(dfgElse)[n2];
+#ifdef DEBUG						  
 								  cout << "--ONLY n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif								  
 
 						  }
+#ifdef DEBUG						  
 						  Tree *t=(dfgElse)[n2];
 						  cout << "--n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif						  
 					  }
 
 					  if(dfgElse.indeg(n2)==0) {
 
 						  n2_fanin0_set.insert(n2);
+#ifdef DEBUG						  
 						  Tree *t=(dfgElse)[n2];
 						  cout << "--fanin0 n2=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif						  
 
 					  }
 				  }
@@ -625,8 +649,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 						  if(n0_symbol==n1_n2_symbol) {
 							  // n0 will be overshadowed... get rid of it!
 							  n0_blacklist.insert(n0_check);
+#ifdef DEBUG						  
 							  Tree *t=(dfgElse)[n1_n2];
 							  cout << "--blacklisting n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif							  
 							  //recursiveFaninDelete(dfgi, n0_check);
 						  }
 					  }
@@ -647,8 +673,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 						  if(!matched) {
 							  only_n1_set.insert(n1);
+#ifdef DEBUG						  
 							  Tree *t=(dfgThen)[n1];
 							  cout << "--ONLY n1=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif							  
 
 						  }
 					  }
@@ -660,8 +688,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
 					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
 						  n0_fanout0_set.insert(fanout0_node);
+#ifdef DEBUG						  
 						  Tree *t=(*dfgi->dfg)[fanout0_node];
 						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif						  
 					  }
 				  }
 
@@ -691,7 +721,10 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall(n0_blacklist_node, n0_blacklist) {
 					  node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_blacklist_node)));
 					  if((*dfgi->dfg).outdeg(input_node)==1) {
+
+#ifdef DEBUG						  
 					  	cout << "blacklisted detect: " << n0_blacklist_node << endl;
+#endif						
 						  recursiveFaninDelete(dfgi, n0_blacklist_node);
 					  } else {
 					  	(*dfgi->dfg).del_node(n0_blacklist_node);
@@ -704,7 +737,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  forall(n1_n2_node, n1_n2_set) {
 					  // create a new node for each element of the set...
 					  Symbol* n1_n2_sym = ((ExprLValue*)(dfgThen)[n1_n2_node])->getSymbol();
+#ifdef DEBUG						  
 					  cout << " n1_n2 Processing" << n1_n2_sym->getName() << endl;
+#endif					  
 					  // TODO: This should check if node already exists..
 //					  if(!(*dfgi->livedefs).defined(n1_n2_sym)) {
 					  	ExprLValue* n1_n2_val = new ExprLValue(NULL, n1_n2_sym);
@@ -727,7 +762,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  node only_n2_node;
 				  forall(only_n2_node, only_n2_set) {
 					  Symbol* only_n2_sym = ((ExprLValue*)(dfgElse)[only_n2_node])->getSymbol();
+#ifdef DEBUG						  
 					  cout << " only_n2 Processing" << only_n2_sym->getName() << endl;
+#endif					  
 					  ExprLValue* only_n2_dummyexpr = new ExprLValue(NULL, only_n2_sym);
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
@@ -741,7 +778,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  node only_n1_node;
 				  forall(only_n1_node, only_n1_set) {
 					  Symbol* only_n1_sym = ((ExprLValue*)(dfgThen)[only_n1_node])->getSymbol();
+#ifdef DEBUG						  
 					  cout << " only_n1 Processing" << only_n1_sym->getName() << endl;
+#endif					  
 					  ExprLValue* only_n1_dummyexpr = new ExprLValue(NULL, only_n1_sym);
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
@@ -754,17 +793,21 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  cout << "===== Fninishing IFTHEN block\n" << endl;
 			  } else if(dfgThen.number_of_nodes()!=0){
 
+
 				  node fanout0_node;
 				  set<node> n0_fanout0_set;
 				  forall_nodes(fanout0_node, (*dfgi->dfg)) {
 					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
 						  n0_fanout0_set.insert(fanout0_node);
+#ifdef DEBUG						  
 						  Tree *t=(*dfgi->dfg)[fanout0_node];
 						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol() << "for DFG=" << dfgi << endl;
+#endif						  
 					  }
 				  }
+/*
 
-/* 1/24/2010.. search by symbol instead.. 
+// 1/24/2010.. search by symbol instead.. 
 				  // Handle all primary inputs of the smaller graph and connect them to the larger graph..
 				  node fanout0_node;
 				  h_array<Symbol*,node> *n0_fanout0_set = new h_array<Symbol*,node>;
@@ -772,31 +815,16 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  if((*dfgi->dfg).outdeg(fanout0_node)==0) {
 						  node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(fanout0_node)));
 						  assert(input_node);
-						  Tree *t=(*dfgi->dfg)[fanout0_node];
 						  (*n0_fanout0_set)[((ExprLValue*)t)->getSymbol()]=input_node;
+#ifdef DEBUG						  
+						  Tree *t=(*dfgi->dfg)[fanout0_node];
 						  Tree *t1=((*dfgi->dfg)[input_node]);
 						  cout << "--fanout0 n0=" << t->toString().replace_all("\n","") << " symbol=" << ((ExprLValue*)t)->getSymbol()->getName() << " with input=" << t1->toString()  << "[" << input_node << "]"<< endl;
+#endif						  
 					  }
 				  }
+
 */
-
-				  /*
-				  node test_node;
-				  cout << "Graph=====" << endl;
-				  forall_nodes(test_node, *dfgi->dfg) {
-					  Tree* t = (Tree*)(*dfgi->dfg)[test_node];
-					  cout << "\tNode=" << test_node << "=" << t->toString() << endl;
-				  }
-
-				  cout << "Size of H-array=" << n0_fanout0_set->size() << endl;
-				  Symbol* symtest;
-				  forall_defined(symtest, *n0_fanout0_set) {
-					  cout << "Symbol:" << symtest << "Val:" << (*n0_fanout0_set)[symtest] << endl;
-				  }
-				  */
-//				  cout << "--Processing case where there is no ELSE part!" << endl;
-
-
 
 				  // Create the condition node prior to merging! FTW?
 				  node tempnode = (*dfgi->dfg).new_node(ec);
@@ -806,9 +834,6 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  (*dfgi->dfg).del_edge(conditionedge);
 				  (*dfgi->dfg).del_node(tempnode);
 
-//				  cout << printBlockDFG(dfgi->dfg) << endl;
-//				  cout << printBlockDFG(&dfgThen) << endl;
-
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
 
@@ -816,7 +841,9 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  node only_n1_node;
 				  forall(only_n1_node, n1_set) {
 					  Symbol* only_n1_sym = ((ExprLValue*)(dfgThen)[only_n1_node])->getSymbol();
+#ifdef DEBUG						  
 					  cout << " only_n1 Processing:" << only_n1_sym->getName() << endl;
+#endif					  
 					  ExprLValue* only_n1_dummyexpr = new ExprLValue(NULL, only_n1_sym);
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
@@ -826,14 +853,17 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  }
 
 				  // Now match the fanin0 nodes in the THEN part with the earlier nodes..
+				  
 				  match_fanin0_fanout0_nodes(dfgi, &n1_fanin0_set, &n0_fanout0_set);
-				  /*
+
+/*
 				  node n1_search;
 				  forall(n1_search, n1_fanin0_set) {
 					  node n0_search = (*n0_fanout0_set)[((ExprLValue*)(*dfgi->dfg)[n1_search])->getSymbol()];
 					  if(n0_search!=NULL) {
 						  ExprLValue* t=(ExprLValue*)(*dfgi->dfg)[n0_search];
 						  assert(t);
+//					cout << "===================== FOUND n1_search=" << n1_search << " n0_search=" << n0_search << endl;
 						  
 						  edge fanout_edge;
 						  list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
@@ -854,8 +884,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 					  }
 				  }
-				  */
 				  //cout << "Final\n" << printBlockDFG(dfgi->dfg) << endl;
+*/				  
 			  }
 
 			  return false; //yikes! DOUBLE yikes! maybe can define a merge function here in post?
@@ -894,25 +924,26 @@ void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, se
 			Symbol* n0_sym=((ExprLValue*)t_n0)->getSymbol();
 
 			if(n0_sym==n1_sym && n0_sym!=NULL) {
-				node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_search)));
-//				cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << endl;
+				if((*dfgi->dfg).indeg(n0_search)>=1) {
+					node input_node = ((*dfgi->dfg).source((*dfgi->dfg).first_in_edge(n0_search)));
+					cout << "===================== FOUND n1_search=" << n1_sym->getName() << " n0_search=" << n0_sym->getName() << endl;
 
-				edge fanout_edge;
-				list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
-				set<node> new_nodes;
+					edge fanout_edge;
+					list<edge> replace_edges=(*dfgi->dfg).out_edges(n1_search);
+					set<node> new_nodes;
 
-				forall(fanout_edge,replace_edges) {
-					node sink_node = (*dfgi->dfg).target(fanout_edge);
-					new_nodes.insert(sink_node);
-					(*dfgi->dfg).new_edge(input_node, sink_node, NULL);
+					forall(fanout_edge,replace_edges) {
+						node sink_node = (*dfgi->dfg).target(fanout_edge);
+						new_nodes.insert(sink_node);
+						(*dfgi->dfg).new_edge(input_node, sink_node, NULL);
+					}
+
+					forall(fanout_edge,replace_edges) {
+						(*dfgi->dfg).del_edge(fanout_edge);
+					}
+
+//					(*dfgi->dfg).del_node(n1_search);
 				}
-
-				forall(fanout_edge,replace_edges) {
-					(*dfgi->dfg).del_edge(fanout_edge);
-				}
-
-				(*dfgi->dfg).del_node(n1_search);
-
 			}
 		}
 	}
@@ -921,7 +952,9 @@ void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, se
 // copy the DFG from source to dest and attach connections to destnode..
 void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode) {
 
+#ifdef DEBUG
 	cout << "importdfg on " << destsym->getName() << endl;
+#endif
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
@@ -946,13 +979,17 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 			if(sym==destsym && node!=destnode) {
 				matched=true;
 				srcnode=node;
+#ifdef DEBUG				
 				// replace srcnode with destnode
 				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
+#endif				
 				// find all inputs of srcnode and redirect them to destnode
 				edge in_edge;
 				forall_in_edges(in_edge, node) {
 					in_node = destdfg->source(in_edge);
+#ifdef DEBUG				
 					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
+#endif					
 					destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
 				}
 				deleting_nodes.insert(node);
@@ -1117,8 +1154,9 @@ void initialize_dfginfo(BlockDfgInfo* dfgi, SymTab* vars) {
 		StmtAssign* t2=new StmtAssign(NULL, localvar_dummylval, defaultnode);
 		(*livedefs)[localsym]=t2;
 		(*initialdefs)[localsym]=t2;
-
+#ifdef DEBUG
 		cout << "-------- Setup:" << defaultnode << "->" << localvarnode << " sym=" << localsym->getName() << " [" << localsym << "]" << endl;
+#endif		
 	}
 }
 

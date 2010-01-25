@@ -1,17 +1,33 @@
 double add(input double a, input double b)
 {
 	double temp;
+/*
+	state temp1():
+		goto temp2;
+	state temp2():
+		goto temp1;
+*/
 	state only(a,b):
+/*
 		if(b>1) {
 			temp=0;
 		}
 
-//		temp=0;
+		temp=0;
 		if(a>1) {
 			temp=2;
+			goto temp1;
 		} else if(a>3) {
 			temp=4;
+			goto temp2;
 		}
+*/
+		temp=0;
+		if(temp>1) {
+			temp=temp+1;
+		}
+
+		add=temp;
 
 /*		if(a>3) {
 			temp=4;
