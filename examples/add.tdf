@@ -1,51 +1,9 @@
-double add(input double a, input double b)
+add(input double a, input double b, input boolean c, output double d)
 {
-	double temp;
-/*
-	state a_only():
-		goto b_only;
-	state b_only():
-		goto a_only;
-*/
-	state only(a,b):
-/*
-		if(b>1) {
-			temp=0;
-		}
-
-		temp=0;
-		if(a>1) {
-			temp=2;
-			goto temp1;
-		} else if(a>3) {
-			temp=4;
-			goto temp2;
-		}
-*/
-//		temp=0;
-		if(a>1) {
-			temp=2;
-			goto only;
+	state only(a,b,c):
+		if(c) {
+			d=a+b;
 		} else {
-			temp=temp*2;
-			goto only;
+			d=a-b;
 		}
-
-//		goto only;
-
-//		add=temp;
-
-/*		if(a>3) {
-			temp=4;
-			if(a>5) {
-				temp=6;
-			}
-		}
-*/	
-
-//		if(temp>3) {
-//			add=a+b+temp;
-//		} else {
-//			temp=-1;
-//		}
 }
