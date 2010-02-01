@@ -424,7 +424,64 @@ bool createBlockDfg_map (Tree *t, void *i)
 			}
       case STMT_BUILTIN:{
 			  // - close(), done()
-			  (*dfgi->nondfstmts).append((Stmt*)t);
+			  cout << "Baaad" << endl;
+			
+			  // 2/1/2010... Need to support generation of frame-close tokens!!!
+			  StmtBuiltin     *bstmt=(StmtBuiltin *)t;
+			  ExprBuiltin     *bexpr=bstmt->getBuiltin();
+			  list<Expr*>     *args =bexpr->getArgs();
+			  Expr            *first=args->empty()?NULL:args->head();
+			  Operator        *op   =bexpr->getOp();
+			  OperatorBuiltin *bop  =(OperatorBuiltin *)op;
+
+			  if (bop->getBuiltinKind()==BUILTIN_CLOSE || bop->getBuiltinKind()==BUILTIN_FRAMECLOSE) {
+				  ExprLValue *lexpr=(ExprLValue *)first;
+				  cout << "--lexpr=" << lexpr->toString() << endl;
+
+				  //Expr       *rhs=((StmtAssign*)t)->getRhs();
+				  Symbol     *sym=lexpr->getSymbol();
+				  node po=(*dfgi->dfg).new_node(lexpr);
+				  (*dfgi->nodemap)[lexpr]=po;
+				  (*dfgi->symbolmap)[po]=sym;
+
+				  if(bop->getBuiltinKind()==BUILTIN_CLOSE) {
+					  ExprValue* framecloseVal = new ExprValue(NULL, "frameclose");
+					  node frameclosenode = (*dfgi->dfg).new_node(framecloseVal);
+					  (*dfgi->nodemap)[framecloseVal]=frameclosenode;
+
+					  (*dfgi->dfg).new_edge(frameclosenode, po);
+
+				  } else if(bop->getBuiltinKind()==BUILTIN_FRAMECLOSE) {
+					  ExprValue* closeVal = new ExprValue(NULL, "close");
+					  node closenode = (*dfgi->dfg).new_node(closeVal);
+					  (*dfgi->nodemap)[closeVal]=closenode;
+
+					  (*dfgi->dfg).new_edge(closenode, po);
+				  }
+
+
+				  if ((*dfgi->livedefs).defined(sym) && (*dfgi->livedefs)[sym]) {
+					  StmtAssign *dead_asst=(*dfgi->livedefs)[sym];
+					  (*dfgi->deaddefs).append(dead_asst);
+					  ExprLValue *dead_lval=dead_asst->getLValue();
+					  node        dead_po  =(*dfgi->nodemap)[dead_lval];
+					  list<edge> fanout = (*dfgi->dfg).out_edges(dead_po);
+					  edge edel;
+					  forall(edel, fanout) {
+						  (*dfgi->dfg).del_edge(edel);
+					  }
+					  recursiveFaninDelete(dfgi, dead_po);
+					  (*dfgi->dfg).del_node(dead_po);
+
+					  (*dfgi->nodemap)[dead_lval]=NULL; //used by fanout?
+					  (*dfgi->livedefs)[sym]=NULL;
+				  }
+
+				  // - record live asst
+				  StmtAssign* newAssign = new StmtAssign(NULL, lexpr, po); // lhs=lval, rhs=conditionnode
+				  (*dfgi->livedefs)[sym]=newAssign;
+			  }
+
 			  return false;
 			}
       case STMT_GOTO:	{
