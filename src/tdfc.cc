@@ -570,7 +570,13 @@ void emitDFGCC ()
 {
 	// - emit DFG and the associated C++ code (-edfgcc option)
 
+	// --------------------------------------------------
+	// Added 2/1/2010 for renaming all variables
 	Operator *op;
+	forall(op,*(gSuite->getOperators()))
+		ccrename(op);
+	// --------------------------------------------------
+
 	forall(op,*gSuite->getOperators()) {
 		//instances(op, TARGET_DFGCC,0); // CAUTION: DON'T NEED TO STORE DFGs INSIDE INSTANCE! KEEP IN ORIGINAL..
 		if(op->getOpKind()==OP_BEHAVIORAL) {
