@@ -970,6 +970,8 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 	(*dfgi->nodemap)[ifexpr]=ifnode;
 
 	destdfg->new_edge(ifnode, destnode, NULL);
+// 2/1/2010.. make condition node the first node?	
+	destdfg->new_edge(*conditionnode, ifnode, NULL); // condition node is shared by all IFs..
 
 	StmtAssign* destnodeStmt = new StmtAssign(NULL, lval, ifnode); // lhs=lval, rhs=conditionnode
 
@@ -1024,7 +1026,7 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 
 	}
 
-	destdfg->new_edge(*conditionnode, ifnode, NULL); // condition node is shared by all IFs..
+// 2/1/2010.. make condition node the first node?	destdfg->new_edge(*conditionnode, ifnode, NULL); // condition node is shared by all IFs..
 
 }
 

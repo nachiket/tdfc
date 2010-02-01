@@ -1028,12 +1028,19 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						if(edgenum==0) {
+						/*if(edgenum==0) {
 							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
 						} else if(edgenum==1) {
 							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ";
 						} else if(edgenum==2) {
 							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
+						}*/
+						if(edgenum==0) {
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? " ;
+						} else if(edgenum==1) {
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
+						} else if(edgenum==2) {
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ";
 						}
 						edgenum++;
 					}
@@ -1050,10 +1057,15 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						if(edgenum==0) {
+						/*if(edgenum==0) {
 							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : (" + nodetofout(dfg,n,nodenums) + ")";
 						} else if(edgenum==1) {
 							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
+						}*/
+						if(edgenum==0) {
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? ";
+						} else if(edgenum==1) {
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : (" + nodetofout(dfg,n,nodenums) + ")";
 						}
 						edgenum++;
 					}
