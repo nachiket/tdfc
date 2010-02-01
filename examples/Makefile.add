@@ -1,3 +1,4 @@
 all:	addtest.o
-addtest.o:	addtest.cpp add.tdf 
+addtest.o:	addtest.cpp add.tdf ../tdfc
+	tdfc -edfgcc add.tdf
 	g++ -Wno-write-strings -I/opt/leda/incl -I/home/nachiket/workspace/ScoreRuntime addtest.cpp add.cc -o addtest.o -L/home/nachiket/workspace/ScoreRuntime -L/opt/leda -lScoreRuntime -lleda -lX11 -lpthread
