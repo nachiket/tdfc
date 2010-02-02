@@ -2091,10 +2091,14 @@ Tree* ExprCond::duplicate () const
   }
   e->cond     = (Expr*)e->cond    ->duplicate();
   e->cond     ->setParent(e);
-  e->thenPart = (Expr*)e->thenPart->duplicate();
-  e->thenPart ->setParent(e);
-  e->elsePart = (Expr*)e->elsePart->duplicate();
-  e->elsePart ->setParent(e);
+  if(e->thenPart!=NULL) {
+	  e->thenPart = (Expr*)e->thenPart->duplicate();
+	  e->thenPart ->setParent(e);
+  }
+  if(e->elsePart!=NULL) {
+	  e->elsePart = (Expr*)e->elsePart->duplicate();
+	  e->elsePart ->setParent(e);
+  }	  
   return e;
 }
 

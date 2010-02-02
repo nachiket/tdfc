@@ -347,9 +347,9 @@ void deleteBlockDfgCone (BlockDFG *dfg, node n)
 void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
 	edge edel;
 	list<edge> fanin = (*dfgi->dfg).in_edges(dead_po);
-    forall(edel, fanin) {
-    	node src=(*dfgi->dfg).source(edel);
-//    	cout <<  "--Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
+	forall(edel, fanin) {
+		node src=(*dfgi->dfg).source(edel);
+		//    	cout <<  "--Deleting..." << ((Tree *)((*dfgi->dfg)[src]))->toString()+" which is input to dead_po" << endl;
 		(*dfgi->dfg).del_edge(edel);
 		if((*dfgi->dfg).outdeg(src)==0) {
 			recursiveFaninDelete(dfgi, src);
@@ -358,6 +358,57 @@ void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
 	}
 }
 
+//-------------------------------------------------------------
+// Added by Nachiket on 2/2/2010...
+//-------------------------------------------------------------
+void recursiveFaninDuplicate(BlockDfgInfo *dfgi, BlockDFG *dfg, node n, node nnew, bool force) {
+
+	Tree* t=(*dfgi->dfg)[n];
+
+//	bool duplicate=true;
+	bool addfalse=!force && (t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) && dfg->indeg(n)==2;
+
+	edge e;
+	list<edge> fanin = (*dfgi->dfg).in_edges(n);
+	int edge_count=0;
+	forall(e, fanin) {
+		node src=(*dfgi->dfg).source(e);
+		Tree* tsrc=(*dfgi->dfg)[src];
+
+		if(force) {
+			Tree* tsrcnew=tsrc->duplicate();
+			node srcnew=(*dfg).new_node((Expr*)tsrcnew);
+
+			(*dfg).new_edge(srcnew, nnew);
+			recursiveFaninDuplicate(dfgi, dfg, src, srcnew, true);
+		} else if(((Expr*)t)->getExprKind()==EXPR_COND && edge_count==0) {
+			Tree* tsrcnew=tsrc->duplicate();
+			node srcnew=(*dfg).new_node((Expr*)tsrcnew);
+
+			(*dfg).new_edge(srcnew, nnew);
+			recursiveFaninDuplicate(dfgi, dfg, src, srcnew, true);
+		} else if(((Expr*)tsrc)->getExprKind()==EXPR_COND) {
+			Tree* tsrcnew=tsrc->duplicate();
+			node srcnew=(*dfg).new_node((Expr*)tsrcnew);
+
+			(*dfg).new_edge(srcnew, nnew);
+			recursiveFaninDuplicate(dfgi, dfg, src, srcnew, false);	
+		} else if(((Expr*)tsrc)->getExprKind()!=EXPR_COND) {
+			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
+			node srcnew=(*dfg).new_node(trueVal);
+
+			(*dfg).new_edge(srcnew, nnew);
+		}
+
+		edge_count++;
+	}
+
+	if(addfalse) {
+		ExprValue* falseVal=new ExprValue(NULL,new Type(TYPE_BOOL),0,0);
+		node srcnew=(*dfg).new_node(falseVal);
+		(*dfg).new_edge(srcnew, nnew);
+	}
+}
 
 bool createBlockDfg_map (Tree *t, void *i)
 {
@@ -1136,6 +1187,27 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   }
 
   finalize_dfginfo(&dfgi, true);
+
+// 2/2/2010.. considering duplication
+  BlockDFG newdfg;
+  node n;
+  forall_nodes (n,*dfg) {
+	  Tree* t=(*dfg)[n];
+	  if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+
+		  Symbol *asym=((ExprLValue*)t)->getSymbol();
+		  if(asym!=NULL && asym->isStream()) {
+			  SymbolStream *ssym=(SymbolStream *)asym;
+			  if(ssym->getDir()==STREAM_OUT) {
+				  Tree* tnew=t->duplicate();
+				  node nnew=newdfg.new_node((Expr*)tnew);
+				  recursiveFaninDuplicate(&dfgi, &newdfg, n, nnew, false);
+			  }
+		  }
+	  }
+  }
+
+  dfg->join(newdfg);
 
 
 if(0) {
