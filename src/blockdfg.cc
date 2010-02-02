@@ -435,6 +435,15 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  OperatorBuiltin *bop  =(OperatorBuiltin *)op;
 
 			  if (bop->getBuiltinKind()==BUILTIN_CLOSE || bop->getBuiltinKind()==BUILTIN_FRAMECLOSE) {
+
+			  	
+				  ExprLValue *lexpr=(ExprLValue *)first;
+				  Symbol     *sym=lexpr->getSymbol();
+				  bexpr->setSymbol(sym); // store symbol and propagate..
+				  node po=(*dfgi->dfg).new_node(bexpr);
+				  (*dfgi->nodemap)[bexpr]=po;
+				  (*dfgi->symbolmap)[po]=sym;
+/*			  
 				  ExprLValue *lexpr=(ExprLValue *)first;
 				  cout << "--lexpr=" << lexpr->toString() << endl;
 
@@ -458,7 +467,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 					  (*dfgi->dfg).new_edge(closenode, po);
 				  }
-
+*/
 
 				  if ((*dfgi->livedefs).defined(sym) && (*dfgi->livedefs)[sym]) {
 					  StmtAssign *dead_asst=(*dfgi->livedefs)[sym];

@@ -1145,6 +1145,23 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 								<< "(out[" << id << "]," << nodetofout(dfg,n,nodenums) << ");" << endl; // asym->toString();
 						  }
 					  }
+				  } else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_BUILTIN) {
+					  ExprBuiltin *bexpr = (ExprBuiltin*)t;
+					  Symbol *asym=bexpr->getSymbol();
+					  if (asym!=NULL && asym->isStream())
+					  {
+						  SymbolStream *ssym=(SymbolStream *)asym;
+						  if (ssym->getDir()==STREAM_OUT)
+						  {
+							int id=(long)(ssym->getAnnote(CC_STREAM_ID));
+							*fout << "          " ;
+							if(((OperatorBuiltin*)bexpr->getOp())->getBuiltinKind()==BUILTIN_CLOSE) {
+								*fout  << "STREAM_CLOSE(out[" << id << "]);" << endl;
+							} else if(((OperatorBuiltin*)bexpr->getOp())->getBuiltinKind()==BUILTIN_FRAMECLOSE) {
+								*fout  << "FRAME_CLOSE(out[" << id << "]);" << endl;
+							}
+						  }
+					  }
 				  }
 			  }
 		  }

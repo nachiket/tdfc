@@ -207,12 +207,16 @@ public:
 class ExprBuiltin : public ExprCall	// methods commented-out are ExprCall
 {
 private:
-
+  Symbol* sym;
 public:
   ExprBuiltin (Token *token_i, list<Expr*> *args_i,
 	       OperatorBuiltin *builtin_i);
   virtual ~ExprBuiltin () {}
 
+//--------------------------------------------------------------------------
+  Symbol*		getSymbol	() const	{ return sym;      }
+  void		        setSymbol	(Symbol *nsym) 	{ sym=nsym;        }
+//--------------------------------------------------------------------------
 //virtual bool		equals		(const Expr *x) const;
   virtual bool		okInComposeOp	() const;
 
