@@ -1215,8 +1215,8 @@ if(valid_map!=NULL) {
 //				(nodemap)[valid_lval]=valid_node;
 //				(symbolmap)[valid_node]=valid_sym;
 				  Tree *tnew = t->duplicate();
-				  ((Expr*)t)->setType(new Type(TYPE_BOOL));
-				  ((ExprLValue*)t)->setSymbol(valid_sym);
+				  ((Expr*)tnew)->setType(new Type(TYPE_BOOL));
+				  ((ExprLValue*)tnew)->setSymbol(valid_sym);
 				  node valid_node = newdfg.new_node((Expr*)tnew);
 
 				  cout << "Duplicating... " << t->toString() << endl;

@@ -1546,8 +1546,9 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 			} else if(asym!=NULL && asym->isReg()){ // local variables are "registers" you idiot! nomenclature!!
 				//cout << "Found register! " << nodetovarstring(src, (*dfg)[src]) << endl;
 				return nodetovarstring(src, (*dfg)[src]);
-			if (asym!=NULL && asym->isStreamValid())
-			cout << "what?>" << endl;
+			} else if (asym!=NULL && asym->isStreamValid()) {
+//			cout << "what?>" << endl;
+				//return string("what? asym->toString()");
 				return asym->toString();
 			} else {
 		return nodetostring(src, (*dfg)[src],nodenums[src]);
