@@ -364,6 +364,20 @@ void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
 void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nnew, bool force) {
 
 	Tree* t=(*olddfg)[n];
+	
+	// detect condition when the IF statement has both branches... 
+	// in this case, there is no need to conditionally write to output. condition=true
+	// and duplication is not being forced..
+	if(!force && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && (olddfg->in_edges(n)).size()==3) {
+		//cout << "EXPR_COND has 3 inputs.. output will always be driven!" << endl;
+		ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
+		node srcnew=(*newdfg).new_node(trueVal);
+
+		(*newdfg).new_edge(srcnew, nnew);
+		(*newdfg).new_edge(srcnew, nnew);
+		(*newdfg).new_edge(srcnew, nnew);
+		return;
+	}
 
 //	bool duplicate=true;
 	bool addfalse=!force && (t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) && olddfg->indeg(n)==2;
@@ -381,6 +395,13 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 
 			(*newdfg).new_edge(srcnew, nnew);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
+		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && fanin.size()==3) {
+			//cout << "EXPR_COND has 3 inputs.. output will always be driven!" << endl;
+			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
+			node srcnew=(*newdfg).new_node(trueVal);
+
+			(*newdfg).new_edge(srcnew, nnew);
+			break;
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && edge_count==0) {
 			Tree* tsrcnew=tsrc->duplicate();
 			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
