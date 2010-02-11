@@ -105,7 +105,7 @@ public:
 };
 
 
-enum SymbolKind { SYMBOL_STREAM, SYMBOL_VAR, SYMBOL_OP };
+enum SymbolKind { SYMBOL_STREAM, SYMBOL_STREAM_VALID, SYMBOL_VAR, SYMBOL_OP };
 
 class Symbol : public Tree
 {
@@ -121,6 +121,9 @@ public:
 
   bool			isStream	() const { return symKind==
 								SYMBOL_STREAM;}
+  bool			isStreamValid	() const { return symKind==
+								SYMBOL_STREAM_VALID;}
+  void			setStreamValid	();
   bool			isOp		() const { return symKind==SYMBOL_OP; }
   bool			isReg		() const;	// kinds of SYMBOL_VAR
   bool			isLocal		() const;

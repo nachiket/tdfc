@@ -711,8 +711,11 @@ Type* ExprValue::typeCheck ()
 Type* ExprLValue::typeCheck ()
 {
   // - parameter symbol may have nil bit positions!
+//  if(parent==NULL) {cout << "parent is null" << endl; return NULL;}
 
-  if ( !isRValue() )
+// null check added 2/3/2010 to avoid errors for duplicated nodes.. wtf?
+
+  if ( parent!=NULL && !isRValue() ) 
   {
     // - disallow reading non-rvalues (namely output streams)
     if (   !(   parent->getKind()==TREE_STMT
@@ -2024,6 +2027,7 @@ Tree* ExprValue::duplicate () const
 Tree* ExprLValue::duplicate () const
 {
   ExprLValue *e = new ExprLValue(*this);
+//  e->setParent(this->parent); // why was parent being set to NULL?
   e->setParent(NULL);
   if (e->type)
   {

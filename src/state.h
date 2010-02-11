@@ -37,6 +37,7 @@
 #include <LEDA/core/string.h>
 #include <LEDA/core/list.h>
 #include <LEDA/core/h_array.h>
+//#include <LEDA/core/map.h>
 #include <LEDA/core/dictionary.h>
 #include <LEDA/core/set.h>
 #include "type.h"
@@ -54,6 +55,7 @@ class Symbol;
 using leda::set;
 using leda::string;
 using leda::h_array;
+//using leda::map;
 
 class State : public Tree
 {
@@ -100,7 +102,8 @@ private:
   list<InputSpec*>	*inputs;
   list<Stmt*>		*stmts;
   BlockDFG			dfg; // Added by Nachiket on 11/29/2009 to store the dataflow graph for each case..
-  h_array<node, Symbol*>		symbolmap; // Added by Nachiket on 12/14/2009 to allow recovering output symbols! Jesus!
+  h_array<node, Symbol*>	symbolmap; // Added by Nachiket on 12/14/2009 to allow recovering output symbols! Jesus!
+  h_array<Symbol*, node>	*validmap; // Added by Nachiket on 2/3/2010 to support conditional stream writes..
 
 public:
   StateCase (Token *token_i, State *state, list<InputSpec*> *inputs_i,
@@ -114,8 +117,10 @@ public:
   list<Stmt*>*		getStmts	() const	{ return stmts; }
   void			addDataflowGraph(BlockDFG dfg_i);
   void			addSymbolMap(h_array<node, Symbol*> symbolmap_i);
+  void			addValidMap(h_array<Symbol*,node> *validmap_i);
   BlockDFG		getDataflowGraph() const 	{ return dfg;}
   h_array<node,Symbol*> getSymbolMap() const 	{ return symbolmap;}
+  h_array<Symbol*,node>* getValidMap() const 	{ return validmap;}
   void			addInput	(InputSpec *input_i);
   void			setStateName	(string state_i) { state=state_i;}
   string		getStateName()	{ return state;}

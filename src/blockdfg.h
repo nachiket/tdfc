@@ -142,7 +142,9 @@ class BlockDfgInfo;
 
 // extern void createBlockDfg (BlockDFG *dfg, list<Stmt*> stmtlist);
 
-extern h_array<node,Symbol*> createBlockDfgSimple (StateCase *sc, BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars);
+extern h_array<node,Symbol*> createBlockDfgSimple (StateCase *sc, BlockDFG *dfg, 
+				list<Stmt*> *stmts, SymTab* vars, 
+				h_array<Symbol*, node> *valid_map=NULL);
 
 extern string printBlockDFG (string statename, int eofr_case, int eos_case, 
 			     BlockDFG *dfg,

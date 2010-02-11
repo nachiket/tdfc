@@ -119,6 +119,9 @@ Symbol::Symbol (Token *token_i, SymbolKind symKind_i,
   type->setParent(this);
 }
 
+void Symbol::setStreamValid() {
+ symKind=SYMBOL_STREAM_VALID;
+}
 
 SymbolStream::SymbolStream (Token *token_i, const string &name_i,
 			    Type *type_i,   StreamDir dir_i)

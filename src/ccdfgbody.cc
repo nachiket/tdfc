@@ -976,6 +976,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 		}
 	      BlockDFG dfgVal=(acase->getDataflowGraph());
 	      h_array<node, Symbol*> symbolmap=(acase->getSymbolMap());
+	      h_array<Symbol*,node> *valid_map=(acase->getValidMap());
 	      /*
 	      // 12/14/2009 The following debugging code shows that symbolmap is not being faithfully populated fully..
 	      node n1;
@@ -1139,10 +1140,22 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 							bool floattype = (outType==TYPE_FLOAT);
 						        bool doubletype = (outType==TYPE_DOUBLE);
 
+							node valid_node = (*valid_map)[asym];
+//							cout << "sym=" << asym ; asym=NULL;
+//							cout << ", node=" << valid_node << " " << n << "=" << ((ExprLValue*)(*dfg)[valid_node])->getSymbol() << ", lval=" << ((ExprLValue*)(*dfg)[valid_node]) << " symbolmapped=" << symbolmap[valid_node] << endl;
+							if(valid_node!=NULL) {
+							        *fout << "          " ;
+								*fout << "if(" << symbolmap[valid_node]->toString() << ") {" << endl;
+							        *fout << "  " ;
+							}
+
 							int id=(long)(ssym->getAnnote(CC_STREAM_ID));
 							*fout << "          " ;
 							*fout  << (floattype?"STREAM_WRITE_FLOAT":doubletype?"STREAM_WRITE_DOUBLE":"STREAM_WRITE_NOACC")
 								<< "(out[" << id << "]," << nodetofout(dfg,n,nodenums) << ");" << endl; // asym->toString();
+							if(valid_node!=NULL) {
+							        *fout << "          }" << endl;
+							}
 						  }
 					  }
 				  } else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_BUILTIN) {
@@ -1517,7 +1530,7 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 		Tree* t=(*dfg)[src];
 		if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
 			Symbol *asym=((ExprLValue*)t)->getSymbol();
-			if (asym!=NULL && asym->isStream())
+			if (asym!=NULL && asym->isStream() && !asym->isStreamValid())
 			{
 				SymbolStream *ssym=(SymbolStream *)asym;
 				if (ssym->getDir()==STREAM_IN)
@@ -1533,9 +1546,13 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 			} else if(asym!=NULL && asym->isReg()){ // local variables are "registers" you idiot! nomenclature!!
 				//cout << "Found register! " << nodetovarstring(src, (*dfg)[src]) << endl;
 				return nodetovarstring(src, (*dfg)[src]);
+			if (asym!=NULL && asym->isStreamValid())
+			cout << "what?>" << endl;
+				return asym->toString();
 			} else {
-				cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
-				exit(-1);
+		return nodetostring(src, (*dfg)[src],nodenums[src]);
+		//		cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+		//		exit(-1);
 			}
 		} else {
 			// this is a constant? what can we check?

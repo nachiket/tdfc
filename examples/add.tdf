@@ -3,7 +3,5 @@ add(input double a, input double b, input boolean c, output double d)
 	state only(a,b,c):
 		if(c) {
 			d=a+b;
-//		} else {
-//			d=a-b;
 		}
 }

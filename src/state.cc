@@ -327,6 +327,14 @@ void StateCase::addSymbolMap(h_array<node, Symbol*> symbolmap_i) {
 	symbolmap=symbolmap_i;
 }
 
+// Added by Nachiket on 2/3/2010 to support conditional stream writes..
+void StateCase::addValidMap(h_array<Symbol*,node> *validmap_i) {
+	if(validmap_i==NULL) {
+		cerr << "Cannot accept a NULL validnode map object" << endl;
+	}
+	validmap=validmap_i;
+}
+
 void StateCase::addInput (InputSpec *ispec_i)
 {
   inputs->append(ispec_i);

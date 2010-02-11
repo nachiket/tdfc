@@ -871,10 +871,12 @@ void OperatorBehavioral::buildDataflowGraph() const
 
 		BlockDFG dfg;
 		list<Stmt*> stmts1 = *sc1->getStmts();
+		h_array<Symbol*, node> *valid_map = new h_array<Symbol*, node>();
 
-		h_array<node, Symbol*> symbolmap = createBlockDfgSimple(sc1,&dfg,&stmts1,vars);
+		h_array<node, Symbol*> symbolmap = createBlockDfgSimple(sc1,&dfg,&stmts1,vars, valid_map);
 		sc1->addDataflowGraph(dfg); // Remember the dataflow graph for this state case..
 		sc1->addSymbolMap(symbolmap); // Whoa?
+		sc1->addValidMap(valid_map); // 2/3/2010 to support conditional stream writes..
 		//cout << "Statecase=" << sc1 << " DFG=" << &dfg << endl;
 		InputSpec *ispec;
 		int eofr_case=0;

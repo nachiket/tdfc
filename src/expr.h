@@ -69,6 +69,7 @@ public:
 
 //  ExprKind	 	getExprKind	() const	{ if(exprKind!=(ExprKind)NULL) {return exprKind;} else { cout << "exprkind is null" << endl; exit(1);} }
   ExprKind	 	getExprKind	() const	{ return exprKind; }
+  void		        setType		(Type *ntype) 	{ type=ntype;        }
 
   virtual bool		isLValue	() const;	// - is assignable
   virtual bool		isRValue	() const;	// - is valued

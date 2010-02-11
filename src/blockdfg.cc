@@ -361,43 +361,45 @@ void recursiveFaninDelete(BlockDfgInfo *dfgi, node dead_po) {
 //-------------------------------------------------------------
 // Added by Nachiket on 2/2/2010...
 //-------------------------------------------------------------
-void recursiveFaninDuplicate(BlockDfgInfo *dfgi, BlockDFG *dfg, node n, node nnew, bool force) {
+void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nnew, bool force) {
 
-	Tree* t=(*dfgi->dfg)[n];
+	Tree* t=(*olddfg)[n];
 
 //	bool duplicate=true;
-	bool addfalse=!force && (t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) && dfg->indeg(n)==2;
+	bool addfalse=!force && (t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) && olddfg->indeg(n)==2;
 
 	edge e;
-	list<edge> fanin = (*dfgi->dfg).in_edges(n);
+	list<edge> fanin = (*olddfg).in_edges(n);
 	int edge_count=0;
 	forall(e, fanin) {
-		node src=(*dfgi->dfg).source(e);
-		Tree* tsrc=(*dfgi->dfg)[src];
+		node src=(*olddfg).source(e);
+		Tree* tsrc=(*olddfg)[src];
 
-		if(force) {
+		if(force && t->getKind()==TREE_EXPR) {
 			Tree* tsrcnew=tsrc->duplicate();
-			node srcnew=(*dfg).new_node((Expr*)tsrcnew);
+			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*dfg).new_edge(srcnew, nnew);
-			recursiveFaninDuplicate(dfgi, dfg, src, srcnew, true);
-		} else if(((Expr*)t)->getExprKind()==EXPR_COND && edge_count==0) {
+			(*newdfg).new_edge(srcnew, nnew);
+			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
+		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && edge_count==0) {
 			Tree* tsrcnew=tsrc->duplicate();
-			node srcnew=(*dfg).new_node((Expr*)tsrcnew);
+			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
+			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*dfg).new_edge(srcnew, nnew);
-			recursiveFaninDuplicate(dfgi, dfg, src, srcnew, true);
-		} else if(((Expr*)tsrc)->getExprKind()==EXPR_COND) {
+			(*newdfg).new_edge(srcnew, nnew);
+			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
+		} else if(t->getKind()==TREE_EXPR && ((Expr*)tsrc)->getExprKind()==EXPR_COND) {
 			Tree* tsrcnew=tsrc->duplicate();
-			node srcnew=(*dfg).new_node((Expr*)tsrcnew);
+			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
+			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*dfg).new_edge(srcnew, nnew);
-			recursiveFaninDuplicate(dfgi, dfg, src, srcnew, false);	
-		} else if(((Expr*)tsrc)->getExprKind()!=EXPR_COND) {
+			(*newdfg).new_edge(srcnew, nnew);
+			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, false);	
+		} else if(t->getKind()==TREE_EXPR && ((Expr*)tsrc)->getExprKind()!=EXPR_COND) {
 			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
-			node srcnew=(*dfg).new_node(trueVal);
+			node srcnew=(*newdfg).new_node(trueVal);
 
-			(*dfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew);
 		}
 
 		edge_count++;
@@ -405,8 +407,8 @@ void recursiveFaninDuplicate(BlockDfgInfo *dfgi, BlockDFG *dfg, node n, node nne
 
 	if(addfalse) {
 		ExprValue* falseVal=new ExprValue(NULL,new Type(TYPE_BOOL),0,0);
-		node srcnew=(*dfg).new_node(falseVal);
-		(*dfg).new_edge(srcnew, nnew);
+		node srcnew=(*newdfg).new_node(falseVal);
+		(*newdfg).new_edge(srcnew, nnew);
 	}
 }
 
@@ -475,7 +477,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			}
       case STMT_BUILTIN:{
 			  // - close(), done()
-			  cout << "Baaad" << endl;
+//			  cout << "Baaad" << endl;
 			
 			  // 2/1/2010... Need to support generation of frame-close tokens!!!
 			  StmtBuiltin     *bstmt=(StmtBuiltin *)t;
@@ -1152,7 +1154,8 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 		                    list<Stmt*> *nondfstmts,
 				    set<SymbolVar*> *locals,
 				    set<SymbolVar*> *new_locals,
-				    SymTab* vars) // Added by Nachiket on 11/3/2009 to allow access to state-machine variables..
+				    SymTab* vars, // Added by Nachiket on 11/3/2009 to allow access to state-machine variables..
+				    h_array<Symbol*, node> *valid_map) // 2/3/2010 to support conditional stream writes..
 {
   // - create DFG (fill *dfg) for a basic-block stmt list (*stmts)
   // - return in *nondfstmts any stmts not used to build dfg (e.g. goto)
@@ -1189,7 +1192,10 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
   finalize_dfginfo(&dfgi, true);
 
 // 2/2/2010.. considering duplication
-  BlockDFG newdfg;
+if(valid_map!=NULL) {
+  set<Symbol*> *valid_symbols=new set<Symbol*>();
+  h_array<Symbol*, Symbol*> *valid_symbol_map = new h_array<Symbol*, Symbol*>();
+  BlockDFG newdfg; newdfg.clear();
   node n;
   forall_nodes (n,*dfg) {
 	  Tree* t=(*dfg)[n];
@@ -1199,9 +1205,27 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 		  if(asym!=NULL && asym->isStream()) {
 			  SymbolStream *ssym=(SymbolStream *)asym;
 			  if(ssym->getDir()==STREAM_OUT) {
-				  Tree* tnew=t->duplicate();
-				  node nnew=newdfg.new_node((Expr*)tnew);
-				  recursiveFaninDuplicate(&dfgi, &newdfg, n, nnew, false);
+				SymbolVar* valid_sym;
+				const string valid_name = string("_valid_"+asym->getName());
+				Type* valid_type = new Type(TYPE_BOOL);
+				valid_sym = new SymbolVar(NULL, valid_name , valid_type, NULL, NULL);
+				valid_sym->setStreamValid();
+//				ExprLValue* valid_lval = new ExprLValue(NULL, valid_sym);
+//				node valid_node=newdfg.new_node(valid_lval);
+//				(nodemap)[valid_lval]=valid_node;
+//				(symbolmap)[valid_node]=valid_sym;
+				  Tree *tnew = t->duplicate();
+				  ((Expr*)t)->setType(new Type(TYPE_BOOL));
+				  ((ExprLValue*)t)->setSymbol(valid_sym);
+				  node valid_node = newdfg.new_node((Expr*)tnew);
+
+				  cout << "Duplicating... " << t->toString() << endl;
+				  recursiveFaninDuplicate(dfg, &newdfg, n, valid_node, false);
+				  (*valid_map)[asym]=valid_node;
+				  (symbolmap)[valid_node]=valid_sym;
+				  //valid_symbols->insert(valid_lval->getSymbol());
+				  //(*valid_symbol_map)[valid_lval->getSymbol()]=asym;
+				  //cout << "newsym=" << valid_lval->getSymbol() << ", oldsym=" << asym << ", node=" << valid_node << ", lval=" << valid_lval << ", t's lval=" << ((ExprLValue*)t) << endl;
 			  }
 		  }
 	  }
@@ -1209,6 +1233,24 @@ h_array<node, Symbol*> createBlockDfg (StateCase* sc, BlockDFG *dfg, list<Stmt*>
 
   dfg->join(newdfg);
 
+/*
+  // after join node pointers are all messed up! God awful library!
+  Symbol* sym;
+  forall(sym, *valid_symbols) {
+  	forall_nodes (n,*dfg) {
+		  Tree* t=(*dfg)[n];
+		  if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+			  Symbol *asym=((ExprLValue*)t)->getSymbol();
+			  if(asym==sym) {
+				  (*valid_map)[(*valid_symbol_map)[asym]]=n;
+				  cout << "newsym=" << asym << ", oldsym=" << (*valid_symbol_map)[asym] << ", node=" << n << "=" << ((ExprLValue*)(*dfg)[n])->getSymbol() << ", lval=" << ((ExprLValue*)(*dfg)[n]) << endl;
+			  }
+		  }
+	  }
+  }
+*/
+
+}
 
 if(0) {
   // - clean up multiple definitions
@@ -1403,14 +1445,14 @@ void finalize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 }
 
 
-h_array<node, Symbol*> createBlockDfgSimple (StateCase* sc, BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars)
+h_array<node, Symbol*> createBlockDfgSimple (StateCase* sc, BlockDFG *dfg, list<Stmt*> *stmts, SymTab* vars, h_array<Symbol*, node> *valid_map)
 {
 
 	list<Stmt*> nondfstmts;
 	set<SymbolVar*> locals;
 	set<SymbolVar*> new_locals;
 
-	return createBlockDfg(sc, dfg, stmts, &nondfstmts, &locals, &new_locals, vars);
+	return createBlockDfg(sc, dfg, stmts, &nondfstmts, &locals, &new_locals, vars, valid_map);
 }
 
 using std::cout;
@@ -3360,7 +3402,7 @@ void timing_stateCase (OperatorBehavioral *op, StateCase *stateCase,
   list<Stmt*> nondfstmts;
   set<SymbolVar*> locals;
   set<SymbolVar*> new_locals;
-  createBlockDfg(stateCase,&dfg,stateCase->getStmts(),&nondfstmts,&locals,&new_locals, NULL); // stupid
+  createBlockDfg(stateCase,&dfg,stateCase->getStmts(),&nondfstmts,&locals,&new_locals, NULL, NULL); // stupid
   /*
   cerr << printBlockDFG(&dfg);
   cerr << "Residual statements:\n";
