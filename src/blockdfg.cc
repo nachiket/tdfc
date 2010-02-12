@@ -851,14 +851,18 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  (*dfgi->dfg).del_node(tempnode);
 
 				  // 2/12/2010: Need to use the inverted condition node for cases where THEN-part is missing. weirdoo
-				  ExprUop* invertexpr = new ExprUop(ec->getToken(), '!', ec);
-				  node invertnode = (*dfgi->dfg).new_node(invertexpr);
-				  createBlockDfg_for_expr(invertexpr,dfgi,invertnode);
+//				  node invertconditionnode=conditionnode;
+				  node invertconditionnode=NULL;
+				  if(only_n1_set.size()>0) {
+				  	ExprUop* invertexpr = new ExprUop(ec->getToken(), '!', ec);
+				  	node invertnode = (*dfgi->dfg).new_node(invertexpr);
+				  	createBlockDfg_for_expr(invertexpr,dfgi,invertnode);
 
-				  edge invertconditionedge = (*dfgi->dfg).first_in_edge(invertnode); // extract the inverted condition node...
-				  node invertconditionnode = (*dfgi->dfg).source(invertconditionedge);
-				  (*dfgi->dfg).del_edge(invertconditionedge);
-				  (*dfgi->dfg).del_node(invertnode);
+				  	edge invertconditionedge = (*dfgi->dfg).first_in_edge(invertnode); // extract the inverted condition node...
+				  	invertconditionnode = (*dfgi->dfg).source(invertconditionedge);
+				  	(*dfgi->dfg).del_edge(invertconditionedge);
+				  	(*dfgi->dfg).del_node(invertnode);
+				  }
 
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
@@ -924,23 +928,30 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
 					  (*dfgi->symbolmap)[n]=only_n2_sym; // recording symbols 12/14/2009
-					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &invertconditionnode);
+					  //importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &invertconditionnode);
+					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &conditionnode);
 				  }
 
 
 				  // Condition 3: when ELSE part is missing!!
 				  node only_n1_node;
 				  forall(only_n1_node, only_n1_set) {
+				  	// 2/12/2010: Remarkably... for THEN-only nodes, since default value if always found first...
+				  	if(invertconditionnode==NULL) {
+						cout << "inverted condition node missing..." << endl;
+						exit(1);
+					}
 					  Symbol* only_n1_sym = ((ExprLValue*)(dfgThen)[only_n1_node])->getSymbol();
-#ifdef DEBUG						  
+//#ifdef DEBUG						  
 					  cout << " only_n1 Processing" << only_n1_sym->getName() << endl;
-#endif					  
+//#endif					  
 					  ExprLValue* only_n1_dummyexpr = new ExprLValue(NULL, only_n1_sym);
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
 					  (*dfgi->symbolmap)[n]=only_n1_sym; // recording symbols 12/14/2009
-					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
+					  //importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
+					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &invertconditionnode);
 
 				  }
 
@@ -1109,9 +1120,9 @@ void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, se
 // copy the DFG from source to dest and attach connections to destnode..
 void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode) {
 
-#ifdef DEBUG
+//#ifdef DEBUG
 	cout << "importdfg on " << destsym->getName() << endl;
-#endif
+//#endif
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
@@ -1138,17 +1149,18 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 			if(sym==destsym && node!=destnode) {
 				matched=true;
 				srcnode=node;
-#ifdef DEBUG				
+//#ifdef DEBUG				
 				// replace srcnode with destnode
 				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
-#endif				
+//#endif				
 				// find all inputs of srcnode and redirect them to destnode
 				edge in_edge;
 				forall_in_edges(in_edge, node) {
 					in_node = destdfg->source(in_edge);
-#ifdef DEBUG				
-					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
-#endif					
+//#ifdef DEBUG				
+//					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
+					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << " -> " << (*destdfg)[destnode]->toString()  << endl;
+//#endif					
 					destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
 				}
 				deleting_nodes.insert(node);
