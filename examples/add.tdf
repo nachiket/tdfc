@@ -2,8 +2,16 @@ add(input double a, input double b, input boolean c, output double d)
 {
 	state only(a,b,c):
 		if(c) {
-			d=a+b;
+			goto quack;
 		} else {
-			d=a-b;
+			if(a>1) {
+				goto quack;
+			} else {
+				d=a+b;
+				goto quack;
+			}
 		}
+
+	state quack():
+		goto only;
 }

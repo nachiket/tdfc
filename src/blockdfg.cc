@@ -619,6 +619,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  //cout << ((StmtIf*)t)->toString() << endl;
 
     	      Expr *ec=((StmtIf*)t)->getCond();
+
 			  //createBlockDfg_for_expr(ec,dfgi,n);
 			  Stmt *thenPart=((StmtIf*)t)->getThenPart();
 			  Stmt *elsePart=((StmtIf*)t)->getElsePart();
@@ -843,10 +844,21 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  // Create the condition node prior to merging! FTW?
 				  node tempnode = (*dfgi->dfg).new_node(ec);
 				  createBlockDfg_for_expr(ec,dfgi,tempnode);
+
 				  edge conditionedge = (*dfgi->dfg).first_in_edge(tempnode); // extract the condition node...
 				  node conditionnode = (*dfgi->dfg).source(conditionedge);
 				  (*dfgi->dfg).del_edge(conditionedge);
 				  (*dfgi->dfg).del_node(tempnode);
+
+				  // 2/12/2010: Need to use the inverted condition node for cases where THEN-part is missing. weirdoo
+				  ExprUop* invertexpr = new ExprUop(ec->getToken(), '!', ec);
+				  node invertnode = (*dfgi->dfg).new_node(invertexpr);
+				  createBlockDfg_for_expr(invertexpr,dfgi,invertnode);
+
+				  edge invertconditionedge = (*dfgi->dfg).first_in_edge(invertnode); // extract the inverted condition node...
+				  node invertconditionnode = (*dfgi->dfg).source(invertconditionedge);
+				  (*dfgi->dfg).del_edge(invertconditionedge);
+				  (*dfgi->dfg).del_node(invertnode);
 
 				  // Merge the DFGs and then just do cleanup...
 				  (*dfgi->dfg).join(dfgThen);
@@ -912,7 +924,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
 					  (*dfgi->symbolmap)[n]=only_n2_sym; // recording symbols 12/14/2009
-					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &conditionnode);
+					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &invertconditionnode);
 				  }
 
 

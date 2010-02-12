@@ -1115,7 +1115,8 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						*fout << "STATE_" << nodetofout(dfg, src, nodenums) << " ";
+						// @2/12/2010 apply prefix at right code point... *fout << "STATE_" << nodetofout(dfg, src, nodenums) << " ";
+						*fout << nodetofout(dfg, src, nodenums) << " ";
 					}
 
 					*fout << ");" << endl;
@@ -1528,7 +1529,10 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 
 	if(dfg->indeg(src)==0 || dfg->outdeg(src)==0) { // shouldn't we process outputs similarly as well?
 		Tree* t=(*dfg)[src];
-		if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+		TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
+		if(dfg->indeg(src)==0 && type==TYPE_STATE) {
+			return string("STATE_"+nodetovarstring(src, (*dfg)[src]));
+		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
 			Symbol *asym=((ExprLValue*)t)->getSymbol();
 			if (asym!=NULL && asym->isStream() && !asym->isStreamValid())
 			{
@@ -1551,7 +1555,7 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 				//return string("what? asym->toString()");
 				return asym->toString();
 			} else {
-		return nodetostring(src, (*dfg)[src],nodenums[src]);
+//				return nodetostring(src, (*dfg)[src],nodenums[src]);
 		//		cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
 		//		exit(-1);
 			}

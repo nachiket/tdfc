@@ -79,6 +79,7 @@ string opToNodename (int op)
     			if (op=='/')	return string("divide");
 			if (op=='>')	return string("grt");
 			if (op=='<')	return string("less");
+			if (op=='!')	return string("invert"); // Added invert on 2/12/2010
 			else		return string("wtf");
   }
 }
