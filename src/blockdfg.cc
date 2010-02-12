@@ -1532,12 +1532,18 @@ string printBlockDFG (string statename, int eofr_case, int eos_case, BlockDFG *d
 				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 			  }
 			  string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
+			  
 			  // For now I am throwing out the typecasting.. not necessary
 			  if(((Expr*)t)->getExprKind()==EXPR_CAST) {
 				  var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 				  std::stringstream out; out<<cast_count;
 				  t_str = "auto_inserted_cast_node_being_ignored_for_world_peace_"+string(out.str().c_str());
 				  cast_count++;
+			  }
+
+			  // 2/11/2010: Need to handle BUILTINs during Dataflow Graph generation
+			  if(((Expr*)t)->getExprKind()==EXPR_BUILTIN) {
+			  	var=" " + typekindToString((*((Expr*)t)->getType()).getTypeKind()) + " variable";
 			  }
 
 			  ret += var + " "  + t_str + "\n";
