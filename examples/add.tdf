@@ -4,17 +4,26 @@ add(input double a, input double b, input boolean c, output double d)
 	boolean f;
 
 	state only(a,b,c):
-//		if(c) {
-//			goto quack;
-//		} else {
+		if(c) {
+			if(!c) {
 			if(f) {
-				f=false;
+//				f=false;
+				d=a-b;
 				goto quack;
 			} else {
 				d=a+b;
 				goto quack;
 			}
-//		}
+//		} else {
+//			if(f) {
+//				f=false;
+//				goto quack;
+//			} else {
+//				d=a+b;
+//				goto quack;
+//			}
+			}
+		}
 
 	state quack():
 		goto only;

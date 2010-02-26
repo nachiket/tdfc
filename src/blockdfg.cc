@@ -510,13 +510,15 @@ bool createBlockDfg_map (Tree *t, void *i)
 
 			  if (bop->getBuiltinKind()==BUILTIN_CLOSE || bop->getBuiltinKind()==BUILTIN_FRAMECLOSE) {
 
-			  	
+/* 2/25/2010: Proper processing of EOFR requires some more thought...			  	
 				  ExprLValue *lexpr=(ExprLValue *)first;
 				  Symbol     *sym=lexpr->getSymbol();
 				  bexpr->setSymbol(sym); // store symbol and propagate..
 				  node po=(*dfgi->dfg).new_node(bexpr);
 				  (*dfgi->nodemap)[bexpr]=po;
 				  (*dfgi->symbolmap)[po]=sym;
+*/
+
 /*			  
 				  ExprLValue *lexpr=(ExprLValue *)first;
 				  cout << "--lexpr=" << lexpr->toString() << endl;
@@ -543,6 +545,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  }
 */
 
+/* 2/25/2010: Proper processing of EOFR requires some more thought...			  	
 				  if ((*dfgi->livedefs).defined(sym) && (*dfgi->livedefs)[sym]) {
 					  StmtAssign *dead_asst=(*dfgi->livedefs)[sym];
 					  (*dfgi->deaddefs).append(dead_asst);
@@ -563,6 +566,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  // - record live asst
 				  StmtAssign* newAssign = new StmtAssign(NULL, lexpr, po); // lhs=lval, rhs=conditionnode
 				  (*dfgi->livedefs)[sym]=newAssign;
+*/				  
 			  }
 
 			  return false;
@@ -855,6 +859,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 				  node invertconditionnode=NULL;
 				  if(only_n1_set.size()>0) {
 				  	ExprUop* invertexpr = new ExprUop(ec->getToken(), '!', ec);
+					Type* type = ec->typeCheck();
+					invertexpr->setType(type);
 				  	node invertnode = (*dfgi->dfg).new_node(invertexpr);
 				  	createBlockDfg_for_expr(invertexpr,dfgi,invertnode);
 
@@ -904,7 +910,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 						node n=(*dfgi->dfg).new_node(n1_n2_val);
 						(*dfgi->nodemap)[n1_n2_val]=n;
 						(*dfgi->symbolmap)[n]=n1_n2_sym; // recording symbols 12/14/2009
-					  	importDfg(dfgi->dfg, dfgThen, n, n1_n2_val, ec, n1_n2_sym, dfgi, (Stmt*)t, &conditionnode);
+					  	importDfg(dfgi->dfg, &dfgThen, n, n1_n2_val, ec, n1_n2_sym, dfgi, (Stmt*)t, &conditionnode);
 //					  } else {
 //					  	StmtAssign* stmt_defined=(*dfgi->livedefs)[n1_n2_sym];
 //					  	ExprLValue* val_defined=stmt_defined->getLValue();
@@ -928,8 +934,8 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n2_dummyexpr);
 					  (*dfgi->nodemap)[only_n2_dummyexpr]=n;
 					  (*dfgi->symbolmap)[n]=only_n2_sym; // recording symbols 12/14/2009
-					  //importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &invertconditionnode);
-					  importDfg(dfgi->dfg, dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &conditionnode);
+					  //importDfg(dfgi->dfg, &dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &invertconditionnode);
+					  importDfg(dfgi->dfg, &dfgElse, n, only_n2_dummyexpr, ec, only_n2_sym, dfgi, (Stmt*)t, &conditionnode);
 				  }
 
 
@@ -942,16 +948,16 @@ bool createBlockDfg_map (Tree *t, void *i)
 						exit(1);
 					}
 					  Symbol* only_n1_sym = ((ExprLValue*)(dfgThen)[only_n1_node])->getSymbol();
-//#ifdef DEBUG						  
+#ifdef DEBUG						  
 					  cout << " only_n1 Processing" << only_n1_sym->getName() << endl;
-//#endif					  
+#endif					  
 					  ExprLValue* only_n1_dummyexpr = new ExprLValue(NULL, only_n1_sym);
 					  // TODO: this should check if node exists...
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
 					  (*dfgi->symbolmap)[n]=only_n1_sym; // recording symbols 12/14/2009
-					  //importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
-					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &invertconditionnode);
+					  //importDfg(dfgi->dfg, &dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
+					  importDfg(dfgi->dfg, &dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &invertconditionnode);
 
 				  }
 
@@ -1019,7 +1025,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 					  node n=(*dfgi->dfg).new_node(only_n1_dummyexpr);
 					  (*dfgi->nodemap)[only_n1_dummyexpr]=n;
 					  (*dfgi->symbolmap)[n]=only_n1_sym; // recording symbols 12/14/2009
-					  importDfg(dfgi->dfg, dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
+					  importDfg(dfgi->dfg, &dfgThen, n, only_n1_dummyexpr, ec, only_n1_sym, dfgi, (Stmt*)t, &conditionnode);
 				  }
 
 /*
@@ -1118,11 +1124,11 @@ void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, se
 }
 
 // copy the DFG from source to dest and attach connections to destnode..
-void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode) {
+void importDfg(BlockDFG *destdfg, BlockDFG *srcdfg, node destnode, ExprLValue* lval, Expr *ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode) {
 
-//#ifdef DEBUG
+#ifdef DEBUG
 	cout << "importdfg on " << destsym->getName() << endl;
-//#endif
+#endif
 
 	// connect all inputs of srcnode to destnode and delete srcnode...
 	// primary inputs are fucked aren't they?
@@ -1149,22 +1155,48 @@ void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lv
 			if(sym==destsym && node!=destnode) {
 				matched=true;
 				srcnode=node;
-//#ifdef DEBUG				
-				// replace srcnode with destnode
-				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
-//#endif				
-				// find all inputs of srcnode and redirect them to destnode
-				edge in_edge;
-				forall_in_edges(in_edge, node) {
-					in_node = destdfg->source(in_edge);
-//#ifdef DEBUG				
-//					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
-					cout << "--\tInput=" << (*destdfg)[in_node]->toString() << " -> " << (*destdfg)[destnode]->toString()  << endl;
-//#endif					
-					destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
-				}
+
+				// collect matched nodes...
 				deleting_nodes.insert(node);
+
+#ifdef DEBUG				
+				cout << "--Matched srcnode with destnode:" << (*destdfg)[srcnode]->toString() << "," << (*destdfg)[destnode]->toString() << endl;
+#endif				
 			}
+		}
+	}
+
+/*
+	// attempt to match in parent to differentiate between THEN and ELSE nodes..
+	forall(node, deleting_nodes) {
+		cout << "======= testing.. destdfg: destnode=" << (*destdfg)[node]->toString() << endl;
+		forall_nodes(srcnode, *srcdfg) {
+			cout << "======= testing.. srcdfg: srcnode=" << (*srcdfg)[node]->toString() << " to destdfg: destnode=" << (*destdfg)[node]->toString() << endl;
+			Symbol* destnodesym = ((ExprLValue*)(*destdfg)[node])->getSymbol();
+			Symbol* srcnodesym = ((ExprLValue*)(*srcdfg)[srcnode])->getSymbol();
+			if(srcnodesym==destnodesym && node!=destnode) {
+//			if(node==srcnode) {
+				matched=true;
+//#ifdef DEBUG				
+				cout << "======= Matched nodes in srcdfg: srcnode=" << (*srcdfg)[node]->toString() << " to destdfg: destnode=" << (*destdfg)[node]->toString() << endl;
+//#endif				
+			}
+		}
+	}
+*/
+
+	// deferred update
+	forall(node, deleting_nodes) {
+		// replace srcnode with destnode
+		// find all inputs of srcnode and redirect them to destnode
+		edge in_edge;
+		forall_in_edges(in_edge, node) {
+			in_node = destdfg->source(in_edge);
+#ifdef DEBUG			
+//			cout << "--\tInput=" << (*destdfg)[in_node]->toString() << "(" << in_node << ") -> " << destnode  << "(expecting=" << destdfg->succ_node(in_node) << ")" << endl;
+			cout << "--\tInput=" << (*destdfg)[in_node]->toString() << " -> " << (*destdfg)[destnode]->toString()  << endl;
+#endif				
+			destdfg->new_edge(in_node,ifnode,NULL); // replaced destnode with n
 		}
 	}
 

@@ -156,7 +156,7 @@ extern Operator* timing_instance (Operator *iop,
 				  list<OperatorBehavioral*> *page_ops,
 				  int cycleTime);
 
-extern void importDfg(BlockDFG *destdfg, BlockDFG srcdfg, node destnode, ExprLValue* lval, Expr* ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode);
+extern void importDfg(BlockDFG *destdfg, BlockDFG *srcdfg, node destnode, ExprLValue* lval, Expr* ec, Symbol* destsym, BlockDfgInfo *dfgi, Stmt* t, node* conditionnode);
 
 
 extern void initialize_dfginfo(BlockDfgInfo* dfgi, bool toplevel=false);
