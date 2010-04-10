@@ -66,11 +66,15 @@ void microblaze_parameter_variables(ofstream *fout,
 
 void microblaze_constructor_signatures(ofstream *fout,
 			    Symbol *rsym,
-			    list<Symbol*> *argtypes)
+			    list<Symbol*> *argtypes, bool state_id)
 {
 
   int i=1;
-  *fout << "int n_start_state" ; // April 10th 2010
+  if(state_id) {
+    *fout << "int n_start_state" ; // April 10th 2010
+  } else {
+    i=0;
+  }
 
   Symbol *sym;
   forall(sym,*argtypes)
@@ -219,8 +223,11 @@ void ccmicroblazeheader (Operator *op)
 //  }
 //  *fout << endl;
 
+  *fout << "void* " << classname << "_perftest(" ;
+  microblaze_constructor_signatures(fout,rsym,argtypes, false);
+  *fout << "  );" << endl;
   *fout << "void* " << classname << "_create(" ;
-  microblaze_constructor_signatures(fout,rsym,argtypes);
+  microblaze_constructor_signatures(fout,rsym,argtypes, true);
   *fout << "  );" << endl;
   *fout << "void* "+classname+"_proc_run(void*);" << endl;
 

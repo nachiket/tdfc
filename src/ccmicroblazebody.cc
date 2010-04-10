@@ -451,6 +451,48 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
   
 }
 
+// simple test script
+void ccmicroblazeperftest(ofstream *fout, string classname, Operator* op) {
+  list<Symbol*> *argtypes=op->getArgs();
+  string prefix="n_";
+  int i=0;
+  
+  *fout << "void* " << classname << "_perftest(";
+  
+  Symbol *sym;
+  forall(sym,*argtypes)
+    {
+      if (i>0) *fout << ",";
+      *fout << " ScoreStream* " << prefix << sym->getName();
+      i++;
+    }
+
+  *fout << ") {" << endl;
+
+  int num_states=0;
+  if (op->getOpKind()==OP_BEHAVIORAL)
+    {
+      OperatorBehavioral *bop=(OperatorBehavioral *)op;
+      dictionary<string,State*>* states=bop->getStates();
+      num_states=states->size();
+    }
+
+  *fout << "  for(int i=0; i<"<<num_states<<"; i++) {" << endl;
+  *fout << "    finished=1;" << endl;
+  *fout << "    "<<classname<<"_create(i,";
+  i=0;
+  forall(sym,*argtypes)
+    {
+      if (i>0) *fout << ",";
+      *fout << prefix << sym->getName();
+      i++;
+    }
+  *fout<<");"<< endl;
+  *fout << "    while(!finished){};" << endl;
+  *fout << "  }" << endl;
+  *fout << "}" << endl;
+}
+
 ////////////////////////////////////////////////////////////////////////
 // constructor for master operator
 void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
@@ -460,12 +502,12 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
   string prefix="n_";
 
   // dump signature and count ins, outs, params
-  *fout << "void* " << classname << "_create(int n_start_state, ";
+  *fout << "void* " << classname << "_create(int n_start_state ";
 
   int ins=0;
   int outs=0;
   int params=0;
-  int i=0;
+  int i=1;
   if (!noReturnValue(rsym))
     outs++;
   Symbol *sym;
@@ -596,6 +638,9 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 	      else if (ssym->getDir()==STREAM_IN)
 		{
 		  *fout << "  "<<classname<<"_ptr->inputs[" << icnt << "]=" << prefix << sym->getName() << ";" << endl;
+		  *fout << "#ifdef PERF" << endl;
+		  *fout << "  STREAM_WRITE_UNSIGNED(" << prefix << sym->getName() << ",0);" << endl;
+		  *fout << "#endif" << endl;
 		  icnt++;
 		}
 	      
@@ -1177,6 +1222,11 @@ void ccmicroblazebody (Operator *op)
 
   // constructor
   ccmicroblazeconstruct(fout,classname,op);
+
+  *fout << endl;
+
+  // perf test
+  ccmicroblazeperftest(fout, classname, op);
 
   *fout << endl;
 
