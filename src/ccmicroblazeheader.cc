@@ -69,7 +69,9 @@ void microblaze_constructor_signatures(ofstream *fout,
 			    list<Symbol*> *argtypes)
 {
 
-  int i=0;
+  int i=1;
+  *fout << "int n_start_state" ; // April 10th 2010
+
   Symbol *sym;
   forall(sym,*argtypes)
     {
@@ -86,7 +88,9 @@ void microblaze_constructor_signatures_notypes(ofstream *fout,
                                     list<Symbol*> *argtypes)
 {
 
-  int i=0;
+  int i=1;
+  *fout << "n_start_state"; // April 10th 2010
+
   Symbol *sym;
   forall(sym,*argtypes)
     {

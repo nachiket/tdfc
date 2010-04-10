@@ -146,7 +146,7 @@ void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 //	    *fout << "new " ;
 	  *fout << cop->getName() << "_create";
 	}
-      *fout << "(" ;
+      *fout << "(-1," ; // -1 for start_state.. April 10th 2010
       Expr *earg;
       int first=1;
       forall(earg,*args)
@@ -460,7 +460,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
   string prefix="n_";
 
   // dump signature and count ins, outs, params
-  *fout << "void* " << classname << "_create(";
+  *fout << "void* " << classname << "_create(int n_start_state, ";
 
   int ins=0;
   int outs=0;
@@ -560,6 +560,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
       *fout << "  struct Operator* " << classname << "_ptr=(Operator*)bufmalloc(pool,sizeof(Operator));" << endl;
       *fout << "  new_operator(" << classname << "_ptr" << "," << ins << "," << outs << ", pool);" << endl;
       *fout << endl;
+      *fout << "  " << classname << "_ptr->state_id = n_start_state;" << endl;
 
       if (!noReturnValue(rsym))
 	{
@@ -729,7 +730,19 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
       *fout << "};" << endl;
 
       *fout << "  state_syms state=" << STATE_PREFIX 
-	    << start_state->getName() << ";" << endl; 
+	    << start_state->getName() << ";" << endl;
+
+      // Added April 10th 2010: specify starting state.. according to initialized state if
+      *fout << endl;
+      *fout << "  switch("<<classname<<"_ptr->state_id) {" << endl;
+      int index=0;
+      forall_items(item, *states) {
+        *fout << "    case "<<index<<": state = " << STATE_PREFIX << states->inf(item)->getName() << "; break;" << endl;
+	index++;
+      }
+        *fout << "    default : state = " << STATE_PREFIX << start_state->getName() << "; break;" << endl;
+      *fout << "  }" << endl;
+
       // declare top level vars
       SymTab *symtab=bop->getVars();
       list<Symbol*>* lsyms=symtab->getSymbolOrder();
@@ -900,6 +913,13 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 		    }
 		  
 		}
+
+
+		// April 10th 2010: Added support for timers
+	      *fout << endl;
+	      *fout << "#ifdef PERF" << endl;
+	      *fout << "        start_timer();" << endl;
+	      *fout << "#endif" << endl;
 	      
 	      *fout << endl;
 	      *fout << "       ";
@@ -1003,6 +1023,18 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	  for (; numNestings>0; numNestings--) {
 	    *fout << "}" << endl;
 	  }
+
+	  // April 10th 2010: Added support for timers
+	  *fout << endl;
+	  *fout << "#ifdef PERF" << endl;
+	  *fout << "      int timer = stop_timer();" << endl;
+	  *fout << "      finished=1;" << endl;
+
+	  *fout << "      pthread_mutex_lock(&printf_mutex);" << endl;
+	  *fout << "      xil_printf(\"state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
+	  *fout << "      pthread_mutex_unlock(&printf_mutex);" << endl;
+	  *fout << "      return((void*)NULL);" << endl;
+	  *fout << "#endif" << endl;
 
 	  if (num_states>1)
 	    {
@@ -1119,6 +1151,8 @@ void ccmicroblazebody (Operator *op)
   *fout << "#include \"" << name << ".h\"" << endl;
   *fout << "#include \"xparameters.h\"" << endl;
   *fout << "#include \"shared_pool.h\"" << endl;
+  *fout << "#include \"perfctr.h\"" << endl; // Added April 10th 2010 to suppoert perf-measurement of microblaze code
+  *fout << "#include \"math.h\"" << endl; // Added April 10th 2010 to suppoert perf-measurement of microblaze code
   *fout << endl;
 
   // include anythying I depend upon
