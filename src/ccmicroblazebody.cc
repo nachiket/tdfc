@@ -829,7 +829,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 
   if (op->getOpKind()==OP_COMPOSE)
     {
-      *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
+      *fout << "  xil_printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
     }
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
@@ -1174,7 +1174,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	}
       if (num_states>1)
 	{
-	  *fout << "      default: printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
+	  *fout << "      default: xil_printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
 	  *fout << "        return((void*)NULL);" << endl;
 	  *fout << "    }" << endl;
 	}
