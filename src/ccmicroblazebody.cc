@@ -91,7 +91,6 @@ void ccmicroblaze_state_definition(ofstream *fout, string classname,
 	*fout << endl;
 }
 
-
 void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
   if (expr->getExprKind()==EXPR_VALUE)
@@ -249,6 +248,37 @@ void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 }
 
 //
+void ccMicroblazeComposePerfTest(ofstream *fout, Expr *expr, Symbol *rsym) 
+{
+
+  if ((expr->getExprKind()==EXPR_CALL)) 
+  {
+      ExprCall *ecall=(ExprCall *)expr;
+      Operator *cop=ecall->getOp();
+      list<Expr*>* args=ecall->getArgs();
+      if(expr->getExprKind()!=EXPR_BUILTIN) 
+      {
+	      *fout << cop->getName() << "_perftest(";
+	      Expr *earg;
+	      int first=1;
+	      forall(earg,*args)
+	      {
+		      if (!first)
+			      *fout << ", ";
+		      else
+			      first=0;
+
+		      *fout << "n_" ;		 
+		      ccMicroblazeComposeEvalExpr(fout,earg,rsym);
+	      }
+	      *fout << ");" << endl;
+      } else {
+          cerr << "Wrong exprtype\n" << endl;
+      }
+  }
+  
+}
+
 
 void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 {
@@ -302,6 +332,7 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 //      *fout << "    ScoreStream* " << asum->getName()  << ";" << endl;
       
     }
+
 
 
   // walk over stmts
@@ -475,22 +506,70 @@ void ccmicroblazeperftest(ofstream *fout, string classname, Operator* op) {
       OperatorBehavioral *bop=(OperatorBehavioral *)op;
       dictionary<string,State*>* states=bop->getStates();
       num_states=states->size();
-    }
+    
+      *fout << "  for(int i=0; i<"<<num_states<<"; i++) {" << endl;
+      *fout << "    finished=0;" << endl;
+      *fout << "    "<<classname<<"_create(i,";
+      i=0;
+      forall(sym,*argtypes)
+        {
+          if (i>0) *fout << ",";
+          *fout << prefix << sym->getName();
+          i++;
+        }
+      *fout<<");"<< endl;
+      *fout << "    while(!finished){};" << endl;
+      *fout << "  }" << endl;
+      *fout << "}" << endl;
+    } 
+   else if(op->getOpKind()==OP_COMPOSE) 
+   {
+				    Symbol *returnValue=op->getRetSym();
+	   SymTab *symtab=((OperatorCompose* )op)->getVars(); // get internal streams
+	   list<Symbol*>* lsyms=symtab->getSymbolOrder();
+	   set<Symbol*>* syms=new set<Symbol*>();
+	   list_item item;
+	   if (!noReturnValue(returnValue))
+		   syms->insert(returnValue);
+	   forall_items(item,*lsyms)
+	   {
+		   Symbol *asum=lsyms->inf(item);
+		   syms->insert(asum);
+	   }
+	   Symbol *sym;
+	   forall(sym,*syms)
+	   {
+		   if (sym==returnValue) {
+			   *fout << "    ScoreStream* result= (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+			   *fout << "    new_stream(result, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+		   } else {
+			   *fout << "    ScoreStream* n_" << sym->getName() << " = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+			   *fout << "    new_stream(n_"<<sym->getName()<<", 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+			//   *fout << "    #ifdef PERF" << endl;
+			//   *fout << "      STREAM_WRITE_UNSIGNED(n_"<<sym->getName()<<",0);" << endl;
+			//   *fout << "    #endif" << endl;
+		   }
+	   }
+	   *fout << endl;
 
-  *fout << "  for(int i=0; i<"<<num_states<<"; i++) {" << endl;
-  *fout << "    finished=1;" << endl;
-  *fout << "    "<<classname<<"_create(i,";
-  i=0;
-  forall(sym,*argtypes)
-    {
-      if (i>0) *fout << ",";
-      *fout << prefix << sym->getName();
-      i++;
+	    // Need to run perftest on the leaves.
+	    list<Stmt *>* statements=((OperatorCompose* )op)->getStmts();
+	    Stmt* statement;
+	    forall(statement,*statements)
+	    {
+		    if (statement->okInComposeOp())
+		    {
+			    if ((statement->getStmtKind()==STMT_CALL)
+					    ||(statement->getStmtKind()==STMT_BUILTIN))
+			    {
+				    *fout << "    " ;
+				    ccMicroblazeComposePerfTest(fout,((StmtCall *)statement)->getCall(),
+						    returnValue);
+			    }
+		    }
+	    }
+	    *fout << "}" << endl;
     }
-  *fout<<");"<< endl;
-  *fout << "    while(!finished){};" << endl;
-  *fout << "  }" << endl;
-  *fout << "}" << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -600,7 +679,11 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
     {
       *fout << endl;
       *fout << "  struct Operator* " << classname << "_ptr=(Operator*)bufmalloc(pool,sizeof(Operator));" << endl;
-      *fout << "  new_operator(" << classname << "_ptr" << "," << ins << "," << outs << ", pool);" << endl;
+      *fout << "  if(" << classname << "_ptr==NULL) {" << endl;
+      *fout << "    xil_printf(\"Could not create operator:" << classname << " error=%d\\n\",errno);" << endl;
+      *fout << "  }" << endl;
+      *fout << endl;
+      *fout << "  new_operator(" << classname << "_ptr" << "," << ins << "," << outs << ", pool, printf_mutex);" << endl;
       *fout << endl;
       *fout << "  " << classname << "_ptr->state_id = n_start_state;" << endl;
 
@@ -1073,11 +1156,11 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	  *fout << endl;
 	  *fout << "#ifdef PERF" << endl;
 	  *fout << "      int timer = stop_timer();" << endl;
-	  *fout << "      finished=1;" << endl;
-
+	  *fout << "      free_operator(" << classname << "_ptr, pool);" << endl;
 	  *fout << "      pthread_mutex_lock(&printf_mutex);" << endl;
-	  *fout << "      xil_printf(\"state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
+	  *fout << "      xil_printf(\"operator="<<classname<<" state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
 	  *fout << "      pthread_mutex_unlock(&printf_mutex);" << endl;
+	  *fout << "      finished=1;" << endl;
 	  *fout << "      return((void*)NULL);" << endl;
 	  *fout << "#endif" << endl;
 
@@ -1198,6 +1281,7 @@ void ccmicroblazebody (Operator *op)
   *fout << "#include \"shared_pool.h\"" << endl;
   *fout << "#include \"perfctr.h\"" << endl; // Added April 10th 2010 to suppoert perf-measurement of microblaze code
   *fout << "#include \"math.h\"" << endl; // Added April 10th 2010 to suppoert perf-measurement of microblaze code
+  *fout << "#include \"errno.h\"" << endl; // Added April 11th 2010
   *fout << endl;
 
   // include anythying I depend upon
