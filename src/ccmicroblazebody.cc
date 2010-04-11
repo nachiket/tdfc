@@ -500,6 +500,16 @@ void ccmicroblazeperftest(ofstream *fout, string classname, Operator* op) {
 
   *fout << ") {" << endl;
 
+  *fout << "  Operator* "<<classname<<"_ptr = "<<classname<<"_create(-1,";
+  i=0;
+  forall(sym,*argtypes)
+  {
+	  if (i>0) *fout << ",";
+	  *fout << prefix << sym->getName();
+	  i++;
+  }
+  *fout<<");"<< endl;
+
   int num_states=0;
   if (op->getOpKind()==OP_BEHAVIORAL)
     {
@@ -509,15 +519,7 @@ void ccmicroblazeperftest(ofstream *fout, string classname, Operator* op) {
     
       *fout << "  for(int i=0; i<"<<num_states<<"; i++) {" << endl;
       *fout << "    finished=0;" << endl;
-      *fout << "    "<<classname<<"_create(i,";
-      i=0;
-      forall(sym,*argtypes)
-        {
-          if (i>0) *fout << ",";
-          *fout << prefix << sym->getName();
-          i++;
-        }
-      *fout<<");"<< endl;
+      *fout << "    "<<classname<<"_launch_pthread(i,"<<classname<<"_ptr);" << endl;
       *fout << "    while(!finished){};" << endl;
       *fout << "  }" << endl;
       *fout << "}" << endl;
@@ -738,8 +740,16 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 
   if (op->getOpKind()==OP_BEHAVIORAL)
   {
-	  // launch pthread on xilkernel... this is going to be tricky
 	  *fout << endl;
+	  *fout << endl;
+  	  *fout << " return " << classname << "_ptr;" << endl;
+	  *fout << endl;
+          *fout << "}" << endl;
+
+	  // launch pthread on xilkernel... this is going to be tricky
+	  *fout << "void "<<classname<<"_launch_pthread(int state_id, Operator* "<<classname<<"_ptr) {";
+	  *fout << endl;
+	  *fout << "  "<<classname<<"_ptr->state_id = state_id;" << endl;
 	  *fout << "  // setup pthread for this leaf-level operator" << endl;
 	  *fout   << "  pthread_attr_t thread_attribute;\n"
 		  << "  pthread_attr_init(&thread_attribute);\n"
@@ -747,6 +757,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 		  << "  pthread_create(&"<<classname<<"_ptr->thread,&thread_attribute,&"
 		  << op->getName() << "_proc_run, "<<classname<<"_ptr);"
 		  << endl;
+//          *fout << "}" << endl;
   }
   else if (op->getOpKind()==OP_COMPOSE)
   {
@@ -1156,12 +1167,13 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	  *fout << endl;
 	  *fout << "#ifdef PERF" << endl;
 	  *fout << "      int timer = stop_timer();" << endl;
-	  *fout << "      free_operator(" << classname << "_ptr, pool);" << endl;
+//	  *fout << "      free_operator(" << classname << "_ptr, pool, printf_mutex);" << endl;
 	  *fout << "      pthread_mutex_lock(&printf_mutex);" << endl;
 	  *fout << "      xil_printf(\"operator="<<classname<<" state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
 	  *fout << "      pthread_mutex_unlock(&printf_mutex);" << endl;
 	  *fout << "      finished=1;" << endl;
-	  *fout << "      return((void*)NULL);" << endl;
+	  *fout << "      pthread_exit((void*)NULL);" << endl;
+//	  *fout << "      return((void*)NULL);" << endl;
 	  *fout << "#endif" << endl;
 
 	  if (num_states>1)
