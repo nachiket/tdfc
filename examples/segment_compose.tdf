@@ -1,0 +1,11 @@
+segment_compose(param unsigned[32768][16] contents) {
+
+	boolean write;
+	unsigned[16] rddata;
+	unsigned[16] wrdata;
+	unsigned[16] address;
+
+	segment_leaf(rddata, address, wrdata, write);
+	segment_rw(16, 16, 32768, contents, address, rddata, wrdata, write);
+
+}
