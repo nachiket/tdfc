@@ -91,7 +91,6 @@ void ccmicroblaze_state_definition(ofstream *fout, string classname,
 	*fout << endl;
 }
 
-
 void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 {
   if (expr->getExprKind()==EXPR_VALUE)
@@ -146,7 +145,7 @@ void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 //	    *fout << "new " ;
 	  *fout << cop->getName() << "_create";
 	}
-      *fout << "(" ;
+      *fout << "(-1," ; // -1 for start_state.. April 10th 2010
       Expr *earg;
       int first=1;
       forall(earg,*args)
@@ -249,6 +248,37 @@ void ccMicroblazeComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 }
 
 //
+void ccMicroblazeComposePerfTest(ofstream *fout, Expr *expr, Symbol *rsym) 
+{
+
+  if ((expr->getExprKind()==EXPR_CALL)) 
+  {
+      ExprCall *ecall=(ExprCall *)expr;
+      Operator *cop=ecall->getOp();
+      list<Expr*>* args=ecall->getArgs();
+      if(expr->getExprKind()!=EXPR_BUILTIN) 
+      {
+	      *fout << cop->getName() << "_perftest(";
+	      Expr *earg;
+	      int first=1;
+	      forall(earg,*args)
+	      {
+		      if (!first)
+			      *fout << ", ";
+		      else
+			      first=0;
+
+		      *fout << "n_" ;		 
+		      ccMicroblazeComposeEvalExpr(fout,earg,rsym);
+	      }
+	      *fout << ");" << endl;
+      } else {
+          cerr << "Wrong exprtype\n" << endl;
+      }
+  }
+  
+}
+
 
 void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 {
@@ -302,6 +332,7 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
 //      *fout << "    ScoreStream* " << asum->getName()  << ";" << endl;
       
     }
+
 
 
   // walk over stmts
@@ -451,6 +482,98 @@ void ccMicroblazeCompose (ofstream *fout, string classname, OperatorCompose *op)
   
 }
 
+// simple test script
+void ccmicroblazeperftest(ofstream *fout, string classname, Operator* op) {
+  list<Symbol*> *argtypes=op->getArgs();
+  string prefix="n_";
+  int i=0;
+  
+  *fout << "void* " << classname << "_perftest(";
+  
+  Symbol *sym;
+  forall(sym,*argtypes)
+    {
+      if (i>0) *fout << ",";
+      *fout << " ScoreStream* " << prefix << sym->getName();
+      i++;
+    }
+
+  *fout << ") {" << endl;
+
+  *fout << "  Operator* "<<classname<<"_ptr = "<<classname<<"_create(-1,";
+  i=0;
+  forall(sym,*argtypes)
+  {
+	  if (i>0) *fout << ",";
+	  *fout << prefix << sym->getName();
+	  i++;
+  }
+  *fout<<");"<< endl;
+
+  int num_states=0;
+  if (op->getOpKind()==OP_BEHAVIORAL)
+    {
+      OperatorBehavioral *bop=(OperatorBehavioral *)op;
+      dictionary<string,State*>* states=bop->getStates();
+      num_states=states->size();
+    
+      *fout << "  for(int i=0; i<"<<num_states<<"; i++) {" << endl;
+      *fout << "    finished=0;" << endl;
+      *fout << "    "<<classname<<"_launch_pthread(i,"<<classname<<"_ptr);" << endl;
+      *fout << "    while(!finished){};" << endl;
+      *fout << "  }" << endl;
+      *fout << "}" << endl;
+    } 
+   else if(op->getOpKind()==OP_COMPOSE) 
+   {
+				    Symbol *returnValue=op->getRetSym();
+	   SymTab *symtab=((OperatorCompose* )op)->getVars(); // get internal streams
+	   list<Symbol*>* lsyms=symtab->getSymbolOrder();
+	   set<Symbol*>* syms=new set<Symbol*>();
+	   list_item item;
+	   if (!noReturnValue(returnValue))
+		   syms->insert(returnValue);
+	   forall_items(item,*lsyms)
+	   {
+		   Symbol *asum=lsyms->inf(item);
+		   syms->insert(asum);
+	   }
+	   Symbol *sym;
+	   forall(sym,*syms)
+	   {
+		   if (sym==returnValue) {
+			   *fout << "    ScoreStream* result= (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+			   *fout << "    new_stream(result, 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+		   } else {
+			   *fout << "    ScoreStream* n_" << sym->getName() << " = (ScoreStream*)bufmalloc(pool, sizeof(ScoreStream));"  << endl;
+			   *fout << "    new_stream(n_"<<sym->getName()<<", 16, 0, 16, SCORE_STREAM_UNSIGNED_TYPE, 16, pool);"  << endl;
+			//   *fout << "    #ifdef PERF" << endl;
+			//   *fout << "      STREAM_WRITE_UNSIGNED(n_"<<sym->getName()<<",0);" << endl;
+			//   *fout << "    #endif" << endl;
+		   }
+	   }
+	   *fout << endl;
+
+	    // Need to run perftest on the leaves.
+	    list<Stmt *>* statements=((OperatorCompose* )op)->getStmts();
+	    Stmt* statement;
+	    forall(statement,*statements)
+	    {
+		    if (statement->okInComposeOp())
+		    {
+			    if ((statement->getStmtKind()==STMT_CALL)
+					    ||(statement->getStmtKind()==STMT_BUILTIN))
+			    {
+				    *fout << "    " ;
+				    ccMicroblazeComposePerfTest(fout,((StmtCall *)statement)->getCall(),
+						    returnValue);
+			    }
+		    }
+	    }
+	    *fout << "}" << endl;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////
 // constructor for master operator
 void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
@@ -460,12 +583,12 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
   string prefix="n_";
 
   // dump signature and count ins, outs, params
-  *fout << "void* " << classname << "_create(";
+  *fout << "void* " << classname << "_create(int n_start_state ";
 
   int ins=0;
   int outs=0;
   int params=0;
-  int i=0;
+  int i=1;
   if (!noReturnValue(rsym))
     outs++;
   Symbol *sym;
@@ -558,8 +681,13 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
     {
       *fout << endl;
       *fout << "  struct Operator* " << classname << "_ptr=(Operator*)bufmalloc(pool,sizeof(Operator));" << endl;
-      *fout << "  new_operator(" << classname << "_ptr" << "," << ins << "," << outs << ", pool);" << endl;
+      *fout << "  if(" << classname << "_ptr==NULL) {" << endl;
+      *fout << "    xil_printf(\"Could not create operator:" << classname << " error=%d\\n\",errno);" << endl;
+      *fout << "  }" << endl;
       *fout << endl;
+      *fout << "  new_operator(" << classname << "_ptr" << "," << ins << "," << outs << ", pool, printf_mutex);" << endl;
+      *fout << endl;
+      *fout << "  " << classname << "_ptr->state_id = n_start_state;" << endl;
 
       if (!noReturnValue(rsym))
 	{
@@ -595,6 +723,9 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 	      else if (ssym->getDir()==STREAM_IN)
 		{
 		  *fout << "  "<<classname<<"_ptr->inputs[" << icnt << "]=" << prefix << sym->getName() << ";" << endl;
+		  *fout << "#ifdef PERF" << endl;
+		  *fout << "  STREAM_WRITE_UNSIGNED(" << prefix << sym->getName() << ",0);" << endl;
+		  *fout << "#endif" << endl;
 		  icnt++;
 		}
 	      
@@ -609,8 +740,16 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 
   if (op->getOpKind()==OP_BEHAVIORAL)
   {
-	  // launch pthread on xilkernel... this is going to be tricky
 	  *fout << endl;
+	  *fout << endl;
+  	  *fout << " return " << classname << "_ptr;" << endl;
+	  *fout << endl;
+          *fout << "}" << endl;
+
+	  // launch pthread on xilkernel... this is going to be tricky
+	  *fout << "void "<<classname<<"_launch_pthread(int state_id, Operator* "<<classname<<"_ptr) {";
+	  *fout << endl;
+	  *fout << "  "<<classname<<"_ptr->state_id = state_id;" << endl;
 	  *fout << "  // setup pthread for this leaf-level operator" << endl;
 	  *fout   << "  pthread_attr_t thread_attribute;\n"
 		  << "  pthread_attr_init(&thread_attribute);\n"
@@ -618,6 +757,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
 		  << "  pthread_create(&"<<classname<<"_ptr->thread,&thread_attribute,&"
 		  << op->getName() << "_proc_run, "<<classname<<"_ptr);"
 		  << endl;
+//          *fout << "}" << endl;
   }
   else if (op->getOpKind()==OP_COMPOSE)
   {
@@ -700,7 +840,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 
   if (op->getOpKind()==OP_COMPOSE)
     {
-      *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
+      *fout << "  xil_printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
     }
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
@@ -729,7 +869,19 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
       *fout << "};" << endl;
 
       *fout << "  state_syms state=" << STATE_PREFIX 
-	    << start_state->getName() << ";" << endl; 
+	    << start_state->getName() << ";" << endl;
+
+      // Added April 10th 2010: specify starting state.. according to initialized state if
+      *fout << endl;
+      *fout << "  switch("<<classname<<"_ptr->state_id) {" << endl;
+      int index=0;
+      forall_items(item, *states) {
+        *fout << "    case "<<index<<": state = " << STATE_PREFIX << states->inf(item)->getName() << "; break;" << endl;
+	index++;
+      }
+        *fout << "    default : state = " << STATE_PREFIX << start_state->getName() << "; break;" << endl;
+      *fout << "  }" << endl;
+
       // declare top level vars
       SymTab *symtab=bop->getVars();
       list<Symbol*>* lsyms=symtab->getSymbolOrder();
@@ -900,6 +1052,13 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 		    }
 		  
 		}
+
+
+		// April 10th 2010: Added support for timers
+	      *fout << endl;
+	      *fout << "#ifdef PERF" << endl;
+	      *fout << "        start_timer();" << endl;
+	      *fout << "#endif" << endl;
 	      
 	      *fout << endl;
 	      *fout << "       ";
@@ -1004,6 +1163,19 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	    *fout << "}" << endl;
 	  }
 
+	  // April 10th 2010: Added support for timers
+	  *fout << endl;
+	  *fout << "#ifdef PERF" << endl;
+	  *fout << "      int timer = stop_timer();" << endl;
+//	  *fout << "      free_operator(" << classname << "_ptr, pool, printf_mutex);" << endl;
+	  *fout << "      pthread_mutex_lock(&printf_mutex);" << endl;
+	  *fout << "      xil_printf(\"operator="<<classname<<" state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
+	  *fout << "      pthread_mutex_unlock(&printf_mutex);" << endl;
+	  *fout << "      finished=1;" << endl;
+	  *fout << "      pthread_exit((void*)NULL);" << endl;
+//	  *fout << "      return((void*)NULL);" << endl;
+	  *fout << "#endif" << endl;
+
 	  if (num_states>1)
 	    {
 	      *fout << "        break; " << endl;
@@ -1014,7 +1186,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 	}
       if (num_states>1)
 	{
-	  *fout << "      default: printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
+	  *fout << "      default: xil_printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
 	  *fout << "        return((void*)NULL);" << endl;
 	  *fout << "    }" << endl;
 	}
@@ -1119,6 +1291,9 @@ void ccmicroblazebody (Operator *op)
   *fout << "#include \"" << name << ".h\"" << endl;
   *fout << "#include \"xparameters.h\"" << endl;
   *fout << "#include \"shared_pool.h\"" << endl;
+  *fout << "#include \"perfctr.h\"" << endl; // Added April 10th 2010 to suppoert perf-measurement of microblaze code
+  *fout << "#include \"math.h\"" << endl; // Added April 10th 2010 to suppoert perf-measurement of microblaze code
+  *fout << "#include \"errno.h\"" << endl; // Added April 11th 2010
   *fout << endl;
 
   // include anythying I depend upon
@@ -1143,6 +1318,11 @@ void ccmicroblazebody (Operator *op)
 
   // constructor
   ccmicroblazeconstruct(fout,classname,op);
+
+  *fout << endl;
+
+  // perf test
+  ccmicroblazeperftest(fout, classname, op);
 
   *fout << endl;
 
