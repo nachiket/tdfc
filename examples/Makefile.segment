@@ -1,0 +1,9 @@
+all:	segment_test.cc segment_compose.h segment_compose.cc segment_leaf.h segment_leaf.cc segment_test.o
+segment_test.o:	
+	g++  -Wno-write-strings -I/opt/leda/incl -I/home/nachiket/workspace/ScoreRuntime -L/home/nachiket/workspace/ScoreRuntime -L/opt/leda segment_test.cc segment_compose.cc segment_leaf.cc -o segment_test.o -lleda -lX11 -lScoreRuntime -lpthread
+segment_compose.cc segment_compose.h:	segment_compose.tdf ~/workspace/tdfc/tdfc
+	tdfc -ecc segment_compose.tdf segment_leaf.tdf
+segment_leaf.cc segment_leaf.h:	segment_leaf.tdf ~/workspace/tdfc/tdfc
+	tdfc -ecc segment_leaf.tdf
+clean:
+	rm *.o *.h
