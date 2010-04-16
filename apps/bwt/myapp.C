@@ -12,6 +12,8 @@ void     file_close(FILE *fp);
 FILE *   file_open_rb(const char *name);
 FILE *   file_open_wb(const char *name);
 
+ofstream* ScoreOperator::fout = NULL;
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         cout << "USAGE: myapp infile outfile" << endl;
