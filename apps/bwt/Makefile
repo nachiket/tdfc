@@ -6,7 +6,7 @@ DEBUGFLAG = -O3 -DNDEBUG
 PROFLAG =
 
 # include /cs/research/ic/software/SCORE.aug02/app/common/Makefile.common
-include /usr/local/SCORE/app/common/Makefile.common
+#include /usr/local/SCORE/app/common/Makefile.common
 
 # name of the executable user program
 TARGET = myapp
@@ -33,13 +33,12 @@ SCORE_C_SRCS = myapp.C
 SCORE_TDF_OBJS = $(SCORE_TDF_SRCS:.tdf=.o)
 SCORE_C_OBJS = $(SCORE_C_SRCS:.C=.o)
 OBJS = $(SCORE_TDF_OBJS) $(SCORE_C_OBJS) $(MAIN_OBJECTS)
+CXXFLAGS = -I/opt/leda/incl -I/home/nachiket/workspace/ScoreRuntime -L/home/nachiket/workspace/ScoreRuntime -L/opt/leda
+MAIN_LIBRARIES = -lleda -lX11 -lScoreRuntime -lpthread
 
 # targets:
 
-all: $(EXPORT_FILES) $(TARGET) force_instances
-
-force_instances:
-	$(MAKE) -f $(INSTANCE_MAKEFILE)
+all: $(EXPORT_FILES) $(TARGET) 
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(MAIN_LIBRARIES) 
