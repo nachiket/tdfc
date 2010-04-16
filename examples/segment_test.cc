@@ -16,6 +16,9 @@ int main(int argc, char *argv[]) {
 
     NEW_segment_compose(contents);
 
+    while(1) {
+    }
+
     score_exit();
 }
 

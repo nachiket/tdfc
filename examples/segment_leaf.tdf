@@ -1,18 +1,14 @@
 segment_leaf(
 input unsigned[16] rddata, 
-output unsigned[4] address,
-output unsigned[16] wrdata,
-output boolean write) {
+output unsigned[4] address) {
 	
 	unsigned[4] address_r=0;
 
 	state generate_address():
 		address_r=(address_r+1)%256;
 		address=address_r;
-		wrdata=256-address_r;
-		write=true;
 		printf("Address=%d\n", address_r);
-		goto read_data;
+		//goto read_data;
 
 	state read_data(rddata):
 		printf("Data=%d\n", rddata);
