@@ -1,9 +1,9 @@
 segment_compose(param unsigned[256][16] contents) {
 
 	unsigned[16] rddata;
-	unsigned[4] address;
+	unsigned[16] address;
 
 	segment_leaf(rddata, address);
-	segment_r(16, 4, 256, contents, address, rddata);
+	segment_r(16, 16, 256, contents, address, rddata);
 
 }
