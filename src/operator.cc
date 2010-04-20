@@ -340,9 +340,15 @@ OperatorSegment* makeOperatorSegment (Token *token_i,
 						 new ExprLValue(NULL,awidthSym),
 						 constIntExpr(1)),
 						 false));
+
+  // Added double/float types on April 20th 2010						 
   Type      *dataType	= (dataType_i->getTypeKind()==TYPE_BOOL)
-			? new Type(TYPE_BOOL)
-			: new Type(dataType_i->getTypeKind(),
+			? new Type(TYPE_BOOL) :
+			(dataType_i->getTypeKind()==TYPE_DOUBLE)
+			? new Type(TYPE_DOUBLE) :
+			(dataType_i->getTypeKind()==TYPE_FLOAT)
+			? new Type(TYPE_FLOAT) :
+			new Type(dataType_i->getTypeKind(),
 				   new ExprLValue(NULL,dwidthSym),
 				   dataType_i->isSigned());
   TypeArray *arrayType	= new TypeArray((Type*)dataType->duplicate(),
