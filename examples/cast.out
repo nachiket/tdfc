@@ -26,4 +26,31 @@ casting3 (param unsigned[4] p, input unsigned[4] i, output signed[9] o)
     o=(signed[9])(((signed[5])p)*i);
 }
 
-warning: Exiting...
+warning: Generating instance casting(,)
+cast.tdf:6: at "=": warning: assignment from type signed[5] to type signed[4] may lose information
+
+// operator instance [compositional] casting_d1_ScOrEtMp0(,)
+
+signed[4] casting_d1_ScOrEtMp0 (input unsigned[8] a, input unsigned[8] b)
+{
+  state only (a,b) :
+    casting_d1_ScOrEtMp0=((signed[4])a[2:0])+((unsigned[3])b[5:3]);
+}
+warning: Generating instance casting2(0,,)
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+warning: constant folding truncated -1 --> 511 to fit 9 bits unsigned
+
+// operator instance [compositional] casting2_d1_ScOrEtMp1(0,,)
+
+unsigned[0] casting2_d1_ScOrEtMp1 (param unsigned[8] n, input unsigned[0] a, input unsigned[0] b)
+{
+  state only (a,b) :
+    if (((signed[2])a)==((unsigned[3])b))
+      casting2_d1_ScOrEtMp1=bitsof(a+((signed[8])b));
+}
+warning: Generating instance casting3(0,,)
+folding out *0 on mult [(0*i)]
+Segmentation fault
