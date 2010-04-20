@@ -13,10 +13,13 @@ int main(int argc, char *argv[]) {
     score_init();
 
     UNSIGNED_SCORE_SEGMENT contents = NEW_UNSIGNED_SCORE_SEGMENT(256, 16);
-    unsigned long long *data = (unsigned long long *)GET_SEGMENT_DATA(contents);
-    cout << "Data pointer=" << data << endl;
+//    unsigned long long *data = (unsigned long long *)GET_SEGMENT_DATA(contents);
+//    cout << "Data pointer=" << data << endl;
+//    for(int i=0;i<256;i++) {
+//	   data[i]=256;
+//    }
     for(int i=0;i<256;i++) {
-	   data[i]=256;
+      SEGMENT_WRITE(contents, 30001, i);
     }
 
     NEW_segment_compose(contents);
