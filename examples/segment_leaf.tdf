@@ -1,18 +1,18 @@
 segment_leaf(
 input unsigned[16] rddata, 
-output unsigned[16] address) {
+output unsigned[8] address) {
 	
-	unsigned[16] address_r=0;
+	unsigned[8] address_r=0;
 
 	state generate_address():
-		address_r=(address_r+1)%32768;
+		address_r=(address_r+1)%256;
 		address=address_r;
 		printf("Address=%d\n", address_r);
 		goto read_data;
 
 	state read_data(rddata):
 		printf("Data=%d\n", rddata);
-		if(address_r==32767) {
+		if(address_r==255) {
 			goto done_state;
 		} else {
 			goto generate_address;

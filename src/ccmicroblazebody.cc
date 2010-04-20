@@ -583,7 +583,7 @@ void ccmicroblazeconstruct(ofstream *fout,string classname, Operator *op)
   string prefix="n_";
 
   // dump signature and count ins, outs, params
-  *fout << "void* " << classname << "_create(int n_start_state ";
+  *fout << "Operator* " << classname << "_create(int n_start_state ";
 
   int ins=0;
   int outs=0;

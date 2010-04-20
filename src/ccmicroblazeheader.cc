@@ -226,7 +226,7 @@ void ccmicroblazeheader (Operator *op)
   *fout << "void* " << classname << "_perftest(" ;
   microblaze_constructor_signatures(fout,rsym,argtypes, false);
   *fout << "  );" << endl;
-  *fout << "void* " << classname << "_create(" ;
+  *fout << "Operator* " << classname << "_create(" ;
   microblaze_constructor_signatures(fout,rsym,argtypes, true);
   *fout << "  );" << endl;
   *fout << "void* "+classname+"_proc_run(void*);" << endl;
