@@ -1,5 +1,4 @@
-#include "ScoreStream.h"
-#include "ScoreSegment.h"
+#include "Score.h"
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -13,6 +12,11 @@ int main(int argc, char *argv[]) {
 
     score_init();
 
+    UNSIGNED_SCORE_STREAM a = NEW_UNSIGNED_SCORE_STREAM(16);
+    a->getSizeOfSGN();
+
+    cout << "Case 0: size segment " << sizeof(ScoreSegment) << " graph node "
+    << sizeof(ScoreGraphNode) << endl;
     UNSIGNED_SCORE_SEGMENT contents = NEW_UNSIGNED_SCORE_SEGMENT(256, 16);
 
 //    exit(1);
@@ -20,6 +24,8 @@ int main(int argc, char *argv[]) {
 //	printf("Case 2.-1: data() %lu ",contents->data());
 //	printf("hiy %d %lu\n",contents->hiy,&contents->hiy);
     cout << "Case 2: size " << sizeof(*contents) << " size2 "<< sizeof(ScoreSegment)<< " contents" << contents << " dataPtr=" << (contents->dataPtr) << " &dataPtr=" << &(contents->dataPtr) << endl;
+    cout << "Case 2.5: size segment " << sizeof(ScoreSegment) << " graph node "
+    << sizeof(ScoreGraphNode) << endl;
     int* ptr;
     ptr = (int *)&contents->dataPtr;
     ptr+=5;
