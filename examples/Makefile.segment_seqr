@@ -1,0 +1,7 @@
+all:	segment_seqr_test.cc segment_seqr_compose.h segment_seqr_compose.cc segment_seqr_test.o
+segment_seqr_test.o:	segment_seqr_test.cc
+	g++ -g -Wno-write-strings -I/opt/leda/incl -I/home/nachiket/workspace/ScoreRuntime -L/home/nachiket/workspace/ScoreRuntime -L/opt/leda segment_seqr_test.cc segment_seqr_compose.cc -o segment_seqr_test.o -lleda -lX11 -lScoreRuntime -lpthread
+segment_seqr_compose.cc segment_seqr_compose.h:	segment_seqr_compose.tdfc ~/workspace/tdfc/tdfc
+	tdfc -ecc segment_seqr_compose.tdfc
+clean:
+	rm *.o *.h
