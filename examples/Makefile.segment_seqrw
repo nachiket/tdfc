@@ -1,0 +1,10 @@
+all:
+	tdfc -ecc segment_seqrw_compose.tdfc
+	g++ -g -Wno-write-strings \
+		-I/opt/leda/incl \
+		-I/home/nachiket/workspace/ScoreRuntime \
+		-L/home/nachiket/workspace/ScoreRuntime \
+		-L/opt/leda \
+		segment_seqrw_test.cc segment_seqrw_compose.cc \
+		-o segment_seqrw_test.o \
+		-lleda -lX11 -lScoreRuntime -lpthread
