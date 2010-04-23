@@ -1,7 +1,7 @@
 segment_seqrw_compose(
 param unsigned[16][16] contents, 
-input unsigned[16] wrdata,
-output unsigned[16] rddata) {
+output unsigned[16] rddata,
+input unsigned[16] wrdata) {
 
 	segment_seq_rw(16, 4, 16, contents, rddata, wrdata);
 

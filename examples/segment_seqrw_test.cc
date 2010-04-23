@@ -22,21 +22,26 @@ int main(int argc, char *argv[]) {
     
     int index=0;
     while(1) {
-        // wait for something to be inserted into rddata
-    	while(STREAM_EMPTY(rddata)) {
-	}
+	    // wait for something to be inserted into rddata
+	    while(STREAM_EMPTY(rddata)) {
+	    }
 
-	long long int data=STREAM_READ_NOACC(rddata);
-	cout << "Read data item=" << data << endl;
+	    if(STREAM_EOFR(rddata)) {
+		    STREAM_READ_NOACC(rddata);
+	    } else {
 
-	// wait for non-full condition
-	while(STREAM_FULL(wrdata)) {
-	}
+		    long long int data=STREAM_READ_NOACC(rddata);
+		    cout << "Read data item=" << data << endl;
 
-	data=200+index;
-	STREAM_WRITE_NOACC(wrdata, data);	  
-	cout << "Wrote data item=" << data << endl;
-	index++;	
+		    // wait for non-full condition
+		    while(STREAM_FULL(wrdata)) {
+		    }
+
+		    data=200+index;
+		    STREAM_WRITE_NOACC(wrdata, data);	  
+		    cout << "Wrote data item=" << data << endl;
+		    index++;	
+	    }
     }
 
     score_exit();
