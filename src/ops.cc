@@ -48,6 +48,7 @@ string opToString (int op)
     case EXP:		return string("exp");
     case LOG:		return string("log");
     case SQRT:		return string("sqrt");
+    case ABS:		return string("abs");
     case FLOOR:		return string("floor");
     default:		if (op=='%')	return string('%');
     //			if (op==38)	return string('%'); // don't know why op=='%' didn't work....... GOT IT! turning into mask! Jesus!
@@ -70,6 +71,7 @@ string opToNodename (int op)
     case EXP:		return string("exp");
     case LOG:		return string("log");
     case SQRT:		return string("sqrt");
+    case ABS:		return string("abs");
     case FLOOR:		return string("floor");
     case IF:		return string("if");
     default:		if (op=='%')	return string("perc");
