@@ -1575,6 +1575,9 @@ Type* ExprUop::typeCheck ()
 		   ", should be float or double ", e->getToken());
       }
     case FLOOR:
+    case ABS:
+    case EXP:
+    case LOG:
       if(eType->getTypeKind()==TYPE_FLOAT || eType->getTypeKind()==TYPE_DOUBLE) {
 	  type=(Type*)eType->duplicate();	// - warning: duplicates pred
 

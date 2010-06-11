@@ -220,6 +220,7 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "exp"		{ return_token(EXP);		}
 "log"		{ return_token(LOG);		}
 "sqrt"		{ return_token(SQRT);		}
+"abs"		{ return_token(ABS);		}
 "floor"		{ return_token(FLOOR);		}
 
 "signed"	{ return_token(SIGNED);		}
