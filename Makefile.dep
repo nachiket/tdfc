@@ -33,7 +33,6 @@ tdfc.o: src/tdfc.cc /opt/leda/incl/LEDA/core/string.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -55,8 +54,9 @@ tdfc.o: src/tdfc.cc /opt/leda/incl/LEDA/core/string.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -205,7 +205,7 @@ tree.o: src/tree.cc src/tree.h /usr/include/sys/types.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -364,7 +364,6 @@ suite.o: src/suite.cc /usr/include/assert.h /usr/include/features.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -386,8 +385,9 @@ suite.o: src/suite.cc /usr/include/assert.h /usr/include/features.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -529,7 +529,7 @@ operator.o: src/operator.cc src/compares.h src/parse.h src/state.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -691,7 +691,7 @@ state.o: src/state.cc src/parse.h src/state.h src/compares.h src/symbol.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -853,7 +853,7 @@ stmt.o: src/stmt.cc src/parse.h src/state.h src/compares.h src/symbol.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -1015,7 +1015,7 @@ expr.o: src/expr.cc /usr/include/assert.h /usr/include/features.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -1180,7 +1180,7 @@ symbol.o: src/symbol.cc /usr/include/assert.h /usr/include/features.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -1338,7 +1338,6 @@ type.o: src/type.cc /usr/include/assert.h /usr/include/features.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -1360,8 +1359,9 @@ type.o: src/type.cc /usr/include/assert.h /usr/include/features.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -1504,7 +1504,7 @@ misc.o: src/misc.cc src/compares.h src/parse.h src/state.h src/symbol.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -1830,7 +1830,6 @@ ops.o: src/ops.cc /opt/leda/incl/LEDA/core/string.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -1852,8 +1851,9 @@ ops.o: src/ops.cc /opt/leda/incl/LEDA/core/string.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -1995,7 +1995,7 @@ gc.o: src/gc.cc src/compares.h src/gc.h src/tree.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -2154,7 +2154,6 @@ instance.o: src/instance.cc /opt/leda/incl/LEDA/core/string.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -2176,8 +2175,9 @@ instance.o: src/instance.cc /opt/leda/incl/LEDA/core/string.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -2324,7 +2324,7 @@ feedback.o: src/feedback.cc /usr/include/stdio.h /usr/include/features.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -2451,7 +2451,6 @@ bindvalues.o: src/bindvalues.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -2473,8 +2472,9 @@ bindvalues.o: src/bindvalues.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -2614,8 +2614,7 @@ ccbody.o: src/ccbody.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -2637,8 +2636,9 @@ ccbody.o: src/ccbody.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -2780,8 +2780,7 @@ ccmicroblazebody.o: src/ccmicroblazebody.cc src/compares.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -2803,8 +2802,9 @@ ccmicroblazebody.o: src/ccmicroblazebody.cc src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -2946,8 +2946,7 @@ ccdfgbody.o: src/ccdfgbody.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -2969,8 +2968,9 @@ ccdfgbody.o: src/ccdfgbody.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -3114,8 +3114,7 @@ ccheader.o: src/ccheader.cc /usr/include/time.h /usr/include/features.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -3137,8 +3136,9 @@ ccheader.o: src/ccheader.cc /usr/include/time.h /usr/include/features.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -3276,8 +3276,7 @@ ccmicroblazeheader.o: src/ccmicroblazeheader.cc /usr/include/time.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -3299,8 +3298,9 @@ ccmicroblazeheader.o: src/ccmicroblazeheader.cc /usr/include/time.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -3438,8 +3438,7 @@ ccinstance.o: src/ccinstance.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -3461,8 +3460,9 @@ ccinstance.o: src/ccinstance.cc src/compares.h /usr/include/time.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -3609,7 +3609,6 @@ cccase.o: src/cccase.cc src/compares.h /opt/leda/incl/LEDA/core/array.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -3631,8 +3630,9 @@ cccase.o: src/cccase.cc src/compares.h /opt/leda/incl/LEDA/core/array.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -3763,7 +3763,6 @@ cccopy.o: src/cccopy.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -3785,8 +3784,9 @@ cccopy.o: src/cccopy.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -3934,7 +3934,7 @@ cceval.o: src/cceval.cc src/parse.h src/state.h src/compares.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -4086,7 +4086,6 @@ ccmem.o: src/ccmem.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -4108,8 +4107,9 @@ ccmem.o: src/ccmem.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -4255,7 +4255,6 @@ ccprep.o: src/ccprep.cc src/operator.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -4277,8 +4276,9 @@ ccprep.o: src/ccprep.cc src/operator.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -4418,7 +4418,6 @@ ccrename.o: src/ccrename.cc src/operator.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -4440,8 +4439,9 @@ ccrename.o: src/ccrename.cc src/operator.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -4550,7 +4550,6 @@ ccstmt.o: src/ccstmt.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -4572,8 +4571,9 @@ ccstmt.o: src/ccstmt.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -4713,8 +4713,7 @@ cctype.o: src/cctype.cc /usr/include/time.h /usr/include/features.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -4736,8 +4735,9 @@ cctype.o: src/cctype.cc /usr/include/time.h /usr/include/features.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -4885,7 +4885,6 @@ rateTable.o: src/rateTable.cc src/operator.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -4907,8 +4906,9 @@ rateTable.o: src/rateTable.cc src/operator.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -5057,9 +5057,8 @@ rateInstance.o: src/rateInstance.cc /usr/include/string.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h \
-  /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
-  /usr/include/c++/4.1.3/bits/stringfwd.h \
+  /usr/include/bits/setjmp.h /usr/include/c++/4.1.3/cctype \
+  /usr/include/ctype.h /usr/include/c++/4.1.3/bits/stringfwd.h \
   /usr/include/c++/4.1.3/bits/postypes.h /usr/include/c++/4.1.3/cwchar \
   /usr/include/c++/4.1.3/ctime /usr/include/bits/wchar.h \
   /usr/include/stdint.h /usr/include/c++/4.1.3/bits/functexcept.h \
@@ -5223,9 +5222,8 @@ ribody.o: src/ribody.cc /usr/include/string.h /usr/include/features.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h \
-  /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
-  /usr/include/c++/4.1.3/bits/stringfwd.h \
+  /usr/include/bits/setjmp.h /usr/include/c++/4.1.3/cctype \
+  /usr/include/ctype.h /usr/include/c++/4.1.3/bits/stringfwd.h \
   /usr/include/c++/4.1.3/bits/postypes.h /usr/include/c++/4.1.3/cwchar \
   /usr/include/c++/4.1.3/ctime /usr/include/bits/wchar.h \
   /usr/include/stdint.h /usr/include/c++/4.1.3/bits/functexcept.h \
@@ -5373,7 +5371,6 @@ linux_meminfo.o: src/linux_meminfo.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -5395,8 +5392,9 @@ linux_meminfo.o: src/linux_meminfo.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -5513,7 +5511,7 @@ canonical.o: src/canonical.cc src/state.h src/compares.h src/symbol.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -5673,7 +5671,6 @@ mincut.o: src/mincut.cc src/mincut.h /opt/leda/incl/LEDA/graph/graph.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -5695,8 +5692,9 @@ mincut.o: src/mincut.cc src/mincut.h /opt/leda/incl/LEDA/graph/graph.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -5833,7 +5831,6 @@ clusterstates.o: src/clusterstates.cc /usr/include/stdio.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
   /usr/include/c++/4.1.3/bits/stringfwd.h \
@@ -5853,8 +5850,9 @@ clusterstates.o: src/clusterstates.cc /usr/include/stdio.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -5994,7 +5992,6 @@ feedback_fsm.o: src/feedback_fsm.cc src/operator.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6016,8 +6013,9 @@ feedback_fsm.o: src/feedback_fsm.cc src/operator.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -6156,7 +6154,6 @@ ir_graph.o: src/ir_graph.cc src/ir_graph.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6178,8 +6175,9 @@ ir_graph.o: src/ir_graph.cc src/ir_graph.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -6319,7 +6317,6 @@ ir_analyze_registers.o: src/ir_analyze_registers.cc src/ir_graph.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6341,8 +6338,9 @@ ir_analyze_registers.o: src/ir_analyze_registers.cc src/ir_graph.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -6485,7 +6483,6 @@ ir_arch_dep.o: src/ir_arch_dep.cc src/operator.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6507,8 +6504,9 @@ ir_arch_dep.o: src/ir_arch_dep.cc src/operator.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -6638,7 +6636,6 @@ ir_bindtimearea.o: src/ir_bindtimearea.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6660,8 +6657,9 @@ ir_bindtimearea.o: src/ir_bindtimearea.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -6800,7 +6798,6 @@ ir_create_dfg.o: src/ir_create_dfg.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6822,8 +6819,9 @@ ir_create_dfg.o: src/ir_create_dfg.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -6968,7 +6966,6 @@ ir_create_newrep.o: src/ir_create_newrep.cc src/suite.h src/compares.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -6990,8 +6987,9 @@ ir_create_newrep.o: src/ir_create_newrep.cc src/suite.h src/compares.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -7123,7 +7121,6 @@ ir_create_ofg.o: src/ir_create_ofg.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -7145,8 +7142,9 @@ ir_create_ofg.o: src/ir_create_ofg.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -7284,7 +7282,6 @@ ir_create_sfg.o: src/ir_create_sfg.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -7306,8 +7303,9 @@ ir_create_sfg.o: src/ir_create_sfg.cc /usr/include/c++/4.1.3/iostream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -7459,7 +7457,7 @@ dismantle.o: src/dismantle.cc /usr/include/string.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -7609,7 +7607,6 @@ pagedfg.o: src/pagedfg.cc /usr/include/c++/4.1.3/fstream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -7631,8 +7628,9 @@ pagedfg.o: src/pagedfg.cc /usr/include/c++/4.1.3/fstream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -7770,7 +7768,6 @@ pagenetlist.o: src/pagenetlist.cc /usr/include/c++/4.1.3/fstream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -7792,8 +7789,9 @@ pagenetlist.o: src/pagenetlist.cc /usr/include/c++/4.1.3/fstream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -7939,7 +7937,6 @@ pagenetlistdot.o: src/pagenetlistdot.cc /opt/leda/incl/LEDA/graph/graph.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -7961,8 +7958,9 @@ pagenetlistdot.o: src/pagenetlistdot.cc /opt/leda/incl/LEDA/graph/graph.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -8102,7 +8100,6 @@ blockdfg.o: src/blockdfg.cc src/blockdfg.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -8124,8 +8121,9 @@ blockdfg.o: src/blockdfg.cc src/blockdfg.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -8262,7 +8260,6 @@ streamdepth.o: src/streamdepth.cc /usr/include/assert.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -8284,8 +8281,9 @@ streamdepth.o: src/streamdepth.cc /usr/include/assert.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -8424,7 +8422,6 @@ synplify.o: src/synplify.cc /usr/include/c++/4.1.3/fstream \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -8446,8 +8443,9 @@ synplify.o: src/synplify.cc /usr/include/c++/4.1.3/fstream \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -8601,7 +8599,7 @@ dummypages.o: src/dummypages.cc src/symbol.h src/compares.h src/tree.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -8763,7 +8761,7 @@ pipeext.o: src/pipeext.cc src/state.h src/compares.h src/symbol.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -8925,7 +8923,7 @@ everilog_symtab.o: src/everilog_symtab.cc src/everilog_symtab.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -9086,7 +9084,7 @@ everilog.o: src/everilog.cc src/expr.h /usr/include/sys/types.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/ctype.h \
@@ -9238,8 +9236,7 @@ everilog_compose.o: src/everilog_compose.cc /usr/include/time.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/bits/sched.h /usr/include/bits/pthreadtypes.h \
   /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
@@ -9261,8 +9258,9 @@ everilog_compose.o: src/everilog_compose.cc /usr/include/time.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -9419,7 +9417,6 @@ parse_tdf.tab.o: parse_tdf.tab.cc /usr/include/assert.h \
   /usr/include/pthread.h /usr/include/endian.h /usr/include/bits/endian.h \
   /usr/include/bits/byteswap.h /usr/include/sched.h /usr/include/time.h \
   /usr/include/bits/sched.h /usr/include/bits/time.h \
-  /usr/include/signal.h /usr/include/bits/sigset.h \
   /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
   /usr/include/unistd.h /usr/include/bits/posix_opt.h \
   /usr/include/bits/environments.h /usr/include/bits/confname.h \
@@ -9441,8 +9438,9 @@ parse_tdf.tab.o: parse_tdf.tab.cc /usr/include/assert.h \
   /usr/include/c++/4.1.3/cstdlib /usr/include/stdlib.h \
   /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
   /usr/include/sys/types.h /usr/include/sys/select.h \
-  /usr/include/bits/select.h /usr/include/sys/sysmacros.h \
-  /usr/include/alloca.h /usr/include/c++/4.1.3/bits/stl_pair.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.1.3/bits/stl_pair.h \
   /usr/include/c++/4.1.3/bits/cpp_type_traits.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_types.h \
   /usr/include/c++/4.1.3/bits/stl_iterator_base_funcs.h \
@@ -9591,7 +9589,7 @@ tokenize_tdf.o: tokenize_tdf.cc /usr/include/stdio.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr.h \
   /usr/include/c++/4.1.3/i486-linux-gnu/bits/gthr-default.h \
   /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
-  /usr/include/signal.h /usr/include/bits/setjmp.h /usr/include/unistd.h \
+  /usr/include/bits/setjmp.h /usr/include/unistd.h \
   /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
   /usr/include/bits/confname.h /usr/include/getopt.h \
   /usr/include/c++/4.1.3/cctype /usr/include/c++/4.1.3/bits/stringfwd.h \
