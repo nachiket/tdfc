@@ -7,7 +7,7 @@
 ################################################################
 # user-modifiable:
 
-PARSER		= ../tdfc
+PARSER		= /home/abid/PhD/HighLevelSynthesis/Compiler/tdfc
 TDFCFLAGS	= 
 
 ################################################################
