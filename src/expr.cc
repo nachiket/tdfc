@@ -1072,6 +1072,8 @@ Type* ExprBuiltin::typeCheck ()
 	    Type *t = e->typeCheck();
 	    if ((t->getTypeKind()==TYPE_BOOL)
 		||(t->getTypeKind()==TYPE_INT)
+		||(t->getTypeKind()==TYPE_FLOAT)
+		||(t->getTypeKind()==TYPE_DOUBLE)
 		||(t->getTypeKind()==TYPE_FIXED))
 	      {
 		if (prototype==(Type *)NULL)
