@@ -532,8 +532,16 @@ string getCCtype (Symbol *rsym, bool treat_as_stream)
     {
       // all parameters should be castable to long's
       //  ...but may want to add some abstraction here in the future
+      // Yes, adding on 7th Feb 2011...
       Type *stype=rsym->getType();
-      if (stype->isSigned())
+      TypeKind tk=stype->getTypeKind();
+      if (tk==TYPE_BOOL)
+	return("bool");
+      else if (tk==TYPE_FLOAT)
+	return("float");
+      else if (tk==TYPE_DOUBLE)
+	return("double");
+      else if (stype->isSigned())
 	return("long");
       else
 	return("unsigned long");

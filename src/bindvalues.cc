@@ -1631,14 +1631,17 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 
 	    TypeKind t =  (*(*svar).getType()).getTypeKind();
 	    if(t==TYPE_DOUBLE) {
+//	    cout << "Bind values... double" << endl;
 		    svar->setValue(new ExprValue(sym->getToken(),
 					 sym->getType(),
 					 (double)rec->getParam(i)));
 	    } else if(t==TYPE_FLOAT) {
+//	    cout << "Bind values... float" << endl;
 		    svar->setValue(new ExprValue(sym->getToken(),
 					 sym->getType(),
 					 (float)rec->getParam(i)));
 	    } else {
+//	    cout << "Bind values... WTF" << endl;
 		    // TODO/note: not handling fixed point case
 		    svar->setValue(new ExprValue(sym->getToken(),
 					 sym->getType(),
@@ -1657,6 +1660,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 	  }
 	else
 	  {
+//	    cout << "Bind values... WTF" << endl;
 
 	    if (!(sym->isParam()))
 	      error(-1,(string("parameter %d (",i)+sym->getName()+
