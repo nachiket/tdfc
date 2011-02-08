@@ -55,7 +55,7 @@ PURIFY	=
 #  - select compiler version:
 
 TOOLS_PATH	= /usr/bin
-COMPILER	= $(TOOLS_PATH)/g++-4.1
+COMPILER	= $(TOOLS_PATH)/g++
 PERL		= $(TOOLS_PATH)/perl
 LEX		= $(TOOLS_PATH)/flex
 YACC		= $(TOOLS_PATH)/bison

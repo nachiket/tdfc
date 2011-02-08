@@ -1,9 +1,9 @@
-all:	segment_test.cc segment_compose.h segment_compose.cc segment_leaf.h segment_leaf.cc segment_test.o ~/workspace/ScoreRuntime/libScoreRuntime.a
-segment_test.o:	segment_test.cc segment_compose.cc segment_leaf.cc ~/workspace/ScoreRuntime/libScoreRuntime.a
-	g++ -Wno-write-strings -Wall -I/opt/leda/incl -I/home/nachiket/workspace/ScoreRuntime -L/home/nachiket/workspace/ScoreRuntime -L/opt/leda segment_test.cc segment_compose.cc segment_leaf.cc -o segment_test.o -lleda -lX11 -lScoreRuntime -lpthread
-segment_compose.cc segment_compose.h:	segment_compose.tdf ~/workspace/tdfc/tdfc ~/workspace/ScoreRuntime/libScoreRuntime.a
-	tdfc -ecc segment_compose.tdf segment_leaf.tdf
-segment_leaf.cc segment_leaf.h:	segment_leaf.tdf ~/workspace/tdfc/tdfc
-	tdfc -ecc segment_leaf.tdf
+all:	segment_test.cc segment_compose.h segment_compose.cc segment_leaf.h segment_leaf.cc segment_test.o /home/abid/PhD/HighLevelSyntesis/ScoreRuntime/libScoreRuntime.a
+segment_test.o:	segment_test.cc segment_compose.cc segment_leaf.cc /home/abid/PhD/HighLevelSynthesis/ScoreRuntime/libScoreRuntime.a
+	g++ -Wno-write-strings -Wall -I/opt/leda/incl -I/home/abid/PhD/HighLevelSynthesis/ScoreRuntime -L/home/abid/PhD/HighLevelSynthesis/ScoreRuntime -L/opt/leda segment_test.cc segment_compose.cc segment_leaf.cc -o segment_test.o -lleda -lX11 -lScoreRuntime -lpthread
+segment_compose.cc segment_compose.h:	segment_compose.tdf  /home/abid/PhD/HighLevelSynthesis/Compiler/tdfc  /home/abid/PhD/HighLevelSynthesis/ScoreRuntime/libScoreRuntime.a
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc segment_compose.tdf segment_leaf.tdf
+segment_leaf.cc segment_leaf.h:	segment_leaf.tdf     /home/abid/PhD/HighLevelSynthesis/Compiler/tdfc	
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc segment_leaf.tdf
 clean:
 	rm *.o *.h

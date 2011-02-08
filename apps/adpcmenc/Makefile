@@ -3,9 +3,9 @@
 
 
 #SCORE_RUNTIME	= /project/cs/brass/a/tools/brass/gold/SCORE/runtime
-SCORE_RUNTIME	= /home/eecs/yurym/ScoreRuntime
-LEDA_INCLUDE_DIR= /project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1/incl
-LEDA_LIB_DIR	= /project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1
+SCORE_RUNTIME	= /home/abid/PhD/HighLevelSynthesis/ScoreRuntime #/home/eecs/yurym/ScoreRuntime
+LEDA_INCLUDE_DIR= /opt/leda/incl #/project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1/incl
+LEDA_LIB_DIR	= /opt/leda #/project/cs/brass/a/tools/free/LEDA-4.0/LEDA-4.0-i386-linux-eg++-1.1
 PERFCTR_LIB_DIR = /project/cs/brass/a/tools/free/perfctr-0.6
 
 CFLAGS	 = -Wall -I$(SCORE_RUNTIME) -I$(LEDA_INCLUDE_DIR) -I$(PERFCTR_LIB_DIR)\

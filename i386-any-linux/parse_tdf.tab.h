@@ -1,24 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,9 +28,10 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
+
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -87,67 +87,20 @@
      EXP = 303,
      LOG = 304,
      SQRT = 305,
-     FLOOR = 306
+     FLOOR = 306,
+     ABS = 307
    };
 #endif
-/* Tokens.  */
-#define ATTENTION 258
-#define BITSOF 259
-#define BOOLEAN 260
-#define FLOAT 261
-#define DOUBLE 262
-#define CAT 263
-#define CLOSE 264
-#define FRAMECLOSE 265
-#define COPY 266
-#define DONE 267
-#define ELSE 268
-#define EOS 269
-#define EOFR 270
-#define EQUALS 271
-#define FALSE 272
-#define GOTO 273
-#define GTE 274
-#define ID_ 275
-#define IF 276
-#define INPUT 277
-#define LEFT_SHIFT 278
-#define LOGIC_AND 279
-#define LOGIC_OR 280
-#define LTE 281
-#define NOT_EQUALS 282
-#define NUM 283
-#define NUMDBL 284
-#define OUTPUT 285
-#define PARAM 286
-#define PASS_THROUGH_EXCEPTION 287
-#define PRINTF 288
-#define RIGHT_SHIFT 289
-#define SEGMENT_R_ 290
-#define SEGMENT_RW_ 291
-#define SEGMENT_SEQ_R_ 292
-#define SEGMENT_SEQ_RW_ 293
-#define SEGMENT_SEQ_W_ 294
-#define SEGMENT_W_ 295
-#define SIGNED 296
-#define STATE 297
-#define STAY 298
-#define STRING 299
-#define TRUE 300
-#define UNSIGNED 301
-#define WIDTHOF 302
-#define EXP 303
-#define LOG 304
-#define SQRT 305
-#define FLOOR 306
-
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 172 "../src/parse_tdf.y"
 {
+
+/* Line 1676 of yacc.c  */
+#line 172 "../src/parse_tdf.y"
+
   Token 	*token;
   Expr		*expr;
   Stmt		*stmt;
@@ -170,14 +123,17 @@ typedef union YYSTYPE
 //dictionary<string,Symbol*>	*symDict;
 //dictionary<string,State*>	*states;
   Suite				*suite;
-}
-/* Line 1489 of yacc.c.  */
-#line 176 "parse_tdf.tab.hh"
-	YYSTYPE;
+
+
+
+/* Line 1676 of yacc.c  */
+#line 131 "parse_tdf.tab.hh"
+} YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 extern YYSTYPE yylval;
+
 
