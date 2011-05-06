@@ -71,3 +71,5 @@ void microblaze_constructor_signatures_notypes(ofstream *fout,
                                     list<Symbol*> *argtypes);
 
 void ccmicroblazeheader(Operator *op);
+
+void cccudaheader(Operator *op);

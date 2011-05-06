@@ -90,6 +90,7 @@ bool     gSynplify              = false; // true for "-synplify"
 
 enum Target { TARGET_TDF,
 	      TARGET_CC,
+	      TARGET_CUDA,
 	      TARGET_MICROBLAZE,
 	      TARGET_VERILOG,
 	      TARGET_NEWREP,
@@ -462,6 +463,9 @@ set<string> *instances (Operator *op, Target targ,
 	case TARGET_CC:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
+	case TARGET_CUDA:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
 	case TARGET_MICROBLAZE:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
@@ -623,6 +627,25 @@ void emitCC (int dpr, int dps)
   }
 }
 
+void emitCUDA ()
+{
+  // - emit C code for all operators  (-embz option)
+  
+  Operator *op;
+  forall(op,*(gSuite->getOperators()))
+    ccrename(op);
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    cccudaheader(op); 
+    cccudabody(op); 
+    cout << endl;
+  }
+}
+
 void emitMicroblazeC ()
 {
   // - emit C code for all operators  (-embz option)
@@ -762,6 +785,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_DFGCC;
     else if (strcmp(argv[arg],"-ecc")==0)	// -ecc      : emit C++
       optionTarget = TARGET_CC;
+    else if (strcmp(argv[arg],"-ecuda")==0)	// -ecuda      : emit CUDA
+      optionTarget = TARGET_CUDA;
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
@@ -1004,6 +1029,7 @@ int main(int argc, char *argv[])
       case TARGET_DFGCC:	emitDFGCC();		  	  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
 				       optionDebugPageStep);	  break;
+      case TARGET_CUDA:		emitCUDA();			  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
       case TARGET_VERILOG:	emitVerilog();			  break;
       case TARGET_NEWREP:	emitNewRep();			  break;
