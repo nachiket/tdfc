@@ -23,7 +23,7 @@
 //
 // BRASS source file
 //
-// SCORE TDF compiler:  generate C++ output
+// SCORE TDF compiler:  generate CUDA header
 // $Revision: 1.100 $
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -66,9 +66,11 @@ void cuda_constructor_signatures(ofstream *fout,
   forall(sym,*argtypes)
     {
       if (i>0) *fout << ",";
-      *fout << "float* n_" << sym->getName() ;
+      *fout << sym->getType()->toString() << "* n_" << sym->getName() ;
       i++;
     }
+  if (i>0)
+    *fout << ",int N";
 
   
 }

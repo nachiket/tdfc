@@ -90,7 +90,7 @@ HSRCS		= assert_tdf.h parse.h  version.h \
 		  ccannote.h   cctypes.h \
 		  ccbody.h     ccheader.h  ccinstance.h \
 		  cccase.h     cccopy.h    cceval.h      ccmem.h \
-		  ccprep.h     ccrename.h  ccstmt.h      cctype.h \
+		  ccprep.h     ccrename.h  ccstmt.h     cctype.h \
 		  rateTable.h  rateInstance.h  ribody.h  linux_meminfo.h \
 		  canonical.h  mincut.h    clusterstates.h  feedback_fsm.h \
 		  ir_graph.h   ir_analyze_registers.h    ir_misc.h \

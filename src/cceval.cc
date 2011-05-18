@@ -218,7 +218,7 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 }
 
-string ccEvalExpr(Expr *expr, bool retime)
+string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 {
   if (expr==(Expr *)NULL)
     {
@@ -351,9 +351,15 @@ string ccEvalExpr(Expr *expr, bool retime)
 
 	// wrong thing for "." operator...
         // TODO: deal properly with fixed point construction/representation
+	if(cuda) {
+		return("(n_"+ccEvalExpr(bexpr->getExpr1(), retime, cuda)+
+	   	    opToString(bexpr->getOp())+ "n_" +
+	   	    ccEvalExpr(bexpr->getExpr2(), retime, cuda)+")");
+	} else {
 	return("("+ccEvalExpr(bexpr->getExpr1(), retime)+
 	       opToString(bexpr->getOp())+
 	       ccEvalExpr(bexpr->getExpr2(), retime)+")");
+	}
       }
     case EXPR_UOP:
       {

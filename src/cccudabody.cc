@@ -23,9 +23,7 @@
 //
 // BRASS source file
 //
-// SCORE TDF compiler:  generate C output for Xilinx Microblaze processor
-//			generate code should run standalone
-//			it should be possible to cross-compile on Intel
+// SCORE TDF compiler:  generate CUDA output for NVIDIA GPU
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +61,226 @@
 Note: This will use a simple round-robin scheduling technique..
 ***********************************************************************/    
 
+using leda::list_item;
+using leda::dic_item;
+using std::ofstream;
+
+void cuda_constructor(ofstream *fout,
+			    Symbol *rsym,
+			    list<Symbol*> *argtypes, bool state_id)
+{
+
+  int i=1;
+  if(state_id) {
+    *fout << "int n_start_state" ; // April 10th 2010
+  } else {
+    i=0;
+  }
+
+  Symbol *sym;
+  forall(sym,*argtypes)
+    {
+      if (i>0) *fout << ",";
+      *fout << sym->getType()->toString() << "* " << sym->getName() ;
+      i++;
+    }
+  if (i>0)
+    *fout << ",int N";
+
+  
+}
+
+void cccudaprocrun(ofstream *fout, string classname, Operator *op)
+{
+  //*fout << "void *" << classname << "_proc_run(void* dummy) {"  << endl;
+
+  if (op->getOpKind()==OP_COMPOSE)
+    {
+      *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
+    }
+  else if (op->getOpKind()==OP_BEHAVIORAL)
+    {
+      OperatorBehavioral *bop=(OperatorBehavioral *)op;
+      dictionary<string,State*>* states=bop->getStates();
+      dic_item item;
+
+      // declare top level vars
+      SymTab *symtab=bop->getVars();
+      list<Symbol*>* lsyms=symtab->getSymbolOrder();
+      list_item item2;
+      forall_items(item2,*lsyms)
+	{
+	  Symbol *sum=lsyms->inf(item2);
+	  SymbolVar *asum=(SymbolVar *)sum;
+	  *fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
+	  Expr* val=asum->getValue();
+	  if (val!=(Expr *)NULL)
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), false) ;
+	  *fout << ";" << endl;
+	}
+
+      int icnt=0;
+      int ocnt=0;
+      Symbol *rsym=op->getRetSym();
+      list<Symbol*> *argtypes=op->getArgs();
+
+      Symbol *sym;
+
+      int *early_free=new int[icnt];
+      for (int i=0;i<icnt;i++)
+	early_free[i]=0;
+      int *early_close=new int[ocnt];
+      for (int i=0;i<ocnt;i++)
+	early_close[i]=0;
+
+      *fout << "    {" << endl;
+      int num_states=states->size();
+      if (num_states>1)
+	*fout << "    switch(state) {" << endl;
+      int snum=0;
+      forall_items(item,*states)
+	{
+	  State* cstate=states->inf(item);
+	  string sname=cstate->getName();
+
+	  array<StateCase*>* cases=caseSort(cstate->getCases());
+	  array<Symbol*>* caseIns=allCaseIns(cases);
+	  array<int>* firstUsed=inFirstUsed(caseIns,cases);
+          int numNestings=0;
+
+	  if (num_states>1)
+	    *fout << "      case " << STATE_PREFIX << sname
+		  << ": { " << endl;
+
+	  string atomiceofrcase="0";
+
+	  for (int i=cases->low();i<=cases->high();i++)
+	    {
+	      // walk over inputs to case
+	      InputSpec *ispec;
+	      StateCase *acase=(*cases)[i];
+
+              // increment the nesting count and also output a beginning
+              // nesting bracket.
+              numNestings++;
+              *fout << "        {" << endl;
+
+
+		// April 10th 2010: Added support for timers
+	      *fout << endl;
+	      *fout << "#ifdef PERF" << endl;
+	      *fout << "        start_timer();" << endl;
+	      *fout << "#endif" << endl;
+	      
+
+	      Stmt* stmt;
+	      forall(stmt,*(acase->getStmts()))
+		{
+		  *fout << "//hey i'm calling ccStmt" << endl;
+		  ccStmt(fout,string("          "),stmt,early_close,
+			 STATE_PREFIX,0, false, false, true, classname); // 0 was default for ccStmt.h
+			 // added false to remove retiming
+		}
+	     
+	    }
+	  // default case will be to punt out of loop (exit/done)
+
+	  // close the nesting brackets.
+	  *fout << "      ";
+	  for (; numNestings>0; numNestings--) {
+	    *fout << "}" << endl;
+	  }
+
+	  // April 10th 2010: Added support for timers
+	  *fout << endl;
+	  *fout << "#ifdef PERF" << endl;
+	  *fout << "      int timer = stop_timer();" << endl;
+	  *fout << "      printf(\"operator="<<classname<<" state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
+	  *fout << "      finished=1;" << endl;
+	  *fout << "#endif" << endl;
+
+	  if (num_states>1)
+	    {
+	      *fout << "        break; " << endl;
+	      *fout << "      } // end case " << STATE_PREFIX << 
+		sname << endl;
+	    }
+	  snum++;
+	}
+      if (num_states>1)
+	{
+	  *fout << "      default: printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
+	  *fout << "        return((void*)NULL);" << endl;
+	  *fout << "    }" << endl;
+	}
+
+      *fout << "  }" << endl;
+      // any final stuff
+      if (!noReturnValue(rsym))
+	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
+	  {
+	    *fout <<"  if (!"<<classname<<"_ptr->output_close[" 
+		  <<  (long)(rsym->getAnnote(CC_STREAM_ID))
+		  << "])" << endl;
+	    *fout << "  STREAM_CLOSE(" 
+		  << classname << "_ptr->outputs[" << (long)(rsym->getAnnote(CC_STREAM_ID))
+		  << "]);" << endl;
+	  }
+	else
+	  *fout << "  STREAM_CLOSE(" 
+		<< classname << "_ptr->outputs[" << (long)(rsym->getAnnote(CC_STREAM_ID))
+		<< "]);" << endl;
+      forall(sym,*argtypes)
+	{
+	  if (sym->isStream())
+	    {
+	      SymbolStream *ssym=(SymbolStream *)sym;
+	      if (ssym->getDir()==STREAM_OUT)
+		{
+		  if (early_close[(long)(ssym->getAnnote(CC_STREAM_ID))])
+		    {
+		      *fout <<"  if (!"<<classname<<"_ptr->output_close[" 
+			    <<  (long)(ssym->getAnnote(CC_STREAM_ID))
+			    << "])" << endl;
+		      *fout << "  STREAM_CLOSE(" 
+			    << classname << "_ptr->outputs[" << (long)(ssym->getAnnote(CC_STREAM_ID))
+			    << "]);" << endl;
+		    }
+		  else
+		    *fout << "  STREAM_CLOSE(" 
+			  << classname << "_ptr->outputs[" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
+			  << "]);" << endl;
+		}
+	      else
+		if (early_free[(long)(ssym->getAnnote(CC_STREAM_ID))])
+		  {
+		    *fout <<"  if (!"<<classname<<"_ptr->input_free[" 
+			  << (long)(ssym->getAnnote(CC_STREAM_ID)) 
+			  << "])" << endl;
+		    *fout << "    STREAM_FREE(" 
+			  << classname << "_ptr->inputs[" << (long)(ssym->getAnnote(CC_STREAM_ID))
+			  << "]);" << endl;
+		  }
+		else
+		  *fout << "  STREAM_FREE(" 
+			<< classname << "_ptr->inputs[" << (long)(ssym->getAnnote(CC_STREAM_ID))
+			<< "]);" << endl;
+	    }
+	}
+    }
+  else
+    {
+      fatal(-1,string("Don't know how to handle opKind=%d",
+		      (int)op->getOpKind()),
+		      op->getToken());
+	    
+    }
+
+  *fout << "  return((void*)NULL);" << endl;
+//  *fout << "}" << endl;
+  
+}
+
 //
 ////////////////////////////////////////////////////////////////////////
 // Top level routine to create master CUDA code
@@ -78,7 +296,7 @@ void cccudabody (Operator *op)
   if (noReturnValue(rsym))
       classname=name;
   else
-    classname=NON_FUNCTIONAL_PREFIX + name;
+    classname=NON_FUNCTIONAL_PREFIX + name; //NON_FUNCTIONAL_PREFIX = "non_func_"
   list<Symbol*> *argtypes=op->getArgs();
   // start new output file
   string fname=name+".cu";
@@ -111,27 +329,24 @@ void cccudabody (Operator *op)
   // broiler name
   *fout << endl;
 
-  // define the operator-local variables
-  ccmicroblaze_state_definition(fout,classname,op);
-
   // constructor
-  ccmicroblazeconstruct(fout,classname,op);
+  *fout << "__global__ void " << classname << "(" ;
+  cuda_constructor(fout,rsym,argtypes, false);
+  *fout << "  )" << endl << "{" << endl;
 
-  *fout << endl;
-
-  // perf test
-  ccmicroblazeperftest(fout, classname, op);
+  // thread indexer
+  *fout << "  int idx = blockIdx.x * blockDim.x + threadIdx.x;" << endl;
 
   *fout << endl;
 
   // proc_run
-  ccmicroblazeprocrun(fout,classname,op);
+  cccudaprocrun(fout,classname,op);
 
-  *fout << endl;
+  *fout << "} //" << classname << endl;
 
   // if necessary, functional version
-  if (!noReturnValue(rsym))
-    microblaze_functional_constructor(fout,name,classname,rsym,argtypes);
+//  if (!noReturnValue(rsym))
+//    microblaze_functional_constructor(fout,name,classname,rsym,argtypes);
 
   // close up
   fout->close();
