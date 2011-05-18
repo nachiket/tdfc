@@ -121,10 +121,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 
       int icnt=0;
       int ocnt=0;
-      Symbol *rsym=op->getRetSym();
-      list<Symbol*> *argtypes=op->getArgs();
-
-      Symbol *sym;
 
       int *early_free=new int[icnt];
       for (int i=0;i<icnt;i++)
@@ -133,7 +129,7 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
       for (int i=0;i<ocnt;i++)
 	early_close[i]=0;
 
-      *fout << "    {" << endl;
+     // *fout << "    {" << endl;
       int num_states=states->size();
       if (num_states>1)
 	*fout << "    switch(state) {" << endl;
@@ -144,8 +140,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	  string sname=cstate->getName();
 
 	  array<StateCase*>* cases=caseSort(cstate->getCases());
-	  array<Symbol*>* caseIns=allCaseIns(cases);
-	  array<int>* firstUsed=inFirstUsed(caseIns,cases);
           int numNestings=0;
 
 	  if (num_states>1)
@@ -157,7 +151,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	  for (int i=cases->low();i<=cases->high();i++)
 	    {
 	      // walk over inputs to case
-	      InputSpec *ispec;
 	      StateCase *acase=(*cases)[i];
 
               // increment the nesting count and also output a beginning
@@ -176,7 +169,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	      Stmt* stmt;
 	      forall(stmt,*(acase->getStmts()))
 		{
-		  *fout << "//hey i'm calling ccStmt" << endl;
 		  ccStmt(fout,string("          "),stmt,early_close,
 			 STATE_PREFIX,0, false, false, true, classname); // 0 was default for ccStmt.h
 			 // added false to remove retiming
@@ -214,59 +206,7 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	  *fout << "    }" << endl;
 	}
 
-      *fout << "  }" << endl;
-      // any final stuff
-      if (!noReturnValue(rsym))
-	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
-	  {
-	    *fout <<"  if (!"<<classname<<"_ptr->output_close[" 
-		  <<  (long)(rsym->getAnnote(CC_STREAM_ID))
-		  << "])" << endl;
-	    *fout << "  STREAM_CLOSE(" 
-		  << classname << "_ptr->outputs[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		  << "]);" << endl;
-	  }
-	else
-	  *fout << "  STREAM_CLOSE(" 
-		<< classname << "_ptr->outputs[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		<< "]);" << endl;
-      forall(sym,*argtypes)
-	{
-	  if (sym->isStream())
-	    {
-	      SymbolStream *ssym=(SymbolStream *)sym;
-	      if (ssym->getDir()==STREAM_OUT)
-		{
-		  if (early_close[(long)(ssym->getAnnote(CC_STREAM_ID))])
-		    {
-		      *fout <<"  if (!"<<classname<<"_ptr->output_close[" 
-			    <<  (long)(ssym->getAnnote(CC_STREAM_ID))
-			    << "])" << endl;
-		      *fout << "  STREAM_CLOSE(" 
-			    << classname << "_ptr->outputs[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			    << "]);" << endl;
-		    }
-		  else
-		    *fout << "  STREAM_CLOSE(" 
-			  << classname << "_ptr->outputs[" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
-			  << "]);" << endl;
-		}
-	      else
-		if (early_free[(long)(ssym->getAnnote(CC_STREAM_ID))])
-		  {
-		    *fout <<"  if (!"<<classname<<"_ptr->input_free[" 
-			  << (long)(ssym->getAnnote(CC_STREAM_ID)) 
-			  << "])" << endl;
-		    *fout << "    STREAM_FREE(" 
-			  << classname << "_ptr->inputs[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			  << "]);" << endl;
-		  }
-		else
-		  *fout << "  STREAM_FREE(" 
-			<< classname << "_ptr->inputs[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			<< "]);" << endl;
-	    }
-	}
+     // *fout << "  }" << endl;
     }
   else
     {
@@ -276,7 +216,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	    
     }
 
-  *fout << "  return((void*)NULL);" << endl;
 //  *fout << "}" << endl;
   
 }

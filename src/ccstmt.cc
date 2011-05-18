@@ -58,28 +58,29 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 //	if(retime) {
 //		cout << "Such bullshit" << endl; exit(1);
 //	}
-
   switch (stmt->getStmtKind())
     {
 
     case STMT_GOTO:
       {
 	StmtGoto *gstmt=(StmtGoto *)stmt;
-	*fout << indent << "state=" << state_prefix 
-	  // was:
-	  //	      << gstmt->getStateName() << ";" 
-	  // changed to:
-	      << (gstmt->getState())->getName() << ";" 
-	  // DEBUG:    << "//" << gstmt->toString() 
-	      << endl;
-	if (gProfileStates && in_pagestep) {
-	  Tree* t;	// t = present state
-	  for (t=gstmt; t && t->getKind()!=TREE_STATE; t=t->getParent());
-	  if (t==NULL)
-	    assert(!"internal inconsistency");
-	  *fout << indent << "state_xfer_freqs["
-	        << state_prefix << ((State*)t)->getName() << "]["
-	        << state_prefix << gstmt->getState()->getName() << "]++;\n";
+	if(!cuda) {
+		*fout << indent << "state=" << state_prefix 
+		  // was:
+		  //	      << gstmt->getStateName() << ";" 
+		  // changed to:
+		      << (gstmt->getState())->getName() << ";" 
+		  // DEBUG:    << "//" << gstmt->toString() 
+		      << endl;
+		if (gProfileStates && in_pagestep) {
+		  Tree* t;	// t = present state
+		  for (t=gstmt; t && t->getKind()!=TREE_STATE; t=t->getParent());
+		  if (t==NULL)
+		    assert(!"internal inconsistency");
+		  *fout << indent << "state_xfer_freqs["
+		        << state_prefix << ((State*)t)->getName() << "]["
+		        << state_prefix << gstmt->getState()->getName() << "]++;\n";
+		}
 	}
 	return;
       }
@@ -87,7 +88,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
       {
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime) 
+	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
 	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, classname);
@@ -131,6 +132,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		if(mblaze) {
 			*fout << classname<<"_ptr->outputs[" << id  <<"]";
 		} else if(cuda) {
+		// CHANGE for CUDA output!!
 			*fout << "cudaaaa";
 		} else {
 			*fout << "out[" << id << "]";
@@ -142,6 +144,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		if(mblaze) {
 			*fout << classname<<"_ptr->output_close[" << id << "]=1;" ;
 		} else if(cuda) {
+		// CHANGE for CUDA output!!
 			*fout << "cuda!!";
 		} else {
 			*fout << "output_close[" << id << "]=1;" ;
@@ -164,6 +167,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			if(mblaze) {
 				*fout << classname<<"_ptr->outputs[" << id << "]";
 			} else if(cuda) {
+			// CHANGE for CUDA output!!
 				*fout << "i am cuda";
 			} else {
 				*fout << "out[" << id << "]";
@@ -196,9 +200,9 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
 			    //*fout << ", (long long)" --> Not sure if this is such a good idea in any case
 			    *fout << ", "
-				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime) << "";
+				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
 		    } else {
-			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime) << "";
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
 		    }
 	    }
 	    *fout << ");" << endl;
@@ -233,7 +237,8 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(": (unsignedtyp)? "STREAM_WRITE_UNSIGNED(" : "STREAM_WRITE_UNSIGNED(");
 			*fout << classname<<"_ptr->outputs[" << id << "],";
 		} else if(cuda) {
-			*fout << "cuda is here ";
+			// CHANGE for CUDA output!!
+			*fout<<asym->getName()<<"[idx] = (" ;
 		} else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
@@ -254,14 +259,14 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    if (lval->usesAllBits())
 	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime)<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
 		Expr *high_expr=lval->getPosHigh();
-		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime);
-		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime);
-		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime);
+		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda);
+		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda);
+		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda);
 		string one =getCCvarType(asym).pos("long long")>=0 ? "1ll":"1";
 		*fout << indent
 		      << asym->getName() << "="

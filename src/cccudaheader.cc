@@ -137,21 +137,11 @@ void cccudaheader (Operator *op)
   *fout << "#define "+classname+"_CUH_" << endl;
   *fout << endl;
 
-  *fout << "#ifdef __cplusplus" << endl;
-  *fout << "extern \"C\" {" << endl;
-  *fout << "#endif" << endl;
-  *fout << endl;
-
 
   *fout << "__global__ void " << classname << "(" ;
   cuda_constructor_signatures(fout,rsym,argtypes, false);
   *fout << "  );" << endl;
 
-
-  *fout << "#ifdef __cplusplus" << endl;
-  *fout << "}" << endl;
-  *fout << "#endif" << endl;
-  *fout << endl;
 
   *fout << "#endif /*"+classname+"_CUH_*/" << endl;
   *fout << endl;
