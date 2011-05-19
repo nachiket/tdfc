@@ -108,7 +108,7 @@ CSRCS		= tdfc.cc \
 		  tree.cc      suite.cc operator.cc state.cc stmt.cc expr.cc \
 		  symbol.cc    type.cc  misc.cc     file.cc  ops.cc  gc.cc \
 		  instance.cc  feedback.cc bindvalues.cc \
-		  ccbody.cc    cccudabody.cc ccmicroblazebody.cc ccdfgbody.cc ccheader.cc cccudaheader.cc ccmicroblazeheader.cc ccinstance.cc \
+		  ccbody.cc    cccudabody.cc cccudawrapper.cc ccmicroblazebody.cc ccdfgbody.cc ccheader.cc cccudaheader.cc ccmicroblazeheader.cc ccinstance.cc \
 		  cccase.cc    cccopy.cc   cceval.cc     ccmem.cc \
 		  ccprep.cc    ccrename.cc ccstmt.cc     cctype.cc \
 		  rateTable.cc rateInstance.cc ribody.cc linux_meminfo.cc \

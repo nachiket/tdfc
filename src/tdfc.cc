@@ -641,7 +641,8 @@ void emitCUDA ()
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
     cccudaheader(op); 
-    cccudabody(op); 
+    cccudabody(op);
+    cccudawrapper(op); 
     cout << endl;
   }
 }

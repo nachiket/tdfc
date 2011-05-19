@@ -92,7 +92,6 @@ void cuda_constructor(ofstream *fout,
 
 void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 {
-  //*fout << "void *" << classname << "_proc_run(void* dummy) {"  << endl;
 
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -129,7 +128,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
       for (int i=0;i<ocnt;i++)
 	early_close[i]=0;
 
-     // *fout << "    {" << endl;
       int num_states=states->size();
       if (num_states>1)
 	*fout << "    switch(state) {" << endl;
@@ -156,15 +154,7 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
               // increment the nesting count and also output a beginning
               // nesting bracket.
               numNestings++;
-              *fout << "        {" << endl;
-
-
-		// April 10th 2010: Added support for timers
-	      *fout << endl;
-	      *fout << "#ifdef PERF" << endl;
-	      *fout << "        start_timer();" << endl;
-	      *fout << "#endif" << endl;
-	      
+              *fout << "  if(idx<N)" << endl << "  {" << endl;
 
 	      Stmt* stmt;
 	      forall(stmt,*(acase->getStmts()))
@@ -178,18 +168,10 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	  // default case will be to punt out of loop (exit/done)
 
 	  // close the nesting brackets.
-	  *fout << "      ";
+	  *fout << "  ";
 	  for (; numNestings>0; numNestings--) {
 	    *fout << "}" << endl;
 	  }
-
-	  // April 10th 2010: Added support for timers
-	  *fout << endl;
-	  *fout << "#ifdef PERF" << endl;
-	  *fout << "      int timer = stop_timer();" << endl;
-	  *fout << "      printf(\"operator="<<classname<<" state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
-	  *fout << "      finished=1;" << endl;
-	  *fout << "#endif" << endl;
 
 	  if (num_states>1)
 	    {
@@ -206,7 +188,6 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	  *fout << "    }" << endl;
 	}
 
-     // *fout << "  }" << endl;
     }
   else
     {
