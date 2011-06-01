@@ -1040,7 +1040,7 @@ fixedExpr
 			      yyerror("fixed number requires unsigned parts");
 			    // detect constant parts:
 			    if ($1->getExprKind()==EXPR_VALUE &&
-			        $1->getExprKind()==EXPR_VALUE &&
+			        $3->getExprKind()==EXPR_VALUE &&
 				ti->getTypeKind()==TYPE_INT   &&
 				tf->getTypeKind()==TYPE_INT)
 			    {
@@ -1052,7 +1052,10 @@ fixedExpr
 			      $$=(Expr*)new ExprValue($2,t,vi,vf);
 			    }
 			    else // non-const parts
+			    {
+			    	printf("WTFBBQ!");
 			      $$=(Expr*)new ExprBop($2,'.',$1,$3);
+			    }
 			  }
 			  else
 			    $$=(Expr*)new ExprBop($2,'.',$1,$3);
