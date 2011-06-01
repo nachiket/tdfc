@@ -1,0 +1,53 @@
+ddot(
+input double x1,
+input double y1,
+input double x2,
+input double y2,
+input double x3,
+input double y3,
+input double x4,
+input double y4,
+input double x5,
+input double y5,
+input double x6,
+input double y6,
+input double x7,
+input double y7,
+input double x8,
+input double y8,
+output double z
+)
+{
+	double mult_result1;
+	double mult_result2;
+	double mult_result3;
+	double mult_result4;
+	double mult_result5;
+	double mult_result6;
+	double mult_result7;
+	double mult_result8;
+	double add_result1;
+	double add_result2;
+	double add_result3;
+	double add_result4;
+	double add_result5;
+	double add_result6;
+
+	FP_Mult(x1,y1,mult_result1);
+	FP_Mult(x2,y2,mult_result2);
+	FP_Mult(x3,y3,mult_result3);
+	FP_Mult(x4,y4,mult_result4);
+	FP_Mult(x5,y5,mult_result5);
+	FP_Mult(x6,y6,mult_result6);
+	FP_Mult(x7,y7,mult_result7);
+	FP_Mult(x8,y8,mult_result8);
+
+	FP_Add(mult_result1,mult_result2,add_result1);
+	FP_Add(mult_result3,mult_result4,add_result2);
+	FP_Add(mult_result5,mult_result6,add_result3);
+	FP_Add(mult_result7,mult_result8,add_result4);
+	FP_Add(add_result1 ,add_result2,add_result5);
+	FP_Add(add_result3 ,add_result4,add_result6);
+
+	FP_Add(add_result5 ,add_result6,z);
+}

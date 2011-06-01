@@ -66,49 +66,16 @@ void cuda_constructor_signatures(ofstream *fout,
   forall(sym,*argtypes)
     {
       if (i>0) *fout << ",";
-      *fout << sym->getType()->toString() << "* n_" << sym->getName() ;
+      if(sym->isParam())
+        *fout << sym->getType()->toString() << " " << sym->getName() ;
+      else
+        *fout << sym->getType()->toString() << "* " << sym->getName() ;
       i++;
     }
   if (i>0)
     *fout << ",int N";
 
   
-}
-
-void cuda_functional_signature(ofstream *fout,
-			   string name,
-			   Symbol *rsym,
-			   list<Symbol*> *argtypes,
-			  string endstr)
-{
-
-  if (!cuda_noReturnValue(rsym))
-    {
-      if (rsym->isStream())
-	{
-	  *fout << getCCtype(rsym) << " " << name << "(";
-	}
-      else
-	{
-	  return;// presumably we've already issued this complaint above
-	}
-    }
-
-  // N.B.: assumes tdf names can become C++ names, can 
-  //   get us into trouble
-
-  int i=0;
-  Symbol *sym;
-  forall(sym,*argtypes)
-    {
-      if (i>0) *fout << ",";
-      *fout << getCCtype(sym)  << " " // was: " i" << i ;
-	    << sym->getName();
-      i++;
-    }
-
-  *fout << ")" << endstr << endl;
-
 }
 
 void cccudaheader (Operator *op)

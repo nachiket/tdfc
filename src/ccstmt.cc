@@ -123,7 +123,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    if (first->getExprKind()!=EXPR_LVALUE)
 	      warn(string("close given invalid argument %s",
 			  first->toString()),first->getToken());
-	    else
+	    else if(!cuda)
 	      {
 	      	ExprLValue *lexpr=(ExprLValue *)first;
 		long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
@@ -131,9 +131,6 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		
 		if(mblaze) {
 			*fout << classname<<"_ptr->outputs[" << id  <<"]";
-		} else if(cuda) {
-		// CHANGE for CUDA output!!
-			*fout << "cudaaaa";
 		} else {
 			*fout << "out[" << id << "]";
 		}
@@ -143,9 +140,6 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		*fout << indent ;
 		if(mblaze) {
 			*fout << classname<<"_ptr->output_close[" << id << "]=1;" ;
-		} else if(cuda) {
-		// CHANGE for CUDA output!!
-			*fout << "cuda!!";
 		} else {
 			*fout << "output_close[" << id << "]=1;" ;
 		}
@@ -159,16 +153,13 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		    if (first->getExprKind()!=EXPR_LVALUE)
 		      warn(string("frameclose given invalid argument %s",
 				  first->toString()),first->getToken());
-		    else
+		    else if(!cuda)
 		      {
 		      	ExprLValue *lexpr=(ExprLValue *)first;
 			long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
 			*fout << indent << "FRAME_CLOSE(";
 			if(mblaze) {
 				*fout << classname<<"_ptr->outputs[" << id << "]";
-			} else if(cuda) {
-			// CHANGE for CUDA output!!
-				*fout << "i am cuda";
 			} else {
 				*fout << "out[" << id << "]";
 			}
@@ -184,15 +175,22 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  }
 	else if (bop->getBuiltinKind()==BUILTIN_DONE)
 	  {
-	    *fout << indent 
-		  << "done=1;" << endl;
+	    if(!cuda)
+		    *fout << indent 
+			  << "done=1;" << endl;
 	  }
 	else if (bop->getBuiltinKind()==BUILTIN_PRINTF)
 	  {
 	    // *fout << indent << "printf(\""
-	    *fout << indent << "fprintf(stderr,\""
-	          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
-		  << "\"";
+	    if(cuda) {
+		    *fout << indent << "printf(\""
+		          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
+			  << "\"";
+	    } else {
+		    *fout << indent << "fprintf(stderr,\""
+		          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
+			  << "\"";
+	    }
 	    for (list_item i=args->first(); i; i=args->succ(i)) {
 		    // Nachiket's modifications to support floating-point casting
 		    Expr* orig=args->inf(i);
@@ -237,7 +235,6 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(": (unsignedtyp)? "STREAM_WRITE_UNSIGNED(" : "STREAM_WRITE_UNSIGNED(");
 			*fout << classname<<"_ptr->outputs[" << id << "],";
 		} else if(cuda) {
-			// CHANGE for CUDA output!!
 			*fout<<asym->getName()<<"[idx] = (" ;
 		} else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("

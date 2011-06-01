@@ -81,7 +81,10 @@ void cuda_constructor(ofstream *fout,
   forall(sym,*argtypes)
     {
       if (i>0) *fout << ",";
-      *fout << sym->getType()->toString() << "* " << sym->getName() ;
+      if(sym->isParam())
+        *fout << sym->getType()->toString() << " " << sym->getName() ;
+      else
+        *fout << sym->getType()->toString() << "* " << sym->getName() ;
       i++;
     }
   if (i>0)
@@ -203,7 +206,7 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 
 //
 ////////////////////////////////////////////////////////////////////////
-// Top level routine to create master CUDA code
+// Cody Huang: Top level routine to create master CUDA code
 void cccudabody (Operator *op)
 {
   //N.B. assumes renaming of variables to avoid name conflicts

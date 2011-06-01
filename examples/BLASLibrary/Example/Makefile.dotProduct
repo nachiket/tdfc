@@ -1,0 +1,9 @@
+all:	dotProductTest.o
+tdfc_ddot.cc tdfc_ddot.h:	tdfc_ddot.tdf
+	/home/cody/Internship/tdfc/tdfc -ecc tdfc_ddot.tdf
+
+
+dotProductTest.o:	dotProductTest.cpp tdfc_ddot.tdf tdfc_ddot.cc 	/home/cody/Internship/tdfc/tdfc  /home/cody/Internship/ScoreRuntime/libScoreRuntime.a
+	/home/cody/Internship/tdfc/tdfc -ecc  tdfc_ddot.tdf tdfc_dgemv.tdf
+	
+	g++ -Wno-write-strings -I/opt/leda/incl -I/home/cody/Internship/ScoreRuntime   -L/home/cody/Internship/ScoreRuntime -L/opt/leda   dotProductTest.cpp  tdfc_ddot.cc tdfc_dgemv.cc  _copy_x4.cc -o dotProductTest.o -lScoreRuntime -lleda -lX11 -lpthread

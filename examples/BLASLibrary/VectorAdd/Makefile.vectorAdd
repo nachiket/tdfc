@@ -1,0 +1,9 @@
+#all:	vectorAddTest.o
+tdfc_vadd.v:	tdfc_vadd.tdf
+	/home/cody/Internship/tdfc/tdfc -everilog tdfc_vadd.tdf
+
+
+#vectorAddTest.o:	vectorAddTest.cpp tdfc_vadd.tdf tdfc_vadd.cc 	/home/cody/Internship/tdfc/tdfc  /home/cody/Internship/ScoreRuntime/libScoreRuntime.a
+#	/home/cody/Internship/tdfc/tdfc -ecc  tdfc_vadd.tdf
+	
+#	g++ -Wno-write-strings -I/opt/leda/incl -I/home/cody/Internship/ScoreRuntime   -L/home/cody/Internship/ScoreRuntime -L/opt/leda   vectorAddTest.cpp  tdfc_vadd.cc -o vectorAddTest.o -lScoreRuntime -lleda -lX11 -lpthread

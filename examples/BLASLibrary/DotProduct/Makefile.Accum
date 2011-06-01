@@ -1,0 +1,17 @@
+all:	DualStageAccumulatorTest.o
+DualStageAccumulator.cc DualStageAccumulator.h:	DualStageAccumulator.tdfc   FP_Add.tdfc AccumCtrl.tdfc AssignOutput.tdfc CoalesceStage.tdfc EnableCoalesceStageData.tdfc
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc DualStageAccumulator.tdfc FP_Add.tdfc AccumCtrl.tdfc AssignOutput.tdfc CoalesceStage.tdfc EnableCoalesceStageData.tdfc
+FP_Add.cc FP_Add.h:	FP_Add.tdfc 
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc FP_Add.tdfc 
+AccumCtrl.cc AccumCtrl.h: AccumCtrl.tdfc
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc AccumCtrl.tdfc
+AssignOutput.cc AssignOutupt.h: AssignOutput.tdfc
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc AssignOutput.tdfc
+CoalesceStage.cc CoalesceStage.h: CoalesceStage.tdfc FP_Add.tdfc AssignOutput.tdfc
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc CoalesceStage.tdfc AssignOutput.tdfc FP_Add.tdfc
+EnableCoalesceStageData.cc EnableCoalesceStageData.h: EnableCoalesceStageData.tdfc 
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc EnableCoalesceStageData.tdfc 
+
+DualStageAccumulatorTest.o:	DualStageAccumulatorTest.cpp DualStageAccumulator.tdfc DualStageAccumulator.cc AccumCtrl.cc AssignOutput.cc _copy_x2.cc 	EnableCoalesceStageData.cc /home/abid/PhD/HighLevelSynthesis/Compiler/tdfc  /home/abid/PhD/HighLevelSynthesis/ScoreRuntime/libScoreRuntime.a
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc  DualStageAccumulator.tdfc FP_Add.tdfc AccumCtrl.tdfc AssignOutput.tdfc CoalesceStage.tdfc EnableCoalesceStageData.tdfc
+	g++ -Wno-write-strings -I/opt/leda/incl -I/home/abid/PhD/HighLevelSynthesis/ScoreRuntime   -L/home/abid/PhD/HighLevelSynthesis/ScoreRuntime -L/opt/leda   DualStageAccumulatorTest.cpp DualStageAccumulator.cc FP_Add.cc AccumCtrl.cc _copy_x2.cc _copy_x3.cc AssignOutput.cc CoalesceStage.cc EnableCoalesceStageData.cc -o DualStageAccumulatorTest.o -lScoreRuntime -lleda -lX11 -lpthread

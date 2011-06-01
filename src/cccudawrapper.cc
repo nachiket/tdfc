@@ -65,144 +65,13 @@ using leda::list_item;
 using leda::dic_item;
 using std::ofstream;
 
-void cccudawraprun(ofstream *fout, string classname, Operator *op)
-{
-  //*fout << "void *" << classname << "_proc_run(void* dummy) {"  << endl;
-
-  if (op->getOpKind()==OP_COMPOSE)
-    {
-      *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
-    }
-  else if (op->getOpKind()==OP_BEHAVIORAL)
-    {
-      OperatorBehavioral *bop=(OperatorBehavioral *)op;
-      dictionary<string,State*>* states=bop->getStates();
-      dic_item item;
-
-      // declare top level vars
-      SymTab *symtab=bop->getVars();
-      list<Symbol*>* lsyms=symtab->getSymbolOrder();
-      list_item item2;
-      forall_items(item2,*lsyms)
-	{
-	  Symbol *sum=lsyms->inf(item2);
-	  SymbolVar *asum=(SymbolVar *)sum;
-	  *fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
-	  Expr* val=asum->getValue();
-	  if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), false) ;
-	  *fout << ";" << endl;
-	}
-
-      int icnt=0;
-      int ocnt=0;
-
-      int *early_free=new int[icnt];
-      for (int i=0;i<icnt;i++)
-	early_free[i]=0;
-      int *early_close=new int[ocnt];
-      for (int i=0;i<ocnt;i++)
-	early_close[i]=0;
-
-     // *fout << "    {" << endl;
-      int num_states=states->size();
-      if (num_states>1)
-	*fout << "    switch(state) {" << endl;
-      int snum=0;
-      forall_items(item,*states)
-	{
-	  State* cstate=states->inf(item);
-	  string sname=cstate->getName();
-
-	  array<StateCase*>* cases=caseSort(cstate->getCases());
-          int numNestings=0;
-
-	  if (num_states>1)
-	    *fout << "      case " << STATE_PREFIX << sname
-		  << ": { " << endl;
-
-	  string atomiceofrcase="0";
-
-	  for (int i=cases->low();i<=cases->high();i++)
-	    {
-	      // walk over inputs to case
-	      StateCase *acase=(*cases)[i];
-
-              // increment the nesting count and also output a beginning
-              // nesting bracket.
-              numNestings++;
-              *fout << "        {" << endl;
-
-
-		// April 10th 2010: Added support for timers
-	      *fout << endl;
-	      *fout << "#ifdef PERF" << endl;
-	      *fout << "        start_timer();" << endl;
-	      *fout << "#endif" << endl;
-	      
-
-	      Stmt* stmt;
-	      forall(stmt,*(acase->getStmts()))
-		{
-		  ccStmt(fout,string("          "),stmt,early_close,
-			 STATE_PREFIX,0, false, false, true, classname); // 0 was default for ccStmt.h
-			 // added false to remove retiming
-		}
-	     
-	    }
-	  // default case will be to punt out of loop (exit/done)
-
-	  // close the nesting brackets.
-	  *fout << "      ";
-	  for (; numNestings>0; numNestings--) {
-	    *fout << "}" << endl;
-	  }
-
-	  // April 10th 2010: Added support for timers
-	  *fout << endl;
-	  *fout << "#ifdef PERF" << endl;
-	  *fout << "      int timer = stop_timer();" << endl;
-	  *fout << "      printf(\"operator="<<classname<<" state="<<sname<<" cycles=\%d\\n\",timer);" << endl;
-	  *fout << "      finished=1;" << endl;
-	  *fout << "#endif" << endl;
-
-	  if (num_states>1)
-	    {
-	      *fout << "        break; " << endl;
-	      *fout << "      } // end case " << STATE_PREFIX << 
-		sname << endl;
-	    }
-	  snum++;
-	}
-      if (num_states>1)
-	{
-	  *fout << "      default: printf(\"ERROR unknown state encountered in " << classname << "_proc_run\\n\");" << endl;
-	  *fout << "        return((void*)NULL);" << endl;
-	  *fout << "    }" << endl;
-	}
-
-     // *fout << "  }" << endl;
-    }
-  else
-    {
-      fatal(-1,string("Don't know how to handle opKind=%d",
-		      (int)op->getOpKind()),
-		      op->getToken());
-	    
-    }
-
-//  *fout << "}" << endl;
-  
-}
-
 //
 ////////////////////////////////////////////////////////////////////////
-// Top level routine to create master CUDA code
+// Cody Huang: Top level routine to create CUDA wrapper code
+////////////////////////////////////////////////////////////////////////
+
 void cccudawrapper (Operator *op)
 {
-  //N.B. assumes renaming of variables to avoid name conflicts
-  //  w/ keywords, locally declared, etc. has already been done
-  
   
   string name=op->getName();
   Symbol *rsym=op->getRetSym();
@@ -214,7 +83,7 @@ void cccudawrapper (Operator *op)
   list<Symbol*> *argtypes=op->getArgs();
   // start new output file
   string fname=name+".cpp";
-  // how convert string -> char * ?
+
   ofstream *fout=new ofstream(fname);
   *fout << "// tdfc-cuda autocompiled wrapper file" << endl;
   *fout << "// tdfc version " << TDFC_VERSION << endl;
@@ -248,32 +117,121 @@ void cccudawrapper (Operator *op)
   // Variable Declarations
   Symbol *sym;
   forall(sym,*argtypes)
-    {
-	*fout << "  " << sym->getType()->toString() << " *" << sym->getName() << "_h, *" << sym->getName() << "_d;" << endl;
-    }
-
-  *fout << "  const int N = 8; // Number of elements in array" << endl;
+  {
+	if(sym->isParam())
+		*fout << "  const " << sym->getType()->toString() << " " << sym->getName() << "_d = (" << sym->getType()->toString() << ")1;" << endl;
+	else
+		*fout << "  " << sym->getType()->toString() << " *" << sym->getName() << "_h, *" << sym->getName() << "_d;" << endl;
+  }
+  *fout << "  const int N = 1024; // Number of elements in array" << endl;
 
   // Memory Allocations
   forall(sym,*argtypes)
-    {
-	*fout << endl << "  // " << sym->getName() << endl;
-	*fout << "  size_t " << sym->getName() << "_size = N * sizeof(" << sym->getType()->toString() << ");" << endl;
-	*fout << "  " << sym->getName() << "_h = (" << sym->getType()->toString() << " *)malloc(" << sym->getName() << "_size);" << endl;
-	*fout << "  cudaMalloc((void **) &" << sym->getName() << "_d, " << sym->getName() << "_size);" << endl;
-    }
+  {
+	if(!sym->isParam()) {
+		*fout << endl << "  // " << sym->getName() << endl;
+		*fout << "  size_t " << sym->getName() << "_size = N * sizeof(" << sym->getType()->toString() << ");" << endl;
+		*fout << "  " << sym->getName() << "_h = (" << sym->getType()->toString() << " *)malloc(" << sym->getName() << "_size);" << endl;
+		*fout << "  cudaMalloc((void **) &" << sym->getName() << "_d, " << sym->getName() << "_size);" << endl;
+	}
+  }
+  *fout << endl << "  // Initialize input contents and copy to Device memory" << endl;
+
+  // Initialize Input Memory Contents
+  *fout << "  for(int i=0; i<N; i++) {" << endl; //Streams
+  forall(sym,*argtypes)
+  {
+	SymbolStream *ssym=(SymbolStream *)sym;
+	if(ssym->getDir() == STREAM_IN && !sym->isParam())
+	  *fout << "    " << sym->getName() << "_h[i] = (" << sym->getType()->toString() << ")i;" << endl;
+  }
+  *fout << "  }" << endl << endl;
+
+
+
+  // Performance Calculation Start
+  *fout << "  //Performance Calculation" << endl;
+  *fout << "#ifdef PERF" << endl;
+  *fout << "  cudaEvent_t start, stop;" << endl << "  float time;" << endl;
+  *fout << "  cudaEventCreate(&start);" << endl;
+  *fout << "  cudaEventCreate(&stop);" << endl;
+  *fout << "  cudaEventRecord(start, 0);" << endl;
+  *fout << "#endif" << endl << endl;
+
+  // Copy to Device Memory
+  forall(sym,*argtypes)
+  {
+	if(!sym->isParam()) {
+		SymbolStream *ssym=(SymbolStream *)sym;
+		if(ssym->getDir() == STREAM_IN)
+		  *fout << "  cudaMemcpy(" << sym->getName() << "_d, " << sym->getName() << "_h, "
+			<< sym->getName() << "_size, cudaMemcpyHostToDevice);" << endl;
+	}
+  }
+  *fout << endl;
+
+  // Do calculation on device
+  *fout << "  // Do calculation on Device" << endl;
+  *fout << "  int block_size = 8;" << endl;
+  *fout << "  int n_blocks = N/block_size + (N%block_size == 0 ? 0:1);" << endl << endl;
+  *fout << "  " << name << " <<< n_blocks, block_size >>> (";
+  forall(sym,*argtypes)
+  {
+	*fout << sym->getName() << "_d, ";
+  }
+  *fout << "N);" << endl << endl;
+
+  // Retrieve result from device and store it in host array
+  *fout << "  // Retrieve results" << endl;
+  forall(sym,*argtypes)
+  {
+	SymbolStream *ssym=(SymbolStream *)sym;
+	if(ssym->getDir() == STREAM_OUT)
+	  *fout << "  cudaMemcpy(" << sym->getName() << "_h, " << sym->getName() << "_d, "
+		<< sym->getName() << "_size, cudaMemcpyDeviceToHost);" << endl;
+  }
+  *fout << endl;
+
+  // Performance Calculation Stop
+  *fout << "#ifdef PERF" << endl;
+  *fout << "  cudaEventRecord(stop, 0);" << endl;
+  *fout << "  cudaEventSynchronize(stop);" << endl;
+  *fout << "  cudaEventElapsedTime(&time, start, stop);" << endl;
+  *fout << "  cudaEventDestroy(start);" << endl;
+  *fout << "  cudaEventDestroy(stop);" << endl;
+  *fout << "  printf(\"GPU time for " << name << " is %f ms\\n\", time);"<< endl;
+  *fout << "#endif" << endl << endl;
+
+  // Print results
+  *fout << "  // Print results (typecasted to prevent printf errors)" << endl;
+  *fout << "  printf(\"" << name << ":\\n\");" << endl;
+  forall(sym,*argtypes)
+  {
+	SymbolStream *ssym=(SymbolStream *)sym;
+	if(ssym->getDir() == STREAM_OUT) {
+	  //Type-casting output to prevent printf errors
+	  *fout << "  for (int i=0; i<N; i++) printf(\"" << sym->getName() << "_h[%d] = %f\\n\", i, (float)" 
+		<< sym->getName() << "_h[i]);" << endl;
+	}
+  }
+  *fout << endl;
+
+  // Cleanup
+  *fout << "  // Cleanup" << endl;
+  forall(sym,*argtypes)
+  {
+	if(!sym->isParam()) {
+		*fout << "  free(" << sym->getName() << "_h); ";
+		*fout << "  cudaFree(" << sym->getName() << "_d);" << endl;
+	}
+  }
 
 
   *fout << endl;
 
-  // proc_run
-//  cccudaprocrun(fout,classname,op);
 
   *fout << "} // main" << endl;
 
-  // if necessary, functional version
-//  if (!noReturnValue(rsym))
-//    microblaze_functional_constructor(fout,name,classname,rsym,argtypes);
 
   // close up
   fout->close();

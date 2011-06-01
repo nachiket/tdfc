@@ -1,0 +1,2 @@
+tdfc_vadd.cpp tdfc_vadd.cu tdfc_vadd.cuh:	tdfc_vadd.tdf
+	/home/cody/Internship/tdfc/tdfc -ecuda tdfc_vadd.tdf

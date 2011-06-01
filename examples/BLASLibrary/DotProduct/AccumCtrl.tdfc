@@ -1,0 +1,55 @@
+AccumCtrl(
+			param unsigned[4] latency,
+			input double AccumIn1,
+			input double AccumIn2,			
+			output double AccumOut1,			
+			output double AccumOut2,
+			output boolean startCoalesce
+		    )
+
+{
+	
+	
+	
+	unsigned[4] counter = 0;
+
+	state Wait(AccumIn1):
+	{
+		startCoalesce = false;
+		AccumOut1 = AccumIn1;	
+		AccumOut2 = 0;
+		counter = counter + 1;	
+		goto Fill;
+		printf("Waiting ...\n");
+	}
+
+
+	state Fill(AccumIn1):
+	{
+		startCoalesce = false;
+		AccumOut1=AccumIn1;
+		AccumOut2 =0;
+		counter  = counter + 1;
+		if(counter == latency)
+		{
+			goto Steady;
+		}
+		printf("Filling ...\n");
+	}
+	state Steady(AccumIn1,AccumIn2):
+	{
+		startCoalesce = false;
+		AccumOut1 = AccumIn1;
+		AccumOut2 = AccumIn2;		
+		printf("Steady State ...\n");
+
+	}
+	state Steady(eofr(AccumIn1)):
+	{
+		startCoalesce=true;
+		printf("End of Frame detected\n");
+		counter = 0;
+		goto Wait;
+	}
+
+}

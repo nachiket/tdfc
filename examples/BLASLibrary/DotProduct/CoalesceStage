@@ -1,0 +1,123 @@
+
+#!/bin/bash
+#Linux Shell Scripting 
+# Written by Abid Rafique
+#
+#
+# Generate TDFC Code for Dot Product
+#
+echo 
+echo
+
+if [ $# -ne 3 ]
+then
+    echo "Usage - $0   CoalsceStage  LatencyBitwidth  dataType"
+    exit 1
+fi
+
+
+
+filename="$1.tdfc"
+if [ -f $filename ]
+then
+    rm $filename
+fi
+
+Latency=$2;
+
+AdderDataType=$3;
+
+echo "$1 (">>$filename
+echo "		input $AdderDataType dataIn,">>$filename
+echo "		output $AdderDataType dataOut">>$filename
+echo "		)">>$filename
+
+
+
+
+
+
+#Operator Body Generation
+echo "{">>$filename
+
+
+
+#for (( i=1; i<=NumOfAdders; i++ ))
+#do
+#		echo "	FP_Add(mult_result$i,mult_result`expr $i + 1`,add_result$j);">>$filename
+	#	echo "	{"
+	 #  	echo "		add_result$j = mult_result$i * mult_result`expr $i + 1` ;"		
+	#	echo "	}"
+
+#done
+
+
+#	k=`expr $n / 2`
+k=1
+#	l=0
+#
+#	NumOfAdders = `expr $Latency / 2`
+#
+j=1;
+LoopEnd=`expr $Latency - 1`
+while [ $k -le $LoopEnd ]
+do
+	for (( i=1; i<=k; i++ ))
+	do			
+	   	echo "	$AdderDataType Reg_$k$i;">>$filename		
+	done
+	
+	echo "	$AdderDataType AdderOut$j;">>$filename
+	j=`expr $j + 1`
+	k=`expr $k \* 2`
+	echo >>$filename
+done
+
+echo 
+
+k=1
+j=1
+
+if [ $Latency -ge 2 ]
+then
+	while [ $k -le $LoopEnd ]
+	do
+		
+		if [ $k -le 1 ] 
+		then
+			echo "	FP_Add(Reg_$k$k,dataIn,AdderOut$j);">>$filename
+			echo "	AssignOutput(dataIn,Reg_$k$k);" >>$filename
+		else
+			
+			echo "	FP_Add(Reg_$k$k,AdderOut`expr $j - 1`,AdderOut$j);">>$filename
+			for (( i=1; i<=k; i++ ))
+			do	
+				if [ $i -le 1 ]
+				then
+					echo "	AssignOutput(AdderOut`expr $j - 1`,Reg_$k$i);">>$filename 
+				else						
+		   			echo "	AssignOutput(Reg_$k`expr $i - 1`,Reg_$k$i);">>$filename		
+				fi
+			done
+
+		fi
+		
+		echo >>$filename
+
+		j=`expr $j + 1`
+		
+		k=`expr $k \* 2`
+	done
+fi
+
+
+#Generating DelayLines 
+
+echo "	AssignOutput(AdderOut`expr $j - 1 `,dataOut);">>$filename
+
+#	
+echo "}" >>$filename
+
+echo "$filename Generated Successfully"
+
+exit 1;
