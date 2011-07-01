@@ -218,7 +218,7 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 }
 
-string ccEvalExpr(Expr *expr, bool retime, bool cuda)
+string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type)
 {
   if (expr==(Expr *)NULL)
     {
@@ -249,12 +249,15 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 	  if(cuda)
 	    name=retimeName(lexpr->getSymbol()->getName(),
 			  lexpr->getRetime(), retime, cuda)+string("[idx]");
+	  if (gappa)
+		name=retimeName(lexpr->getSymbol()->getName(),
+			  lexpr->getRetime(), retime, cuda)+type;
 	  else
-	    name=retimeName(lexpr->getSymbol()->getName(),
+		name=retimeName(lexpr->getSymbol()->getName(),
 			  lexpr->getRetime(), retime, cuda);
 	}
 	else
-	  name=lexpr->getSymbol()->getName();
+	  name=lexpr->getSymbol()->getName()+type;
 	if (lexpr->usesAllBits())
 	  return(name);
 	else
@@ -292,8 +295,8 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 		      if (first==1)
 			first=0;
 		      else
-			res=res+cast+ccEvalExpr(prevexp, retime, cuda)+string(")")+
-			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime, cuda)
+			res=res+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type)+string(")")+
+			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime, cuda, gappa, type)
 			  +string("))|");
 		      // NOTE: evaluate get width here is probably
 		      //  temporary until revamp bindvalues to use map2
@@ -302,7 +305,7 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 		      cast = (bexpr_cctype==exp_cctype)
 				? string() : ("("+bexpr_cctype+")");
 		    }
-		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime, cuda)+string("))");
+		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type)+string("))");
 		  return(res);
 		}
 	      else
@@ -346,9 +349,9 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
     case EXPR_COND:
       {
 	ExprCond * cexpr=(ExprCond *)expr;
-	return("(("+ccEvalExpr(cexpr->getCond(), retime, cuda)+")?("+
-	       ccEvalExpr(cexpr->getThenPart(), retime, cuda)+"):("+
-	       ccEvalExpr(cexpr->getElsePart(), retime, cuda)+"))");
+	return("(("+ccEvalExpr(cexpr->getCond(), retime, cuda, gappa, type)+")?("+
+	       ccEvalExpr(cexpr->getThenPart(), retime, cuda, gappa, type)+"):("+
+	       ccEvalExpr(cexpr->getElsePart(), retime, cuda, gappa, type)+"))");
       }
     case EXPR_BOP:
       {
@@ -356,16 +359,16 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 
 	// wrong thing for "." operator...
         // TODO: deal properly with fixed point construction/representation
-	return("("+ccEvalExpr(bexpr->getExpr1(), retime, cuda)+
-	       opToString(bexpr->getOp())+
-	       ccEvalExpr(bexpr->getExpr2(), retime, cuda)+")");
-      }
+    return("("+ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type)+
+		   opToString(bexpr->getOp())+
+		   ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type)+")");
+	  }
     case EXPR_UOP:
       {
 	ExprUop *uexpr=(ExprUop *)expr;
 	string ops=opToString(uexpr->getOp());
 	Expr *iexpr=uexpr->getExpr();
-	string istr=ccEvalExpr(iexpr, retime, cuda);
+	string istr=ccEvalExpr(iexpr, retime, cuda, gappa, type);
 	return(("("+ops)+("("+istr)+"))");
       }
     case EXPR_CAST:
@@ -390,9 +393,9 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 	        real_cctype = getCCvarType(real_type);
 
 	if (c_cctype!=real_cctype)
-	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime, cuda)+"))" );
+	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime, cuda, gappa, type)+"))" );
 	else
-	  return( ccEvalExpr(real_expr, retime, cuda) );
+	  return( ccEvalExpr(real_expr, retime, cuda, gappa, type) );
 
 	// EC:  My code above generalizes Andre's code below.
 	//      Above code assumes that type checking was done,

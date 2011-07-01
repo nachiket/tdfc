@@ -153,13 +153,15 @@ class SymbolStream : public Symbol
 {
 private:
   StreamDir dir;
+  string range;
 
 public:
   SymbolStream (Token *token_i, const string &name_i,
-		Type *type_i,   StreamDir dir_i);
+		Type *type_i,   StreamDir dir_i, string low = "", string high = "");
   virtual ~SymbolStream () {}
 
   StreamDir		getDir		() const	{ return dir; }
+  string		getRange	() const	{ return range; }
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}
   virtual void		thread		(Tree *p);
@@ -186,16 +188,20 @@ private:
   Expr		*value;		// initial value(s)
   Expr		*depth;		// minimum-depth hint for local streams
 				//   inside compos. op (NULL for reg. vars)
+  string    number;
 
 public:
   SymbolVar (Token *token_i, const string &name_i,
 	     Type *type_i,   Expr *value_i=NULL,   Expr *depth_i=NULL);
+  SymbolVar (Token *token_i, const string &name_i, Type *type_i,  string num);
   virtual ~SymbolVar () {}
 
   Expr*			getValue	() const	{ return value; }
   Expr*			getDepth	() const	{ return depth; }
   void                  setValue	(Expr *nvalue)	{ value=nvalue; }
   void                  setSetDepthHint	(Expr *ndepth)	{ depth=ndepth; }
+  
+  string		getNumber	() const	{ return number; }
 
 //VarKind		getVarKind	() const;
 

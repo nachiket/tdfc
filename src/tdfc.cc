@@ -91,6 +91,7 @@ bool     gSynplify              = false; // true for "-synplify"
 enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
+		  TARGET_GAPPA,
 	      TARGET_MICROBLAZE,
 	      TARGET_VERILOG,
 	      TARGET_NEWREP,
@@ -121,6 +122,7 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
+    << "         -egappa      : emit input language for gappa (precision analysis)\n"
     << "         -edot        : emit dataflow graph for Graphviz visualization\n"
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
     << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
@@ -647,6 +649,28 @@ void emitCUDA ()
   }
 }
 
+void emitGAPPA ()
+{
+  // - emit gappa code for all operators  (-egappa option)
+  
+  Operator *op;
+  
+//    forall(op,*(gSuite->getOperators()))
+//    ccrename(op);
+   // I am not sure I need to rename the operators
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {
+	
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    if (ccCheckRanges(op))
+		ccgappabody(op); // Helene
+    cout << endl;
+  }
+}
+
 void emitMicroblazeC ()
 {
   // - emit C code for all operators  (-embz option)
@@ -788,6 +812,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_CC;
     else if (strcmp(argv[arg],"-ecuda")==0)	// -ecuda      : emit CUDA
       optionTarget = TARGET_CUDA;
+    else if (strcmp(argv[arg],"-egappa")==0)// -egappa    : emit gappa
+      optionTarget = TARGET_GAPPA;
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
@@ -1027,13 +1053,14 @@ int main(int argc, char *argv[])
       case TARGET_TDF:		emitTDF();			  break;
       case TARGET_DOT:		emitDOT();			  break;
       case TARGET_DFG:		emitDFG();			  break;
-      case TARGET_DFGCC:	emitDFGCC();		  	  break;
+      case TARGET_DFGCC:	emitDFGCC();		  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
-				       optionDebugPageStep);	  break;
+							optionDebugPageStep); break;
       case TARGET_CUDA:		emitCUDA();			  break;
+      case TARGET_GAPPA :	emitGAPPA();			  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
-      case TARGET_VERILOG:	emitVerilog();			  break;
-      case TARGET_NEWREP:	emitNewRep();			  break;
+      case TARGET_VERILOG:	emitVerilog();		  break;
+      case TARGET_NEWREP:	emitNewRep();		  break;
       case TARGET_RI:		emitRI();			  break;
 //    case TARGET_CLUSTERS:	emitClusters(optionPageAreaMin,
 //					     optionPageAreaMax);  break;

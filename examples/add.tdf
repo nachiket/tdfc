@@ -1,12 +1,12 @@
-add(input double a, input double b, input boolean c, output double d)
+add(input double a, input double b[0,65536], output double d)
 {
 
-	state only(a,b,c):
-		if(c) {
+	state only(a,b):
+{		
 			d=a+b;
-		} else {
-			d=a-b;		
-		}
+		
+}		
+		
 
 
 

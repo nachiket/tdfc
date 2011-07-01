@@ -36,3 +36,5 @@ void ccdfgbody(Operator *op, int debug_logic);
 void ccmicroblazebody(Operator *op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
+void ccgappabody(Operator *op);
+bool ccCheckRanges(Operator *op);

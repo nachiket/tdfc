@@ -55,7 +55,7 @@ PURIFY	=
 #  - select compiler version:
 
 TOOLS_PATH	= /usr/bin
-COMPILER	= $(TOOLS_PATH)/g++-4.1
+COMPILER	= $(TOOLS_PATH)/g++-4.4
 PERL		= $(TOOLS_PATH)/perl
 LEX		= $(TOOLS_PATH)/flex
 YACC		= $(TOOLS_PATH)/bison
@@ -90,7 +90,7 @@ HSRCS		= assert_tdf.h parse.h  version.h \
 		  ccannote.h   cctypes.h \
 		  ccbody.h     ccheader.h  ccinstance.h \
 		  cccase.h     cccopy.h    cceval.h      ccmem.h \
-		  ccprep.h     ccrename.h  ccstmt.h     cctype.h \
+		  ccprep.h     ccrename.h  ccstmt.h     cctype.h ccGappaStmt.h \
 		  rateTable.h  rateInstance.h  ribody.h  linux_meminfo.h \
 		  canonical.h  mincut.h    clusterstates.h  feedback_fsm.h \
 		  ir_graph.h   ir_analyze_registers.h    ir_misc.h \
@@ -109,6 +109,7 @@ CSRCS		= tdfc.cc \
 		  symbol.cc    type.cc  misc.cc     file.cc  ops.cc  gc.cc \
 		  instance.cc  feedback.cc bindvalues.cc \
 		  ccbody.cc    cccudabody.cc cccudawrapper.cc ccmicroblazebody.cc ccdfgbody.cc ccheader.cc cccudaheader.cc ccmicroblazeheader.cc ccinstance.cc \
+		  ccgappabody.cc ccGappaStmt.cc\
 		  cccase.cc    cccopy.cc   cceval.cc     ccmem.cc \
 		  ccprep.cc    ccrename.cc ccstmt.cc     cctype.cc \
 		  rateTable.cc rateInstance.cc ribody.cc linux_meminfo.cc \

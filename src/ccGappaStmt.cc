@@ -38,7 +38,7 @@
 #include "cctype.h"
 #include "ccannote.h"
 #include "cceval.h"
-#include "ccstmt.h"
+#include "ccGappaStmt.h"
 
 using std::cout;
 using std::endl;
@@ -51,35 +51,36 @@ Note: builtins expecting to handle here
   (only two left at stmt level)
 ***********************************************************************/
 
-void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, bool cuda, string classname)
+void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
+	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, bool cuda, 
+	    bool gappa, string type, string precision, string classname)
 {
 
-//	if(retime) {
-//		cout << "Such bullshit" << endl; exit(1);
-//	}
   switch (stmt->getStmtKind())
     {
 
     case STMT_GOTO:
       {
 	StmtGoto *gstmt=(StmtGoto *)stmt;
-	if(!cuda) {
-		*fout << indent << "state=" << state_prefix 
-		  // was:
-		  //	      << gstmt->getStateName() << ";" 
-		  // changed to:
-		      << (gstmt->getState())->getName() << ";" 
-		  // DEBUG:    << "//" << gstmt->toString() 
-		      << endl;
-		if (gProfileStates && in_pagestep) {
-		  Tree* t;	// t = present state
-		  for (t=gstmt; t && t->getKind()!=TREE_STATE; t=t->getParent());
-		  if (t==NULL)
-		    assert(!"internal inconsistency");
-		  *fout << indent << "state_xfer_freqs["
-		        << state_prefix << ((State*)t)->getName() << "]["
-		        << state_prefix << gstmt->getState()->getName() << "]++;\n";
+	if(!cuda) { // multi state is not handled by cuda compiler or gappa compiler
+		if (!gappa)
+		{
+			*fout << indent << "state=" << state_prefix 
+			// was:
+			//	      << gstmt->getStateName() << ";" 
+			// changed to:
+				<< (gstmt->getState())->getName() << ";" 
+			// DEBUG:    << "//" << gstmt->toString() 
+				<< endl;
+			if (gProfileStates && in_pagestep) {
+			Tree* t;	// t = present state
+			for (t=gstmt; t && t->getKind()!=TREE_STATE; t=t->getParent());
+			if (t==NULL)
+				assert(!"internal inconsistency");
+			*fout << indent << "state_xfer_freqs["
+					<< state_prefix << ((State*)t)->getName() << "]["
+					<< state_prefix << gstmt->getState()->getName() << "]++;\n";
+			}
 		}
 	}
 	return;
@@ -88,17 +89,18 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
       {
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda) 
+	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, gappa, type) 
 	      << ") {" << endl;
-	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, classname);
+	cout << EvaluateExpr(ifstmt->getCond())->toString() << endl;
+	ccGappaStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
+	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
 	  {
 	    *fout << indent << "else {" << endl;
-	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, cuda, classname);
+	    ccGappaStmt(fout,string("%s  ",indent),epart,early_close,
+		   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -125,25 +127,25 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			  first->toString()),first->getToken());
 	    else if(!cuda)
 	      {
-	      	ExprLValue *lexpr=(ExprLValue *)first;
-		long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
-		*fout << indent << "STREAM_CLOSE(";
-		
-		if(mblaze) {
-			*fout << classname<<"_ptr->outputs[" << id  <<"]";
-		} else {
-			*fout << "out[" << id << "]";
-		}
-		*fout << ");" << endl;
+				ExprLValue *lexpr=(ExprLValue *)first;
+				long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
+				*fout << indent << "STREAM_CLOSE(";
+				
+				if(mblaze) {
+					*fout << classname<<"_ptr->outputs[" << id  <<"]";
+				} else {
+					*fout << "out[" << id << "]";
+				}
+				*fout << ");" << endl;
 
-		early_close[id]=1;
-		*fout << indent ;
-		if(mblaze) {
-			*fout << classname<<"_ptr->output_close[" << id << "]=1;" ;
-		} else {
-			*fout << "output_close[" << id << "]=1;" ;
-		}
-		*fout << endl;
+				early_close[id]=1;
+				*fout << indent ;
+				if(mblaze) {
+					*fout << classname<<"_ptr->output_close[" << id << "]=1;" ;
+				} else {
+					*fout << "output_close[" << id << "]=1;" ;
+				}
+				*fout << endl;
 	      }
 	  }
 	// Added by Nachiket on 10/6/2009 to support frameclose operation
@@ -200,7 +202,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			    *fout << ", "
 				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
 		    } else {
-			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, gappa , type) << "";
 		    }
 	    }
 	    *fout << ");" << endl;
@@ -229,7 +231,11 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    if (ssym->getDir()==STREAM_OUT)
 	      {
 		long id=(long)(ssym->getAnnote(CC_STREAM_ID));
-		*fout<<indent;
+		
+		if (!gappa)
+			*fout<<indent;
+		
+		
 		if(mblaze) {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(": (unsignedtyp)? "STREAM_WRITE_UNSIGNED(" : "STREAM_WRITE_UNSIGNED(");
@@ -238,13 +244,24 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		else if(cuda) {
 			*fout<<asym->getName()<<"[idx] = (" ;
 		}
-		
+		else if (gappa) {
+			if (type !="_m")
+				*fout << asym->getName() << type << " " << precision <<  " = " ;
+			else 
+				*fout << asym->getName() <<type << " = " ;
+		} 
 		else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]," ;
 		}
-		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda) << ");" << endl;
+		if (gappa)
+		{
+			*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type) << ";" << endl;
+			
+		}
+		else
+			*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type) << ");" << endl;
 	      }
 	    else
 	      {
@@ -259,14 +276,14 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    if (lval->usesAllBits())
 	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda)<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa,type)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
 		Expr *high_expr=lval->getPosHigh();
-		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda);
-		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda);
-		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda);
+		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda, gappa, type);
+		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda, gappa, type);
+		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type);
 		string one =getCCvarType(asym).pos("long long")>=0 ? "1ll":"1";
 		*fout << indent
 		      << asym->getName() << "="
@@ -293,7 +310,8 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	SymTab *symtab=bstmt->getSymtab();
 	list<Symbol*>* lsyms=symtab->getSymbolOrder();
 	list_item item;
-	*fout << indent << "{" << endl;
+	if (!gappa)
+		*fout << indent << "{" << endl;
 
 	forall_items(item,*lsyms)
 	  {
@@ -304,18 +322,19 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda) ;
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, gappa, type) ;
 	    *fout << ";" << endl;
 	  }
 
 	Stmt* astmt;
 	forall(astmt,*(bstmt->getStmts()))
 	  {
-	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-			in_pagestep, retime, mblaze, cuda, classname);
+	    ccGappaStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
+			in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
 	  }
 
-	*fout << indent << "}" << endl;
+	if (!gappa)
+		*fout << indent << "}" << endl;
 	
 	return;
       }
