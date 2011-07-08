@@ -91,6 +91,7 @@ HSRCS		= assert_tdf.h parse.h  version.h \
 		  ccbody.h     ccheader.h  ccinstance.h \
 		  cccase.h     cccopy.h    cceval.h      ccmem.h \
 		  ccprep.h     ccrename.h  ccstmt.h     cctype.h ccGappaStmt.h \
+		  cctestif.h \
 		  rateTable.h  rateInstance.h  ribody.h  linux_meminfo.h \
 		  canonical.h  mincut.h    clusterstates.h  feedback_fsm.h \
 		  ir_graph.h   ir_analyze_registers.h    ir_misc.h \
@@ -112,6 +113,7 @@ CSRCS		= tdfc.cc \
 		  ccgappabody.cc ccGappaStmt.cc\
 		  cccase.cc    cccopy.cc   cceval.cc     ccmem.cc \
 		  ccprep.cc    ccrename.cc ccstmt.cc     cctype.cc \
+		  cctestif.cc \
 		  rateTable.cc rateInstance.cc ribody.cc linux_meminfo.cc \
 		  canonical.cc mincut.cc   clusterstates.cc feedback_fsm.cc \
 		  ir_graph.cc  ir_analyze_registers.cc   ir_arch_dep.cc \

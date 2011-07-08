@@ -1,13 +1,21 @@
-add(input double a, input double b[0,65536], output double d)
+add(input double a[0,3], input double b[1,6], output double d)
 {
 
 	state only(a,b):
-{		
-			d=a+b;
-		
-}		
-		
+{	
+		double c = 4;
+		double j = 3;
+		double k;
 
-
-
+		if (a>0)		
+		{
+			d=a;
+			k=c;
+		}
+		else
+		{
+			d=j;
+			c=b;
+		}
 }
+}		

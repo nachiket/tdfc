@@ -39,6 +39,7 @@
 #include "ccannote.h"
 #include "cceval.h"
 #include "ccGappaStmt.h"
+#include "cctestif.h"
 
 using std::cout;
 using std::endl;
@@ -51,10 +52,43 @@ Note: builtins expecting to handle here
   (only two left at stmt level)
 ***********************************************************************/
 
-void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
+int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, bool cuda, 
 	    bool gappa, string type, string precision, string classname)
 {
+	switch (stmt->getStmtKind())
+    {
+		case STMT_GOTO:
+		{
+			cout << "stmt type = STMT_GOTO" << endl;
+			break;
+		}
+		case STMT_IF:
+		{
+			cout << "stmt type = STMT_IF" << endl;
+			break;
+		}
+		case STMT_CALL:
+		{
+			cout << "stmt type = STMT_CALL" << endl;
+			break;
+		}
+		case STMT_BUILTIN:
+		{
+			cout << "stmt type = STMT_BUILTIN" << endl;
+			break;
+		}
+		case STMT_ASSIGN:
+		{
+			cout << "stmt type = STMT_ASSIGN" << endl;
+			break;
+		}
+		case STMT_BLOCK :
+		{
+			cout << "stmt type = STMT_BLOCK " << endl;
+			break;
+		}
+	}
 
   switch (stmt->getStmtKind())
     {
@@ -83,33 +117,74 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			}
 		}
 	}
-	return;
+	return -1;
       }
     case STMT_IF:
       {
-	StmtIf *ifstmt=(StmtIf *)stmt;
-	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, gappa, type) 
-	      << ") {" << endl;
-	cout << EvaluateExpr(ifstmt->getCond())->toString() << endl;
-	ccGappaStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
-	*fout << indent << "}" << endl;
-	Stmt *epart=ifstmt->getElsePart();
-	if (epart!=(Stmt *)NULL)
-	  {
-	    *fout << indent << "else {" << endl;
-	    ccGappaStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
-	    *fout << indent << "}" << endl;
-	  }
-	return;
+		  if (!gappa)
+		  {
+			StmtIf *ifstmt=(StmtIf *)stmt;
+			*fout << indent << "if (" 
+				  << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, gappa, type) 
+				  << ") {" << endl;
+			cout << EvaluateExpr(ifstmt->getCond())->toString() << endl;
+			ccGappaStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
+				   early_close,state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
+			*fout << indent << "}" << endl;
+			Stmt *epart=ifstmt->getElsePart();
+			if (epart!=(Stmt *)NULL)
+			  {
+				*fout << indent << "else {" << endl;
+				ccGappaStmt(fout,string("%s  ",indent),epart,early_close,
+				   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
+				*fout << indent << "}" << endl;
+			  }
+		   return -1;
+		  }
+		  else
+		  {
+			int *i;
+			*i = 0;
+			
+			StmtIf *ifstmt=(StmtIf *)stmt;
+			*fout << "#" << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, gappa, type) << endl;
+			*fout << "#if statement condition" << endl;
+			cout << EvaluateExpr(ifstmt->getCond())->toString() << endl;
+			
+			bool else_part = false;
+			Stmt *epart=ifstmt->getElsePart();
+			if (epart!=(Stmt *)NULL)
+			{
+				else_part = true;
+				cout << "else part existing ? " << else_part << endl;
+			}
+			
+			ccGappaIfStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
+				   early_close,state_prefix,in_pagestep, retime, type, precision, classname, ifstmt, else_part, i);
+			
+			//*fout << indent << "}" << endl;
+			
+/*			if (epart!=(Stmt *)NULL)
+			  {
+//				  *fout << "#else part" << endl;
+				*fout << indent << "else {" << endl;
+				ccGappaStmt(fout,string("%s  ",indent),epart,early_close,
+				   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
+//				*fout << indent << "}" << endl;
+			  }
+			else
+				
+*/		  
+		*fout << ";" << endl; 
+		return *i;
+		}
+		
       }
     case STMT_CALL:
       {
 	warn("ccStmt: expecting calls to be transformed out before calling this",
 	     stmt->getToken());
-	return;
+	return -1;
       }
     case STMT_BUILTIN:
       {
@@ -212,7 +287,7 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    fatal(-1,string("Unexpected builtin Operator [%d] in Statement",
 			    (int)bop->getBuiltinKind()),bop->getToken());
 	  }
-	return;
+	return -1;
       }
     case STMT_ASSIGN:
       {
@@ -258,7 +333,6 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		if (gappa)
 		{
 			*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type) << ";" << endl;
-			
 		}
 		else
 			*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type) << ");" << endl;
@@ -274,9 +348,17 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    /* don't have to handle retime here since it shouldn't appear */
 
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
-	    if (lval->usesAllBits())
-	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa,type)<<";"<<endl;
+	   
+		if (lval->usesAllBits())
+		{
+			 if (!gappa)
+			 	*fout<<indent<<asym->getName()<<"="
+				<<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa,type)<<";"<<endl;
+			else
+				*fout<<indent<<asym->getName()<< type <<" = "
+				<<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa,type)<<";"<<endl;
+				
+		}
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
@@ -301,7 +383,7 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		       
 	  }
 
-	return;
+	return -1;
       }
     case STMT_BLOCK:
       {
@@ -318,12 +400,27 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    // TODO: deal with memories separately...maybe somewhere earlier
 	    Symbol *sum=lsyms->inf(item);
 	    SymbolVar *asum=(SymbolVar *)sum;
-	    *fout << indent <<  "  " << getCCvarType(asum) 
-		  << " " << asum->getName() ;
-	    Expr* val=asum->getValue();
-	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, gappa, type) ;
-	    *fout << ";" << endl;
+	    if (!gappa)
+	    {
+			*fout << indent <<  "  " << getCCvarType(asum) 
+			  << " " << asum->getName() ;
+			Expr* val=asum->getValue();
+			if (val!=(Expr *)NULL)
+			  *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, gappa, type) ;
+			*fout << ";" << endl;
+		}
+		else 
+		{
+			Expr* val=asum->getValue();
+			if (val!=(Expr *)NULL)
+			{
+				*fout << indent  << asum->getName() << type;
+				*fout << "=" << precision << "(" <<
+						ccEvalExpr(EvaluateExpr(val), retime, cuda, gappa, type) 
+						<< ")";
+				*fout << ";" << endl;
+			}
+		}
 	  }
 
 	Stmt* astmt;
@@ -336,7 +433,7 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	if (!gappa)
 		*fout << indent << "}" << endl;
 	
-	return;
+	return -1;
       }
     default:
       {

@@ -105,13 +105,17 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
 		{
 			Symbol *sum=lsyms->inf(item2);
 			SymbolVar *asum=(SymbolVar *)sum;
-			*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
+			//*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
 			Expr* val=asum->getValue();
 			if (val!=(Expr *)NULL)
+			{
+				*fout <<  asum->getName() ;
 				*fout << "=" << ccEvalExpr(EvaluateExpr(val), false) ;
-			*fout << ";" << endl;
+				*fout << ";" << endl;
+			}
 		}
 	
+		// we do not need to declare the variables in gappa
 	  int ocnt = 0;
 	  int *early_close=new int[ocnt];
 	  
