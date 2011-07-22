@@ -5258,7 +5258,12 @@ cctestif.o: src/cctestif.cc /usr/include/c++/4.4/iostream \
  /usr/include/c++/4.4/bits/locale_facets.tcc \
  /usr/include/c++/4.4/bits/basic_ios.tcc \
  /usr/include/c++/4.4/bits/ostream.tcc /usr/include/c++/4.4/istream \
- /usr/include/c++/4.4/bits/istream.tcc /usr/include/c++/4.4/fstream \
+ /usr/include/c++/4.4/bits/istream.tcc /usr/include/c++/4.4/cstdlib \
+ /usr/include/stdlib.h /usr/include/bits/waitflags.h \
+ /usr/include/bits/waitstatus.h /usr/include/sys/types.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h \
+ /usr/include/alloca.h /usr/include/c++/4.4/fstream \
  /usr/include/c++/4.4/bits/codecvt.h /usr/include/c++/4.4/cstdio \
  /usr/include/libio.h /usr/include/_G_config.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
@@ -5277,17 +5282,13 @@ cctestif.o: src/cctestif.cc /usr/include/c++/4.4/iostream \
  /opt/leda/incl/LEDA/internal/std/sstream.h /usr/include/c++/4.4/sstream \
  /usr/include/c++/4.4/bits/sstream.tcc \
  /opt/leda/incl/LEDA/internal/std/stddef.h \
- /opt/leda/incl/LEDA/internal/std/stdlib.h /usr/include/c++/4.4/cstdlib \
- /usr/include/stdlib.h /usr/include/bits/waitflags.h \
- /usr/include/bits/waitstatus.h /usr/include/sys/types.h \
- /usr/include/sys/select.h /usr/include/bits/select.h \
- /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h \
- /usr/include/alloca.h /opt/leda/incl/LEDA/internal/std/math.h \
- /usr/include/c++/4.4/cmath /usr/include/math.h \
- /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h \
- /usr/include/bits/huge_vall.h /usr/include/bits/inf.h \
- /usr/include/bits/nan.h /usr/include/bits/mathdef.h \
- /usr/include/bits/mathcalls.h /usr/include/c++/4.4/bits/cmath.tcc \
+ /opt/leda/incl/LEDA/internal/std/stdlib.h \
+ /opt/leda/incl/LEDA/internal/std/math.h /usr/include/c++/4.4/cmath \
+ /usr/include/math.h /usr/include/bits/huge_val.h \
+ /usr/include/bits/huge_valf.h /usr/include/bits/huge_vall.h \
+ /usr/include/bits/inf.h /usr/include/bits/nan.h \
+ /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h \
+ /usr/include/c++/4.4/bits/cmath.tcc \
  /opt/leda/incl/LEDA/internal/PREFIX.h \
  /opt/leda/incl/LEDA/internal/global.h \
  /opt/leda/incl/LEDA/internal/std/limits.h /usr/include/c++/4.4/limits \

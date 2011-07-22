@@ -9,13 +9,30 @@ add(input double a[0,3], input double b[1,6], output double d)
 
 		if (a>0)		
 		{
-			d=a;
-			k=c;
+			if (c == 1)
+			{
+				d=a;
+				if ( a<1)
+				{
+					k=c;
+				}
+			}
+			else
+			{
+				c = a; 
+			}
 		}
-		else
+		else if (b>0)
 		{
-			d=j;
-			c=b;
+			d = 8;
+			if ( j == 3)
+			{
+				d=j;
+				if ( k ==1)
+				{
+					c=b;
+				}
+			}
 		}
 }
 }		

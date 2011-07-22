@@ -143,40 +143,42 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  }
 		  else
 		  {
-			int *i;
-			*i = 0;
+			int i = 0;
 			
 			StmtIf *ifstmt=(StmtIf *)stmt;
-			*fout << "#" << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, gappa, type) << endl;
-			*fout << "#if statement condition" << endl;
-			cout << EvaluateExpr(ifstmt->getCond())->toString() << endl;
-			
+						
 			bool else_part = false;
 			Stmt *epart=ifstmt->getElsePart();
+			
+			set<string> *res=new set<string>();
+					
 			if (epart!=(Stmt *)NULL)
 			{
 				else_part = true;
 				cout << "else part existing ? " << else_part << endl;
 			}
 			
-			ccGappaIfStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-				   early_close,state_prefix,in_pagestep, retime, type, precision, classname, ifstmt, else_part, i);
 			
-			//*fout << indent << "}" << endl;
+			int height = 2;
+			int width = 0;
+			count_variable(stmt, &width);
+			cout << "width == " << width << endl;
+			string **variables = new string*[width];
+			for (int i=0;i<width;i++)
+				variables[i]=new string[height];
 			
-/*			if (epart!=(Stmt *)NULL)
-			  {
-//				  *fout << "#else part" << endl;
-				*fout << indent << "else {" << endl;
-				ccGappaStmt(fout,string("%s  ",indent),epart,early_close,
-				   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
-//				*fout << indent << "}" << endl;
-			  }
-			else
+			ccGappaIfStmt(fout,string("%s  ",indent),ifstmt,
+				   early_close,state_prefix,in_pagestep, retime, type, precision, classname, &i, variables, width);		
 				
-*/		  
-		*fout << ";" << endl; 
-		return *i;
+			for (int j =0; j<width;j++)
+			{
+				if (variables[j][0] != "")
+					*fout << variables[j][0] << type << " " << precision << " = " << variables[j][1] << ";" << endl;
+			}
+			
+			 cout << "value of if_nb after execution of ccGappaIfStmt : " << i << endl;
+		//*fout << ";" << endl; 
+		return i;
 		}
 		
       }

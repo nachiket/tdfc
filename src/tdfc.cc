@@ -276,7 +276,7 @@ bool find_behav_ops_map (Tree *t, void *aux)
 }
 
 
-set<string> *instances (Operator *op, Target targ,
+set<string> *instances(Operator *op, Target targ,
 			int debug_page_step=0)
 {
 
@@ -468,6 +468,9 @@ set<string> *instances (Operator *op, Target targ,
 	case TARGET_CUDA:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
+	case TARGET_GAPPA:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
 	case TARGET_MICROBLAZE:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
@@ -654,18 +657,18 @@ void emitGAPPA ()
   // - emit gappa code for all operators  (-egappa option)
   
   Operator *op;
-  
+	
 //    forall(op,*(gSuite->getOperators()))
 //    ccrename(op);
    // I am not sure I need to rename the operators
   // all operators must be renamed before the processing in the
   // following loop
   forall(op,*(gSuite->getOperators()))
-  {
-	
+  {  
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
     if (ccCheckRanges(op))
+//		cout << "Operator : \n" <<op->toString() << endl;
 		ccgappabody(op); // Helene
     cout << endl;
   }
