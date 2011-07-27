@@ -73,3 +73,13 @@ void microblaze_constructor_signatures_notypes(ofstream *fout,
 void ccmicroblazeheader(Operator *op);
 
 void cccudaheader(Operator *op);
+
+void autoesl_functional_signature(ofstream *fout,string name,
+			    Symbol *rsym,
+			    list<Symbol*> *argtypes);
+
+void autoesl_functional_constructor(ofstream *fout,string name,
+			    string classname,Symbol *rsym,
+			    list<Symbol*> *argtypes);
+
+void ccautoeslheader(Operator *op);

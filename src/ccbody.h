@@ -34,5 +34,6 @@
 void ccbody(Operator *op,int debug_logic);
 void ccdfgbody(Operator *op, int debug_logic);
 void ccmicroblazebody(Operator *op);
+void ccautoeslbody(Operator *op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);

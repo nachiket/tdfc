@@ -686,7 +686,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 	    << "    pthread_attr_init(a_thread_attribute);\n"
 	    << "    pthread_attr_setdetachstate(a_thread_attribute,PTHREAD_CREATE_DETACHED);\n"
 	    << "    pthread_create(&rpt,a_thread_attribute,&" 
-	    << op->getName() << "_proc_run, this);"
+	    << op->getName() << "_proc_run, this);\n"
+	    << "    pthread_attr_destroy(a_thread_attribute);" 
+	    << "    free(a_thread_attribute);" 
 	    << endl;
     }
   else if (op->getOpKind()==OP_COMPOSE)
@@ -718,6 +720,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 
 
   *fout << "  }" << endl; // else no instance, run proc_run
+  *fout << "  free(params);" << endl;
+  *fout << "  free(name);" << endl;
+  *fout << "  free(instance_fn);" << endl;
   *fout << "}" << endl; // end of constructor
   
 }

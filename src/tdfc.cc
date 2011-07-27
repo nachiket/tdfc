@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 1999 The Regents of the University of California 
 // Permission to use, copy, modify, and distribute this software and
@@ -92,6 +92,7 @@ enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
 	      TARGET_MICROBLAZE,
+	      TARGET_AUTOESL,
 	      TARGET_VERILOG,
 	      TARGET_NEWREP,
 	    //TARGET_CLUSTERS,
@@ -125,6 +126,8 @@ void usage ()
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
     << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
     << "         -embz        : emit C code for the Microblaze\n"
+    << "         -ecuda       : emit CUDA code for NVIDIA GPU\n"
+    << "         -eautoesl    : emit C code for AutoESL/Xilinx\n"
     << "         -everilog    : emit Verilog\n"
     << "         -eIR         : emit page synthesis info (implies -xc -mt)\n"
 				  // -mt avoids a core-dump, to be investigated
@@ -469,6 +472,9 @@ set<string> *instances (Operator *op, Target targ,
 	case TARGET_MICROBLAZE:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
+	case TARGET_AUTOESL:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
 	case TARGET_VERILOG:
 	  tdfToVerilog_instance(iop,&instance_list);
 	  if (gSynplify)
@@ -552,19 +558,13 @@ void emitDOT ()
   cout << endl;
 
 
-  int leaf_operators=0;
-  forall(op,*gSuite->getOperators()) {
-	if(op->getOpKind()==OP_BEHAVIORAL) {
-		leaf_operators++;
-	}
-  }
-//  cout << "TotalOperators " << leaf_operators << endl;
 
   forall(op,*gSuite->getOperators()) {
-//    if(op->getOpKind()==OP_COMPOSE) {
+    if(op->getOpKind()==OP_COMPOSE) {
+//  	Operator *fop=flatten(op);
        cout << ((Operator*)op)->toDOTString("\t");
        cout << endl;
-//    }
+    }
   }
 
   cout << "}" << endl;
@@ -662,6 +662,25 @@ void emitMicroblazeC ()
     // TODO: eventually move flatten here
     ccmicroblazeheader(op); 
     ccmicroblazebody(op); 
+    cout << endl;
+  }
+}
+
+void emitAutoESLC ()
+{
+  // - emit C code for all operators  (-eautoesl option)
+  
+  Operator *op;
+  forall(op,*(gSuite->getOperators()))
+    ccrename(op);
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    ccautoeslheader(op); 
+    ccautoeslbody(op); 
     cout << endl;
   }
 }
@@ -790,6 +809,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_CUDA;
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
+    else if (strcmp(argv[arg],"-eautoesl")==0)	// -eautoesl   : emit AutoESL C
+      optionTarget = TARGET_AUTOESL;
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
       optionTarget = TARGET_VERILOG;
     else if (strcmp(argv[arg],"-eIR")==0) {	// -eIR      : IntermRep/synth
@@ -1032,6 +1053,7 @@ int main(int argc, char *argv[])
 				       optionDebugPageStep);	  break;
       case TARGET_CUDA:		emitCUDA();			  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
+      case TARGET_AUTOESL:	emitAutoESLC();		  	break;
       case TARGET_VERILOG:	emitVerilog();			  break;
       case TARGET_NEWREP:	emitNewRep();			  break;
       case TARGET_RI:		emitRI();			  break;
