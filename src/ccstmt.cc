@@ -52,9 +52,17 @@ Note: builtins expecting to handle here
 ***********************************************************************/
 
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, bool cuda, string classname)
+	    string state_prefix, bool in_pagestep, bool retime, 
+	    bool mblaze, bool cuda, bool autoesl,
+	    string classname)
 {
 
+if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl)) 
+{
+	cout << "Inconsistent boolean flags cuda:"<<cuda<<" mblaze:"<<mblaze<<" autoesl:"<<autoesl<<endl;
+}
+
+//
 //	if(retime) {
 //		cout << "Such bullshit" << endl; exit(1);
 //	}
@@ -64,6 +72,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
     case STMT_GOTO:
       {
 	StmtGoto *gstmt=(StmtGoto *)stmt;
+	
 	if(!cuda) {
 		*fout << indent << "state=" << state_prefix 
 		  // was:
@@ -98,7 +107,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	  {
 	    *fout << indent << "else {" << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, cuda, classname);
+		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -175,7 +184,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  }
 	else if (bop->getBuiltinKind()==BUILTIN_DONE)
 	  {
-	    if(!cuda)
+	    if(!(cuda ||autoesl))
 		    *fout << indent 
 			  << "done=1;" << endl;
 	  }
@@ -236,6 +245,8 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			*fout << classname<<"_ptr->outputs[" << id << "],";
 		} else if(cuda) {
 			*fout<<asym->getName()<<"[idx] = (" ;
+		} else if(autoesl) {
+			*fout<<"*"<<asym->getName()<<" = (" ;
 		} else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
@@ -309,7 +320,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	forall(astmt,*(bstmt->getStmts()))
 	  {
 	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-			in_pagestep, retime, mblaze, cuda, classname);
+			in_pagestep, retime, mblaze, cuda, autoesl, classname);
 	  }
 
 	*fout << indent << "}" << endl;

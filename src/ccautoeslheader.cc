@@ -46,7 +46,8 @@ using std::ofstream;
 void autoesl_functional_signature(ofstream *fout,
 			   string name,
 			   Symbol *rsym,
-			   list<Symbol*> *argtypes)
+			   list<Symbol*> *argtypes,
+			   string estr)
 {
 
   int i=0;
@@ -68,7 +69,7 @@ void autoesl_functional_signature(ofstream *fout,
 	  i++;
   }
 
-  *fout << "\n);" << endl;
+  *fout << "\n)" << estr << endl;
 
 }
 
@@ -98,7 +99,7 @@ void autoesl_functional_constructor(ofstream *fout,
 	  i++;
   }
 
-  *fout << "\n);" << endl;
+  *fout << "\n)" << endl;
 }
 
 void ccautoeslheader (Operator *op)
@@ -129,7 +130,7 @@ void ccautoeslheader (Operator *op)
 
   *fout << "void " << classname << "(\n" ;
 //  autoesl_constructor_signatures(fout,rsym,argtypes, true);
-  autoesl_functional_signature(fout,name,rsym,argtypes);
+  autoesl_functional_signature(fout,name,rsym,argtypes,"");
   *fout << endl;
 
 

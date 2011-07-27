@@ -76,7 +76,8 @@ void cccudaheader(Operator *op);
 
 void autoesl_functional_signature(ofstream *fout,string name,
 			    Symbol *rsym,
-			    list<Symbol*> *argtypes);
+			    list<Symbol*> *argtypes,
+			    string estr);
 
 void autoesl_functional_constructor(ofstream *fout,string name,
 			    string classname,Symbol *rsym,
