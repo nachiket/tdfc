@@ -682,6 +682,7 @@ void emitAutoESLC ()
     ccautoeslheader(op); 
     ccautoeslbody(op); 
     ccautoeslwrapper(op); 
+    ccautoesltcl(op); 
     cout << endl;
   }
 }

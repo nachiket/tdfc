@@ -106,7 +106,7 @@ void ccautoeslwrapper (Operator *op)
 
   // constructor
   *fout << "int main()" << endl << "{" << endl ;
-  *fout << "\tint N=1024;" << endl ; // randomly choose 1024 samples in the stream for now..
+  *fout << "  int N=1024;" << endl ; // randomly choose 1024 samples in the stream for now..
   
   // Variable Declarations
   Symbol *sym;
@@ -194,7 +194,45 @@ void ccautoeslwrapper (Operator *op)
 
 }
 
+/**
+ * TCL script
+ */
+void ccautoesltcl (Operator *op)
+{
+  
+  string name=op->getName();
+  Symbol *rsym=op->getRetSym();
+  string classname;
+  classname=name;
+  list<Symbol*> *argtypes=op->getArgs();
+  // start new output file
+  string fname=name+".tcl";
 
+  ofstream *fout=new ofstream(fname);
+  *fout << "# tdfc-autoesl autocompiled wrapper file" << endl;
+  *fout << "# tdfc version " << TDFC_VERSION << endl;
+  time_t currentTime;
+  time (&currentTime);
+  *fout << "# " << ctime(&currentTime) << endl;
+
+  // simple synthesis options
+  *fout << "set TOP [file rootname [info script]]" << endl; 
+  *fout << "delete_project	${TOP}_batch.prj" << endl; 
+  *fout << "open_project	${TOP}_batch.prj" << endl; 
+  *fout << "add_file 		${TOP}.cpp" << endl; 
+  *fout << "set_top  		${TOP}" << endl; 
+  *fout << "open_solution	solution1" << endl; 
+  *fout << "add_library		xilinx/virtex6/virtex6_fpv5" << endl; 
+  *fout << "add_library		xilinx/virtex6/virtex6" << endl; 
+  *fout << "create_clock	-period 3ns" << endl; 
+  *fout << "elaborate -lm" << endl; 
+  *fout << "autosyn" << endl; 
+  *fout << "automg" << endl; 
+  
+  // close up
+  fout->close();
+
+}
 
 
 
