@@ -681,6 +681,7 @@ void emitAutoESLC ()
     // TODO: eventually move flatten here
     ccautoeslheader(op); 
     ccautoeslbody(op); 
+    ccautoeslwrapper(op); 
     cout << endl;
   }
 }

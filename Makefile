@@ -111,7 +111,7 @@ CSRCS		= tdfc.cc \
 		  ccbody.cc    ccheader.cc \
 		  cccudabody.cc cccudawrapper.cc cccudaheader.cc \
 		  ccmicroblazebody.cc ccmicroblazeheader.cc \
-		  ccautoeslbody.cc ccautoeslheader.cc \
+		  ccautoeslbody.cc ccautoeslheader.cc ccautoeslwrapper.cc \
 		  ccdfgbody.cc \
 		  ccinstance.cc \
 		  cccase.cc    cccopy.cc   cceval.cc     ccmem.cc \
