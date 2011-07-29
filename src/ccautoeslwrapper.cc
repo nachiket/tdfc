@@ -142,22 +142,24 @@ void ccautoeslwrapper (Operator *op)
   // Do calculation in AutoESL
   *fout << "  // Loop" << endl;
   *fout << "  for(int i=0; i<N; i++) {" << endl; //Streams
-  *fout << "    " << name << " (";
+  *fout << "    " << name << " (" << endl;
   int j=0;
   forall(sym,*argtypes)
   {
-	if(j>1)
-		*fout << ",";
+	if(j>=1)
+		*fout << ",\n";
 
 	SymbolStream *ssym=(SymbolStream *)sym;
-	if(ssym->getDir() != STREAM_OUT) {
-		*fout << sym->getName() << "[i]";
+	if(ssym->getDir() == STREAM_IN && sym->isParam()) {
+		*fout << "      " << sym->getName() << "";
+	} else if(ssym->getDir() == STREAM_IN) {
+		*fout << "      " << sym->getName() << "[i]";
 	} else {
-		*fout << "*" << sym->getName() << "[i]";
+		*fout << "      *" << sym->getName() << "[i]";
 	}
 	j++;
   }
-  *fout << ");" << endl;
+  *fout << "\n);" << endl;
   *fout << "  }" << endl << endl;
 
   // Print results
