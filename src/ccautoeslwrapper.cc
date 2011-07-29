@@ -155,7 +155,7 @@ void ccautoeslwrapper (Operator *op)
 	} else if(ssym->getDir() == STREAM_IN) {
 		*fout << "      " << sym->getName() << "[i]";
 	} else {
-		*fout << "      *" << sym->getName() << "[i]";
+		*fout << "      &" << sym->getName() << "[i]";
 	}
 	j++;
   }
