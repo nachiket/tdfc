@@ -159,7 +159,7 @@ void ccautoeslwrapper (Operator *op)
 	}
 	j++;
   }
-  *fout << "\n);" << endl;
+  *fout << "\n    );" << endl;
   *fout << "  }" << endl << endl;
 
   // Print results
@@ -237,5 +237,47 @@ void ccautoesltcl (Operator *op)
 
 }
 
+
+/**
+ * Simple makefile
+ */
+void ccautoeslmake (Operator *op)
+{
+  
+  string name=op->getName();
+  Symbol *rsym=op->getRetSym();
+  string classname;
+  classname=name;
+  list<Symbol*> *argtypes=op->getArgs();
+  // start new output file
+  string fname="Makefile."+name;
+
+  ofstream *fout=new ofstream(fname);
+  *fout << "# tdfc-autoesl autocompiled wrapper file" << endl;
+  *fout << "# tdfc version " << TDFC_VERSION << endl;
+  time_t currentTime;
+  time (&currentTime);
+  *fout << "# " << ctime(&currentTime) << endl;
+
+  // simple synthesis options
+  // expects AUTOESL_ROOT and ARCH to be set already..
+  *fout << "DESIGN\t\t:=" << name << endl;
+  *fout << "CC\t\t:= g++" << endl;
+  *fout << "LDFLAGS\t\t+= -lm -lsystemc -L$(AUTOESL_ROOT)/$(AUTOESL_ARCH)/tools/systemc/lib" << endl;
+  *fout << "CXXFLAGS\t+= -I$(AUTOESL_ROOT)/$(AUTOESL_ARCH)/tools/systemc/include -I$(AUTOESL_ROOT)/include" << endl;
+
+  *fout << "sim: $(DESIGN)" << endl; 
+  *fout << "\t./$(DESIGN)" << endl; 
+  *fout << "autoesl: $(DESIGN).tcl" << endl; 
+  *fout << "\tautoesl $<" << endl; 
+  *fout << "hardware: $(DESIGN)_batch.prj/solution1/impl/vhdl/impl.sh" << endl; 
+  *fout << "\tcd $(DESIGN)_batch.prj/solution1/impl/vhdl; ./impl.sh; cd ../../../../" << endl; 
+  *fout << "$(DESIGN): $(DESIGN).o $(DESIGN)_test.o $(DESIGN).h" << endl;
+  *fout << "\t$(CC) -o $@ $(filter %.o, $^) $(LDFLAGS)"  << endl;
+  
+  // close up
+  fout->close();
+
+}
 
 

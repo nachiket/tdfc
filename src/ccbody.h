@@ -36,6 +36,7 @@ void ccdfgbody(Operator *op, int debug_logic);
 void ccmicroblazebody(Operator *op);
 void ccautoeslbody(Operator *op);
 void ccautoeslwrapper(Operator* op);
+void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
