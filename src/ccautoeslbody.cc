@@ -140,17 +140,14 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op)
               // increment the nesting count and also output a beginning
               // nesting bracket.
               numNestings++;
-//              *fout << "        {" << endl;
 
 	      // reducing this to a simple statement processing scenario
 	      Stmt* stmt;
 	      forall(stmt,*(acase->getStmts()))
 		{
 		  ccStmt(fout,string("\t"),stmt,early_close,
-			 STATE_PREFIX,0, false, false, false, true, classname); // 0 was default for ccStmt.h
-			 // added false to remove retiming
+			 STATE_PREFIX,0, false, false, false, true, classname);
 		}
-//	      *fout << "        }" << endl;
 	    }
 	  // default case will be to punt out of loop (exit/done)
 
