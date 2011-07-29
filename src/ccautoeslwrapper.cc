@@ -113,7 +113,7 @@ void ccautoeslwrapper (Operator *op)
   forall(sym,*argtypes)
   {
 	if(sym->isParam())
-		*fout << "  const " << sym->getType()->toString() << " " << sym->getName() << "_d = (" << sym->getType()->toString() << ")1;" << endl;
+		*fout << "  const " << sym->getType()->toString() << " " << sym->getName() << " = (" << sym->getType()->toString() << ")1;" << endl;
 	else
 		*fout << "  " << sym->getType()->toString() << " *" << sym->getName() << ";" << endl;
   }
@@ -170,7 +170,7 @@ void ccautoeslwrapper (Operator *op)
 	SymbolStream *ssym=(SymbolStream *)sym;
 	if(ssym->getDir() == STREAM_OUT) {
 	  //Type-casting output to prevent printf errors
-	  *fout << "  for (int i=0; i<N; i++) printf(\"" << sym->getName() << "_h[%d] = %g\\n\", i, " 
+	  *fout << "  for (int i=0; i<N; i++) printf(\"" << sym->getName() << "[%d] = %g\\n\", i, " 
 		<< sym->getName() << "[i]);" << endl;
 	}
   }
