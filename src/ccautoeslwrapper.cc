@@ -142,7 +142,7 @@ void ccautoeslwrapper (Operator *op)
   // Do calculation in AutoESL
   *fout << "  // Loop" << endl;
   *fout << "  for(int i=0; i<N; i++) {" << endl; //Streams
-  *fout << "  " << name << " (";
+  *fout << "    " << name << " (";
   int j=0;
   forall(sym,*argtypes)
   {
@@ -150,14 +150,15 @@ void ccautoeslwrapper (Operator *op)
 		*fout << ",";
 
 	SymbolStream *ssym=(SymbolStream *)sym;
-	if(ssym->getDir() == STREAM_OUT) {
+	if(ssym->getDir() != STREAM_OUT) {
 		*fout << sym->getName() << "[i]";
 	} else {
 		*fout << "*" << sym->getName() << "[i]";
 	}
 	j++;
   }
-  *fout << ");" << endl << endl;
+  *fout << ");" << endl;
+  *fout << "  }" << endl << endl;
 
   // Print results
   *fout << "  // Print results (typecasted to prevent printf errors)" << endl;
@@ -167,7 +168,7 @@ void ccautoeslwrapper (Operator *op)
 	SymbolStream *ssym=(SymbolStream *)sym;
 	if(ssym->getDir() == STREAM_OUT) {
 	  //Type-casting output to prevent printf errors
-	  *fout << "  for (int i=0; i<N; i++) printf(\"" << sym->getName() << "_h[%d] = %f\\n\", i, (float)" 
+	  *fout << "  for (int i=0; i<N; i++) printf(\"" << sym->getName() << "_h[%d] = %g\\n\", i, " 
 		<< sym->getName() << "[i]);" << endl;
 	}
   }
@@ -178,7 +179,7 @@ void ccautoeslwrapper (Operator *op)
   forall(sym,*argtypes)
   {
 	if(!sym->isParam()) {
-		*fout << "  free(" << sym->getName() << "); ";
+		*fout << "  free(" << sym->getName() << "); " << endl;
 	}
   }
 
