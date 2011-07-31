@@ -1569,6 +1569,7 @@ bool fillFanoutInfos_map (Tree *t, void *i)
 	  FanoutInfo &fanoutInfo=(*fanoutInfos)[i];
 	  if (isInAsstContext(lval)) {
 	    // - found a write
+	    //cout << "inferCopyOps - write "<<s->getName() << endl;
 	    // warn(string("inferCopyOps - write \"")+s->getName()+"\"",
 	    //      lval->getToken());
 	    if (fanoutInfo.write) {
@@ -1582,8 +1583,7 @@ bool fillFanoutInfos_map (Tree *t, void *i)
 	  }
 	  else {
 	    // - found a read
-	    // warn(string("inferCopyOps - read \"")+s->getName()+"\"",
-	    //      lval->getToken());
+	    //cout << "inferCopyOps - read "<<s->getName() << endl;
 	    fanoutInfo.fanout++;
 	    fanoutInfo.reads.append(lval);
 	  }
@@ -1627,6 +1627,8 @@ void inferCopyOps_composeOp (OperatorCompose *op)
 				((SymbolStream*)s)->getDir()==STREAM_OUT;
     bool s_is_used = (fanoutInfo.write!=NULL || fanoutInfo.fanout>0
 					     || s_is_primary_io);
+
+
     if (fanoutInfo.write==NULL && s_is_used && !s_is_primary_i)
       fatal(1,string("stream \"")+s->getName()+"\" has no writer",
             s->getToken());
@@ -1637,14 +1639,24 @@ void inferCopyOps_composeOp (OperatorCompose *op)
     if (fanoutInfo.fanout>1) {
       // - need to insert a copy operator
       ExprLValue *fanout;
+      // 8/2/2011: ngk: check if lvalue is primary io
+      // this is actually screwed.. maybe hack^hack is to permute assignment..
       forall (fanout,fanoutInfo.reads) {
-	// - for each fanout (reader), create fanout stream...
-	// - note, fanout streams do NOT get orig stream's init value and depth
-	SymbolVar *s_fanout=new SymbolVar(NULL,s->getName(),s->getType());
-	uniqueRenameSym(s_fanout,op->getVars());
-	op->getVars()->addSymbol(s_fanout);
-	// - ...and modify reader to use fanout stream
-	fanout->setSymbol(s_fanout);
+        Symbol* fanout_sym = fanout->getSymbol();
+        //bool fanout_is_primary_o  = (fanout_sym->getParent()==op->getSymtab())
+	//      		&& ((SymbolStream*)fanout_sym)->getDir()==STREAM_OUT;
+        //if(!fanout_is_primary_o) {
+	  // - for each fanout (reader), create fanout stream...
+	  // - note, fanout streams do NOT get orig stream's init value and depth
+	  SymbolVar *s_fanout=new SymbolVar(NULL,s->getName(),s->getType());
+	  uniqueRenameSym(s_fanout,op->getVars());
+	  op->getVars()->addSymbol(s_fanout);
+	  // - ...and modify reader to use fanout stream
+	  fanout->setSymbol(s_fanout);
+	//  cout << "Performing _copy_ symbol duplication for "<<fanout_sym->toString() << " and s=" << s->toString() <<endl;
+        //} else {
+	//  cout << "Skipping _copy_ symbol duplication for primary io "<<fanout_sym->toString()<<endl;
+        //}
       }
       // - now create copy() call
       list<Expr*> *args=new list<Expr*>;

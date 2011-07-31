@@ -1,0 +1,15 @@
+
+tdfc_axpy(
+           //params bound at instantiation time
+	   param float alpha,
+	   input float x,
+           input float y_in,
+	   output float y_out)
+{
+
+        state Axpy(x,y_in):
+        {
+		y_out = x * alpha + y_in;
+	}
+
+} 

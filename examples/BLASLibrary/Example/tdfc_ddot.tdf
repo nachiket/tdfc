@@ -1,0 +1,21 @@
+
+tdfc_ddot(
+           //params bound at instantiation time
+	   input double x,
+           input double y,
+	   output double z)
+{
+	double acc=0;
+        state compute(x,y):
+        {
+	        acc =  acc + (x*y);
+	}
+
+	state compute(eofr(x),eofr(y)): 
+	{
+		z = acc; 
+		acc = 0; 
+	}
+
+
+} 

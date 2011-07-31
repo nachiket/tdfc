@@ -1,0 +1,29 @@
+DualStageAccumulator(
+			param unsigned[5] LATENCY,
+			input double dataIn,
+			output double dataOut			
+		    )
+
+{
+	
+	double A;
+	double B;
+	double C;	
+	double  CoalesceStageDataIn;
+	boolean CoalesceEnable;
+
+	//First Stage of Accumulator
+
+	AccumCtrl(LATENCY,dataIn,C,A,B,CoalesceEnable);
+	FP_Add(A,B,C);
+	
+	//Second Stage of Accumulator
+
+	EnableCoalesceStageData(LATENCY,CoalesceEnable,C,CoalesceStageDataIn);
+//	CoalesceStage(CoalesceStageDataIn,dataOut);
+	
+	AssignOutput(C,dataOut);
+	
+	
+
+}

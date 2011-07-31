@@ -1,0 +1,130 @@
+
+#!/bin/bash
+#Linux Shell Scripting 
+# Written by Abid Rafique
+#
+#
+# Generate TDFC Code for Dot Product
+#
+echo 
+echo
+
+if [ $# -ne 3 ]
+then
+    echo "Usage - $0   ddot    n dataType"
+    echo "        Where ddot  is the operator, n is the number of elements in the vector and dataType is int,double,float etc"
+    exit 1
+fi
+
+
+
+filename="$1.tdfc";
+if [ -f $filename ]
+then
+    rm $filename
+fi
+
+n=$2;
+dataType=$3;
+
+
+#Operator I/O Generation
+echo "ddot(" >>$filename
+
+for (( i=1; i<=n; i++ ))
+do
+   echo "input $dataType x$i," >>$filename
+   echo "input $dataType y$i," >>$filename
+done
+echo "output $dataType z" >>$filename
+echo ")">>$filename
+
+
+#Operator Body Generation
+echo "{">>$filename
+
+#Local Variables Generation
+
+#Multipliers Output	 
+for (( i=1; i<=n; i++ ))
+do
+   echo "	$dataType mult_result$i;">>$filename		
+done
+
+
+
+
+
+#Adders Ouptut
+for (( i=1; i<=n-2; i++ ))
+do
+   echo "	$dataType add_result$i;">>$filename		
+done
+echo "">>$filename
+#Actual Operator 
+for (( i=1; i<=n; i++ ))
+do
+	echo "	FP_Mult(x$i,y$i,mult_result$i);">>$filename
+#	echo "	{"
+#   	echo "		mult_result$i = x$i * y$i;"		
+#	echo "		goto Add;"
+#	echo "	}"
+done
+
+j=1
+
+echo "">>$filename
+
+if [ $n -le 1 ]
+then
+	echo "Error: Number of elements should be greater than 1"
+	exit 1;
+fi
+
+if [ $n -le 2 ]
+then 
+	echo "	FP_Add(mult_result1,mult_result2,z);">>$filename
+else
+
+	for (( i=1,j=1; i<=n; i=i+2,j=j+1 ))
+	do
+		echo "	FP_Add(mult_result$i,mult_result`expr $i + 1`,add_result$j);">>$filename
+	#	echo "	{"
+	 #  	echo "		add_result$j = mult_result$i * mult_result`expr $i + 1` ;"		
+	#	echo "	}"
+
+	done
+
+
+	k=`expr $n / 2`
+	i=1
+	l=0
+
+	while [ $k -ge 4 ]
+	do
+
+		#while [ $i -le $k)
+		for (( i=1,j=1; i<=k; i=i+2,j++))
+		do
+			echo "	FP_Add(add_result`expr $l + $i` ,add_result`expr $l + $i + 1`,add_result`expr $l + $k + $j`);">>$filename
+	#		echo "	{"
+	 # 		echo "		add_result`expr $l + $k + $j`  = add_result`expr $l + $i` * addd_result`expr $l + $i + 1` ;"		
+	#		echo "	}"
+		done
+
+	
+		l=`expr $l + $k`
+
+		k=`expr $k / 2`
+	done
+	echo "" >>$filename
+		echo "	FP_Add(add_result`expr $l + 1` ,add_result`expr $l + 1 + 1`,z);">>$filename
+#	echo "	{"
+ # 	echo "		z  = add_result`expr $l + $i` * addd_result`expr $l + $i + 1` ;"		
+#	echo "	}"
+fi
+
+	echo "}">>$filename
+echo "$filename Generated Successfully"
+#
+	exit 1;

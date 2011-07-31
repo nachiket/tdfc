@@ -171,7 +171,7 @@ void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 
 	// wrong thing for "." operator...
         // TODO: deal properly with fixed point construction/representation
-	*fout << "(";
+	*fout << "(mickey";
 	ccComposeEvalExpr(fout,bexpr->getExpr1(),rsym);
 // 1-2-2010: Don't understand the deal with processing %..
 //	if(bexpr->getOp()=='%') {
@@ -269,8 +269,10 @@ void ccCompose (ofstream *fout, string name, OperatorCompose *op)
   //    (b) from another stream
   //  That's an indication we don't need to create a new stream,
   //  but can use the other stream or return value stream.
-  //
   //         -- amd 8/24/99
+  //  This observationa above is valid.. but doesn't seem to work
+  //  for _copy_ operators...
+  //         -- ngk 8/Feb/2011
 
 
   // walk over symbols
@@ -316,8 +318,11 @@ void ccCompose (ofstream *fout, string name, OperatorCompose *op)
 	      ExprLValue *lval=((StmtAssign *)statement)->getLValue();
 	      Symbol *lsym=lval->getSymbol();
 	      // n.b. assume for now that split busses/composition cannonicalized elsewere
-	      if (lval->usesAllBits())
+	      if (lval->usesAllBits()) 
+	      {
 		syms->del(lsym);
+		//cout << "deleting internal symbol " << lsym->toString() << endl;
+	      }
 	      else
 		{
 		  partial->insert(lsym);
@@ -414,11 +419,15 @@ void ccCompose (ofstream *fout, string name, OperatorCompose *op)
 				    returnValue);
 
 		}
+	      // add exception for assignments to external output signals...
+	      // a stmtassign in this case will overwrite the stream pointer by
+	      // mistake
 	      else
 		{
-		  *fout << "    " << lsym->getName() << "=" ;
+		  *fout << "    ";
 		  ccComposeEvalExpr(fout,((StmtAssign *)statement)->getRhs(),
 				    returnValue);
+		  *fout << "=" << lsym->getName();
 		}
 
 	      *fout << ";" << endl;
@@ -677,7 +686,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 	    << "    pthread_attr_init(a_thread_attribute);\n"
 	    << "    pthread_attr_setdetachstate(a_thread_attribute,PTHREAD_CREATE_DETACHED);\n"
 	    << "    pthread_create(&rpt,a_thread_attribute,&" 
-	    << op->getName() << "_proc_run, this);"
+	    << op->getName() << "_proc_run, this);\n"
+	    << "    pthread_attr_destroy(a_thread_attribute);" 
+	    << "    free(a_thread_attribute);" 
 	    << endl;
     }
   else if (op->getOpKind()==OP_COMPOSE)
@@ -709,6 +720,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 
 
   *fout << "  }" << endl; // else no instance, run proc_run
+  *fout << "  free(params);" << endl;
+  *fout << "  free(name);" << endl;
+  *fout << "  free(instance_fn);" << endl;
   *fout << "}" << endl; // end of constructor
   
 }
@@ -741,7 +755,9 @@ bool collect_retime_exprs(Tree *t, void *aux)
 	}
       if (!value_zero)
 	if (rset!=(set<Expr *> *)NULL)
+	{
 	  rset->insert(rexpr);
+	}
 	else
 	  {
 	    rset=new set<Expr *>();
@@ -1176,10 +1192,12 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 		  << ");" << endl;
 	  }
 	else
+	{
 	  *fout << "  STREAM_CLOSE(" 
 		<< "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		<< "]"
 		<< ");" << endl;
+	}
       forall(sym,*argtypes)
 	{
 	  if (sym->isStream())

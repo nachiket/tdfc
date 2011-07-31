@@ -1,0 +1,12 @@
+all:	dotProductTest.o
+ddot.cc ddot.h:	ddot.tdfc  FP_Mult.tdfc FP_Add.tdfc
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc ddot.tdfc FP_Mult.tdfc FP_Add.tdfc
+FP_Mult.cc FP_Mult.h:	FP_Mult.tdfc 
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc FP_Mult.tdfc
+FP_Add.cc FP_Add.h:	FP_Add.tdfc 
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc FP_Add.tdfc
+
+
+dotProductTest.o:	dotProductTest.cpp ddot.tdfc ddot.cc 	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc  /home/abid/PhD/HighLevelSynthesis/ScoreRuntime/libScoreRuntime.a
+	/home/abid/PhD/HighLevelSynthesis/Compiler/tdfc -ecc  ddot.tdfc FP_Add.tdfc FP_Mult.tdfc
+	g++ -Wno-write-strings -I/opt/leda/incl -I/home/abid/PhD/HighLevelSynthesis/ScoreRuntime   -L/home/abid/PhD/HighLevelSynthesis/ScoreRuntime -L/opt/leda   dotProductTest.cpp ddot.cc FP_Mult.cc FP_Add.cc -o dotProductTest.o -lScoreRuntime -lleda -lX11 -lpthread
