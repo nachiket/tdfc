@@ -239,6 +239,8 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
     {
     case EXPR_VALUE:
       return(expr->toString()); // may need to check if this right
+    case EXPR_ARRAY:
+      return(expr->toString()); // Not sure if this is valid.. 31/7/2011 - Nachiket
     case EXPR_LVALUE:
       {
 	ExprLValue *lexpr=(ExprLValue *)expr;
@@ -411,7 +413,7 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda)
 	//   return(ccEvalExpr(real_expr));
       }
     default:
-      fatal(-1,(string("ccEvalExpr: unknown Expression type [")+expr->toString()+
+      fatal(-1,(string("ccEvalExpr: unknown Expression with value [")+expr->toString()+
 		string("]")),
 	    expr->getToken());
       return("0");
