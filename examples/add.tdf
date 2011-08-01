@@ -1,21 +1,9 @@
 add(
-input unsigned[16] a, 
-input unsigned[16] b, 
-input unsigned[1] c, 
-input unsigned[1] c2, 
-output unsigned[16] d)
+input double a, 
+input double b, 
+output double c)
 {
-
-	state only(a,b,c):
-		if(c==0) {
-			if(c2==1) {
-				d=a+b;
-			} 
-		} else {
-			d=a-b;
-		}
-		d=a;
-		
-
+	state only(a,b):
+		c=a+b;
 
 }
