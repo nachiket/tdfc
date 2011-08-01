@@ -433,6 +433,146 @@ ioDecl
 			  else  // ($1->code==PARAM)
 			    $$=new SymbolVar($3,$3->str,$2);
 			}
+| ioKind type ID_ '[' expr ',' expr ']'
+			{
+			  
+			  if ($1->code==INPUT)
+			  {
+			    Type *typeE = $5->getType();
+			    Type *typeE2 = $7->getType();
+			    
+/*			      
+			      if (typeE->getTypeKind() == TYPE_BOOL)
+						  yywarn ((const char*)(string("type of expr 1 : TYPE_BOOL ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_INT)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_INT ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FIXED)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_FIXED ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ARRAY)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_ARRAY ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ANY)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_ANY ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FLOAT)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_FLOAT ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_DOUBLE)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_DOUBLE ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_NONE)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_NONE ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_STATE)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_STATE ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      
+			      
+			      if (typeE2->getTypeKind() == TYPE_BOOL)
+						  yywarn ((const char*)(string("type of expr 2 : TYPE_BOOL ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_INT)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_INT ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_FIXED)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_FIXED ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_ARRAY)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_ARRAY ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_ANY)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_ANY ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_FLOAT)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_FLOAT ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_DOUBLE)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_DOUBLE ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_NONE)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_NONE ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_STATE)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_STATE ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+*/
+	
+			    
+			    
+			    if ((typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
+						|| typeE->getTypeKind()==TYPE_FLOAT || typeE->getTypeKind()==TYPE_FIXED)
+						
+						&& (typeE2->getTypeKind()==TYPE_DOUBLE ||typeE2->getTypeKind() == TYPE_INT 
+						|| typeE2->getTypeKind()==TYPE_FLOAT|| typeE2->getTypeKind()==TYPE_FIXED))
+			    {
+					$$=new SymbolStream($3,$3->str,$2,STREAM_IN, $5->toString(), $7->toString());
+				}
+				else
+					yyerror("invalid type for RANGE expression");
+					
+			  }
+			  else if ($1->code==OUTPUT)
+			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT, $5->toString(), $7->toString());
+			  else  // ($1->code==PARAM)
+			    $$=new SymbolVar($3,$3->str,$2);
+			}
+			
+| ioKind type ID_ '=' expr 
+			{
+			  
+			  if ($1->code==PARAM)
+			  {
+			    Type *typeE = $5->getType();
+/*			    
+			      
+			      if (typeE->getTypeKind() == TYPE_BOOL)
+						  yywarn ((const char*)(string("type of param : TYPE_BOOL ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_INT)
+						yywarn ((const char*)(string("type of param : TYPE_INT ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FIXED)
+						yywarn ((const char*)(string("type of param : TYPE_FIXED ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ARRAY)
+						yywarn ((const char*)(string("type of param : TYPE_ARRAY ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ANY)
+						yywarn ((const char*)(string("type of param : TYPE_ANY ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FLOAT)
+						yywarn ((const char*)(string("type of param : TYPE_FLOAT ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_DOUBLE)
+						yywarn ((const char*)(string("type of param : TYPE_DOUBLE ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_NONE)
+						yywarn ((const char*)(string("type of param : TYPE_NONE ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_STATE)
+						yywarn ((const char*)(string("type of param : TYPE_STATE ") + 
+									+string("\n value of param : ") + $5->toString()));
+*/			      		    
+			    
+			    if ((typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
+						|| typeE->getTypeKind()==TYPE_FLOAT || typeE->getTypeKind()==TYPE_FIXED))
+			    {
+					$$=new SymbolVar($3,$3->str,$2, $5->toString());
+				}
+				else
+					yyerror("invalid type for RANGE expression");
+				
+				 
+					
+			  }
+			  else if ($1->code==OUTPUT)
+			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT);
+			  else  // ($1->code==INPUT)
+			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT);
+			}
 ;
 
 ioKind

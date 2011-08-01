@@ -23,14 +23,23 @@
 //
 // BRASS source file
 //
-// SCORE TDF compiler:  generate C++ output (write expression evaluation)
-// $Revision: 1.69 $
+// SCORE TDF compiler:  generate C++ output
+// $Revision: 1.124 $
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#include "expr.h" 
+#include <iostream>
+#include <fstream>
+#include "stmt.h"
 
-string ccEvalExpr(Expr *exp, bool retime=true, bool cuda=false, bool gappa=false, string type="");
-string getBits(Expr *expr);
-string getWidth(Expr *expr);
-string getWidth(Type *atype);
+using std::ofstream;
+
+void ccGappaIfStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
+	    string state_prefix, bool in_pagestep, bool retime=true,  string type="",
+	    string precision="", string classname="",  int *if_nb=NULL, string **variables = NULL , int nb_variables = 0,string previous_cond = "");
+	    
+void count_variable(Stmt *stmt, int* i);
+
+// Note: mblaze is Microblaze and not Matt Blaze!
+
+

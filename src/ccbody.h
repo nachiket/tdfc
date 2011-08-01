@@ -40,3 +40,5 @@ void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
+void ccgappabody(Operator *op);
+bool ccCheckRanges(Operator *op);

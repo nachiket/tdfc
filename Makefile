@@ -55,7 +55,7 @@ PURIFY	=
 #  - select compiler version:
 
 TOOLS_PATH	= /usr/bin
-COMPILER	= $(TOOLS_PATH)/g++-4.1
+COMPILER	= $(TOOLS_PATH)/g++-4.4
 PERL		= $(TOOLS_PATH)/perl
 LEX		= $(TOOLS_PATH)/flex
 YACC		= $(TOOLS_PATH)/bison
@@ -90,7 +90,8 @@ HSRCS		= assert_tdf.h parse.h  version.h \
 		  ccannote.h   cctypes.h \
 		  ccbody.h     ccheader.h  ccinstance.h \
 		  cccase.h     cccopy.h    cceval.h      ccmem.h \
-		  ccprep.h     ccrename.h  ccstmt.h     cctype.h \
+		  ccprep.h     ccrename.h  ccstmt.h     cctype.h ccGappaStmt.h \
+		  cctestif.h \
 		  rateTable.h  rateInstance.h  ribody.h  linux_meminfo.h \
 		  canonical.h  mincut.h    clusterstates.h  feedback_fsm.h \
 		  ir_graph.h   ir_analyze_registers.h    ir_misc.h \
@@ -108,14 +109,20 @@ CSRCS		= tdfc.cc \
 		  tree.cc      suite.cc operator.cc state.cc stmt.cc expr.cc \
 		  symbol.cc    type.cc  misc.cc     file.cc  ops.cc  gc.cc \
 		  instance.cc  feedback.cc bindvalues.cc \
+<<<<<<< HEAD
 		  ccbody.cc    ccheader.cc \
 		  cccudabody.cc cccudawrapper.cc cccudaheader.cc \
 		  ccmicroblazebody.cc ccmicroblazeheader.cc \
 		  ccautoeslbody.cc ccautoeslheader.cc ccautoeslwrapper.cc \
 		  ccdfgbody.cc \
 		  ccinstance.cc \
+=======
+		  ccbody.cc    cccudabody.cc cccudawrapper.cc ccmicroblazebody.cc ccdfgbody.cc ccheader.cc cccudaheader.cc ccmicroblazeheader.cc ccinstance.cc \
+		  ccgappabody.cc ccGappaStmt.cc\
+>>>>>>> fa2c9a4bc25ec65c23d789d5ae16ef3bed92c03c
 		  cccase.cc    cccopy.cc   cceval.cc     ccmem.cc \
 		  ccprep.cc    ccrename.cc ccstmt.cc     cctype.cc \
+		  cctestif.cc \
 		  rateTable.cc rateInstance.cc ribody.cc linux_meminfo.cc \
 		  canonical.cc mincut.cc   clusterstates.cc feedback_fsm.cc \
 		  ir_graph.cc  ir_analyze_registers.cc   ir_arch_dep.cc \
