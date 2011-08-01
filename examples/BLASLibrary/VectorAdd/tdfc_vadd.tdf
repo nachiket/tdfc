@@ -1,0 +1,15 @@
+
+tdfc_vadd(
+           //params bound at instantiation time
+	   input unsigned[8] a,
+	   input unsigned[8] x,
+           input unsigned[8] y,
+	   output unsigned[8] z)
+{
+
+        state compute(x,y):
+        {
+		z = a*x + y;
+	}
+
+} 

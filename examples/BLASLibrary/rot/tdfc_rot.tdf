@@ -1,0 +1,18 @@
+
+tdfc_rot(
+           //params bound at instantiation time
+	   param float c,
+	   param float s,
+	   input float x,
+           input float y,
+	   output float x_out,
+	   output float y_out)
+{
+
+        state Rot(x,y):
+        {
+		x_out = x*c + y*s;
+		y_out = y*c - x*s;
+	}
+
+} 

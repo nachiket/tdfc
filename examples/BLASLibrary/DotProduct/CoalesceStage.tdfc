@@ -1,0 +1,21 @@
+CoalesceStage (
+		input double dataIn,
+		output double dataOut
+		)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(dataIn,Reg_11);
+
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(AdderOut1,Reg_21);
+	AssignOutput(Reg_21,Reg_22);
+
+	AssignOutput(AdderOut2,dataOut);
+}

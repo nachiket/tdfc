@@ -1,0 +1,127 @@
+// tdfc-microblaze backend autocompiled body file
+// tdfc version 1.160
+// Wed May 11 14:12:03 2011
+
+#include "xilscore.h"
+#include <stdio.h>
+#include "tdfc_vadd.h"
+#include "xparameters.h"
+#include "shared_pool.h"
+#include "perfctr.h"
+#include "math.h"
+#include "errno.h"
+
+
+
+Operator* tdfc_vadd_create(int n_start_state , ScoreStream* n_cc_x, ScoreStream* n_cc_y, ScoreStream* n_cc_z)
+{
+
+  struct Operator* tdfc_vadd_ptr=(Operator*)bufmalloc(pool,sizeof(Operator));
+  if(tdfc_vadd_ptr==NULL) {
+    xil_printf("Could not create operator:tdfc_vadd error=%d\n",errno);
+  }
+
+  new_operator(tdfc_vadd_ptr,2,1, pool, printf_mutex);
+
+  tdfc_vadd_ptr->state_id = n_start_state;
+  tdfc_vadd_ptr->inputs[0]=n_cc_x;
+#ifdef PERF
+  STREAM_WRITE_UNSIGNED(n_cc_x,0);
+#endif
+  tdfc_vadd_ptr->inputs[1]=n_cc_y;
+#ifdef PERF
+  STREAM_WRITE_UNSIGNED(n_cc_y,0);
+#endif
+  tdfc_vadd_ptr->outputs[0]=n_cc_z;
+
+
+ return tdfc_vadd_ptr;
+
+}
+void tdfc_vadd_launch_pthread(int state_id, Operator* tdfc_vadd_ptr) {
+  tdfc_vadd_ptr->state_id = state_id;
+  // setup pthread for this leaf-level operator
+  pthread_attr_t thread_attribute;
+  pthread_attr_init(&thread_attribute);
+  pthread_attr_setdetachstate(&thread_attribute,PTHREAD_CREATE_DETACHED);
+  pthread_create(&tdfc_vadd_ptr->thread,&thread_attribute,&tdfc_vadd_proc_run, tdfc_vadd_ptr);
+}
+
+void* tdfc_vadd_perftest( ScoreStream* n_cc_x, ScoreStream* n_cc_y, ScoreStream* n_cc_z) {
+  Operator* tdfc_vadd_ptr = tdfc_vadd_create(-1,n_cc_x,n_cc_y,n_cc_z);
+  for(int i=0; i<1; i++) {
+    finished=0;
+    tdfc_vadd_launch_pthread(i,tdfc_vadd_ptr);
+    while(!finished){};
+  }
+}
+
+void *tdfc_vadd_proc_run(void* dummy) {
+
+  struct Operator* tdfc_vadd_ptr = (struct Operator*)dummy;
+
+  enum state_syms {STATE_compute};
+  state_syms state=STATE_compute;
+
+  switch(tdfc_vadd_ptr->state_id) {
+    case 0: state = STATE_compute; break;
+    default : state = STATE_compute; break;
+  }
+  double cc_x;
+  double cc_y;
+  int done=0;
+  while (!done) {
+        {
+        int eos_0=STREAM_EOS(tdfc_vadd_ptr->inputs[0]);
+        int eofr_0=STREAM_EOFR(tdfc_vadd_ptr->inputs[0]);
+        int eos_1=STREAM_EOS(tdfc_vadd_ptr->inputs[1]);
+        int eofr_1=STREAM_EOFR(tdfc_vadd_ptr->inputs[1]);
+
+#ifdef PERF
+        start_timer();
+#endif
+
+        if (1&&!eos_0&&!eofr_0&&!eos_1&&!eofr_1) {
+          cc_x=STREAM_READ_DOUBLE(tdfc_vadd_ptr->inputs[0]);
+          cc_y=STREAM_READ_DOUBLE(tdfc_vadd_ptr->inputs[1]);
+          {
+            STREAM_WRITE_DOUBLE(tdfc_vadd_ptr->outputs[0],(cc_x+cc_y));
+          }
+        }
+        else
+        {
+
+#ifdef PERF
+        start_timer();
+#endif
+
+        if (1&&eofr_0&&eofr_1) {
+          STREAM_READ_DOUBLE(tdfc_vadd_ptr->inputs[0]);
+          STREAM_READ_DOUBLE(tdfc_vadd_ptr->inputs[1]);
+          {
+          }
+        }
+        else
+        {
+        if (0|| eofr_0|| eofr_1) {}
+        else
+         done=1;
+        }
+      }
+}
+
+#ifdef PERF
+      int timer = stop_timer();
+      pthread_mutex_lock(&printf_mutex);
+      xil_printf("operator=tdfc_vadd state=compute cycles=%d\n",timer);
+      pthread_mutex_unlock(&printf_mutex);
+      finished=1;
+      pthread_exit((void*)NULL);
+#endif
+  }
+  STREAM_FREE(tdfc_vadd_ptr->inputs[0]);
+  STREAM_FREE(tdfc_vadd_ptr->inputs[1]);
+  STREAM_CLOSE(tdfc_vadd_ptr->outputs[0]);
+  return((void*)NULL);
+}
+

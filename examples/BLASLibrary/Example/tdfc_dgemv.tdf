@@ -1,0 +1,21 @@
+tdfc_dgemv(     param unsigned[8] M,
+		param unsigned[8] N,
+		input double A1,		
+		input double A2,
+		input double A3,
+		input double A4,
+		input double x,
+
+		output double b1,
+		output double b2,
+		output double b3,
+		output double b4
+)
+{
+		
+		tdfc_ddot(A1,x,b1);
+		tdfc_ddot(A2,x,b2);
+		tdfc_ddot(A3,x,b3);
+		tdfc_ddot(A4,x,b4);
+}
+		

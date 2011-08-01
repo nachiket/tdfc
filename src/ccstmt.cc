@@ -52,34 +52,44 @@ Note: builtins expecting to handle here
 ***********************************************************************/
 
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, string classname)
+	    string state_prefix, bool in_pagestep, bool retime, 
+	    bool mblaze, bool cuda, bool autoesl,
+	    string classname)
 {
 
+if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl)) 
+{
+	cout << "Inconsistent boolean flags cuda:"<<cuda<<" mblaze:"<<mblaze<<" autoesl:"<<autoesl<<endl;
+}
+
+//
 //	if(retime) {
 //		cout << "Such bullshit" << endl; exit(1);
 //	}
-
   switch (stmt->getStmtKind())
     {
 
     case STMT_GOTO:
       {
 	StmtGoto *gstmt=(StmtGoto *)stmt;
-	*fout << indent << "state=" << state_prefix 
-	  // was:
-	  //	      << gstmt->getStateName() << ";" 
-	  // changed to:
-	      << (gstmt->getState())->getName() << ";" 
-	  // DEBUG:    << "//" << gstmt->toString() 
-	      << endl;
-	if (gProfileStates && in_pagestep) {
-	  Tree* t;	// t = present state
-	  for (t=gstmt; t && t->getKind()!=TREE_STATE; t=t->getParent());
-	  if (t==NULL)
-	    assert(!"internal inconsistency");
-	  *fout << indent << "state_xfer_freqs["
-	        << state_prefix << ((State*)t)->getName() << "]["
-	        << state_prefix << gstmt->getState()->getName() << "]++;\n";
+	
+	if(!cuda) {
+		*fout << indent << "state=" << state_prefix 
+		  // was:
+		  //	      << gstmt->getStateName() << ";" 
+		  // changed to:
+		      << (gstmt->getState())->getName() << ";" 
+		  // DEBUG:    << "//" << gstmt->toString() 
+		      << endl;
+		if (gProfileStates && in_pagestep) {
+		  Tree* t;	// t = present state
+		  for (t=gstmt; t && t->getKind()!=TREE_STATE; t=t->getParent());
+		  if (t==NULL)
+		    assert(!"internal inconsistency");
+		  *fout << indent << "state_xfer_freqs["
+		        << state_prefix << ((State*)t)->getName() << "]["
+		        << state_prefix << gstmt->getState()->getName() << "]++;\n";
+		}
 	}
 	return;
       }
@@ -87,17 +97,17 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
       {
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime) 
+	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep, retime, mblaze, classname);
+	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, classname);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
 	  {
 	    *fout << indent << "else {" << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, classname);
+		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -122,25 +132,25 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    if (first->getExprKind()!=EXPR_LVALUE)
 	      warn(string("close given invalid argument %s",
 			  first->toString()),first->getToken());
-	    else
+	    else if(!cuda)
 	      {
 	      	ExprLValue *lexpr=(ExprLValue *)first;
 		long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
 		*fout << indent << "STREAM_CLOSE(";
 		
-		if(!mblaze) {
-			*fout << "out[" << id << "]";
-		} else {
+		if(mblaze) {
 			*fout << classname<<"_ptr->outputs[" << id  <<"]";
+		} else {
+			*fout << "out[" << id << "]";
 		}
 		*fout << ");" << endl;
 
 		early_close[id]=1;
 		*fout << indent ;
-		if(!mblaze) {
-			*fout << "output_close[" << id << "]=1;" ;
-		} else {
+		if(mblaze) {
 			*fout << classname<<"_ptr->output_close[" << id << "]=1;" ;
+		} else {
+			*fout << "output_close[" << id << "]=1;" ;
 		}
 		*fout << endl;
 	      }
@@ -152,15 +162,15 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		    if (first->getExprKind()!=EXPR_LVALUE)
 		      warn(string("frameclose given invalid argument %s",
 				  first->toString()),first->getToken());
-		    else
+		    else if(!cuda)
 		      {
 		      	ExprLValue *lexpr=(ExprLValue *)first;
 			long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
 			*fout << indent << "FRAME_CLOSE(";
-			if(!mblaze) {
-				*fout << "out[" << id << "]";
-			} else {
+			if(mblaze) {
 				*fout << classname<<"_ptr->outputs[" << id << "]";
+			} else {
+				*fout << "out[" << id << "]";
 			}
 			*fout << ");" << endl;
 
@@ -174,15 +184,22 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  }
 	else if (bop->getBuiltinKind()==BUILTIN_DONE)
 	  {
-	    *fout << indent 
-		  << "done=1;" << endl;
+	    if(!(cuda ||autoesl))
+		    *fout << indent 
+			  << "done=1;" << endl;
 	  }
 	else if (bop->getBuiltinKind()==BUILTIN_PRINTF)
 	  {
 	    // *fout << indent << "printf(\""
-	    *fout << indent << "fprintf(stderr,\""
-	          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
-		  << "\"";
+	    if(cuda) {
+		    *fout << indent << "printf(\""
+		          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
+			  << "\"";
+	    } else {
+		    *fout << indent << "fprintf(stderr,\""
+		          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
+			  << "\"";
+	    }
 	    for (list_item i=args->first(); i; i=args->succ(i)) {
 		    // Nachiket's modifications to support floating-point casting
 		    Expr* orig=args->inf(i);
@@ -190,9 +207,9 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
 			    //*fout << ", (long long)" --> Not sure if this is such a good idea in any case
 			    *fout << ", "
-				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime) << "";
+				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
 		    } else {
-			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime) << "";
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
 		    }
 	    }
 	    *fout << ");" << endl;
@@ -222,17 +239,20 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	      {
 		long id=(long)(ssym->getAnnote(CC_STREAM_ID));
 		*fout<<indent;
-		if(!mblaze) {
-		     *fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
-				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
-			*fout << "out[" << id << "]" ;
-		} else {
-		     *fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
+		if(mblaze) {
+			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(": (unsignedtyp)? "STREAM_WRITE_UNSIGNED(" : "STREAM_WRITE_UNSIGNED(");
-			*fout << classname<<"_ptr->outputs[" << id << "]";
+			*fout << classname<<"_ptr->outputs[" << id << "],";
+		} else if(cuda) {
+			*fout<<asym->getName()<<"[idx] = (" ;
+		} else if(autoesl) {
+			*fout<<"*"<<asym->getName()<<" = (" ;
+		} else {
+			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
+				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
+			*fout << "out[" << id << "]," ;
 		}
-		*fout << ","
-		     << ccEvalExpr(EvaluateExpr(rexp), retime) << ");" << endl;
+		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda) << ");" << endl;
 	      }
 	    else
 	      {
@@ -247,14 +267,14 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    if (lval->usesAllBits())
 	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime)<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
 		Expr *high_expr=lval->getPosHigh();
-		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime);
-		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime);
-		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime);
+		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda);
+		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda);
+		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda);
 		string one =getCCvarType(asym).pos("long long")>=0 ? "1ll":"1";
 		*fout << indent
 		      << asym->getName() << "="
@@ -292,7 +312,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime) ;
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda) ;
 	    *fout << ";" << endl;
 	  }
 
@@ -300,7 +320,7 @@ void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	forall(astmt,*(bstmt->getStmts()))
 	  {
 	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-			in_pagestep, retime, mblaze, classname);
+			in_pagestep, retime, mblaze, cuda, autoesl, classname);
 	  }
 
 	*fout << indent << "}" << endl;

@@ -1,0 +1,41 @@
+EnableCoalesceStageData(
+			param unsigned[5] LATENCY,
+			input boolean AccumIn,
+			input double dataIn,
+			output double dataOut
+			)
+{
+	unsigned [5] counter;
+//	state Wait(AccumIn):
+//	{
+//		dataOut = 0;
+///		
+//	}
+	state Wait(AccumIn):
+	{
+		if(AccumIn == false)
+		{
+			dataOut = 0;
+		}
+		else
+		{
+			counter = 0;
+			printf("End of Frame detected\n");
+			goto AssignInput;
+		}
+	}
+	
+	state AssignInput(dataIn):
+	{
+		counter = counter + 1;
+		dataOut = dataIn;
+		printf("dataOut = %f\n",dataIn);
+		if(counter == LATENCY)
+		{
+			goto Wait;
+		}
+	}	
+
+}
+
+
