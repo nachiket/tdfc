@@ -1082,7 +1082,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-//						*fout << nodetofout(dfg, src, nodenums) << " ";
+						*fout << nodetofout(dfg, src, nodenums) << " ";
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}

@@ -94,6 +94,7 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
 	  ((OperatorBehavioral*)op)->buildDataflowGraph();
+	  ccdfgconstruct(fout,classname,op);
 	  ccgappadfgprocrun(fout, classname,op);
       /*OperatorBehavioral *bop=(OperatorBehavioral *)op; // cast
       dictionary<string,State*>* states=bop->getStates();
