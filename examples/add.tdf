@@ -1,6 +1,9 @@
-add(input double a[0,3], input double b[1,6], output double d)
+add(
+input double a, 
+input double b, 
+output double c)
 {
-
 	state only(a,b):
 		c=a+b;
-}		
+
+}
