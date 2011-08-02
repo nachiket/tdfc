@@ -109,20 +109,18 @@ CSRCS		= tdfc.cc \
 		  tree.cc      suite.cc operator.cc state.cc stmt.cc expr.cc \
 		  symbol.cc    type.cc  misc.cc     file.cc  ops.cc  gc.cc \
 		  instance.cc  feedback.cc bindvalues.cc \
-<<<<<<< HEAD
 		  ccbody.cc    ccheader.cc \
 		  cccudabody.cc cccudawrapper.cc cccudaheader.cc \
 		  ccmicroblazebody.cc ccmicroblazeheader.cc \
 		  ccautoeslbody.cc ccautoeslheader.cc ccautoeslwrapper.cc \
 		  ccdfgbody.cc \
 		  ccinstance.cc \
-=======
 		  ccbody.cc    cccudabody.cc cccudawrapper.cc ccmicroblazebody.cc ccdfgbody.cc ccheader.cc cccudaheader.cc ccmicroblazeheader.cc ccinstance.cc \
-		  ccgappabody.cc ccGappaStmt.cc\
->>>>>>> fa2c9a4bc25ec65c23d789d5ae16ef3bed92c03c
+		  ccgappabody.cc ccGappaStmt.cc \
 		  cccase.cc    cccopy.cc   cceval.cc     ccmem.cc \
 		  ccprep.cc    ccrename.cc ccstmt.cc     cctype.cc \
 		  cctestif.cc \
+		  ccgappadfg.cc \
 		  rateTable.cc rateInstance.cc ribody.cc linux_meminfo.cc \
 		  canonical.cc mincut.cc   clusterstates.cc feedback_fsm.cc \
 		  ir_graph.cc  ir_analyze_registers.cc   ir_arch_dep.cc \
@@ -153,7 +151,7 @@ TDFC_VERSION	= $(shell $(PERL) -e				\
 		    $(SRC_DIR)/../CHANGES			\
 		   )
 
-CFLAGS	= -I. -I$(SRC_DIR) -I$(LEDAHOME)/incl -L$(LEDAHOME) -DCXX=\"$(CC)\" -DTDFC_VERSION=\"$(TDFC_VERSION)\" $(PLATFORM_CFLAGS) $(EXTRA_CFLAGS)
+CFLAGS	= -g -I. -I$(SRC_DIR) -I$(LEDAHOME)/incl -L$(LEDAHOME) -DCXX=\"$(CC)\" -DTDFC_VERSION=\"$(TDFC_VERSION)\" $(PLATFORM_CFLAGS) $(EXTRA_CFLAGS)
 BFLAGS	= -v -d -t $(EXTRA_BFLAGS)
 #LIBS	= -lfl -ly -lL $(EXTRA_LIBS)
 LIBS	= $(PARSELIB) $(FLEXLIB) $(LEDA_LIBS) $(EXTRA_LIBS)

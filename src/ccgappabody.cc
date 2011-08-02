@@ -78,9 +78,9 @@ void gappa_notation(ofstream *fout,
 	// variables and parameters with different precisions 
   
   ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
+  //ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>");
+  //ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>");
+  //ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
 
   
 }
@@ -93,7 +93,9 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
     }
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
-      OperatorBehavioral *bop=(OperatorBehavioral *)op; // cast
+	  ((OperatorBehavioral*)op)->buildDataflowGraph();
+	  ccgappadfgprocrun(fout, classname,op);
+      /*OperatorBehavioral *bop=(OperatorBehavioral *)op; // cast
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
 
@@ -177,7 +179,7 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
 			*fout << "    }" << endl;
 		}
 		
-
+*/
     }
   else
     {
