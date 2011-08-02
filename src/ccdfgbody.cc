@@ -1082,7 +1082,7 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						*fout << nodetofout(dfg, src, nodenums) << " ";
+//						*fout << nodetofout(dfg, src, nodenums) << " ";
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
@@ -1527,44 +1527,74 @@ string nodetovarstring(node n, Tree* t) {
  */
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 
+	//cout << " enter node to fout fn " << endl;
+
 	if(dfg->indeg(src)==0 || dfg->outdeg(src)==0) { // shouldn't we process outputs similarly as well?
+		
+		//cout << " dfg->indeg(src)==0 || dfg->outdeg(src)==0" << endl;
+		
 		Tree* t=(*dfg)[src];
 		TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
-		if(dfg->indeg(src)==0 && type==TYPE_STATE) {
+		if(dfg->indeg(src)==0 && type==TYPE_STATE) 
+		{
+			
+			//cout << " dfg->indeg(src)==0 && type==TYPE_STATE" << endl;
+			
 			return string("STATE_"+nodetovarstring(src, (*dfg)[src]));
-		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+		} 
+		else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) 
+		{
+			//cout << "t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE"  << endl;
+			
 			Symbol *asym=((ExprLValue*)t)->getSymbol();
 			if (asym!=NULL && asym->isStream() && !asym->isStreamValid())
 			{
+				//cout << "asym!=NULL && asym->isStream() && !asym->isStreamValid()" << endl;
+				
 				SymbolStream *ssym=(SymbolStream *)asym;
 				if (ssym->getDir()==STREAM_IN)
 				{
+					//cout << " ssym->getDir()==STREAM_IN " << endl;
 					return nodetovarstring(src, (*dfg)[src]);
-				} else if(ssym->getDir()==STREAM_OUT){
+				}
+				else if(ssym->getDir()==STREAM_OUT)
+				{
+					//cout << "ssym->getDir()==STREAM_OUT" << endl;
 					return nodetovarstring(src, (*dfg)[src]);
 
-				} else {
+				}
+				else 
+				{
 					cerr << "STREAM directions fail during name generation" << endl;
 					exit(-1);
 				}
-			} else if(asym!=NULL && asym->isReg()){ // local variables are "registers" you idiot! nomenclature!!
+			} 
+			else if(asym!=NULL && asym->isReg())
+			{ // local variables are "registers" you idiot! nomenclature!!
 				//cout << "Found register! " << nodetovarstring(src, (*dfg)[src]) << endl;
+				//cout << " asym!=NULL && asym->isReg()" << endl;
 				return nodetovarstring(src, (*dfg)[src]);
-			} else if (asym!=NULL && asym->isStreamValid()) {
+			} 
+			else if (asym!=NULL && asym->isStreamValid()) 
+			{
+				//cout << " asym!=NULL && asym->isStreamValid() " << endl;
 //			cout << "what?>" << endl;
 				//return string("what? asym->toString()");
 				return asym->toString();
-			} else {
+			} 
+			else {
 //				return nodetostring(src, (*dfg)[src],nodenums[src]);
 		//		cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
 		//		exit(-1);
 			}
-		} else {
+		} 
+		else {
 			// this is a constant? what can we check?
 			return nodetovarstring(src, (*dfg)[src]);
 		}
 
-	} else {
+	} 
+	else {
 		return nodetostring(src, (*dfg)[src],nodenums[src]);
 	}
 

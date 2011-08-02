@@ -30,7 +30,7 @@
 
 #include "expr.h" 
 
-string ccEvalExpr(Expr *exp, bool retime=true, bool cuda=false);
+string ccEvalExpr(Expr *exp, bool retime=true, bool cuda=false, bool gappa=false, string type="");
 string getBits(Expr *expr);
 string getWidth(Expr *expr);
 string getWidth(Type *atype);

@@ -28,6 +28,12 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 #include "operator.h"
+#include "blockdfg.h"
+#include <LEDA/core/array.h>
+#include <LEDA/graph/node_set.h>
+#include <LEDA/graph/node_list.h>
+
+using leda::node_list;
 
 #define STATE_PREFIX "STATE_"
 
@@ -40,3 +46,14 @@ void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
+void ccgappabody(Operator *op);
+bool ccCheckRanges(Operator *op);
+
+void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, int debug_logic = 0);
+void ccdfgprocrun(ofstream *fout, string name, Operator *op,int debug_logic=0);
+void ccdfgconstruct(ofstream *fout,string name, Operator *op);
+void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
+string nodetostring(node n, Tree* t, int nodenum);
+string nodetovarstring(node n, Tree* t);
+string nodetofnstring(node n, Tree* t);
+string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums); // simplify node name generation for all types of operations
