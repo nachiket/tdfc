@@ -35,7 +35,8 @@
 using std::ofstream;
 
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
-	    string state_prefix, bool in_pagestep, bool retime=true, bool mblaze=false, bool cuda=false, bool autoesl=false, string classname="");
+	    string state_prefix, bool in_pagestep, bool retime=true, bool mblaze=false, bool cuda=false, 
+	    bool autoesl=false, string classname="", bool *exp = NULL, bool *log = NULL);
 
 // Note: mblaze is Microblaze and not Matt Blaze!
 

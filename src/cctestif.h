@@ -34,11 +34,19 @@
 
 using std::ofstream;
 
+void Display(Stmt *stmt);
+
 void ccGappaIfStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime=true,  string type="",
-	    string precision="", string classname="",  int *if_nb=NULL, string **variables = NULL , int nb_variables = 0,string previous_cond = "");
+	    string precision="", string classname="",  int *if_nb=NULL, string **variables = NULL , int nb_variables = 0, 
+	    string* backup =NULL, string previous_cond = "", bool epart = true);
 	    
 void count_variable(Stmt *stmt, int* i);
+
+void detect_if(Stmt *stmt, bool *if_detected, int *nb_nesting);
+
+void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, int nb_var, string **table_var, 
+					string cond = "", Stmt* elsepart = NULL, bool treat_epart =false);
 
 // Note: mblaze is Microblaze and not Matt Blaze!
 

@@ -34,7 +34,7 @@
 
 using std::ofstream;
 
-int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
+void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime=true, bool mblaze=false, 
 	    bool cuda=false, bool gappa = false,string type ="", string precision="", string classname="");
 

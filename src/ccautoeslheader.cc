@@ -102,7 +102,7 @@ void autoesl_functional_constructor(ofstream *fout,
   *fout << "\n)" << endl;
 }
 
-void ccautoeslheader (Operator *op)
+void ccautoeslheader (Operator *op, bool exp, bool log)
 {
   
   string name=op->getName();
@@ -127,6 +127,12 @@ void ccautoeslheader (Operator *op)
   *fout << "#define SC_INCLUDE_FX" << endl;
   *fout << "#include \"systemc.h\"" << endl;
   *fout << endl;
+  
+  if (exp)
+	*fout << "void exp_flopoco( double in, double *out); " << endl;
+	
+  if (log)
+	*fout << "void log_flopoco( double in, double *out); " << endl;
 
   *fout << "void " << classname << "(\n" ;
 //  autoesl_constructor_signatures(fout,rsym,argtypes, true);

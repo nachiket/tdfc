@@ -55,8 +55,9 @@
 #include "ccmem.h"
 #include "instance.h" // blah, just for unique_name()
 #include "cccopy.h" 
+#include "cctestif.h"
 
-void ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
+int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 				Operator *op, string classname, string type,string precision);
 
 /***********************************************************************
@@ -67,7 +68,7 @@ using leda::list_item;
 using leda::dic_item;
 using std::ofstream;
 
-void gappa_notation(ofstream *fout,
+int gappa_notation(ofstream *fout,
 			    list<Symbol*> *argtypes,
 			    Operator *op,
 			    string classname)
@@ -77,38 +78,57 @@ void gappa_notation(ofstream *fout,
 	
 	// variables and parameters with different precisions 
   
-  ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>");
-  //ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>");
-  //ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>");
-  //ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
-
+  int if_nb;
   
+  if_nb = ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>");
+  ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>");
+  ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>");
+  ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
+
+  return if_nb;
 }
 
-void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,string precision)
+int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,string precision)
 {
+  cout << "\n\n new procrun \n\n " << endl;	
+  int if_nb = 0;
+  
   if (op->getOpKind()==OP_COMPOSE)
     {
       *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
     }
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
-	  ((OperatorBehavioral*)op)->buildDataflowGraph();
-	  ccdfgconstruct(fout,classname,op);
-	  ccgappadfgprocrun(fout, classname,op);
-      /*OperatorBehavioral *bop=(OperatorBehavioral *)op; // cast
+      OperatorBehavioral *bop=(OperatorBehavioral *)op; // cast
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
 
+	/*  list<OperatorBehavioral*> *bop_list = new list<OperatorBehavioral*>();
+	  bop_list->push(bop);
+	  //list<DFGraph>* graph_list = Create_DFG(op, bop);
+	  list<DFGraph>* graph_list = Create_DFG2(op, bop_list);
+	  
+	  node n;
+	  DFGraph graph;
+	  forall(graph, *graph_list)
+	  {
+		  forall(n, graph->all_nodes())
+		  {
+			  DFNode* dfn=graph->inf(n);
+			  cout << "node name is "<< dfn->getName()<< endl;
+		  }
+	  }
+	  */  
+//
       // declare top level vars
       SymTab *symtab=bop->getVars();
       list<Symbol*>* lsyms=symtab->getSymbolOrder();
       list_item item2;
+	  
       forall_items(item2,*lsyms)
 		{
 			Symbol *sum=lsyms->inf(item2);
 			SymbolVar *asum=(SymbolVar *)sum;
-			//*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
 			Expr* val=asum->getValue();
 			if (val!=(Expr *)NULL)
 			{
@@ -124,7 +144,11 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
 	  
       int num_states=states->size();
       if (num_states>1)
-			*fout << "    switch(state) {" << endl;
+	  {
+		  // gappa does not handle multiple dtate
+		  warn("Gappa does not handle multiple state");
+		  *fout << "    switch(state) {" << endl;
+	  }
       int snum=0;
       forall_items(item,*states)
 		{
@@ -147,15 +171,47 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
 				// increment the nesting count and also output a beginning
 				// nesting bracket.
 				numNestings++;
-
-				Stmt* stmt;
+			
+				Stmt* stmt;			
+				
 				forall(stmt,*(acase->getStmts()))
 				{
-					ccGappaStmt(fout,string(" "),stmt,early_close,
-					STATE_PREFIX,0, false, false, false,true, type, precision, classname); // 0 was default for ccStmt.h
-					// added false to remove retiming
+					bool if_detected =  false;
+					int nb_nesting = 0;
+					detect_if (stmt, &if_detected, &nb_nesting);	
+					cout << "if detected  : " << if_detected << endl;	
+					cout << "nb nesting = 	" << nb_nesting << endl;	
+					 if (!if_detected)
+						ccGappaStmt(fout,string(" "),stmt,early_close,
+							STATE_PREFIX,0, false, false, false,true, type, precision, classname); // 0 was default for ccStmt.h
+					 else if (nb_nesting <=1)
+					 {
+						 int nb_var = 0;
+						 count_variable(stmt, &nb_var);
+						 
+						 string **table_var = new string*[nb_var];
+						 for (int i=0;i<nb_var;i++)
+							table_var[i]=new string[2];
+						 
+						ccGappaIfStmt(fout, stmt, type, precision, nb_var, table_var); // 0 was default for ccStmt.h
+						
+						for (int j =0; j<nb_var;j++)
+						{
+							if (table_var[j][0] != "")
+							*fout << table_var[j][0] << type << " " << precision << " = " << table_var[j][1] << ";" << endl;
+						}
+				
+						for (int i=0;i<nb_var;i++)
+							delete table_var[i];
+				
+						delete[] table_var;
+						
+					 }
+					 
+					// added false to remove retiming						
 				}
-	     
+				
+				//cout << "value of if_nb after execution of ccGappaIfStmt : " << if_nb << endl;	     
 			}
 			// default case will be to punt out of loop (exit/done)
 
@@ -180,7 +236,7 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
 			*fout << "    }" << endl;
 		}
 		
-*/
+//
     }
   else
     {
@@ -189,9 +245,11 @@ void ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,
 		      op->getToken());
 	    
     }  
+    
+    return if_nb;
 }
 
-void ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
+int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 			    Operator *op,string classname,string type,string precision)
 {
 	Symbol *sym;
@@ -230,11 +288,13 @@ void ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 	  }
 		
     }
-    ccgappaprocrun(fout,classname,op, type, precision);
+    int if_nb = ccgappaprocrun(fout,classname,op, type, precision);
     *fout << endl;
+    
+    return if_nb;
 }
 
-void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op)
+void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb)
 {
 	int nbinput = 0; // amount of input streams
 	int nboutput = 0; // amount of output streams
@@ -291,14 +351,35 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op)
 			  n++;
 			  if ( n != nboutput)
 			    *fout << " /" << "\\ " << endl;
-			  else 	
-				*fout << endl;
+			  else 
+			  {	
+				  if (if_nb > 0)
+					{
+						*fout << " /" << "\\ " << endl;
+					}
+				  else
+					*fout << endl;
+			  }
 		  }
 		}
 	}
+	
+	
+	for (int i = 1; i <= if_nb ; i++)
+	{
+		*fout << indent;
+		*fout << "cond" << i << " in [0,1]" ;
+		  if ( i != if_nb)
+			*fout << " /" << "\\ " << endl;
+		  else 	
+			*fout << endl;
+
+	}
+	
 	n = 0;
 	*fout << "\n" + indent + "->"  << endl;
-
+	
+	
 	
 	forall(sym,*argtypes)
     {
@@ -384,14 +465,14 @@ void ccgappabody (Operator *op)
 
 
   // Notation for making the script readable
-  gappa_notation(fout,argtypes, op, classname); // defines the fixed point precision and all
+  int if_nb = gappa_notation(fout,argtypes, op, classname); // defines the fixed point precision and all
 						//different variables associated with different 
 						//precisions
   *fout <<  endl ;
 
   // logical fomula gappa should proof
  
-  ccgappalogical(fout, argtypes, op);
+  ccgappalogical(fout, argtypes, op, if_nb);
   *fout << endl;
 
   // hint to help gappa find the proof

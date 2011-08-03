@@ -54,7 +54,7 @@ Note: builtins expecting to handle here
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime, 
 	    bool mblaze, bool cuda, bool autoesl,
-	    string classname)
+	    string classname, bool *exp, bool *log)
 {
 
 if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl)) 
@@ -97,9 +97,9 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
       {
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda) 
+	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log) 
 	      << ") {" << endl;
-	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
+	(fout,string("%s  ",indent),ifstmt->getThenPart(),
 	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, classname);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
@@ -107,7 +107,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	  {
 	    *fout << indent << "else {" << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname);
+		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -207,9 +207,9 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
 			    //*fout << ", (long long)" --> Not sure if this is such a good idea in any case
 			    *fout << ", "
-				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
+				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, false, "", autoesl, exp, log) << "";
 		    } else {
-			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda) << "";
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, false, "", autoesl, exp, log) << "";
 		    }
 	    }
 	    *fout << ");" << endl;
@@ -252,7 +252,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]," ;
 		}
-		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda) << ");" << endl;
+		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log) << ");" << endl;
 	      }
 	    else
 	      {
@@ -267,14 +267,14 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    if (lval->usesAllBits())
 	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda)<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl , exp, log)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
 		Expr *high_expr=lval->getPosHigh();
-		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda);
-		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda);
-		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda);
+		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda, false, "", autoesl, exp, log);
+		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda, false, "", autoesl, exp, log);
+		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log);
 		string one =getCCvarType(asym).pos("long long")>=0 ? "1ll":"1";
 		*fout << indent
 		      << asym->getName() << "="
@@ -312,7 +312,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda) ;
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log) ;
 	    *fout << ";" << endl;
 	  }
 
@@ -320,7 +320,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	forall(astmt,*(bstmt->getStmts()))
 	  {
 	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-			in_pagestep, retime, mblaze, cuda, autoesl, classname);
+			in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log);
 	  }
 
 	*fout << indent << "}" << endl;

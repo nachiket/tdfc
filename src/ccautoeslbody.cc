@@ -67,9 +67,9 @@ using std::ofstream;
 // procrun for master instance
 ////////////////////////////////////////////////////////////////////////
 
-void ccautoeslprocbody(ofstream *fout, string classname, Operator *op)
+void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp, bool *log)
 {
-
+	
   if (op->getOpKind()==OP_COMPOSE)
     {
       *fout << "  printf(\"procbody should never be called for a compose operator!\\n\");" << endl;
@@ -91,7 +91,9 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op)
 	  *fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
 	  Expr* val=asum->getValue();
 	  if (val!=(Expr *)NULL)
+	  { 
 	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), false) ;
+	  }
 	  *fout << ";" << endl;
 	}
 
@@ -142,11 +144,12 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op)
               numNestings++;
 
 	      // reducing this to a simple statement processing scenario
+	      
 	      Stmt* stmt;
 	      forall(stmt,*(acase->getStmts()))
 		{
 		  ccStmt(fout,string("\t"),stmt,early_close,
-			 STATE_PREFIX,0, false, false, false, true, classname);
+			 STATE_PREFIX,0, false, false, false, true, classname, exp, log);
 		}
 	    }
 	  // default case will be to punt out of loop (exit/done)
@@ -173,7 +176,6 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op)
 		      op->getToken());
 	    
     }
-
   *fout << "}" << endl;
   
 }
@@ -181,7 +183,7 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op)
 ////////////////////////////////////////////////////////////////////////
 // Top level routine to create master C++ code
 ////////////////////////////////////////////////////////////////////////
-void ccautoeslbody (Operator *op)
+void ccautoeslbody (Operator *op, bool *exp, bool *log)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
@@ -225,7 +227,26 @@ void ccautoeslbody (Operator *op)
   // autoesl only uses functional versions
   *fout << "void " << classname << "(" << endl ;
   autoesl_functional_signature(fout,name,rsym,argtypes,"");
-  ccautoeslprocbody(fout,name,op);
+  ccautoeslprocbody(fout,name,op, exp, log);
+  
+  if (*exp)
+  {
+	  *fout << "void exp_flopoco(double in, double *out)" << endl;
+	  *fout << "{" << endl;
+	  *fout << "\t*out = in;" << endl;
+	  *fout << "}" << endl;
+  }
+  
+  
+  if (*log)
+  {
+	  *fout << "void log_flopoco(double in, double *out)" << endl;
+	  *fout << "{" << endl;
+	  *fout << "\t*out = in;" << endl;
+	  *fout << "}" << endl;
+  }
+  
+  if (log)
 
   // close up
   fout->close();

@@ -52,44 +52,12 @@ Note: builtins expecting to handle here
   (only two left at stmt level)
 ***********************************************************************/
 
-int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
+void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime, bool mblaze, bool cuda, 
 	    bool gappa, string type, string precision, string classname)
 {
-	switch (stmt->getStmtKind())
-    {
-		case STMT_GOTO:
-		{
-			cout << "stmt type = STMT_GOTO" << endl;
-			break;
-		}
-		case STMT_IF:
-		{
-			cout << "stmt type = STMT_IF" << endl;
-			break;
-		}
-		case STMT_CALL:
-		{
-			cout << "stmt type = STMT_CALL" << endl;
-			break;
-		}
-		case STMT_BUILTIN:
-		{
-			cout << "stmt type = STMT_BUILTIN" << endl;
-			break;
-		}
-		case STMT_ASSIGN:
-		{
-			cout << "stmt type = STMT_ASSIGN" << endl;
-			break;
-		}
-		case STMT_BLOCK :
-		{
-			cout << "stmt type = STMT_BLOCK " << endl;
-			break;
-		}
-	}
-
+	Display(stmt);
+	
   switch (stmt->getStmtKind())
     {
 
@@ -117,7 +85,7 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			}
 		}
 	}
-	return -1;
+	return;
       }
     case STMT_IF:
       {
@@ -129,56 +97,26 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 				  << ") {" << endl;
 			cout << EvaluateExpr(ifstmt->getCond())->toString() << endl;
 			ccGappaStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-				   early_close,state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
+				   early_close,state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, 
+				   classname);
 			*fout << indent << "}" << endl;
 			Stmt *epart=ifstmt->getElsePart();
 			if (epart!=(Stmt *)NULL)
 			  {
 				*fout << indent << "else {" << endl;
 				ccGappaStmt(fout,string("%s  ",indent),epart,early_close,
-				   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, classname);
+				   state_prefix,in_pagestep, retime, mblaze, cuda, gappa, type, precision, 
+				   classname);
 				*fout << indent << "}" << endl;
 			  }
-		   return -1;
+		   return;
 		  }
 		  else
-		  {
-			int i = 0;
-			
+		  {			
 			StmtIf *ifstmt=(StmtIf *)stmt;
-						
-			bool else_part = false;
-			Stmt *epart=ifstmt->getElsePart();
+			Stmt *epart=ifstmt->getElsePart();			
 			
-			set<string> *res=new set<string>();
-					
-			if (epart!=(Stmt *)NULL)
-			{
-				else_part = true;
-				cout << "else part existing ? " << else_part << endl;
-			}
-			
-			
-			int height = 2;
-			int width = 0;
-			count_variable(stmt, &width);
-			cout << "width == " << width << endl;
-			string **variables = new string*[width];
-			for (int i=0;i<width;i++)
-				variables[i]=new string[height];
-			
-			ccGappaIfStmt(fout,string("%s  ",indent),ifstmt,
-				   early_close,state_prefix,in_pagestep, retime, type, precision, classname, &i, variables, width);		
-				
-			for (int j =0; j<width;j++)
-			{
-				if (variables[j][0] != "")
-					*fout << variables[j][0] << type << " " << precision << " = " << variables[j][1] << ";" << endl;
-			}
-			
-			 cout << "value of if_nb after execution of ccGappaIfStmt : " << i << endl;
-		//*fout << ";" << endl; 
-		return i;
+		return;
 		}
 		
       }
@@ -186,7 +124,7 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
       {
 	warn("ccStmt: expecting calls to be transformed out before calling this",
 	     stmt->getToken());
-	return -1;
+	return;
       }
     case STMT_BUILTIN:
       {
@@ -289,7 +227,7 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    fatal(-1,string("Unexpected builtin Operator [%d] in Statement",
 			    (int)bop->getBuiltinKind()),bop->getToken());
 	  }
-	return -1;
+	return;
       }
     case STMT_ASSIGN:
       {
@@ -322,23 +260,21 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			*fout<<asym->getName()<<"[idx] = (" ;
 		}
 		else if (gappa) {
-			if (type !="_m")
-				*fout << asym->getName() << type << " " << precision <<  " = " ;
-			else 
-				*fout << asym->getName() <<type << " = " ;
+			
+				string value = ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type);
+				if (type != "_m" )
+					*fout << asym->getName() << type << " " << precision << "=" << value << endl;		
+				else
+					*fout << asym->getName() << type <<  " = " << value << endl;		
 		} 
 		else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]," ;
 		}
-		if (gappa)
-		{
-			*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type) << ";" << endl;
-		}
-		else
+		if (!gappa)
 			*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type) << ");" << endl;
-	      }
+	    }
 	    else
 	      {
 		warn("writing to input stream!",lval->getToken());
@@ -357,7 +293,7 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			 	*fout<<indent<<asym->getName()<<"="
 				<<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa,type)<<";"<<endl;
 			else
-				*fout<<indent<<asym->getName()<< type <<" = "
+				*fout<<indent<<asym->getName()<< type <<" = " << precision
 				<<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa,type)<<";"<<endl;
 				
 		}
@@ -385,7 +321,7 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 		       
 	  }
 
-	return -1;
+	return;
       }
     case STMT_BLOCK:
       {
@@ -416,12 +352,11 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			Expr* val=asum->getValue();
 			if (val!=(Expr *)NULL)
 			{
-				*fout << indent  << asum->getName() << type;
-				*fout << "=" << precision << "(" <<
-						ccEvalExpr(EvaluateExpr(val), retime, cuda, gappa, type) 
-						<< ")";
-				*fout << ";" << endl;
+				string value = ccEvalExpr(EvaluateExpr(val), retime, cuda, gappa, type) ;
+				*fout << asum->getName() << type  << " = " << precision << "(" << value << ")" << endl;
 			}
+			
+			
 		}
 	  }
 
@@ -435,7 +370,7 @@ int ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	if (!gappa)
 		*fout << indent << "}" << endl;
 	
-	return -1;
+	return;
       }
     default:
       {

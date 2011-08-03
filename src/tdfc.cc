@@ -706,8 +706,10 @@ void emitAutoESLC ()
   {
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
-    ccautoeslheader(op); 
-    ccautoeslbody(op); 
+    bool exp = false; 
+    bool log = false;
+    ccautoeslbody(op , &exp, &log);
+    ccautoeslheader(op, exp, log); 
     ccautoeslwrapper(op); 
     ccautoesltcl(op); 
     ccautoeslmake(op);
