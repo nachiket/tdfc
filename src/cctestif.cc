@@ -206,7 +206,7 @@ void check_else_part (Stmt *stmt,string var_name, bool* var_found)
 	{
 		switch (stmt->getStmtKind())
 		{
-			case STMT_IF:
+			/*case STMT_IF:
 			{
 				cout << "if statement detected in else part" << endl;
 				StmtIf* ifstmt = (StmtIf *)stmt;
@@ -215,7 +215,7 @@ void check_else_part (Stmt *stmt,string var_name, bool* var_found)
 				check_else_part(then_part, var_name, var_found);
 				check_else_part(else_part, var_name, var_found);
 				break;
-			}
+			}*/
 			case STMT_ASSIGN:
 			{	
 				StmtAssign *astmt=(StmtAssign *)stmt;
@@ -693,7 +693,7 @@ void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, in
 		if (else_part !=(Stmt *)NULL)
 		{
 			cond = " (1 - cond0) " ;
-			ccGappaIfStmt(fout, else_part, type, precision, nb_var, table_var, cond, (Stmt *)NULL, true);
+			ccGappaIfStmt(fout, else_part, type, precision, nb_var, table_var, cond, then_part, true);
 		}
 		
 		return;
@@ -821,7 +821,10 @@ void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, in
 						{
 							if (var_found) // if the variable is found we erase the previous value. 
 							{
-								table_var[k][1] = value; 	 							
+								if (!treat_epart)
+									table_var[k][1] = value; 	 							
+								else
+									table_var[k][1] =table_var[k][1] + " + " + value;
 							}
 							else
 							{
@@ -830,16 +833,16 @@ void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, in
 									table_var[k][1] = value; 
 								else 
 								{
-									if (!treat_epart)
+									//if (!treat_epart)
 									{
 										if (cond == "cond0")
 											table_var[k][1] = "(1 - cond0) * ("  + table_var[k][1] + ") + " +value;
 										else if (cond == " (1 - cond0) ")
 											table_var[k][1] = "cond0 * ("  + table_var[k][1] + ") + " + value;
 									}
-									else
+									//else
 									{
-											table_var[k][1] = "(" + table_var[k][1] + ") + " + value;
+										//	table_var[k][1] = "(" + table_var[k][1] + ") + " + value;
 									}								
 								}
 
@@ -881,7 +884,7 @@ void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, in
 		   
 			if (lval->usesAllBits())
 			{
-				int available = 0;
+								int available = 0;
 				bool variable_found = false;
 				string value = "";
 				if (cond != "")
@@ -891,42 +894,50 @@ void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, in
 				
 				bool var_found = false;
 				if (elsepart != (Stmt *)NULL)
+				{
 					check_else_part (elsepart, asym->getName(), &var_found);
-				
+					cout << "else part not null / var found : " << var_found << endl;
+				}
 				if(table_var !=NULL)
 				{
 					for (int k =0; k < nb_var; k++)
 					{
 						if ( asym->getName() == table_var[k][0])
 						{
-							if (var_found)
+							if (var_found) // if the variable is found we erase the previous value. 
 							{
-								table_var[k][1] = value; 			
+								if (!treat_epart)
+									table_var[k][1] = value; 	 							
+								else
+									table_var[k][1] =table_var[k][1] + " + " + value;
 							}
 							else
 							{
+
 								if ( table_var[k][1] == "")
 									table_var[k][1] = value; 
 								else 
 								{
-									if (!treat_epart)
+									//if (!treat_epart)
 									{
 										if (cond == "cond0")
 											table_var[k][1] = "(1 - cond0) * ("  + table_var[k][1] + ") + " +value;
 										else if (cond == " (1 - cond0) ")
 											table_var[k][1] = "cond0 * ("  + table_var[k][1] + ") + " + value;
 									}
-									else
+									//else
 									{
-											table_var[k][1] = "(" + table_var[k][1] + ") + " + value;
-									}
+										//	table_var[k][1] = "(" + table_var[k][1] + ") + " + value;
+									}								
 								}
 
 							}
 							
-							if (cond = "")
+							if (cond == "")
+							{
+								cout << "enter last if" << endl;	
 								table_var[k][1] = value;
-							
+							}
 								
 							variable_found = true;
 						}
@@ -990,7 +1001,7 @@ void ccGappaIfStmt(ofstream *fout, Stmt *stmt, string type, string precision, in
 						}
 						if (!variable_found && available != nb_var)
 						{
-							table_var[available][0] = asu	m->getName();
+							table_var[available][0] = asum->getName();
 							table_var[available][1] = value;	
 						}
 					}							

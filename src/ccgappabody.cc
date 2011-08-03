@@ -93,6 +93,8 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
   cout << "\n\n new procrun \n\n " << endl;	
   int if_nb = 0;
   
+  bool if_stmt_present = false;
+  
   if (op->getOpKind()==OP_COMPOSE)
     {
       *fout << "  printf(\"proc_run should never be called for a compose operator!\\n\");" << endl;
@@ -181,6 +183,10 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 					detect_if (stmt, &if_detected, &nb_nesting);	
 					cout << "if detected  : " << if_detected << endl;	
 					cout << "nb nesting = 	" << nb_nesting << endl;	
+					
+					if (if_detected)
+						if_stmt_present = true;
+					
 					 if (!if_detected)
 						ccGappaStmt(fout,string(" "),stmt,early_close,
 							STATE_PREFIX,0, false, false, false,true, type, precision, classname); // 0 was default for ccStmt.h
@@ -246,7 +252,10 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 	    
     }  
     
-    return if_nb;
+    if (if_stmt_present)
+		return 1;
+	else 
+		return 0;
 }
 
 int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
@@ -365,14 +374,17 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 	}
 	
 	
-	for (int i = 1; i <= if_nb ; i++)
+	//for (int i = 1; i <= if_nb ; i++)
+	if (if_nb == 1)
 	{
+		int i = 0;
 		*fout << indent;
 		*fout << "cond" << i << " in [0,1]" ;
-		  if ( i != if_nb)
+		  /*if ( i != if_nb)
 			*fout << " /" << "\\ " << endl;
 		  else 	
 			*fout << endl;
+		  */
 
 	}
 	
