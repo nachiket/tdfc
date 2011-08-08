@@ -62,6 +62,8 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	cout << "Inconsistent boolean flags cuda:"<<cuda<<" mblaze:"<<mblaze<<" autoesl:"<<autoesl<<endl;
 }
 
+printf("unknown statement kind [%d] in ccStmt",(int)stmt->getStmtKind());
+
 //
 //	if(retime) {
 //		cout << "Such bullshit" << endl; exit(1);
@@ -99,7 +101,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	*fout << indent << "if (" 
 	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log) 
 	      << ") {" << endl;
-	(fout,string("%s  ",indent),ifstmt->getThenPart(),
+	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
 	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, classname);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
