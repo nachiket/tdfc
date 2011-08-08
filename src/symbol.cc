@@ -425,11 +425,11 @@ void SymTab::addSymbol (Symbol *sym_i)
 	     "\" into block symbol table", NULL);
 
 // Nachiket's debugging of dictionary!!
-// cout << "Attempting to add name " << symName << " for symbol " << sym_i->toString() <<  " with pointer " << symbols << endl;
-// cout << "Symbol size=" << symbols->size() << endl;
-// if(symName=="<none>") {
-//	 cout << "null being added?" << endl;
-// }
+cout << "Attempting to add name " << symName << " for symbol " << sym_i->toString() <<  " with pointer " << symbols << endl;
+cout << "Symbol size=" << symbols->size() << endl;
+if(symName=="<none>") {
+cout << "null being added?" << endl;
+}
 
   dic_item i=symbols->lookup(symName);
   if (i)
