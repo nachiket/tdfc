@@ -3,7 +3,7 @@ diode(
 param double vj=2.58642e-2,
 param double isat=1e-3,
 // input quantities
-input double v[0, 0.1],
+input double v[1e-5, 1.5],
 // output quantities
 output double i,
 output double gm

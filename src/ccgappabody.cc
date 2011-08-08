@@ -105,6 +105,11 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
 
+	  bop->buildDataflowGraph();
+	  		
+	  ccgappadfgprocrun(fout, classname, bop, type, precision, &if_nb);
+
+
 	/*  list<OperatorBehavioral*> *bop_list = new list<OperatorBehavioral*>();
 	  bop_list->push(bop);
 	  //list<DFGraph>* graph_list = Create_DFG(op, bop);
@@ -122,6 +127,8 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 	  }
 	  */  
 //
+    
+    /*
       // declare top level vars
       SymTab *symtab=bop->getVars();
       list<Symbol*>* lsyms=symtab->getSymbolOrder();
@@ -170,7 +177,7 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 				// walk over inputs to case
 				StateCase *acase=(*cases)[i];
 
-				// increment the nesting count and also output a beginning
+		 		// increment the nesting count and also output a beginning
 				// nesting bracket.
 				numNestings++;
 			
@@ -241,7 +248,7 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 			*fout << "        return((void*)NULL);" << endl;
 			*fout << "    }" << endl;
 		}
-		
+		*/
 //
     }
   else
@@ -252,10 +259,12 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 	    
     }  
     
-    if (if_stmt_present)
+    /*if (if_stmt_present)
 		return 1;
 	else 
 		return 0;
+		*/
+	return if_nb;
 }
 
 int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
@@ -374,17 +383,17 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 	}
 	
 	
-	//for (int i = 1; i <= if_nb ; i++)
-	if (if_nb == 1)
+	for (int i = 0; i < if_nb ; i++)
+	//if (if_nb == 1)
 	{
-		int i = 0;
+		//int i = 0;
 		*fout << indent;
 		*fout << "cond" << i << " in [0,1]" ;
-		  /*if ( i != if_nb)
+		  if ( i != if_nb-1)
 			*fout << " /" << "\\ " << endl;
 		  else 	
 			*fout << endl;
-		  */
+		  
 
 	}
 	
@@ -416,6 +425,23 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			          
 				*fout << "(" + sym->getName() + "_fx-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
+			    
+			    *fout << " /" << "\\ "  << endl; 
+			    *fout << indent; 
+			    
+			    // we also add te question for absolute error
+			    
+			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fx) in ?";
+
+			    *fout << " /" << "\\ "  << endl; 
+			    *fout << indent; 
+			    
+			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_dbl) in ?";
+
+			    *fout << " /" << "\\ "  << endl; 
+			    *fout << indent; 
+			    
+			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fl) in ?";			    
 			    
 			    if (n != nboutput)      
 					*fout << " /" << "\\ "  << endl; 

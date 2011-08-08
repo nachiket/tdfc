@@ -1,4 +1,4 @@
-add(input double a[0,3], input double b[1,6], output double d)
+add(input double a[0,1], input double b[1,2], output double d)
 {
 
 	state only(a,b):
@@ -11,7 +11,8 @@ add(input double a[0,3], input double b[1,6], output double d)
 		
 		if (a>0)		
 		{
-			d = 0;
+			d = 1;
+			k = a+b;
 		}
 		else 
 		{

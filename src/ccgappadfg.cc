@@ -44,9 +44,18 @@ using leda::node_set;
 using leda::node_list;
 using leda::array;
 
-void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
+string 	getnodenumber(node n, Tree* t) {
+	cout << "node to var string : " << endl;
+	cout << "\t" << endl;
+	cout << t ? t->toString().replace_all("\n","") : string("<nil>");
+	return t ? t->toString().replace_all("\n","") : string("<nil>");
+}
+
+void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_val, string precision, int *if_nb,
 	       int debug_logic)
 {
+	
+	
   if (op->getOpKind()==OP_BEHAVIORAL)
     {
       OperatorBehavioral *bop=(OperatorBehavioral *)op;
@@ -60,7 +69,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
       SymTab *symtab=bop->getVars();
       list<Symbol*>* lsyms=symtab->getSymbolOrder();
       list_item item2;
-      forall_items(item2,*lsyms)
+      /*forall_items(item2,*lsyms)
 		{
 			Symbol *sum=lsyms->inf(item2);
 			SymbolVar *asum=(SymbolVar *)sum;
@@ -73,7 +82,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 				*fout << ";" << endl;
 			}
 		}
-
+*/
       // declare/initialize retiming slots for input streams
       // (1) map over and create annotations with all retiming exprs
       //op->map(collect_retime_exprs,ccbody_treemap_false,(void *)NULL);
@@ -115,6 +124,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 	    }
 	}
       Symbol *sym;
+      list<string> *list_input = new list<string>();
       forall(sym,*argtypes)
 	{
 	  if (sym->isStream())
@@ -122,11 +132,14 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 	      SymbolStream *ssym=(SymbolStream *)sym;
 	      if (ssym->getDir()==STREAM_OUT)
 		{
+			list_input->push(sym->getName());
 		  sym->setAnnote(CC_STREAM_ID,(void *)ocnt);
 		  ocnt++;
 		}
 	      else if (ssym->getDir()==STREAM_IN)
 		{
+			
+			list_input->push(sym->getName());
 /*		  *fout << "  " << getCCvarType(sym) << " " 
 			<< sym->getName() << ";" << endl;
 		  sym->setAnnote(CC_STREAM_ID,(void *)icnt);
@@ -161,6 +174,14 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 		  // already complained
 		}
 	    }
+	    
+		else if (sym->isParam())
+		{
+			cout << endl;
+			cout << "\tparameter  : " << sym->getName()<< endl; 
+			cout << endl;
+			list_input->push(sym->getName());
+		}
 	}
       int *early_free=new int[icnt];
       for (int i=0;i<icnt;i++)
@@ -209,7 +230,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 	    	  cout << "No dataflow graph found in state=" << sname << "["<< cstate << "] acase="<< acase <<"!" << endl;
 	      } 
 	      else
-	      {
+	      {			  
 	    	  cout << "Dataflow graph found in state=" << sname << "["<< cstate << "] acase="<< acase <<" DFG="<< &dfgVal << "!" << endl;
 	    	  // dump out the dataflow graph..
 	    	  int nodenum=0;
@@ -237,34 +258,44 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 
 		  // TODO: From the ASAP ordering, start printing out nodes... How about just building the dataflow expression?
 		  forall(n,arranged_list) {
-		//	  cout << "enter loop for all nodes in ordered list" << endl; 
+		
 			Tree* t=(dfgVal)[n];
-		//	cout << "declare tree t" << endl;
+		
 			cout << "Processing :  " ;
-			cout << nodetostring(n,(dfgVal)[n],nodenums[n]) << endl;
-		//	cout << "return from nodetostring" << endl;	
-			
-			
+			cout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << endl;
 			
 			TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
-			//cout << "get type kind from t " << endl;
+		
+			cout << "dfg->indeg(n) = " << dfg->indeg(n) << endl;
 			
 		  	if(!dfg->indeg(n)==0) {
 				
-				//cout << "!dfg->indeg(n)==0 " << endl;
-				
 				if(dfg->indeg(n)==3) {
-				
-					//cout << "dfg->indeg(n)==3" << endl;
-				
+					
+					cout << "dfg->indeg(n)==3" << endl;
+					
 					// if operator
-					*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
-					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetofout(dfg, n, nodenums) << " = ";
+					//*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
+					//*fout << "          " << typekindToCplusplus(type) << " ";
+					
+					
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
 					string ifstr=" ";
+					string temp = "";
+					bool true_m = false;
+					forall (e,dfg_in_edges_n) {
+						node src=(*dfg).source(e);
+						if ( nodetofout(dfg, src, nodenums) == "true")
+							true_m = true;
+					}
+					if ( !true_m)
+					{
+					
+					*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
+					string name = nodetofout(dfg, n, nodenums);
+					
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
@@ -275,28 +306,74 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 						} else if(edgenum==2) {
 							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
 						}*/
+						
 						if(edgenum==0) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? " ;
+							temp = nodetofout(dfg, src, nodenums) + type_val;
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + type_val + ") * " ;
+							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? " ;
 						} else if(edgenum==1) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
+							if ( nodetofout(dfg, src, nodenums) != name)
+							{
+								string test;
+								bool found = false;
+								forall (test, *list_input)
+								{
+									if (nodetofout(dfg, src, nodenums) == test)
+										found = true;
+								}
+
+								ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) ;
+								Tree *tree_temp=(*dfg)[src];
+								if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+								{
+									ifstr = ifstr + type_val ;
+								}
+								//+ type_val + ") + ";
+								ifstr = ifstr +") + ";
+							}	
+							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
 						} else if(edgenum==2) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ";
+							if ( nodetofout(dfg, src, nodenums) != name)
+							{
+								string test;
+								bool found = false;
+								forall (test, *list_input)
+								{
+									if (nodetofout(dfg, src, nodenums) == test)
+										found = true;
+								}
+																							
+								ifstr = ifstr +  + "(1 - " + temp + ") * "+"(" + nodetofout(dfg, src, nodenums) ;
+								Tree *tree_temp=(*dfg)[src];
+								if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+								{
+									ifstr = ifstr + type_val ;
+								}
+								//+ type_val +") ";
+								ifstr = ifstr +") ";
+							}
 						}
+						
 						edgenum++;
 					}
+					
 					*fout << ifstr << ";" << endl;
+					}
 				} else if(dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) {
 					
-					//cout << " dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND" << endl;
+					
+					//cout << "dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND" << endl;
 					
 					// if operator
-					*fout << "          // IF ? Node: Type=" << typekindToCplusplus(type) << endl;
-					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetofout(dfg, n, nodenums) << " = ";
+					//*fout << "          // IF ? Node: Type=" << typekindToCplusplus(type) << endl;
+					//*fout << "          " << typekindToCplusplus(type) << " ";
+					*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
+					string name = nodetofout(dfg, n, nodenums);
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
 					string ifstr=" ";
+					string temp;
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
@@ -306,9 +383,54 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
 						}*/
 						if(edgenum==0) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? ";
+							temp = nodetofout(dfg, src, nodenums) + type_val;
+							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + type_val + ") * ";
+							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? ";
 						} else if(edgenum==1) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : (" + nodetofout(dfg,n,nodenums) + ")";
+							if ( nodetofout(dfg, src, nodenums) != name)
+							{
+								ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) ;
+								
+								string test;
+								bool found = false;
+								forall (test, *list_input)
+								{
+									if (nodetofout(dfg, src, nodenums) == test)
+										found = true;
+								}
+
+								
+								Tree *tree_temp=(*dfg)[src];
+								if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+								{
+									ifstr = ifstr + type_val ;
+								}
+								
+								ifstr = ifstr +") ";
+							}
+							if ( nodetofout(dfg, n, nodenums) != name)
+							{
+								ifstr = ifstr + "+ (1- "+ temp +")* (" + nodetofout(dfg,n,nodenums);
+								
+								string test;
+								bool found = false;
+								forall (test, *list_input)
+								{
+									if (nodetofout(dfg, n, nodenums) == test)
+										found = true;
+								}
+
+								
+								Tree *tree_temp=(*dfg)[n];
+								if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+								{
+									ifstr = ifstr + type_val ;
+								}
+								
+								ifstr = ifstr +") ";
+								
+							}
+							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ")  (" + nodetofout(dfg,n,nodenums) + ")";
 						}
 						edgenum++;
 					}
@@ -319,56 +441,103 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 					
 					// binary operator
 					//*fout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
+					cout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
 					//*fout << "          " << typekindToCplusplus(type) << " ";
+					if (typekindToCplusplus(type) == "bool")
+					{
 					
+					char nb[255];
+					sprintf(nb, "%i", *if_nb);
+					string number = nb;
 					
-					*fout << nodetofout(dfg,n,nodenums) << " = ( ";
-					//cout << "node to file " << endl;
+					Tree* tmp=(*dfg)[n];
+					*fout << "#" <<  getnodenumber(n, tmp) <<  " is cond" << number << endl; 
+					*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
 					
-					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
-					int edgenum=0;
-					edge e;
-					forall (e,dfg_in_edges_n) {
-					
-						//cout << "for all edge" << endl;
+					 *fout << "cond" << number;
+					 
+					 (*if_nb)++;
+				    }
+				    else
+				    {
+						*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
+						 
+						list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+						int edgenum=0;
+						edge e;
+						forall (e,dfg_in_edges_n) {
 					
 						// - examine inputs of n
 						node src=(*dfg).source(e);
+						//cout << "before node to string" << endl;						
 						
-						//cout << " node source " << endl;
-											
-						*fout << nodetofout(dfg, src, nodenums) << " ";
+						string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
+						//string temp = getnodenumber(src,(dfgVal)[src]);//,nodenums[src], true);
 						
-						//cout << "node to fout in for all edge" << endl;
+						string test;
+						bool found = false;
 						
+						forall (test, *list_input)
+						{	
+							if (nodetofout(dfg, src, nodenums) == test)
+								found = true;
+						}
+												
+						cout << temp << endl;
+						Tree *tree_temp=(*dfg)[src];
+						*fout << temp;
+						if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+						{
+								*fout << type_val ;
+						}
 						
+						*fout << " ";
+						 
+						//cout << "after node to string " << endl;
+					//	*fout << nodetofout(dfg, src, nodenums) << type_val << " ";
+
 						if(edgenum==0) {
-						
-							//cout << "edgenum==0" << endl;
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
 						edgenum++;
 					}
+				}
 					*fout << ");" << endl;
 				} else if(dfg->indeg(n)==1 && type!=TYPE_STATE) {
 					
 					//cout << "dfg->indeg(n)==1 && type!=TYPE_STATE" << endl;
 					
 					// unary operator or function?
-					*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
-					*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetofout(dfg,n,nodenums) << " = ";
-					*fout << nodetofnstring(n,(dfgVal)[n]) + " ( ";
-
-//					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
-					edge e=dfg->first_in_edge(n);
-//					forall (e,dfg_in_edges_n) {
-						// - examine inputs of n
-						node src=(*dfg).source(e);
-						*fout << nodetofout(dfg, src, nodenums) << " ";
-//					}
-
-					*fout << ");" << endl;
+					//*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
+					//*fout << "          " << typekindToCplusplus(type) << " ";
+					if (nodetostring(n,(dfgVal)[n],nodenums[n], list_input)(1,5) != "valid" )
+					{
+						//*fout << nodetofout(dfg,n,nodenums) << type_val  << " " << precision <<  " = ";
+						*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " << precision <<  " = ";
+						
+						if (nodetofnstring(n,(dfgVal)[n]) == "!")
+							*fout << "(1 -  ( ";
+						else
+							*fout << nodetofnstring(n,(dfgVal)[n]) + " ( ";
+	//					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
+						
+						
+						
+						edge e=dfg->first_in_edge(n);
+	//					forall (e,dfg_in_edges_n) {
+							// - examine inputs of n
+							node src=(*dfg).source(e);
+							
+							string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
+							*fout << temp << type_val <<" ";
+							//*fout << nodetofout(dfg, src, nodenums) << type_val<<" ";
+//						}
+						if (nodetofnstring(n,(dfgVal)[n]) == "!")
+							*fout << ")";
+							
+						*fout << ");" << endl;
+					}
+					
 				} else if(dfg->indeg(n)==1 && type==TYPE_STATE && num_states>1) {
 					
 					//cout << "dfg->indeg(n)==1 && type==TYPE_STATE && num_states>1" << endl;
@@ -467,9 +636,9 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op,
 	    */
 	  // close the nesting brackets.
 	  *fout << "        ";
-	  for (; numNestings>0; numNestings--) {
-	    *fout << "}";
-	  }
+	//  for (; numNestings>0; numNestings--) {
+	 //   *fout << "}";
+	  //}
 
 	  /*if (num_states>1)
 	    {

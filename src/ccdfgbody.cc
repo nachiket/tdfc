@@ -80,7 +80,7 @@ using leda::node_list;
 using leda::array;
 
 void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
-string nodetostring(node n, Tree* t, int nodenum);
+//string nodetostring(node n, Tree* t, int nodenum, bool gappa = false);
 string nodetovarstring(node n, Tree* t);
 string nodetofnstring(node n, Tree* t);
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums); // simplify node name generation for all types of operations
@@ -1467,7 +1467,7 @@ void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int
 		Tree *t=(*dfg)[n];
  *
  */
-string nodetostring(node n, Tree* t, int nodenum) {
+string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input) {
 	std::stringstream out;
 	out << nodenum;
 //	std::string str;
@@ -1488,8 +1488,18 @@ string nodetostring(node n, Tree* t, int nodenum) {
 		string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
 		ret += " "+treekindToString(t->getKind())+" "+ t_str;
 	}
-
-	ret += "_"+string(out.str().c_str());
+	bool found = false;
+	if (list_input != NULL)
+	{
+		string temp;
+		forall (temp, *list_input)
+		{
+			if ( ret == temp)
+				found = true;
+		}
+	}
+	if (!found)
+		ret += "_"+string(out.str().c_str());
 	return ret;
 }
 

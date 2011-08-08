@@ -263,9 +263,9 @@ void ccGappaStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 			
 				string value = ccEvalExpr(EvaluateExpr(rexp), retime, cuda, gappa, type);
 				if (type != "_m" )
-					*fout << asym->getName() << type << " " << precision << "=" << value << endl;		
+					*fout << asym->getName() << type << " " << precision << "=" << value << ";"<< endl;		
 				else
-					*fout << asym->getName() << type <<  " = " << value << endl;		
+					*fout << asym->getName() << type <<  " = " << value << ";" << endl;		
 		} 
 		else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
