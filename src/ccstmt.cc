@@ -232,6 +232,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	bool unsignedtyp = (lvalTypeKind==TYPE_INT);
 	Expr *rexp=astmt->getRhs();
 	Symbol *asym=lval->getSymbol();
+	cout << "Stmt=" << astmt->toString() << endl;
 	if (asym->isStream())
 	  {
 	    SymbolStream *ssym=(SymbolStream *)asym;
