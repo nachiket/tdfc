@@ -479,7 +479,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 						
 						forall (test, *list_input)
 						{	
-							if (nodetofout(dfg, src, nodenums) == test)
+							if (temp == test)
 								found = true;
 						}
 												
