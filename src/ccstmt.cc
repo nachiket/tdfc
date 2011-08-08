@@ -62,7 +62,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	cout << "Inconsistent boolean flags cuda:"<<cuda<<" mblaze:"<<mblaze<<" autoesl:"<<autoesl<<endl;
 }
 
-printf("unknown statement kind [%d] in ccStmt",(int)stmt->getStmtKind());
+//printf("Processing statement kind [%d] in ccStmt\n",(int)stmt->getStmtKind());
 
 //
 //	if(retime) {
@@ -102,7 +102,7 @@ printf("unknown statement kind [%d] in ccStmt",(int)stmt->getStmtKind());
 	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, classname);
+	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
@@ -234,7 +234,7 @@ printf("unknown statement kind [%d] in ccStmt",(int)stmt->getStmtKind());
 	bool unsignedtyp = (lvalTypeKind==TYPE_INT);
 	Expr *rexp=astmt->getRhs();
 	Symbol *asym=lval->getSymbol();
-	cout << "Stmt=" << astmt->toString() << endl;
+//	cout << "Stmt=" << astmt->toString() << "autoesl=" << autoesl << endl;
 	if (asym->isStream())
 	  {
 	    SymbolStream *ssym=(SymbolStream *)asym;
@@ -270,7 +270,7 @@ printf("unknown statement kind [%d] in ccStmt",(int)stmt->getStmtKind());
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    if (lval->usesAllBits())
 	      *fout<<indent<<asym->getName()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl , exp, log)<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
