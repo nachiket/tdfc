@@ -299,13 +299,14 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						/*if(edgenum==0) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
+						
+						if(edgenum==0) {
+							cout << nodetofout(dfg, src, nodenums) + "--edge0";
 						} else if(edgenum==1) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ";
+							cout << nodetofout(dfg, src, nodenums) + "--edge1";
 						} else if(edgenum==2) {
-							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
-						}*/
+							cout << nodetofout(dfg, src, nodenums) + "--edge2";
+						}
 						
 						if(edgenum==0) {
 							temp = nodetofout(dfg, src, nodenums) + type_val;
