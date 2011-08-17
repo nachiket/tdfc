@@ -105,7 +105,7 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
 
-	  bop->buildDataflowGraph();
+//	  bop->buildDataflowGraph();
 	  		
 	  ccgappadfgprocrun(fout, classname, bop, type, precision, &if_nb);
 

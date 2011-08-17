@@ -665,6 +665,11 @@ void emitGAPPA ()
   // following loop
   forall(op,*(gSuite->getOperators()))
   {  
+	  if (op->getOpKind()==OP_BEHAVIORAL)
+	  {
+		  OperatorBehavioral *bop=(OperatorBehavioral *)op;
+		  bop->buildDataflowGraph();
+	  }
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
     if (ccCheckRanges(op))
