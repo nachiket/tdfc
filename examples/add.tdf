@@ -1,24 +1,13 @@
-add(input double a[0,1], input double b[1,2], output double d)
+add(input double a[4,5], input double b[0,0.7], input boolean c[0,1], output double d)
 {
 
-	state only(a,b):
-{	
-		double c = 4;
-		double j = 3;
-		double k;
-		
-		d = 5;
-		
-		if (a>0)		
-		{
-			d = 1;
-			k = a+b;
-		}
-		else 
-		{
-			c = 8;
-			d = a;
+	state only(a,b,c):
+		if(c) {
+			d=a+b;
+		} else {
+			d=a-b;		
 		}
 
-}
+
+
 }

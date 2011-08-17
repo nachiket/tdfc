@@ -129,10 +129,12 @@ void ccautoeslheader (Operator *op, bool exp, bool log)
   *fout << endl;
   
   if (exp)
-	*fout << "void exp_flopoco( double in, double *out); " << endl;
+	//*fout << "void exp_flopoco( double in, double *out); " << endl;
+	*fout << "double exp_flopoco( double in); " << endl;
 	
   if (log)
-	*fout << "void log_flopoco( double in, double *out); " << endl;
+	//*fout << "void log_flopoco( double in, double *out); " << endl;
+	*fout << "double log_flopoco( double in); " << endl;
 
   *fout << "void " << classname << "(\n" ;
 //  autoesl_constructor_signatures(fout,rsym,argtypes, true);
