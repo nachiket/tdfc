@@ -278,7 +278,8 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					//*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
 					//*fout << "          " << typekindToCplusplus(type) << " ";
 					
-					
+					//for (int g = 0; g< 5; g++)
+					{
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
@@ -366,6 +367,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					
 					*fout << ifstr << ";" << endl;
 					}
+				}
 				} else if(dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) {
 					
 					
