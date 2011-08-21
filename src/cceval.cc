@@ -258,8 +258,12 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 		name=retimeName(lexpr->getSymbol()->getName(),
 			  lexpr->getRetime(), retime, cuda);
 	}
-	else
-	  name=lexpr->getSymbol()->getName()+type;
+	else {
+		// 21/8/2011 - Nachiket - Array subscripts need to be extracted if present..
+		//cout << "LEXPR=" << lexpr->toString() << endl;
+		// OLD name=lexpr->getSymbol()->getName()+type+"["+"]";
+		name=lexpr->toString()+type;
+	}
 	if (lexpr->usesAllBits())
 	  return(name);
 	else

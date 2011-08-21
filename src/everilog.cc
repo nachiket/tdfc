@@ -276,6 +276,11 @@ bool isConstWidth (Type *t, int *width,
     *width = 1;
     return true;
   }
+  // added by Nachiket 16/8/2011.. testing floating-point processing...
+  else if (t->getTypeKind()==TYPE_DOUBLE) {
+    *width=64;
+    return true;
+  }
   else if (t->getTypeKind()==TYPE_INT) {
     if (t->getWidth()>=0) {
       *width = t->getWidth();
@@ -2098,9 +2103,10 @@ string tdfToVerilog_expr_toString (OperatorBehavioral *op,
 
   Type *t = e->getType();
   if (t->getTypeKind()!=TYPE_BOOL &&
+      t->getTypeKind()!=TYPE_DOUBLE && // Added by Nachiket on 16/8/2011
       t->getTypeKind()!=TYPE_INT)
     fatal(1,"-everilog cannot handle expression " + e->toString() +
-	    "since its type is neither boolean nor integer", e->getToken());
+	    " since its type is neither boolean nor integer", e->getToken());
 
   int width;
   if (!isConstWidth(t,&width))			// - (sets width)
