@@ -284,6 +284,7 @@ ExprArray::ExprArray (Token *token_i, TypeArray *type_i,
   : Expr(token_i,EXPR_ARRAY,type_i),
     exprs(exprs_i ? exprs_i : new list<Expr*>)
 {
+//  cout << "Detected EXPR_ARRAY " << endl;
   Expr *e;
   forall (e,*exprs)
     e->setParent(this);
