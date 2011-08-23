@@ -80,10 +80,11 @@ int gappa_notation(ofstream *fout,
   
   int if_nb;
   
-  if_nb = ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>");
+  ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>");
   ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>");
   ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
+  ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>");
+  if_nb = ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
 
   return if_nb;
 }
@@ -93,7 +94,7 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
   cout << "\n\n new procrun \n\n " << endl;	
   int if_nb = 0;
   
-  bool if_stmt_present = false;
+  //bool if_stmt_present = false;
   
   if (op->getOpKind()==OP_COMPOSE)
     {
@@ -102,13 +103,31 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
       OperatorBehavioral *bop=(OperatorBehavioral *)op; // cast
-      dictionary<string,State*>* states=bop->getStates();
-      dic_item item;
-
-//	  bop->buildDataflowGraph();
+      //dictionary<string,State*>* states=bop->getStates();
+      //dic_item item;
+	  
+	  
+	  SymTab *symtab=bop->getVars();
+      list<Symbol*>* lsyms=symtab->getSymbolOrder();
+      list_item item2;
+	  
+      forall_items(item2,*lsyms)
+		{
+			Symbol *sum=lsyms->inf(item2);
+			SymbolVar *asum=(SymbolVar *)sum;
+			Expr* val=asum->getValue();
+			if (val!=(Expr *)NULL)
+			{
+				*fout <<  asum->getName() << type ;
+				*fout << "= " << precision << "(" << ccEvalExpr(EvaluateExpr(val), false) ;
+				*fout << ");" << endl;
+			}
+		}
+		
 	  		
 	  ccgappadfgprocrun(fout, classname, bop, type, precision, &if_nb);
-
+	  
+	  
 
 	/*  list<OperatorBehavioral*> *bop_list = new list<OperatorBehavioral*>();
 	  bop_list->push(bop);
@@ -277,7 +296,7 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
       {
 		  if (type != "_m")
 		  {
-			  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  "_m);"<<endl;
+			  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;
 		  }
 		  else 
 		  {
@@ -302,7 +321,7 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 			  {
 				  if (type != "_m")
 				  {
-					  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  "_m);"<<endl;
+					  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;
 				  }
 				  else 
 				  {
@@ -319,7 +338,7 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
     return if_nb;
 }
 
-void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb)
+void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb, bool OO)
 {
 	int nbinput = 0; // amount of input streams
 	int nboutput = 0; // amount of output streams
@@ -348,12 +367,15 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 		{  
 		  if (((SymbolStream*)sym)->getDir()==STREAM_IN)
 		  {
-			  /*if (((SymbolStream*)sym)->getRange() == "")
-			  {
-				  cout << "error : the range for input \"" << sym->getName() << "\" was not specified" << endl;
-			  }*/
 			  *fout << indent;
-			  *fout << sym->getName() + " in " + ((SymbolStream*)sym)->getRange();
+			  
+			  if(sym->getType()->toString() == "boolean" && OO)
+				*fout << "(" << sym->getName() << " in [0,0] \\/ " << sym->getName() << " in [1,1])" ;
+			  else if (sym->getType()->toString() == "boolean" && !OO)
+				*fout << sym->getName() << " in [0,1] " ;
+			  else 
+				*fout << sym->getName() + " in " + ((SymbolStream*)sym)->getRange();
+			  
 			  n++;
 		      *fout << " /" << "\\ " << endl;
 		  }
@@ -395,7 +417,10 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 	{
 		//int i = 0;
 		*fout << indent;
-		*fout << "cond" << i << " in [0,1]" ;
+		if (!OO)
+			*fout << "cond" << i << " in [0,1]" ;
+		else
+			*fout << "(cond" << i << " in [0,0] \\/ cond" << i << " in [1,1])" ;
 		  if ( i != if_nb-1)
 			*fout << " /" << "\\ " << endl;
 		  else 	
@@ -436,7 +461,14 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    *fout << " /" << "\\ "  << endl; 
 			    *fout << indent; 
 			    
-			    // we also add te question for absolute error
+			    *fout << "(" + sym->getName() + "_cuda32-" + sym->getName() + "_m"
+			          +")/" + sym->getName() +"_m in ?"; 
+			           
+			    *fout << " /" << "\\ "  << endl; 
+			    *fout << indent;			    
+			    
+			    
+			    // we also add the question for absolute error
 			    
 			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fx) in ?";
 
@@ -449,6 +481,11 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    *fout << indent; 
 			    
 			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fl) in ?";			    
+			    
+			    *fout << " /" << "\\ "  << endl; 
+			    *fout << indent; 
+			    
+			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_cuda32) in ?";			    
 			    
 			    if (n != nboutput)      
 					*fout << " /" << "\\ "  << endl; 
@@ -469,7 +506,8 @@ bool ccCheckRanges(Operator *op)
 		{  
 		  if (((SymbolStream*)sym)->getDir()==STREAM_IN)
 		  {
-			  if (((SymbolStream*)sym)->getRange() == "")
+			   
+			  if (((SymbolStream*)sym)->getRange() == "" && sym->getType()->toString() != "boolean")
 			  {
 				  cout << "error : the range for input \"" << sym->getName() << "\" was not specified" << endl;
 				  return false;
@@ -484,7 +522,7 @@ bool ccCheckRanges(Operator *op)
 //
 ////////////////////////////////////////////////////////////////////////
 // Helene Martorell: Top level routine to create master gappa++ code
-void ccgappabody (Operator *op)
+void ccgappabody (Operator *op, bool OO)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
@@ -498,7 +536,10 @@ void ccgappabody (Operator *op)
     classname=NON_FUNCTIONAL_PREFIX + name; //NON_FUNCTIONAL_PREFIX = "nonfunc_"
   list<Symbol*> *argtypes=op->getArgs(); // get input/output arguments of the operator
   // start new output file
-  string fname=name+".g";
+  string fname=name;
+  if (OO)
+	fname+="00";
+  fname+=".g";
   // how convert string -> char * ?
   ofstream *fout=new ofstream(fname); // construc an object and open a file with the name fname
   *fout << "# tdfc-gappa backend autocompiled body file" << endl;
@@ -517,7 +558,7 @@ void ccgappabody (Operator *op)
 
   // logical fomula gappa should proof
  
-  ccgappalogical(fout, argtypes, op, if_nb);
+  ccgappalogical(fout, argtypes, op, if_nb, OO);
   *fout << endl;
 
   // hint to help gappa find the proof

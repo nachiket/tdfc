@@ -88,7 +88,8 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 	{
 	  Symbol *sum=lsyms->inf(item2);
 	  SymbolVar *asum=(SymbolVar *)sum;
-	  *fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
+	  //*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
+	  *fout << "  " << "data_t" << " " << asum->getName() ;
 	  Expr* val=asum->getValue();
 	  if (val!=(Expr *)NULL)
 	  { 
@@ -232,10 +233,10 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log)
   if (*exp)
   {
 	  //*fout << "void exp_flopoco(double in, double *out)" << endl;
-	  *fout << "double exp_flopoco(double in)" << endl;
+	  *fout << "data_t exp_flopoco(data_t in)" << endl;
 	  *fout << "{" << endl;
 	  //*fout << "\t*out = in;" << endl;
-	  *fout << "\treturn in;" << endl;
+	  *fout << "\treturn exp(in);" << endl;
 	  *fout << "}" << endl;
   }
   
@@ -243,10 +244,10 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log)
   if (*log)
   {
 	  //*fout << "void log_flopoco(double in, double *out)" << endl;
-	  *fout << "double log_flopoco(double in)" << endl;
+	  *fout << "data_t log_flopoco(data_t in)" << endl;
 	  *fout << "{" << endl;
 	  //*fout << "\t*out = in;" << endl;
-	  *fout << "\treturn in;" << endl;
+	  *fout << "\treturn log(in);" << endl;
 	  *fout << "}" << endl;
   }
   

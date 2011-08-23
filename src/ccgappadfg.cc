@@ -51,78 +51,24 @@ string 	getnodenumber(node n, Tree* t) {
 	return t ? t->toString().replace_all("\n","") : string("<nil>");
 }
 
-void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_val, string precision, int *if_nb,
+void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type_val, string precision, int *if_nb,
 	       int debug_logic)
 {
-	
-	
-  if (op->getOpKind()==OP_BEHAVIORAL)
-    {
-      OperatorBehavioral *bop=(OperatorBehavioral *)op;
+
+      
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
 
-    //  *fout << "  enum state_syms {" ;
-	
-      
       // declare top level vars
       SymTab *symtab=bop->getVars();
-      list<Symbol*>* lsyms=symtab->getSymbolOrder();
-      list_item item2;
-      /*forall_items(item2,*lsyms)
-		{
-			Symbol *sum=lsyms->inf(item2);
-			SymbolVar *asum=(SymbolVar *)sum;
-			//*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
-			Expr* val=asum->getValue();
-			if (val!=(Expr *)NULL)
-			{
-				*fout <<  asum->getName() ;
-				*fout << "=" << ccEvalExpr(EvaluateExpr(val), false) ;
-				*fout << ";" << endl;
-			}
-		}
-*/
-      // declare/initialize retiming slots for input streams
-      // (1) map over and create annotations with all retiming exprs
-      //op->map(collect_retime_exprs,ccbody_treemap_false,(void *)NULL);
-      // n.b. This "works" by ripping an expression out of context
-      //   If we allow the user to define a local variable in 
-      //    a state then use that variable (or a chain of such variables)
-      //    as a retiming offset, then this will fail because
-      //    it won't have picked up the local variables.
-      //   If we support that...we should come back and FIX this.
-      //   (...but I'm going to fix other things first -- amd 7/14/99)
-      // (2) walk over all inputs (below) and declare/initialize
-
-      // declare/initialize stream open / free state
-      //  (a) compile time version
-      //  (b) run time version
-      // declare variable/type for holding input stream tokens
+      //list<Symbol*>* lsyms=symtab->getSymbolOrder();
+      //list_item item2;
+    
       int icnt=0;
       int ocnt=0;
-      Symbol *rsym=op->getRetSym();
-      list<Symbol*> *argtypes=op->getArgs();
-      if (!noReturnValue(rsym))
-	{
-	  if (rsym->isStream())
-	    {
-	      SymbolStream *ssym=(SymbolStream *)rsym;
-	      if (ssym->getDir()!=STREAM_OUT)
-		{
-		  // error already issues
-		}
-	      else
-		{
-		  rsym->setAnnote(CC_STREAM_ID,(void *)ocnt);
-		  ocnt++;
-		}
-	    }
-	  else
-	    {
-	      // presumably we've already issued this complaint above
-	    }
-	}
+      //Symbol *rsym=bop->getRetSym();
+      list<Symbol*> *argtypes=bop->getArgs();
+    
       Symbol *sym;
       list<string> *list_input = new list<string>();
       forall(sym,*argtypes)
@@ -194,7 +140,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
       if (num_states>1)
 			cerr << "gappa does not accept more than one state" << endl;
 			//*fout << "    switch(state) {" << endl;
-      int snum=0;
+     // int snum=0;
       forall_items(item,*states)
 	{
 	  State* cstate=states->inf(item);
@@ -202,7 +148,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 
 	  array<StateCase*>* cases=caseSort(cstate->getCases());
 	  array<Symbol*>* caseIns=allCaseIns(cases);
-	  array<int>* firstUsed=inFirstUsed(caseIns,cases);
+	  //array<int>* firstUsed=inFirstUsed(caseIns,cases);
           int numNestings=0;
 
 	  if (num_states>1)
@@ -213,7 +159,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 	  for (int i=cases->low();i<=cases->high();i++)
 	    {
 	      // walk over inputs to case
-	      InputSpec *ispec;
+	      //InputSpec *ispec;
 	      StateCase *acase=(*cases)[i];
 
           // increment the nesting count and also output a beginning
@@ -222,7 +168,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 
 	      BlockDFG dfgVal=(acase->getDataflowGraph());
 	      h_array<node, Symbol*> symbolmap=(acase->getSymbolMap());
-	      h_array<Symbol*,node> *valid_map=(acase->getValidMap());
+	      //h_array<Symbol*,node> *valid_map=(acase->getValidMap());
 	    
 	      BlockDFG* dfg=&dfgVal;
 	      if(dfg==NULL) 
@@ -272,14 +218,6 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 				
 				if(dfg->indeg(n)==3) {
 					
-					//cout << "dfg->indeg(n)==3" << endl;
-					
-					// if operator
-					//*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
-					//*fout << "          " << typekindToCplusplus(type) << " ";
-					
-					//for (int g = 0; g< 5; g++)
-					{
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
@@ -305,20 +243,11 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					forall_in_edges (e, n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						/*if(edgenum==0) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
-						} else if(edgenum==1) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ";
-						} else if(edgenum==2) {
-							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
-						}*/
-						
-						//cout << " edgenum = " << edgenum << endl; 
 						
 						if(edgenum==0) {
 							temp = nodetofout(dfg, src, nodenums) + type_val;
 							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + type_val + ") * " ;
-							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? " ;
+					
 						} else if(edgenum==1) {
 							if ( nodetofout(dfg, src, nodenums) != name)
 							{
@@ -336,10 +265,10 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 								{
 									ifstr = ifstr + type_val ;
 								}
-								//+ type_val + ") + ";
+					
 								ifstr = ifstr +") + ";
 							}	
-							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : ";
+					
 						} else if(edgenum==2) {
 							if ( nodetofout(dfg, src, nodenums) != name)
 							{
@@ -357,7 +286,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 								{
 									ifstr = ifstr + type_val ;
 								}
-								//+ type_val +") ";
+					
 								ifstr = ifstr +") ";
 							}
 						}
@@ -367,15 +296,10 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					
 					*fout << ifstr << ";" << endl;
 					}
-				}
+				
 				} else if(dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) {
 					
-					
-					//cout << "dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND" << endl;
-					
 					// if operator
-					//*fout << "          // IF ? Node: Type=" << typekindToCplusplus(type) << endl;
-					//*fout << "          " << typekindToCplusplus(type) << " ";
 					if (type_val !="_m")
 						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
 					else
@@ -387,19 +311,14 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					edge e;
 					string ifstr=" ";
 					string temp;
-					//forall (e,dfg_in_edges_n) {
-						forall_in_edges (e,n) {
+					
+					forall_in_edges (e,n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						/*if(edgenum==0) {
-							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") : (" + nodetofout(dfg,n,nodenums) + ")";
-						} else if(edgenum==1) {
-							ifstr = "(" + nodetofout(dfg, src, nodenums) + ") ? " + ifstr;
-						}*/
 						if(edgenum==0) {
 							temp = nodetofout(dfg, src, nodenums) + type_val;
 							ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + type_val + ") * ";
-							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ") ? ";
+					
 						} else if(edgenum==1) {
 							if ( nodetofout(dfg, src, nodenums) != name)
 							{
@@ -444,19 +363,14 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 								ifstr = ifstr +") ";
 								
 							}
-							//ifstr = ifstr + "(" + nodetofout(dfg, src, nodenums) + ")  (" + nodetofout(dfg,n,nodenums) + ")";
+					
 						}
 						edgenum++;
 					}
 					*fout << ifstr << ";" << endl;
 				} else if(dfg->indeg(n)==2) {
 					
-					//cout << "dfg->indeg(n)==2" << endl;
-					
 					// binary operator
-					//*fout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
-					//cout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
-					//*fout << "          " << typekindToCplusplus(type) << " ";
 					if (typekindToCplusplus(type) == "bool")
 					{
 					
@@ -466,15 +380,8 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					
 					Tree* tmp=(*dfg)[n];
 					*fout << "#" <<  getnodenumber(n, tmp) <<  " is cond" << number << endl; 
-					//if (type_val!="_m")
-						//*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
-					//else
-					{
-						*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ( ";
-					}
-					
-					
-					 *fout << "fixed<-1,ne> (cond" << number << ")";
+					*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ( ";
+					*fout << "fixed<-1,ne> (cond" << number << ")";
 					 
 					 (*if_nb)++;
 				    }
@@ -495,10 +402,8 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						//cout << "before node to string" << endl;						
-						
 						string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
-						//string temp = getnodenumber(src,(dfgVal)[src]);//,nodenums[src], true);
+					
 						
 						string test;
 						bool found = false;
@@ -508,8 +413,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 							if (temp == test)
 								found = true;
 						}
-												
-						//cout << temp << endl;
+					
 						Tree *tree_temp=(*dfg)[src];
 						*fout << temp;
 						if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
@@ -518,10 +422,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 						}
 						
 						*fout << " ";
-						 
-						//cout << "after node to string " << endl;
-					//	*fout << nodetofout(dfg, src, nodenums) << type_val << " ";
-
+					
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
@@ -531,14 +432,10 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					*fout << ");" << endl;
 				} else if(dfg->indeg(n)==1 && type!=TYPE_STATE) {
 					
-					//cout << "dfg->indeg(n)==1 && type!=TYPE_STATE" << endl;
-					
 					// unary operator or function?
-					//*fout << "          // Unary Node: Type=" << typekindToCplusplus(type) << endl;
-					//*fout << "          " << typekindToCplusplus(type) << " ";
 					if (nodetostring(n,(dfgVal)[n],nodenums[n], list_input)(1,5) != "valid" )
 					{
-						//*fout << nodetofout(dfg,n,nodenums) << type_val  << " " << precision <<  " = ";
+					
 						if (type_val != "_m")
 							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " << precision <<  " = ";
 						else
@@ -551,19 +448,13 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 							*fout << "(1 -  ( ";
 						else
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ( ";
-	//					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
-						
-						
 						
 						edge e=dfg->first_in_edge(n);
-	//					forall (e,dfg_in_edges_n) {
-							// - examine inputs of n
-							node src=(*dfg).source(e);
-							
-							string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
-							*fout << temp << type_val <<" ";
-							//*fout << nodetofout(dfg, src, nodenums) << type_val<<" ";
-//						}
+						// - examine inputs of n
+						node src=(*dfg).source(e);
+						
+						string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
+						*fout << temp << type_val <<" ";
 						if (nodetofnstring(n,(dfgVal)[n]) == "!")
 							*fout << ")";
 							
@@ -571,9 +462,6 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					}
 					
 				} else if(dfg->indeg(n)==1 && type==TYPE_STATE && num_states>1) {
-					
-					//cout << "dfg->indeg(n)==1 && type==TYPE_STATE && num_states>1" << endl;
-					
 					// unary operator or function?
 					*fout << "          // Unary State Node: Type=" << typekindToCplusplus(type) << endl;
 					*fout << "          state = ( ";
@@ -592,166 +480,8 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 			}
 		  	cout << " finished" << endl;
 		  }
-/*
-		  // Assign output nodes
-		  forall(n,arranged_list) {
-			  // fanout-0 nodes
-			  if(dfg->outdeg(n)==0) {
-				  Tree* t=(dfgVal)[n];
-				  if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
-					  Symbol *asym=((ExprLValue*)t)->getSymbol();
-					  if (asym!=NULL && asym->isStream())
-					  {
-						  SymbolStream *ssym=(SymbolStream *)asym;
-						  if (ssym->getDir()==STREAM_OUT)
-						  {
-						  	TypeKind outType = ((ExprLValue*)t)->typeCheck()->getTypeKind();
-							bool floattype = (outType==TYPE_FLOAT);
-						        bool doubletype = (outType==TYPE_DOUBLE);
-
-							node valid_node = (*valid_map)[asym];
-//							cout << "sym=" << asym ; asym=NULL;
-//							cout << ", node=" << valid_node << " " << n << "=" << ((ExprLValue*)(*dfg)[valid_node])->getSymbol() << ", lval=" << ((ExprLValue*)(*dfg)[valid_node]) << " symbolmapped=" << symbolmap[valid_node] << endl;
-							if(valid_node!=NULL) {
-							        *fout << "          " ;
-								*fout << "if(" << symbolmap[valid_node]->toString() << ") {" << endl;
-							        *fout << "  " ;
-							}
-
-							int id=(long)(ssym->getAnnote(CC_STREAM_ID));
-							*fout << "          " ;
-							*fout  << (floattype?"STREAM_WRITE_FLOAT":doubletype?"STREAM_WRITE_DOUBLE":"STREAM_WRITE_NOACC")
-								<< "(out[" << id << "]," << nodetofout(dfg,n,nodenums) << ");" << endl; // asym->toString();
-							if(valid_node!=NULL) {
-							        *fout << "          }" << endl;
-							}
-						  }
-					  }
-				  } else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_BUILTIN) {
-					  ExprBuiltin *bexpr = (ExprBuiltin*)t;
-					  Symbol *asym=bexpr->getSymbol();
-					  if (asym!=NULL && asym->isStream())
-					  {
-						  SymbolStream *ssym=(SymbolStream *)asym;
-						  if (ssym->getDir()==STREAM_OUT)
-						  {
-							int id=(long)(ssym->getAnnote(CC_STREAM_ID));
-							*fout << "          " ;
-							if(((OperatorBuiltin*)bexpr->getOp())->getBuiltinKind()==BUILTIN_CLOSE) {
-								*fout  << "STREAM_CLOSE(out[" << id << "]);" << endl;
-							} else if(((OperatorBuiltin*)bexpr->getOp())->getBuiltinKind()==BUILTIN_FRAMECLOSE) {
-								*fout  << "FRAME_CLOSE(out[" << id << "]);" << endl;
-							}
-						  }
-					  }
-				  }
-			  }
-		  } */
-		  //cout << "Ended.." << endl;
-		  //exit(-1);
-
-
-	      }
-		{
-		  //ccStmt(fout,string("          "),stmt,early_close,
-			// STATE_PREFIX,0, false); // 0 was default for ccStmt.h
 		}
-	   //   *fout << "        else" << endl;
-	    }
-	    // default case will be to punt out of loop (exit/done)
-	    // For now. split eofr cases into separate statecases.. wtf!?
-	  /* *fout << "        {" << endl ;
-	  *fout << "        if (" << atomiceofrcase.cstring() << ") {}" << endl ;
-	  *fout << "        else" << endl;
-	  *fout << "         done=1;" << endl;
-	  *fout << "        }" << endl;
-	    */
-	  // close the nesting brackets.
-	  *fout << "        ";
-	//  for (; numNestings>0; numNestings--) {
-	 //   *fout << "}";
-	  //}
-
-	  /*if (num_states>1)
-	    {
-	      *fout << "        break; " << endl;
-	      *fout << "      } // end case " << STATE_PREFIX << 
-		sname << endl;
-	    }*/
-	  snum++;
 	}
-      /*if (num_states>1)
-	{
-	  *fout << "      default: cerr << \"ERROR unknown state [\" << (int)state << \"] encountered in " << name << "::proc_run\" << endl;" << endl;
-	  *fout << "        abort();" << endl;
-	  *fout << "    }" << endl;
-	}*/
+  }
 
-      //*fout << "  }" << endl;
-      // any final stuff
-      /*if (!noReturnValue(rsym))
-		if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
-	  {
-	    *fout <<"  if (!output_close[" 
-		  <<  (long)(rsym->getAnnote(CC_STREAM_ID))
-		  << "])" << endl;
-	    *fout << "  STREAM_CLOSE(" 
-		  << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		  << "]" 
-		  << ");" << endl;
-	  }
-	else
-	  *fout << "  STREAM_CLOSE(" 
-		<< "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		<< "]"
-		<< ");" << endl;
-      forall(sym,*argtypes)
-	{
-	  if (sym->isStream())
-	    {
-	      SymbolStream *ssym=(SymbolStream *)sym;
-	      if (ssym->getDir()==STREAM_OUT)
-		{
-		  if (early_close[(long)(ssym->getAnnote(CC_STREAM_ID))])
-		    {
-		      *fout <<"  if (!output_close[" 
-			    <<  (long)(ssym->getAnnote(CC_STREAM_ID))
-			    << "])" << endl;
-		      *fout << "  STREAM_CLOSE(" 
-			    << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			    << "]" 
-			    << ");" << endl;
-		    }
-		  else
-		    *fout << "  STREAM_CLOSE(" 
-			  << "out[" << (long)(ssym->getAnnote(CC_STREAM_ID)) 
-			  << "]" 
-			  << ");" << endl;
-		}
-	      else
-		if (early_free[(long)(ssym->getAnnote(CC_STREAM_ID))])
-		  {
-		    cerr << "DEBUG early free[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			 << "]=" << early_free[(long)(ssym->getAnnote(CC_STREAM_ID))]
-			 << endl;
-		    
-		    *fout <<"  if (!input_free[" 
-			  << (long)(ssym->getAnnote(CC_STREAM_ID)) 
-			  << "])" << endl;
-		    *fout << "    STREAM_FREE(" 
-			  << "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			  << "]" 
-			  << ");" << endl;
-		  }
-		else
-		  *fout << "  STREAM_FREE(" 
-			<< "in[" << (long)(ssym->getAnnote(CC_STREAM_ID))
-			<< "]" 
-			<< ");" << endl;
-	    }
-	}*/
-    }
-  
 }
-
-

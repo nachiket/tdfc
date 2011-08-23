@@ -64,8 +64,12 @@ void autoesl_functional_signature(ofstream *fout,
 		  }
 	  }
 
-	  *fout << "\t" << sym->getType()->toString() 
+	  //*fout << "\t" << sym->getType()->toString() 
+	//	  << " " << prefix << sym->getName();
+
+		*fout << "\t" << "data_t"
 		  << " " << prefix << sym->getName();
+	
 	  i++;
   }
 
@@ -125,16 +129,19 @@ void ccautoeslheader (Operator *op, bool exp, bool log)
   *fout << "#ifndef "+classname+"_H_" << endl;
   *fout << "#define "+classname+"_H_" << endl;
   *fout << "#define SC_INCLUDE_FX" << endl;
+  *fout << "#include \"ap_fixed.h\"" << endl;
   *fout << "#include \"systemc.h\"" << endl;
   *fout << endl;
   
+  *fout << "typedef double data_t;" << endl;
+  
   if (exp)
 	//*fout << "void exp_flopoco( double in, double *out); " << endl;
-	*fout << "double exp_flopoco( double in); " << endl;
+	*fout << "data_t exp_flopoco( data_t in); " << endl;
 	
   if (log)
 	//*fout << "void log_flopoco( double in, double *out); " << endl;
-	*fout << "double log_flopoco( double in); " << endl;
+	*fout << "data_t log_flopoco( data_t in); " << endl;
 
   *fout << "void " << classname << "(\n" ;
 //  autoesl_constructor_signatures(fout,rsym,argtypes, true);

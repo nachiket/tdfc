@@ -46,11 +46,11 @@ void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
-void ccgappabody(Operator *op);
+void ccgappabody(Operator *op, bool OO = false);
 bool ccCheckRanges(Operator *op);
 
-void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type, string precision, int *if_nb,int debug_logic = 0);
-//void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type, string precision, int debug_logic = 0);
+void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type, string precision, int *if_nb,int debug_logic = 0);
+
 
 void ccdfgprocrun(ofstream *fout, string name, Operator *op,int debug_logic=0);
 void ccdfgconstruct(ofstream *fout,string name, Operator *op);
