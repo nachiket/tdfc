@@ -58,7 +58,8 @@
 #include "cctestif.h"
 
 int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
-				Operator *op, string classname, string type,string precision);
+				Operator *op, string classname, string type,
+				string precision, string *exp );
 
 /***********************************************************************
 Note: This will use a simple round-robin scheduling technique..
@@ -71,7 +72,8 @@ using std::ofstream;
 int gappa_notation(ofstream *fout,
 			    list<Symbol*> *argtypes,
 			    Operator *op,
-			    string classname)
+			    string classname,
+			    string *exp)
 {
 	// fixed point size
 	*fout << "@fx = fixed<-32,ne>;\n" << endl; 
@@ -80,16 +82,16 @@ int gappa_notation(ofstream *fout,
   
   int if_nb;
   
-  ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>");
-  ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>");
-  if_nb = ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx");
+  ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>", exp);
+  ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>", exp);
+  ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>", exp);
+  ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>", exp);
+  if_nb = ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx", exp);
 
   return if_nb;
 }
 
-int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,string precision)
+int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,string precision, string *exp )
 {
   //cout << "\n\n new procrun \n\n " << endl;	
   int if_nb = 0;
@@ -124,8 +126,8 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 			}
 		}
 		
-	  		
-	  ccgappadfgprocrun(fout, classname, bop, type, precision, &if_nb);
+	  	
+	  ccgappadfgprocrun(fout, classname, bop, type, precision, &if_nb, exp);
 	  
 	  
 
@@ -287,7 +289,7 @@ int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,s
 }
 
 int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
-			    Operator *op,string classname,string type,string precision)
+			    Operator *op,string classname,string type,string precision, string *exp )
 {
 	Symbol *sym;
 	forall(sym,*argtypes)
@@ -332,13 +334,13 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 	  }
 		
     }
-    int if_nb = ccgappaprocrun(fout,classname,op, type, precision);
+    int if_nb = ccgappaprocrun(fout,classname,op, type, precision, exp);
     *fout << endl;
     
     return if_nb;
 }
 
-void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb, bool OO)
+void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb, bool OO, string exp )
 {
 	int nbinput = 0; // amount of input streams
 	int nboutput = 0; // amount of output streams
@@ -383,6 +385,9 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 		}
 	}
 	n = 0;
+	
+	*fout << indent << exp << endl;
+	
 	forall(sym,*argtypes)
     {
 		if (sym->isStream())
@@ -390,11 +395,11 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 		  if (((SymbolStream*)sym)->getDir()==STREAM_OUT)
 		  {
 			  
-			  *fout << indent << "((" << sym->getName() + "_cuda32- " +sym->getName() +"_m )/ "  + 
+			/*  *fout << indent << "((" << sym->getName() + "_cuda32- " +sym->getName() +"_m )/ "  + 
 								sym->getName() + "_m) in [-2b-23, 2b-23] /\\ " << endl; 
 			  
 				
-																 // we should make sure that the outputs
+				*/												 // we should make sure that the outputs
 			  *fout << indent << "(" << sym->getName() + "_m >= 0x1p-53 \\/ "  ; // are never equal to zero
 			  *fout << sym->getName() + "_m <= - 0x1p-53)"; // since we want to have the relative error
 															// and therefore divide by the output.
@@ -555,16 +560,17 @@ void ccgappabody (Operator *op, bool OO)
   *fout << "# " << ctime(&currentTime) << endl;  
   *fout << endl;
 
+  string exp ="";
 
   // Notation for making the script readable
-  int if_nb = gappa_notation(fout,argtypes, op, classname); // defines the fixed point precision and all
+  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp); // defines the fixed point precision and all
 						//different variables associated with different 
 						//precisions
   *fout <<  endl ;
 
   // logical fomula gappa should proof
  
-  ccgappalogical(fout, argtypes, op, if_nb, OO);
+  ccgappalogical(fout, argtypes, op, if_nb, OO, exp);
   *fout << endl;
 
   // hint to help gappa find the proof

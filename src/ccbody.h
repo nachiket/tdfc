@@ -49,7 +49,7 @@ void cccudawrapper(Operator *op);
 void ccgappabody(Operator *op, bool OO = false);
 bool ccCheckRanges(Operator *op);
 
-void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type, string precision, int *if_nb,int debug_logic = 0);
+void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type, string precision, int *if_nb,string* exp = NULL);
 
 
 void ccdfgprocrun(ofstream *fout, string name, Operator *op,int debug_logic=0);

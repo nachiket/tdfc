@@ -76,6 +76,7 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
     }
   else if (op->getOpKind()==OP_BEHAVIORAL)
     {
+		*fout << "{" << endl;
       OperatorBehavioral *bop=(OperatorBehavioral *)op;
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
@@ -183,7 +184,7 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 	    
     }
   *fout << "}" << endl;
-  
+  *fout << "}" << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////

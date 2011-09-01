@@ -52,7 +52,7 @@ string 	getnodenumber(node n, Tree* t) {
 }
 
 void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type_val, string precision, int *if_nb,
-	       int debug_logic)
+	       string *exp_str)
 {
 
       
@@ -205,7 +205,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 			
 		  	if(!dfg->indeg(n)==0) {
 				
-				if ( nodetostring(n,(dfgVal)[n],nodenums[n], list_input) == "lambda")
+/*				if ( nodetostring(n,(dfgVal)[n],nodenums[n], list_input) == "lambda")
 				{
 					cout << "input edges = " << dfg->indeg(n) << endl;
 					if(type!=TYPE_STATE)
@@ -213,7 +213,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 					else
 						cout << "type==TYPE_STATE" << endl;
 				} 
-				
+	*/			
 				
 				if(dfg->indeg(n)==3) {
 					
@@ -388,19 +388,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 				    {
 						
 						{
-							
-						if (type_val != "_m")	
-						{
-							if (type_val == "_cuda32" && nodetofout(dfg,n,nodenums).contains("multiply"))
-								*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ";
-							else
-								*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ";
-						}
-						else
-						{
-							*fout << nodetofout(dfg,n,nodenums) << type_val << " " <<  " = ";
-						}
-						
+						bool mac  =false;					
 						 string RHS = "(";
 						list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 						int edgenum=0;
@@ -432,16 +420,16 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 					
 						if(edgenum==0) {
 							string fn = nodetofnstring(n,(dfgVal)[n]);
-							cout << "function : " << nodetofnstring(n,(dfgVal)[n]) << endl; 
+					//		cout << "function : " << nodetofnstring(n,(dfgVal)[n]) << endl; 
 							if (type_val == "_cuda32" && (fn == "*" )) // check for MAC loop
 							{
 								edge ed;
-								bool mac  =false;
+								
 								
 								forall_out_edges (ed,n) 
 								{
 									node dest=(*dfg).target(ed);
-									cout << "functions in dest : " << nodetofnstring(dest,(dfgVal)[dest]) <<  "//" << endl; 
+//									cout << "functions in dest : " << nodetofnstring(dest,(dfgVal)[dest]) <<  "//" << endl; 
 									
 									if (nodetofnstring(dest,(dfgVal)[dest]) == "+")
 									{
@@ -459,6 +447,21 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 						}
 						edgenum++;
 					}
+				
+					if (type_val != "_m")	
+					{
+						if (type_val == "_cuda32" && nodetofout(dfg,n,nodenums).contains("multiply") && mac)
+							*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ";
+						else
+							*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ";
+					}
+					else
+					{
+						*fout << nodetofout(dfg,n,nodenums) << type_val << " " <<  " = ";
+					}
+
+				
+					
 					*fout << RHS;
 				}
 				}
@@ -515,11 +518,22 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 							string fn = nodetofnstring(n,(dfgVal)[n]);						
 							
 							if (type_val == "_cuda32" && (fn == "exp" ))
-								*fout << fn + "2 (1.44269541 * "; // if we have an exponential we want to multiply by log2(e) to transform	
+							{
+								double x = log2(exp(1));
+								*fout << fn + "2 ( "  << x <<  " * "; // if we have an exponential we want to multiply by log2(e) to transform	
 																	// from exp to exp2
+								if (*exp_str != "")
+									*exp_str += "\t\t" ;
+								*exp_str =  *exp_str + "((" + nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) in [-2b-23, 2b-23] /\\ \n"; 
+							}
 							else if(type_val == "_cuda32" && (fn == "log" ))
-								*fout << "0.693147181 * " + fn + "2 ( "; // if we have a ln we want to multiply by ln(2) to transform from 
+							{
+								double x = log(2);
+								*fout <<  x << " * " + fn + "2 ( "; // if we have a ln we want to multiply by ln(2) to transform from 
 																		// ln to log2
+							}
 							else
 								*fout << fn + " ( ";
 						}
