@@ -55,7 +55,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 void ccdfgprocrun(ofstream *fout, string name, Operator *op,int debug_logic=0);
 void ccdfgconstruct(ofstream *fout,string name, Operator *op);
 void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
-string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input = NULL);
+string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input = NULL, bool LHS = false);
 string nodetovarstring(node n, Tree* t);
 string nodetofnstring(node n, Tree* t);
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums); // simplify node name generation for all types of operations

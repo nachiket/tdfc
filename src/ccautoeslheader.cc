@@ -66,10 +66,12 @@ void autoesl_functional_signature(ofstream *fout,
 
 	  //*fout << "\t" << sym->getType()->toString() 
 	//	  << " " << prefix << sym->getName();
-
-		*fout << "\t" << "data_t"
-		  << " " << prefix << sym->getName();
-	
+		
+		//if (sym->getType()->toString() != "boolean")
+			*fout << "\t" << "data_t" << " " << prefix << sym->getName();
+		//else
+			//*fout << "\t" << "bool"  << " " << prefix << sym->getName();
+		
 	  i++;
   }
 

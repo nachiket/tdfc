@@ -728,8 +728,7 @@ void emitMicroblazeC ()
 
 void emitAutoESLC ()
 {
-  // - emit C code for all operators  (-eautoesl option)
-  
+  // - emit C code for all operators  (-eautoesl option)  
   Operator *op;
   forall(op,*(gSuite->getOperators()))
     ccrename(op);

@@ -89,7 +89,12 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 	  Symbol *sum=lsyms->inf(item2);
 	  SymbolVar *asum=(SymbolVar *)sum;
 	  //*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
-	  *fout << "  " << "data_t" << " " << asum->getName() ;
+	  
+	  //if (getCCvarType(asum) != "boolean")
+			*fout << "  " << "data_t" << " " << asum->getName() ;
+	  //else 
+		//	*fout << "  " << "bool" << " " << asum->getName() ;
+	  
 	  Expr* val=asum->getValue();
 	  if (val!=(Expr *)NULL)
 	  { 

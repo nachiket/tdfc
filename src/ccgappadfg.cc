@@ -45,9 +45,9 @@ using leda::node_list;
 using leda::array;
 
 string 	getnodenumber(node n, Tree* t) {
-	cout << "node to var string : " << endl;
-	cout << "\t" << endl;
-	cout << t ? t->toString().replace_all("\n","") : string("<nil>");
+//	cout << "node to var string : " << endl;
+//	cout << "\t" << endl;
+//	cout << t ? t->toString().replace_all("\n","") : string("<nil>");
 	return t ? t->toString().replace_all("\n","") : string("<nil>");
 }
 
@@ -59,18 +59,33 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
       dictionary<string,State*>* states=bop->getStates();
       dic_item item;
 
+	  list<string> *list_input = new list<string>();
+	  list<string> *list_output = new list<string>();
       // declare top level vars
       SymTab *symtab=bop->getVars();
-      //list<Symbol*>* lsyms=symtab->getSymbolOrder();
-      //list_item item2;
-    
+      list<Symbol*>* lsyms=symtab->getSymbolOrder();
+      list_item item2;
+	  
+      forall_items(item2,*lsyms)
+		{
+			Symbol *sum=lsyms->inf(item2);
+			SymbolVar *asum=(SymbolVar *)sum;
+			Expr* val=asum->getValue();
+			if (val!=(Expr *)NULL)
+			{
+				list_input->push(asum->getName());
+				
+		
+			}
+		}
+		
       int icnt=0;
       int ocnt=0;
       //Symbol *rsym=bop->getRetSym();
       list<Symbol*> *argtypes=bop->getArgs();
     
       Symbol *sym;
-      list<string> *list_input = new list<string>();
+      
       forall(sym,*argtypes)
 	{
 	  if (sym->isStream())
@@ -78,7 +93,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 	      SymbolStream *ssym=(SymbolStream *)sym;
 	      if (ssym->getDir()==STREAM_OUT)
 		{
-			list_input->push(sym->getName());
+			list_output->push(sym->getName());
 		  sym->setAnnote(CC_STREAM_ID,(void *)ocnt);
 		  ocnt++;
 		}
@@ -86,34 +101,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 		{
 			
 			list_input->push(sym->getName());
-/*		  *fout << "  " << getCCvarType(sym) << " " 
-			<< sym->getName() << ";" << endl;
-		  sym->setAnnote(CC_STREAM_ID,(void *)icnt);
-		  // Declare and initialize retime chain here
-		  set<Expr *> *rset=
-		    (set <Expr *> *)sym->getAnnote(MAX_RETIME_DEPTH);
-		  set<Expr *> *ncset=new set<Expr *>();
-		  int constmax=0;
-		  Expr *rexp;
-		  if (rset!=(set <Expr *> *)NULL)
-		    {
-		      forall(rexp,*rset)
-			{
-			  if (rexp->getExprKind()==EXPR_VALUE)
-			    {
-			      int eval=((ExprValue *)rexp)->getIntVal();
-			      if (eval>constmax) constmax=eval;
-			    }
-			  else
-			    ncset->insert(rexp);
-			}
-		    }
-		  *fout << "    "
-			<< sym->getName()
-		    // TODO: assign initial values instead of 0
-			<< "=0;" << endl;
-*/
-		  icnt++;
+		    icnt++;
 		}
 	      else
 		{
@@ -129,6 +117,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 			list_input->push(sym->getName());
 		}
 	}
+	
       int *early_free=new int[icnt];
       for (int i=0;i<icnt;i++)
 	early_free[i]=0;
@@ -207,14 +196,24 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 		
 			Tree* t=(dfgVal)[n];
 		
-			cout << "Processing :  " ;
-			cout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << endl;
+			//cout << "Processing :  " ;
+			//cout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << endl;
 			
 			TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
 		
 			//cout << "dfg->indeg(n) = " << dfg->indeg(n) << endl;
 			
 		  	if(!dfg->indeg(n)==0) {
+				
+				if ( nodetostring(n,(dfgVal)[n],nodenums[n], list_input) == "lambda")
+				{
+					cout << "input edges = " << dfg->indeg(n) << endl;
+					if(type!=TYPE_STATE)
+						cout << "type!=TYPE_STATE" << endl;
+					else
+						cout << "type==TYPE_STATE" << endl;
+				} 
+				
 				
 				if(dfg->indeg(n)==3) {
 					
@@ -387,14 +386,22 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 				    }
 				    else
 				    {
+						
+						{
+							
 						if (type_val != "_m")	
-							*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
+						{
+							if (type_val == "_cuda32" && nodetofout(dfg,n,nodenums).contains("multiply"))
+								*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ";
+							else
+								*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ";
+						}
 						else
 						{
-							*fout << nodetofout(dfg,n,nodenums) << type_val << " " <<  " = ( ";
+							*fout << nodetofout(dfg,n,nodenums) << type_val << " " <<  " = ";
 						}
 						
-						 
+						 string RHS = "(";
 						list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 						int edgenum=0;
 						edge e;
@@ -415,19 +422,45 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 						}
 					
 						Tree *tree_temp=(*dfg)[src];
-						*fout << temp;
+						RHS+= temp;
 						if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
 						{
-								*fout << type_val ;
+								RHS+= type_val ;
 						}
 						
-						*fout << " ";
+						RHS += " ";
 					
 						if(edgenum==0) {
-							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
+							string fn = nodetofnstring(n,(dfgVal)[n]);
+							cout << "function : " << nodetofnstring(n,(dfgVal)[n]) << endl; 
+							if (type_val == "_cuda32" && (fn == "*" )) // check for MAC loop
+							{
+								edge ed;
+								bool mac  =false;
+								
+								forall_out_edges (ed,n) 
+								{
+									node dest=(*dfg).target(ed);
+									cout << "functions in dest : " << nodetofnstring(dest,(dfgVal)[dest]) <<  "//" << endl; 
+									
+									if (nodetofnstring(dest,(dfgVal)[dest]) == "+")
+									{
+										mac = true;
+									}
+									
+								}
+								if (mac)
+									RHS = " float<cuda_32,zr>" + RHS + fn +  " ";
+								else
+									RHS += fn + " ";
+							}
+							else
+								RHS += fn + " ";
 						}
 						edgenum++;
 					}
+					*fout << RHS;
+				}
 				}
 					*fout << ");" << endl;
 				} else if(dfg->indeg(n)==1 && type!=TYPE_STATE) {
@@ -435,31 +468,95 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 					// unary operator or function?
 					if (nodetostring(n,(dfgVal)[n],nodenums[n], list_input)(1,5) != "valid" )
 					{
-					
-						if (type_val != "_m")
-							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " << precision <<  " = ";
-						else
-						{
-							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " <<   " = ";
+						
+						bool in =false;
+						string test_out;
+						
+						forall (test_out, *list_input)
+						{	
+							if (nodetostring(n,(dfgVal)[n],nodenums[n], list_input) == test_out)
+								in = true;
 						}
 						
+						
+						//*fout << "\ninput ? " << in << endl;
+						
+						list<string>* list_total = new list<string> ();
+						string test1;
+						forall (test1, *list_input)
+						{	
+							list_total->push(test1);
+						}
+
+						forall (test1, *list_output)
+						{	
+							list_total->push(test1);
+						}
+						
+						// we need a list that contains both input and output variables to not write the identifier on both of these when
+						// the function nodetostring is called.
+						
+						if(!in) // if the variable is in the input or the parameter list then it has already been written and we do not
+								// want to overwrite it
+						{
+					
+						if (type_val != "_m")
+							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_total) << type_val  << " " << precision <<  " = ";
+						else
+						{
+							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_total) << type_val  << " " <<   " = ";
+						}
+
 						
 						if (nodetofnstring(n,(dfgVal)[n]) == "!")
 							*fout << "(1 -  ( ";
 						else
-							*fout << nodetofnstring(n,(dfgVal)[n]) + " ( ";
-						
+						{
+							string fn = nodetofnstring(n,(dfgVal)[n]);						
+							
+							if (type_val == "_cuda32" && (fn == "exp" ))
+								*fout << fn + "2 (1.44269541 * "; // if we have an exponential we want to multiply by log2(e) to transform	
+																	// from exp to exp2
+							else if(type_val == "_cuda32" && (fn == "log" ))
+								*fout << "0.693147181 * " + fn + "2 ( "; // if we have a ln we want to multiply by ln(2) to transform from 
+																		// ln to log2
+							else
+								*fout << fn + " ( ";
+						}
 						edge e=dfg->first_in_edge(n);
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						
 						string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
-						*fout << temp << type_val <<" ";
+						
+						
+						string test;
+						bool found = false;
+						
+						forall (test, *list_input)
+						{	
+							if (temp == test)
+								found = true;
+						}
+					
+						Tree *tree_temp=(*dfg)[src];
+						*fout << temp;
+						if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+						{
+								*fout << type_val ;
+						}
+
+						
+						*fout <<" ";
+						
+						
+						
 						if (nodetofnstring(n,(dfgVal)[n]) == "!")
 							*fout << ")";
 							
 						*fout << ");" << endl;
 					}
+				}
 					
 				} else if(dfg->indeg(n)==1 && type==TYPE_STATE && num_states>1) {
 					// unary operator or function?
@@ -478,7 +575,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 					*fout << ");" << endl;
 				}
 			}
-		  	cout << " finished" << endl;
+		  	//cout << " finished" << endl;
 		  }
 		}
 	}

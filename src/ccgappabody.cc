@@ -91,7 +91,7 @@ int gappa_notation(ofstream *fout,
 
 int ccgappaprocrun(ofstream *fout, string classname, Operator *op, string type,string precision)
 {
-  cout << "\n\n new procrun \n\n " << endl;	
+  //cout << "\n\n new procrun \n\n " << endl;	
   int if_nb = 0;
   
   //bool if_stmt_present = false;
@@ -294,11 +294,11 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
     {
       if(sym->isParam()) 
       {
-		  if (type != "_m")
+		  //if (type != "_m")
 		  {
-			  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;
+			//  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;
 		  }
-		  else 
+		  //else 
 		  {
 			  //cout << "in gappa body number = " << ((SymbolVar*)sym)->getNumber() << endl ; 
 			  if (((SymbolVar*)sym)->getNumber() != "")
@@ -361,6 +361,7 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 	int n = 0; // temporary variable to determine if we have written all
 				// inputs or outputs
 	
+	
 	forall(sym,*argtypes)
     {
 		if (sym->isStream())
@@ -388,6 +389,11 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 		{  
 		  if (((SymbolStream*)sym)->getDir()==STREAM_OUT)
 		  {
+			  
+			  *fout << indent << "((" << sym->getName() + "_cuda32- " +sym->getName() +"_m )/ "  + 
+								sym->getName() + "_m) in [-2b-23, 2b-23] /\\ " << endl; 
+			  
+				
 																 // we should make sure that the outputs
 			  *fout << indent << "(" << sym->getName() + "_m >= 0x1p-53 \\/ "  ; // are never equal to zero
 			  *fout << sym->getName() + "_m <= - 0x1p-53)"; // since we want to have the relative error
