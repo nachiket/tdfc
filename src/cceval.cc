@@ -248,15 +248,20 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 	if ((lexpr->getSymbol()->isStream())
 	    && (((SymbolStream *)(lexpr->getSymbol()))->getDir()==STREAM_IN))
 	{
-	  if(cuda)
+
+	//cout << "name=" << lexpr->getSymbol()->getName() << "cuda=" << cuda << endl;
+
+	  if(cuda) {
 	    name=retimeName(lexpr->getSymbol()->getName(),
 			  lexpr->getRetime(), retime, cuda)+string("[idx]");
-	  if (gappa)
+	  } else if (gappa) {
+		  // Miss Helene Martorelle introudced a CUDA bug :P
 		name=retimeName(lexpr->getSymbol()->getName(),
 			  lexpr->getRetime(), retime, cuda)+type;
-	  else
+	  } else {
 		name=retimeName(lexpr->getSymbol()->getName(),
 			  lexpr->getRetime(), retime, cuda);
+	  }
 	}
 	else {
 		// 21/8/2011 - Nachiket - Array subscripts need to be extracted if present..
