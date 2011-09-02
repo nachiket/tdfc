@@ -292,15 +292,22 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 	  if (sym->isStream())
 	  {
 		  
+		  
 		  if (((SymbolStream*)sym)->getDir()==STREAM_IN)
 		  {
-			  if (type != "_m")
+			  
+			  if (sym->getType()->toString() == "boolean")
+				 *fout << sym->getName() << type <<" = "<< "fixed<-1,ne>" << "(" << sym->getName() <<  ");"<<endl;
+			  else
 			  {
-				  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  "_m);"<<endl;
-			  }
-			  else 
-			  {
-				  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;			  
+				  if (type != "_m")
+				  {
+					  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  "_m);"<<endl;
+				  }
+				  else 
+				  {
+					  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;			  
+				  }
 			  }
 		  }
 	  }

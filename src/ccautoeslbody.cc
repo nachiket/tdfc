@@ -231,22 +231,26 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log)
   
   if (*exp)
   {
-	  *fout << "void exp_flopoco(double in, double *out)" << endl;
+	  //*fout << "void exp_flopoco(double in, double *out)" << endl;
+	  *fout << "double exp_flopoco(double in)" << endl;
 	  *fout << "{" << endl;
-	  *fout << "\t*out = in;" << endl;
+	  //*fout << "\t*out = in;" << endl;
+	  *fout << "\treturn in;" << endl;
 	  *fout << "}" << endl;
   }
   
   
   if (*log)
   {
-	  *fout << "void log_flopoco(double in, double *out)" << endl;
+	  //*fout << "void log_flopoco(double in, double *out)" << endl;
+	  *fout << "double log_flopoco(double in)" << endl;
 	  *fout << "{" << endl;
-	  *fout << "\t*out = in;" << endl;
+	  //*fout << "\t*out = in;" << endl;
+	  *fout << "\treturn in;" << endl;
 	  *fout << "}" << endl;
   }
   
-  if (log)
+  
 
   // close up
   fout->close();

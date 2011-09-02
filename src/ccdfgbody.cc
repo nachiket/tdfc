@@ -1499,12 +1499,12 @@ string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input) {
 		}
 	}
 	
-	if ((t->getKind()==TREE_EXPR))
+	/*if ((t->getKind()==TREE_EXPR))
 		cout << "tree is TREE_EXPR" << endl;
 	
 	if (((Expr*)t)->getExprKind()==EXPR_VALUE)
 		cout << "expr kind is EXPR_VALUE" << endl;
-						
+		*/				
 	if(!((t->getKind()==TREE_EXPR) && (((Expr*)t)->getExprKind()==EXPR_VALUE)) && !found)  
 	//if (!found)
 		ret += "_"+string(out.str().c_str());

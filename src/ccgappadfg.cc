@@ -177,9 +177,9 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 	    
 		else if (sym->isParam())
 		{
-			cout << endl;
-			cout << "\tparameter  : " << sym->getName()<< endl; 
-			cout << endl;
+			//cout << endl;
+			//cout << "\tparameter  : " << sym->getName()<< endl; 
+			//cout << endl;
 			list_input->push(sym->getName());
 		}
 	}
@@ -266,13 +266,13 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 			
 			TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
 		
-			cout << "dfg->indeg(n) = " << dfg->indeg(n) << endl;
+			//cout << "dfg->indeg(n) = " << dfg->indeg(n) << endl;
 			
 		  	if(!dfg->indeg(n)==0) {
 				
 				if(dfg->indeg(n)==3) {
 					
-					cout << "dfg->indeg(n)==3" << endl;
+					//cout << "dfg->indeg(n)==3" << endl;
 					
 					// if operator
 					//*fout << "          // IF Node: Type=" << typekindToCplusplus(type) << endl;
@@ -285,7 +285,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					string ifstr=" ";
 					string temp = "";
 					bool true_m = false;
-					forall (e,dfg_in_edges_n) {
+					forall_in_edges (e, n) {
 						node src=(*dfg).source(e);
 						if ( nodetofout(dfg, src, nodenums) == "true")
 							true_m = true;
@@ -293,10 +293,15 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					if ( !true_m)
 					{
 					
-					*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
+					if (type_val != "_m")
+						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
+					else 
+						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << " = ";
+					
+
 					string name = nodetofout(dfg, n, nodenums);
 					
-					forall (e,dfg_in_edges_n) {
+					forall_in_edges (e, n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						
@@ -307,6 +312,8 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 						} else if(edgenum==2) {
 							cout << nodetofout(dfg, src, nodenums) + "--edge2";
 						}
+						
+						//cout << " edgenum = " << edgenum << endl; 
 						
 						if(edgenum==0) {
 							temp = nodetofout(dfg, src, nodenums) + type_val;
@@ -368,14 +375,19 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					// if operator
 					//*fout << "          // IF ? Node: Type=" << typekindToCplusplus(type) << endl;
 					//*fout << "          " << typekindToCplusplus(type) << " ";
-					*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
+					if (type_val !="_m")
+						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
+					else
+						*fout << nodetofout(dfg, n, nodenums) << type_val << " " <<  " = ";
+
 					string name = nodetofout(dfg, n, nodenums);
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					int edgenum=0;
 					edge e;
 					string ifstr=" ";
 					string temp;
-					forall (e,dfg_in_edges_n) {
+					//forall (e,dfg_in_edges_n) {
+						forall_in_edges (e,n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						/*if(edgenum==0) {
@@ -442,7 +454,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					
 					// binary operator
 					//*fout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
-					cout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
+					//cout << "          // Binary Node: Type=" << typekindToCplusplus(type) << endl;
 					//*fout << "          " << typekindToCplusplus(type) << " ";
 					if (typekindToCplusplus(type) == "bool")
 					{
@@ -453,20 +465,32 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					
 					Tree* tmp=(*dfg)[n];
 					*fout << "#" <<  getnodenumber(n, tmp) <<  " is cond" << number << endl; 
-					*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
+					//if (type_val!="_m")
+						//*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
+					//else
+					{
+						*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ( ";
+					}
 					
-					 *fout << "cond" << number;
+					
+					 *fout << "fixed<-1,ne> (cond" << number << ")";
 					 
 					 (*if_nb)++;
 				    }
 				    else
 				    {
-						*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
+						if (type_val != "_m")	
+							*fout << nodetofout(dfg,n,nodenums) << type_val << " " << precision << " = ( ";
+						else
+						{
+							*fout << nodetofout(dfg,n,nodenums) << type_val << " " <<  " = ( ";
+						}
+						
 						 
 						list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 						int edgenum=0;
 						edge e;
-						forall (e,dfg_in_edges_n) {
+						forall_in_edges (e,n) {
 					
 						// - examine inputs of n
 						node src=(*dfg).source(e);
@@ -484,7 +508,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 								found = true;
 						}
 												
-						cout << temp << endl;
+						//cout << temp << endl;
 						Tree *tree_temp=(*dfg)[src];
 						*fout << temp;
 						if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
@@ -514,7 +538,13 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 					if (nodetostring(n,(dfgVal)[n],nodenums[n], list_input)(1,5) != "valid" )
 					{
 						//*fout << nodetofout(dfg,n,nodenums) << type_val  << " " << precision <<  " = ";
-						*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " << precision <<  " = ";
+						if (type_val != "_m")
+							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " << precision <<  " = ";
+						else
+						{
+							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_input) << type_val  << " " <<   " = ";
+						}
+						
 						
 						if (nodetofnstring(n,(dfgVal)[n]) == "!")
 							*fout << "(1 -  ( ";
@@ -549,7 +579,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type_va
 
 					list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 					edge e;
-					forall (e,dfg_in_edges_n) {
+					forall_in_edges (e,n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						// @2/12/2010 apply prefix at right code point... *fout << "STATE_" << nodetofout(dfg, src, nodenums) << " ";
