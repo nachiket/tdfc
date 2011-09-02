@@ -394,7 +394,14 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 		{  
 		  if (((SymbolStream*)sym)->getDir()==STREAM_OUT)
 		  {
-			  
+			  if ( ((SymbolStream*)sym)->getRange() != "" )
+			  {
+				*fout << indent << sym->getName() + "_m in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+				*fout << indent << sym->getName() + "_fl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+				*fout << indent << sym->getName() + "_dbl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+				*fout << indent << sym->getName() + "_cuda32 in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+				*fout << indent << sym->getName() + "_fx in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+			  }
 			/*  *fout << indent << "((" << sym->getName() + "_cuda32- " +sym->getName() +"_m )/ "  + 
 								sym->getName() + "_m) in [-2b-23, 2b-23] /\\ " << endl; 
 			  

@@ -524,15 +524,28 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 																	// from exp to exp2
 								if (*exp_str != "")
 									*exp_str += "\t\t" ;
-								*exp_str =  *exp_str + "((" + nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+								*exp_str =  *exp_str + "(((" + nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
-										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) in [-2b-23, 2b-23] /\\ \n"; 
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) >= 2b-23 \\/ " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) <= -2b-23) /\\  \n" ;
 							}
 							else if(type_val == "_cuda32" && (fn == "log" ))
 							{
 								double x = log(2);
 								*fout <<  x << " * " + fn + "2 ( "; // if we have a ln we want to multiply by ln(2) to transform from 
 																		// ln to log2
+																		
+								if (*exp_str != "")
+									*exp_str += "\t\t" ;
+								*exp_str =  *exp_str + "(((" + nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) >= 2b-23 \\/ " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
+										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) <= -2b-23) /\\ \n";
+					
 							}
 							else
 								*fout << fn + " ( ";
