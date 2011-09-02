@@ -1467,7 +1467,7 @@ void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int
 		Tree *t=(*dfg)[n];
  *
  */
-string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input) {
+string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input, bool LHS) {
 	std::stringstream out;
 	out << nodenum;
 //	std::string str;
@@ -1505,9 +1505,18 @@ string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input) {
 	if (((Expr*)t)->getExprKind()==EXPR_VALUE)
 		cout << "expr kind is EXPR_VALUE" << endl;
 		*/				
+	
 	if(!((t->getKind()==TREE_EXPR) && (((Expr*)t)->getExprKind()==EXPR_VALUE)) && !found)  
-	//if (!found)
 		ret += "_"+string(out.str().c_str());
+	
+	else if (found && LHS)
+	{
+
+		list_input->remove(ret);			
+		ret += "_"+string(out.str().c_str());
+		
+	}
+		
 	return ret;
 }
 

@@ -163,7 +163,7 @@ void cccudaprocrun(ofstream *fout, string classname, Operator *op)
 	      forall(stmt,*(acase->getStmts()))
 		{
 		  ccStmt(fout,string("          "),stmt,early_close,
-			 STATE_PREFIX,0, false, false, true, classname); // 0 was default for ccStmt.h
+			 STATE_PREFIX,0, false, false, true, false, classname); // 0 was default for ccStmt.h
 			 // added false to remove retiming
 		}
 	     

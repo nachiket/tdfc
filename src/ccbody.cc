@@ -297,6 +297,7 @@ void ccCompose (ofstream *fout, string name, OperatorCompose *op)
     {
       Symbol *asum=lsyms->inf(item);
       syms->insert(asum);
+		cout << asum->getName() << " is an array." << endl;
       *fout << "    " << getCCtype(asum,1) << " " << asum->getName()
 	    << ";" << endl;
       
@@ -819,11 +820,30 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	{
 	  Symbol *sum=lsyms->inf(item2);
 	  SymbolVar *asum=(SymbolVar *)sum;
-	  *fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
 	  Expr* val=asum->getValue();
-	  if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
-	  *fout << ";" << endl;
+
+	  // 21/8/2011 - Nachiket - Needs to support SEGMENT initializations
+	  // C++ implementations use (long long) types to support segments..
+	  if(!sum->isArray()) {
+	  	*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
+	  	if (val!=(Expr *)NULL)
+	      		*fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
+	  	*fout << ";" << endl;
+	  } else { 
+	  	if(val && val->getExprKind()==EXPR_ARRAY) {
+			ExprArray *earr =(ExprArray *)val;
+			list<Expr *>*elist=earr->getExprs();
+			// this is for supporting ARRAY types with initialized values..
+			*fout << "  long long " << asum->getName() << 
+				"["<< elist->size() <<"]";
+		} else {
+		    fatal(-1,"tdfc is not supporting uninitialized arrays.");	
+		}
+
+	  	if (val!=(Expr *)NULL)
+	      		*fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
+	  	*fout << ";" << endl;
+	  }
 	}
 
       // declare/initialize retiming slots for input streams

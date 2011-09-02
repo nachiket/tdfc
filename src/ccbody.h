@@ -46,16 +46,16 @@ void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
-void ccgappabody(Operator *op);
+void ccgappabody(Operator *op, bool OO = false);
 bool ccCheckRanges(Operator *op);
 
-void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type, string precision, int *if_nb,int debug_logic = 0);
-//void ccgappadfgprocrun(ofstream *fout, string name, Operator *op, string type, string precision, int debug_logic = 0);
+void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type, string precision, int *if_nb,string* exp = NULL);
+
 
 void ccdfgprocrun(ofstream *fout, string name, Operator *op,int debug_logic=0);
 void ccdfgconstruct(ofstream *fout,string name, Operator *op);
 void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
-string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input = NULL);
+string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input = NULL, bool LHS = false);
 string nodetovarstring(node n, Tree* t);
 string nodetofnstring(node n, Tree* t);
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums); // simplify node name generation for all types of operations

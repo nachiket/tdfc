@@ -268,8 +268,9 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    /* don't have to handle retime here since it shouldn't appear */
 
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
+	    // 22/8/2011 - Nachiket - LHS assignment also needs appropriate index
 	    if (lval->usesAllBits())
-	      *fout<<indent<<asym->getName()<<"="
+	      *fout<<indent<<lval->toString()<<"="
 		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log)<<";"<<endl;
 	    else
 	      {
