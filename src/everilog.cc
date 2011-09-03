@@ -3294,8 +3294,9 @@ void tdfToVerilog_fsm_dp_toFile (OperatorBehavioral *op, EVerilogInfo *info)
   fout << comment;
 
   // - includes
-  fout << "`include \"" + fileName_fsm + "\"\n";
-  fout << "`include \"" + fileName_dp  + "\"\n\n";
+// Removed includes for keeping XST happy - 3rd September 2011 - Nachiket 
+//  fout << "`include \"" + fileName_fsm + "\"\n";
+//  fout << "`include \"" + fileName_dp  + "\"\n\n";
 
   // - Verilog module
   fout << tdfToVerilog_fsm_dp_toString(op,info);
@@ -3303,6 +3304,23 @@ void tdfToVerilog_fsm_dp_toFile (OperatorBehavioral *op, EVerilogInfo *info)
   fout.close();
 }
 
+// 3rd September 2011: Nachiket
+void tdfToUCF(OperatorBehavioral *op, EVerilogInfo *info) 
+{
+  // - emit UCF constraints for file
+
+  string fileName_ucf = op->getName() + ".ucf";
+  
+  ofstream fout(fileName_ucf);
+  if (!fout)
+    fatal(1,"-everilog could not open output file "+fileName_ucf);
+  
+  fout << "NET \"clock\" PERIOD=2.5ns;" << endl;
+  fout << "INST \"" << op->getName() << "\" AREA_GROUP = \"pblock_1\";" << endl;
+  fout << "AREA_GROUP \"pblock_1\" RANGE=SLICE_X0Y0:SLICE_X?Y?;" << endl;
+
+  fout.close();
+}
 
 void tdfToVerilog_toFile (OperatorBehavioral *op)
 {
@@ -3316,6 +3334,9 @@ void tdfToVerilog_toFile (OperatorBehavioral *op)
   tdfToVerilog_fsm_toFile   (op,&info);
   tdfToVerilog_dp_toFile    (op,&info);
   tdfToVerilog_fsm_dp_toFile(op,&info);
+
+  // 3rd September 2011: Nachiket writing out dummy best-guess UCF constraints
+  tdfToUCF(op, &info);
 }
 
 
