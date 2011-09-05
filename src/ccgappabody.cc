@@ -532,6 +532,15 @@ bool ccCheckRanges(Operator *op)
 			  }
 		  }
 	    }
+	    
+	    if (sym->isParam())
+		{  
+			if (((SymbolVar*)sym)->getNumber() == "")
+			{
+				 cout << "error : the value for parameter \"" << sym->getName() << "\" was not specified" << endl;
+				  return false;
+			}
+		}
 	}
 	return true;
 }
