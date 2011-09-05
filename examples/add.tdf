@@ -8,6 +8,4 @@ add(input double a[4,5], input double b[0,0.7], input boolean c, output double d
 			d=a-b;		
 		}
 
-
-
 }

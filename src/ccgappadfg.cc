@@ -242,6 +242,17 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 					forall_in_edges (e, n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
+						/* 
+						if(edgenum==0) {
+							cout << nodetofout(dfg, src, nodenums) + "--edge0";
+						} else if(edgenum==1) {
+							cout << nodetofout(dfg, src, nodenums) + "--edge1";
+						} else if(edgenum==2) {
+							cout << nodetofout(dfg, src, nodenums) + "--edge2";
+						}
+						*/
+						
+						//cout << " edgenum = " << edgenum << endl; 
 						
 						if(edgenum==0) {
 							temp = nodetofout(dfg, src, nodenums) + type_val;

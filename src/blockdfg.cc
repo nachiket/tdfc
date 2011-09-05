@@ -373,9 +373,9 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 		ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
 		node srcnew=(*newdfg).new_node(trueVal);
 
-		(*newdfg).new_edge(srcnew, nnew);
-		(*newdfg).new_edge(srcnew, nnew);
-		(*newdfg).new_edge(srcnew, nnew);
+		(*newdfg).new_edge(srcnew, nnew, NULL);
+		(*newdfg).new_edge(srcnew, nnew, NULL);
+		(*newdfg).new_edge(srcnew, nnew, NULL);
 		return;
 	}
 
@@ -393,34 +393,34 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 			Tree* tsrcnew=tsrc->duplicate();
 			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && fanin.size()==3) {
 			//cout << "EXPR_COND has 3 inputs.. output will always be driven!" << endl;
 			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
 			node srcnew=(*newdfg).new_node(trueVal);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			break;
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && edge_count==0) {
 			Tree* tsrcnew=tsrc->duplicate();
 			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
 			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)tsrc)->getExprKind()==EXPR_COND) {
 			Tree* tsrcnew=tsrc->duplicate();
 			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
 			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, false);	
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)tsrc)->getExprKind()!=EXPR_COND) {
 			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
 			node srcnew=(*newdfg).new_node(trueVal);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 		}
 
 		edge_count++;
@@ -429,7 +429,7 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 	if(addfalse) {
 		ExprValue* falseVal=new ExprValue(NULL,new Type(TYPE_BOOL),0,0);
 		node srcnew=(*newdfg).new_node(falseVal);
-		(*newdfg).new_edge(srcnew, nnew);
+		(*newdfg).new_edge(srcnew, nnew, NULL);
 	}
 }
 
@@ -586,7 +586,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  ExprValue* gotoStateVal = new ExprValue(NULL, gotoState->getName());
 			  node gotonode = (*dfgi->dfg).new_node(gotoStateVal);
 			  (*dfgi->nodemap)[gotoStateVal]=gotonode;
-			  (*dfgi->dfg).new_edge(gotonode, statenode);
+			  (*dfgi->dfg).new_edge(gotonode, statenode, NULL);
 
 //			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->getName() << endl;
 
@@ -1402,7 +1402,7 @@ void initialize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 	ExprValue* currentStateVal = new ExprValue(NULL, dfgi->sc->getStateName());
 	node currentnode = dfg->new_node(currentStateVal);
 	(*nodemap)[currentStateVal]=currentnode;
-	dfg->new_edge(currentnode, nextstate);
+	dfg->new_edge(currentnode, nextstate, NULL);
 
 	StmtAssign* t1=new StmtAssign(NULL, nextstate_dummylval, currentnode);
 	(*livedefs)[nextstate_sym]=t1;
@@ -1423,7 +1423,7 @@ void initialize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 		ExprLValue* defaultVal = new ExprLValue(NULL, localsym);
 		node defaultnode = dfg->new_node(defaultVal);
 		(*nodemap)[defaultVal]=defaultnode;
-		dfg->new_edge(defaultnode, localvarnode);
+		dfg->new_edge(defaultnode, localvarnode, NULL);
 
 		// Why didn't we just initialize this as an assignment?
 		StmtAssign* t2=new StmtAssign(NULL, localvar_dummylval, defaultnode);

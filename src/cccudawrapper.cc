@@ -203,6 +203,7 @@ void cccudawrapper (Operator *op)
   *fout << "#endif" << endl << endl;
 
   // Print results
+  *fout << "#ifndef PERF" << endl;
   *fout << "  // Print results (typecasted to prevent printf errors)" << endl;
   *fout << "  printf(\"" << name << ":\\n\");" << endl;
   forall(sym,*argtypes)
@@ -214,6 +215,7 @@ void cccudawrapper (Operator *op)
 		<< sym->getName() << "_h[i]);" << endl;
 	}
   }
+  *fout << "#endif" << endl << endl;
   *fout << endl;
 
   // Cleanup
