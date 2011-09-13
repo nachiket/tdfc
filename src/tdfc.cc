@@ -740,8 +740,10 @@ void emitAutoESLC ()
     // TODO: eventually move flatten here
     bool exp = false; 
     bool log = false;
-    ccautoeslbody(op , &exp, &log);
-    ccautoeslheader(op, exp, log); 
+    bool div = false; 
+    // Nachiket asks on 14th Sept 2011: Helene, why aren't we just using autoesl boolean flag?
+    ccautoeslbody(op , &exp, &log, &div);
+    ccautoeslheader(op, exp, log, div); 
     ccautoeslwrapper(op); 
     ccautoesltcl(op); 
     ccautoeslmake(op);

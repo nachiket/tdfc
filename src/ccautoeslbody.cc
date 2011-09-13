@@ -67,7 +67,7 @@ using std::ofstream;
 // procrun for master instance
 ////////////////////////////////////////////////////////////////////////
 
-void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp, bool *log)
+void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp, bool *log, bool *div)
 {
 	
   if (op->getOpKind()==OP_COMPOSE)
@@ -156,7 +156,7 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 	      forall(stmt,*(acase->getStmts()))
 		{
 		  ccStmt(fout,string("\t"),stmt,early_close,
-			 STATE_PREFIX,0, false, false, false, true, classname, exp, log);
+			 STATE_PREFIX,0, false, false, false, true, classname, exp, log, div);
 		}
 	    }
 	  // default case will be to punt out of loop (exit/done)
@@ -190,7 +190,7 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 ////////////////////////////////////////////////////////////////////////
 // Top level routine to create master C++ code
 ////////////////////////////////////////////////////////////////////////
-void ccautoeslbody (Operator *op, bool *exp, bool *log)
+void ccautoeslbody (Operator *op, bool *exp, bool *log, bool *div)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
@@ -234,7 +234,7 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log)
   // autoesl only uses functional versions
   *fout << "void " << classname << "(" << endl ;
   autoesl_functional_signature(fout,name,rsym,argtypes,"");
-  ccautoeslprocbody(fout,name,op, exp, log);
+  ccautoeslprocbody(fout,name,op, exp, log, div);
   
   if (*exp)
   {
@@ -251,6 +251,16 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log)
   {
 	  //*fout << "void log_flopoco(double in, double *out)" << endl;
 	  *fout << "data_t log_flopoco(data_t in)" << endl;
+	  *fout << "{" << endl;
+	  //*fout << "\t*out = in;" << endl;
+	  *fout << "\treturn in*in;" << endl;
+	  *fout << "}" << endl;
+  }
+  
+  if (*div)
+  {
+	  //*fout << "void log_flopoco(double in, double *out)" << endl;
+	  *fout << "data_t div_flopoco(data_t in)" << endl;
 	  *fout << "{" << endl;
 	  //*fout << "\t*out = in;" << endl;
 	  *fout << "\treturn in*in;" << endl;

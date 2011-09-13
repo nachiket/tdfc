@@ -108,7 +108,7 @@ void autoesl_functional_constructor(ofstream *fout,
   *fout << "\n)" << endl;
 }
 
-void ccautoeslheader (Operator *op, bool exp, bool log)
+void ccautoeslheader (Operator *op, bool exp, bool log, bool div)
 {
   
   string name=op->getName();
@@ -137,13 +137,20 @@ void ccautoeslheader (Operator *op, bool exp, bool log)
   
   *fout << "typedef double data_t;" << endl;
   
-  if (exp)
+  if (exp) {
 	//*fout << "void exp_flopoco( double in, double *out); " << endl;
 	*fout << "data_t exp_flopoco( data_t in); " << endl;
+  }
 	
-  if (log)
+  if (log) {
 	//*fout << "void log_flopoco( double in, double *out); " << endl;
 	*fout << "data_t log_flopoco( data_t in); " << endl;
+  }
+
+  if(div) {
+	//*fout << "void log_flopoco( double in, double *out); " << endl;
+	*fout << "data_t div_flopoco( data_t in); " << endl;
+  }
 
   *fout << "void " << classname << "(\n" ;
 //  autoesl_constructor_signatures(fout,rsym,argtypes, true);

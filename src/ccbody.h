@@ -40,7 +40,7 @@ using leda::node_list;
 void ccbody(Operator *op,int debug_logic);
 void ccdfgbody(Operator *op, int debug_logic);
 void ccmicroblazebody(Operator *op);
-void ccautoeslbody(Operator *op, bool *exp, bool *log);
+void ccautoeslbody(Operator *op, bool *exp, bool *log, bool *div);
 void ccautoeslwrapper(Operator* op);
 void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op);
