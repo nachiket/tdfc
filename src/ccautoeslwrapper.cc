@@ -200,7 +200,7 @@ void ccautoeslwrapper (Operator *op)
 /**
  * TCL script
  */
-void ccautoesltcl (Operator *op)
+void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
 {
   
   string name=op->getName();
@@ -228,6 +228,14 @@ void ccautoesltcl (Operator *op)
   *fout << "add_library		xilinx/virtex6/virtex6_fpv5" << endl; 
   *fout << "add_library		xilinx/virtex6/virtex6" << endl; 
   *fout << "create_clock	-period 3ns" << endl; 
+  if(exp)
+	  *fout << "set_directive_inline -off exp_flopoco" << endl; 
+  if(log)
+	  *fout << "set_directive_inline -off log_flopoco" << endl; 
+  if(div)
+	  *fout << "set_directive_inline -off divide_flopoco" << endl; 
+
+
   *fout << "elaborate -lm" << endl; 
   *fout << "autosyn" << endl; 
   *fout << "automg" << endl; 

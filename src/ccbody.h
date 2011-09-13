@@ -43,7 +43,7 @@ void ccmicroblazebody(Operator *op);
 void ccautoeslbody(Operator *op, bool *exp, bool *log, bool *div);
 void ccautoeslwrapper(Operator* op);
 void ccautoeslmake(Operator* op);
-void ccautoesltcl(Operator* op);
+void ccautoesltcl(Operator* op, bool exp, bool log, bool div);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
 void ccgappabody(Operator *op, bool OO = false);
