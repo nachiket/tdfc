@@ -371,9 +371,9 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 
 	string istr0=ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type, autoesl, expo, log, div);
 	string istr1=ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type, autoesl, expo, log, div);
-	if (autoesl && (ops == "divide"))
+	if (autoesl && (ops == "/"))
 	{
-		if (div != NULL && ops == "divide")
+		if (div != NULL && ops == "/")
 			*div = true;
 		return("div_flopoco("+istr0+","+istr1+")");
 	} else {
