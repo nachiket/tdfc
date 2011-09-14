@@ -149,7 +149,7 @@ void ccautoeslheader (Operator *op, bool exp, bool log, bool div)
 
   if(div) {
 	//*fout << "void log_flopoco( double in, double *out); " << endl;
-	*fout << "data_t div_flopoco( data_t in); " << endl;
+	*fout << "data_t div_flopoco( data_t in0, data_t in1); " << endl;
   }
 
   *fout << "void " << classname << "(\n" ;

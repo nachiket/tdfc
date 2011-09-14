@@ -233,7 +233,7 @@ void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
   if(log)
 	  *fout << "set_directive_inline -off log_flopoco" << endl; 
   if(div)
-	  *fout << "set_directive_inline -off divide_flopoco" << endl; 
+	  *fout << "set_directive_inline -off div_flopoco" << endl; 
 
 
   *fout << "elaborate -lm" << endl; 
