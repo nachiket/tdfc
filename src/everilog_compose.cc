@@ -298,8 +298,8 @@ void tdfToVerilog_compose_scanTdf (OperatorCompose *op,
 
   // - Ensure composition is either netlist or page
   int opIsNetlist = !info->composeCalls.empty() && info->behavCalls.empty();
-  int opIsPage    = !info->behavCalls.empty()   && info->composeCalls.empty();
-  if (!opIsNetlist && !opIsPage)
+  int opIsPage    = (!info->behavCalls.empty()   && info->composeCalls.empty());
+  if (!opIsNetlist && !opIsPage && info->segmentCalls.empty())
     fatal(1, "-everilog cannot handle compositional op "+op->getName()+", "
 	     "expecting either a netlist (that calls no behavioral ops) "
 	     "or a page (that calls no compositional ops)", op->getToken());
