@@ -83,4 +83,4 @@ void autoesl_functional_constructor(ofstream *fout,string name,
 			    string classname,Symbol *rsym,
 			    list<Symbol*> *argtypes);
 
-void ccautoeslheader(Operator *op, bool exp, bool log);
+void ccautoeslheader(Operator *op, bool exp, bool log, bool div);

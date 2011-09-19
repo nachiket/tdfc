@@ -538,7 +538,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 								*exp_str =  *exp_str + "(((" + nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) >= 2b-23 \\/ " +
-										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+										"((" +nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) <= -2b-23) /\\  \n" ;
 							}
@@ -553,7 +553,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 								*exp_str =  *exp_str + "(((" + nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) >= 3b-23 \\/ " +
-										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
+										"((" +nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_m - " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) / " +
 										nodetostring(n,(dfgVal)[n],nodenums[n], list_total) + "_cuda32) <= -3b-23) /\\ \n";
 					
