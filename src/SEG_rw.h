@@ -56,15 +56,15 @@ module SEG_rw (clock, reset, addr_d, addr_e, addr_v, addr_b, dataR_d, dataR_e, d
    input     clock;\n\
    input     reset;\n\
    \n\
-   input  [addw_width-1:0] addr_d;\n\
+   input  [awidth-1:0] addr_d;\n\
    input  addr_e; \n\
    input  addr_v;\n\
    output addr_b;\n\
-   output [data_width-1:0] dataR_d;\n\
+   output [dwidth-1:0] dataR_d;\n\
    output dataR_e;\n\
    output dataR_v;\n\
    input  dataR_b;\n\
-   input  [data_width-1:0] dataW_d;\n\
+   input  [dwidth-1:0] dataW_d;\n\
    input  dataW_e;\n\
    input  dataW_v;\n\
    output dataW_b;\n\
