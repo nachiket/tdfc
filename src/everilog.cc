@@ -75,6 +75,9 @@
 //       - apps:  (1<<x) is 0, should be (ONE<<x) with ONE of wide type
 
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "expr.h"
 #include "expr.h"
 #include "state.h"
 #include <LEDA/core/d_array.h>
@@ -1145,6 +1148,32 @@ void addEmptyLine (string *s)
     *s += "\n";
 }
 
+string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
+					   EVerilogInfo *info)
+{
+  // - emit parameter list for Verilog behavioral op module:
+
+  string ret;
+
+  ret = "#(";
+
+  // - module declaration:  stream I/O
+  list<Symbol*> args = args_with_retsym_first(op);
+  Symbol *arg;
+  forall (arg, args) {
+    if (arg->isParam()) {
+      // - params should already be bound, ignore
+      Expr* e_val = ((SymbolVar*)arg)->getValue();
+      if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
+	      ret += "." + ((SymbolVar*)arg)->toString() + " = " + string(((ExprValue*)e_val)->getIntVal()) + ",";
+      }
+      continue;
+    }
+  }
+  
+  ret += ") ";
+  return ret;
+}
 
 string tdfToVerilog_fsm_dp_args_toString  (OperatorBehavioral *op,
 					   EVerilogInfo *info)
@@ -3391,12 +3420,17 @@ void tdfToVerilog_segrw_toFile (Operator *op)
 
   fout << endl;
 
+  int DEPTH=0;
+  int ADDR_WIDTH=0;
+  int DATA_WIDTH=0;
 
   // TODO: Add instantiation of SEG_rw..
-  ret = indent + "SEG_rw(" + CLOCK_NAME + ", " + RESET_NAME + ", ";
-  ret += tdfToVerilog_fsm_dp_args_toString((OperatorBehavioral*)op,&info);	
-  ret += indent + ");";
-  fout << ret;
+  fout << indent + "SEG_rw ";
+  fout << tdfToVerilog_fsm_dp_params_toString((OperatorBehavioral*)op,&info);
+  
+  fout << "(" << CLOCK_NAME << ", " << RESET_NAME << ", ";
+  fout << tdfToVerilog_fsm_dp_args_toString((OperatorBehavioral*)op,&info);	
+  fout << indent << ");";
   
   fout << endl;
 
@@ -3404,6 +3438,7 @@ void tdfToVerilog_segrw_toFile (Operator *op)
   indent = indent(0,indent.length()-1-2);
   ret = indent + "endmodule  // " + op->getName() + "\n";
   fout << ret;
+  fout << endl;
 
   fout.close();
 }
