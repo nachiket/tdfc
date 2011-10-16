@@ -622,7 +622,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 //			  cout << "--Dealing with an IF statement " << &t << " in DFG " << dfgi << endl;
 			  //cout << ((StmtIf*)t)->toString() << endl;
 
-    	      Expr *ec=((StmtIf*)t)->getCond();
+			  Expr *ec=((StmtIf*)t)->getCond();
 
 			  //createBlockDfg_for_expr(ec,dfgi,n);
 			  Stmt *thenPart=((StmtIf*)t)->getThenPart();

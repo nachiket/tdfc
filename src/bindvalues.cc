@@ -130,8 +130,9 @@ ExprValue *newExprValue_int (Token *token, Type *type, long long val)
       else if (val<0)
 	newval = val |  (-1ll << (width-1));	// - set sign-extensn bits to 1
     }
-    else
+    else {
 	newval = val & ~(-1ll << width);	// - set high-order bits to 0
+    }
   }
 
   if (newval!=val)

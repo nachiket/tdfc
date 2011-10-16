@@ -65,6 +65,8 @@
 #include "Q_lowqli_in_r_p_srl_r.h"
 #include "Q_lowqli_out_r_p_srl_r.h"
 
+#include "SEG_rw.h" // 16/Oct/2011
+
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
 //#include <LEDA/core/map.h>
@@ -1541,6 +1543,32 @@ string tdfToVerilog_composeTop_toString (OperatorCompose *op,
   return ret;
 }
 
+////////////////////////////////////////////////////////////////
+//  tdfToVerilog_..._toFile  (emit to files)
+
+void tdfToVerilog_base_segment_toFile (const char* fileName,
+				     const char* fileContent)
+{
+  // - emit Verilog base segment implementation "SEG_xxx.v"
+  //     by writing *fileContent into file named *fileName*
+  //     in current directory
+
+  ofstream fout(fileName);
+  if (!fout)
+    fatal(1,"-everilog could not open output file "+string(fileName));
+
+  // - comment
+  string comment = "// Verilog base segment " + string(fileName) + "\n"
+                   "// " + tdfcComment() + "\n";
+  fout << comment;
+
+  // - Verilog module
+  fout << fileContent;
+
+  fout.close();
+}
+
+
 
 ////////////////////////////////////////////////////////////////
 //  tdfToVerilog_..._toFile  (emit to files)
@@ -1567,9 +1595,15 @@ void tdfToVerilog_base_queue_toFile (const char* fileName,
   fout.close();
 }
 
+void tdfToVerilog_base_segments_toFile ()
+{
+  // also write segments
+  tdfToVerilog_base_segment_toFile("SEG_rw.v",	     	     SEG_rw);
+}
 
 void tdfToVerilog_base_queues_toFile ()
 {
+
   tdfToVerilog_base_queue_toFile("Q_blackbox.v",	     Q_blackbox);
   tdfToVerilog_base_queue_toFile("Q_wire.v",		     Q_wire);
   tdfToVerilog_base_queue_toFile("Q_srl.v",		     Q_srl);		  // Q_srl_oreg3_prefull.v
@@ -1816,6 +1850,7 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
   tdfToVerilog_compose_scanTdf(op,&info);
 
   tdfToVerilog_base_queues_toFile();		// - base queues "Q_xxx.v"
+  tdfToVerilog_base_segments_toFile();		// - base segments "SEG_xxx.v"
 
   tdfToVerilog_q_toFile          (op,&info);	// - output + local queues
   tdfToVerilog_qin_toFile        (op,&info);	// - input queues
@@ -1847,9 +1882,15 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
     OperatorSegment *calledop = (OperatorSegment*)segmentCall->getOp();
     assert(calledop->getOpKind()==OP_BUILTIN &&
 	   ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT);
-    tdfToVerilog_blackbox_toFile(calledop);
+    if(calledop->getSegmentKind()==SEGMENT_RW) {
+    	tdfToVerilog_segrw_toFile(calledop);
+    } else {
+    	tdfToVerilog_blackbox_toFile(calledop);
+    }
+
   }
 }
+
 
 
 ////////////////////////////////////////////////////////////////

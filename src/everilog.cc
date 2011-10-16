@@ -3304,6 +3304,7 @@ void tdfToVerilog_fsm_dp_toFile (OperatorBehavioral *op, EVerilogInfo *info)
   fout.close();
 }
 
+
 // 3rd September 2011: Nachiket
 void tdfToUCF(OperatorBehavioral *op, EVerilogInfo *info) 
 {
@@ -3337,6 +3338,74 @@ void tdfToVerilog_toFile (OperatorBehavioral *op)
 
   // 3rd September 2011: Nachiket writing out dummy best-guess UCF constraints
   tdfToUCF(op, &info);
+}
+
+void tdfToVerilog_segrw_toFile (Operator *op)
+{
+  // - emit Verilog for behavioral *op to ".v" files
+  // - creates files in current working directory:
+  //     <op>.v  <op>_fsm.v  <op>_dp.v
+
+  EVerilogInfo info;
+  op->map(tdfToVerilog_scanTdf_map, (TreeMap)NULL, (void*)&info);
+  
+  string fileName_blackbox = op->getName() + ".v";
+
+  ofstream fout(fileName_blackbox);
+  if (!fout)
+    fatal(1,"-everilog could not open output file "+fileName_blackbox);
+
+  // - emit Verilog wrapper module for *op
+  // - wrapper Verilog specifies inputs and outputs binding 
+  //   but no internal code
+
+  string ret;
+  string indent;
+  
+  string comment = "// Verilog top (segment) module for " + op->getName() + "\n"
+                 + "// " + tdfcComment() + "\n";
+  fout << comment;
+
+
+  // - segrw module declaration
+  ret = indent + "module " + op->getName() + " ("
+      +  CLOCK_NAME + ", " + RESET_NAME + ", ";
+  fout << ret;
+
+  fout << endl;
+
+  // - segrw module declaration:  stream I/O
+  // - HACK:  cast op into behavioral op
+  fout << tdfToVerilog_fsm_dp_args_toString((OperatorBehavioral*)op,&info);
+
+  // -  segrw module declaration:  finish
+  fout   << ")  ;\n";
+  indent += "  ";
+
+  fout << endl;
+
+  // - segrw module arg types:  clock, reset, stream I/O
+  // - HACK:  cast op into behavioral op
+  fout << tdfToVerilog_fsm_dp_argTypes_toString((OperatorBehavioral*)op,&info,
+					       indent);
+
+  fout << endl;
+
+
+  // TODO: Add instantiation of SEG_rw..
+  ret = indent + "SEG_rw(" + CLOCK_NAME + ", " + RESET_NAME + ", ";
+  ret += tdfToVerilog_fsm_dp_args_toString((OperatorBehavioral*)op,&info);	
+  ret += indent + ");";
+  fout << ret;
+  
+  fout << endl;
+
+  // - finish
+  indent = indent(0,indent.length()-1-2);
+  ret = indent + "endmodule  // " + op->getName() + "\n";
+  fout << ret;
+
+  fout.close();
 }
 
 
