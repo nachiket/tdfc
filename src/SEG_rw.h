@@ -73,6 +73,15 @@ module SEG_rw (clock, reset, addr_d, addr_e, addr_v, addr_b, dataR_d, dataR_e, d
    input  write_v;\n\
    output write_b;\n\
 \n\
+   wire state;\n\
+   wire [1:0] statecase;\n\
+   wire flag_steady_0;\n\
+   wire flag_steady_1;\n\
+\n\
+   SEG_rw_fsm fsm (clock, reset, addr_e, addr_v, addr_b, dataR_e, dataR_v, dataR_b, dataW_e, dataW_v, dataW_b, write_e, write_v, write_b, state, statecase, flag_steady_0, flag_steady_1);\n\
+   SEG_rw_dp dp #(.nelems(nelems),.awidth(awidth),.dwidth(dwidth)) (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);\n\
+\n\
+\n\
 endmodule // SEG_rw\n\
 \n\
 \n\
