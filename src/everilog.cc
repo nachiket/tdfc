@@ -1166,12 +1166,13 @@ string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
       Expr* e_val = ((SymbolVar*)arg)->getValue();
       if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
       	      int value = ((ExprValue*)e_val)->getIntVal();
-	      ret += "." + ((SymbolVar*)arg)->toString() + " = " + string("%d",value) + ",";
+	      ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + ") ,";
       }
       continue;
     }
   }
   
+  ret = ret(0,ret.length()-1-2);	// - drop last ", "
   ret += ") ";
   return ret;
 }
