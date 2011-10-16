@@ -10,9 +10,9 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
   input  clock;
   input  reset;
 
-  input  [awidth-10] addr_d;
-  output [dwidth-10] dataR_d;
-  input  [dwidth-10] dataW_d;
+  input  [awidth-1:0] addr_d;
+  output [dwidth-1:0] dataR_d;
+  input  [dwidth-1:0] dataW_d;
   input  write_d;
 
   input  state;
@@ -29,15 +29,15 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
   parameter statecase_2 = 2'd2;
 
 //  reg [dwidth-1] contents_at_addrreg, contents_at_addrreg_;	// -EC
-  reg [dwidth-1] contents_at_addrreg_;			// +EC
-  reg [dwidth-1] contents [nelems-1:0];				// +EC
+  reg [dwidth-1:0] contents_at_addrreg_;			// +EC
+  reg [dwidth-1:0] contents [nelems-1:0];				// +EC
   reg 	    en_;					// +EC
    
   reg writereg, writereg_;
-  reg [awidth-1] addrreg, addrreg_;
-  reg [dwidth-1] datareg, datareg_;
+  reg [awidth-1:0] addrreg, addrreg_;
+  reg [dwidth-1:0] datareg, datareg_;
 
-  reg [dwidth-1] dataR_d_;
+  reg [dwidth-1:0] dataR_d_;
 
   reg flag_steady_0_;
   reg flag_steady_1_;
@@ -52,9 +52,9 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
   always @(posedge clock or negedge reset)  begin
     if (!reset)  begin
 //    contents_at_addrreg <= dwidth'bx;					// -EC
-      writereg <= 1'bx;
-      addrreg <= awidth'bx;
-      datareg <= dwidth'bx;
+      writereg <= 'b0;
+      addrreg <= 'b0;
+      datareg <= 'b0;
     end
     else  begin
 //    contents_at_addrreg <= contents_at_addrreg_;			// -EC
@@ -66,12 +66,12 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
   end  // always @(posedge...)
 
   always @*  begin
-    dataR_d_ = dwidth'bx;
+    dataR_d_ = 'b0;
 
     flag_steady_0_ = 1'bx;
     flag_steady_1_ = 1'bx;
 
-    contents_at_addrreg_ <= dwidth'bx;
+    //contents_at_addrreg_ <= 'b0;
     writereg_ = writereg;
     addrreg_ = addrreg;
     datareg_ = datareg;
