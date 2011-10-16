@@ -49,9 +49,9 @@ const char* SEG_rw = "\n\
 \n\
 module SEG_rw (clock, reset, addr_d, addr_e, addr_v, addr_b, dataR_d, dataR_e, dataR_v, dataR_b, dataW_d, dataW_e, dataW_v, dataW_b, write_d, write_e, write_v, write_b);\n\
 \n\
-   parameter depth =  0;    // - greatest #items in memory (maybe unused) \n\
-   parameter addr_width = 16;    // - width of arrr (addr_d)\n\
-   parameter data_width = 16;    // - width of data (dataR_d, dataW_d)\n\
+   parameter nelems =  0;    // - greatest #items in memory (maybe unused) \n\
+   parameter awidth = 16;    // - width of arrr (addr_d)\n\
+   parameter dwidth = 16;    // - width of data (dataR_d, dataW_d)\n\
 \n\
    input     clock;\n\
    input     reset;\n\

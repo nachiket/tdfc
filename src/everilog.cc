@@ -1165,7 +1165,8 @@ string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
       // - params should already be bound, ignore
       Expr* e_val = ((SymbolVar*)arg)->getValue();
       if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
-	      ret += "." + ((SymbolVar*)arg)->toString() + " = " + string(((ExprValue*)e_val)->getIntVal()) + ",";
+      	      int value = ((ExprValue*)e_val)->getIntVal();
+	      ret += "." + ((SymbolVar*)arg)->toString() + " = " + string("%d",value) + ",";
       }
       continue;
     }
