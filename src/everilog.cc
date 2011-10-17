@@ -300,11 +300,12 @@ bool isConstWidth (Type *t, int *width,
       if (private_recurse_top) {
 	Type *evalType (Type* t);  // - dups + const folds type; in blockdfg.cc
 	Type *tt = evalType(t);
+	    //cout << "Offending type=" << typekindToString(tt->getTypeKind()) << " width=" << *width << endl;
 	bool ret = isConstWidth(tt,width,false);  // - (sets width)
 	if (!ret) {
 	  // - fatal diagnostic here is more meaningful than assert elsewhere
 	  Tree *p=t->getParent();
-	  fatal(1, "-everilog: cannot handle non-constant width in type " +
+	  fatal(1, "-everilog: we think: cannot handle non-constant width in type " +
 		   tt->toString() + (p ? (" of "+p->toString()) : string()),
 		p ? p->getToken() : t->getToken());
 	}
@@ -3500,8 +3501,13 @@ void tdfToVerilog_instance_OLD (Operator *iop,
 void tdfToVerilog_instance (Operator *iop,
 			    list<OperatorBehavioral*> *instances)
 {
-  if (iop->getOpKind()==OP_COMPOSE)
+  if (iop->getOpKind()==OP_COMPOSE) {
+    set_values(iop,true);				// - bind vals
+    resolve_bound_values(&iop);
     tdfToVerilog_compose((OperatorCompose*)iop);    // - emit page + contents
-  else
+  } else {
+    set_values(iop,true);				// - bind vals
+    resolve_bound_values(&iop);
     tdfToVerilog((OperatorBehavioral*)iop);	    // - emit indiv behav op
+  }
 }

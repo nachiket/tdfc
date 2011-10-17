@@ -1623,6 +1623,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
   // (1) bind up args from record
   int i=0;
   Symbol *sym;
+  if(rec!=NULL)
   forall(sym,*(op->getArgs()))
     {
       if (rec->isParam(i))
@@ -1678,7 +1679,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
   //                           and if expr has value,
   //                           replace exprlvalue with exprvalue
   resolve_bound_values(&op);
-  set_values(op);
+  set_values(op, true);
   timestamp(("end binding values ") + op->getName());
 
   // THIS IS PROBABLY BUGGY -- amd 9/1 
