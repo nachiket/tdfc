@@ -569,6 +569,7 @@ bool ExprBuiltin::link ()
       segKindToDataArgPos[SEGMENT_W]		= SEGMENT_W_DATA;
       segKindToDataArgPos[SEGMENT_RW]		= SEGMENT_RW_DATA_W;
       segKindToDataArgPos[SEGMENT_SEQ_R]	= SEGMENT_SEQ_R_DATA;
+      segKindToDataArgPos[SEGMENT_SEQ_CYCLIC_R]	= SEGMENT_SEQ_CYCLIC_R_DATA;
       segKindToDataArgPos[SEGMENT_SEQ_W]	= SEGMENT_SEQ_W_DATA;
       segKindToDataArgPos[SEGMENT_SEQ_RW]	= SEGMENT_SEQ_RW_DATA_W;
       int dataArgPos=segKindToDataArgPos[segKind];
