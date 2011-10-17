@@ -171,7 +171,7 @@ void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 
 	// wrong thing for "." operator...
         // TODO: deal properly with fixed point construction/representation
-	*fout << "(mickey";
+	*fout << "("; // mickey???
 	ccComposeEvalExpr(fout,bexpr->getExpr1(),rsym);
 // 1-2-2010: Don't understand the deal with processing %..
 //	if(bexpr->getOp()=='%') {
