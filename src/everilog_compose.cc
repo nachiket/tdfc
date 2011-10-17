@@ -297,8 +297,11 @@ void tdfToVerilog_compose_scanTdf (OperatorCompose *op,
   op->map(tdfToVerilog_compose_scanTdf_map, (TreeMap)NULL, (void*)info);
 
   // - Ensure composition is either netlist or page
-  int opIsNetlist = !info->composeCalls.empty() && info->behavCalls.empty();
+  int opIsNetlist = !info->composeCalls.empty() ;
   int opIsPage    = (!info->behavCalls.empty()   && info->composeCalls.empty());
+
+cout << info->composeCalls.size() << "," << info->behavCalls.size() << "," << info->segmentCalls.size() <<endl;
+
   if (!opIsNetlist && !opIsPage && info->segmentCalls.empty())
     fatal(1, "-everilog cannot handle compositional op "+op->getName()+", "
 	     "expecting either a netlist (that calls no behavioral ops) "
@@ -1847,6 +1850,8 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
     OperatorSegment *calledop = (OperatorSegment*)segmentCall->getOp();
     assert(calledop->getOpKind()==OP_BUILTIN &&
 	   ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT);
+        resolve_bound_values((Operator**)(&calledop));
+        set_values(calledop, true);
     tdfToVerilog_blackbox_toFile(calledop);
   }
 }
@@ -1868,13 +1873,14 @@ bool instanceSegmentOps_premap (Tree *t, void *i)
 	// - found call to segment op -- make instance
 	ExprBuiltin *segCall = (ExprBuiltin*)t;
 	Operator    *segOp   = segCall->getOp();
-	Operator *newSegOp   = (Operator*)segOp->duplicate();	// - uniq dup
-	newSegOp->link();
-	segCall->setOp(newSegOp);
-	static int segmentOpNum = 0;				// - uniq name
-	newSegOp->setName(segOp->getName()+string("_%d",segmentOpNum++));
+////	Operator *newSegOp   = (Operator*)segOp->duplicate();	// - uniq dup
+////	newSegOp->link();
+////	segCall->setOp(newSegOp);
+////	static int segmentOpNum = 0;				// - uniq name
+////	newSegOp->setName(segOp->getName()+string("_%d",segmentOpNum++));
 	set_values(segCall,true);				// - bind vals
-	// warn("*** CALL "+t->toString()+" INDUCES "+ newSegOp->toString());
+        resolve_bound_values(&segOp);
+////	warn("*** CALL "+t->toString()+" INDUCES "+ newSegOp->toString());
       }
       return false;
     default:
@@ -1889,7 +1895,7 @@ void instanceSegmentOps (Operator *op)
   //     (unique duplicate, unique rename, bind param values)
   // - Segment ops are of type OperatorBuiltin and have no behavioral code,
   //     so instancing them is useful only for -everilog w/black box seg ops
-
+cout << " Wheeeeeeeeeeeeeee" << endl;
   op->map(instanceSegmentOps_premap);
 }
 
@@ -1919,6 +1925,8 @@ void tdfToVerilog_compose (OperatorCompose *iop)
     forall (calledop, calledops) {
       assert(calledop->getOpKind()==OP_COMPOSE);
       // warn("*** EMITTING VERILOG FOR PAGE "+calledop->getName());
+      set_values(calledop,true);				// - bind vals
+      resolve_bound_values(&calledop);
       tdfToVerilog_compose_toFile((OperatorCompose*)calledop);
     }
   }

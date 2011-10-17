@@ -65,6 +65,7 @@
 #include "synplify.h"
 #include "dummypages.h"
 #include "pipeext.h"
+#include "bindvalues.h"
 #include "blockdfg.h"
 
 
@@ -760,6 +761,9 @@ void emitVerilog ()
   Operator *op;
   forall(op,*gSuite->getOperators()) {
     cout << "Processing op" << op->getName() << endl;
+    bindvalues(op,NULL);
+    resolve_bound_values(&op);
+    set_values(op, true);
     tdfToVerilog_instance(op,NULL);
     //instances(op,TARGET_VERILOG,0); Sep 20 2011 - Nachiket continues to befuddled with 64-bit crash on instance() calls.. wtf?
   }

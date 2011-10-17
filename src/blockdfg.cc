@@ -2584,6 +2584,7 @@ Type* evalType (Type *t)
   else {
     // - int, width unknown
     Expr       *widthExpr = t->getWidthExpr();
+	  
     Expr *evaledWidthExpr = evalExpr(widthExpr);
     if (evaledWidthExpr==widthExpr)
       evaledWidthExpr = (Expr*)widthExpr->duplicate();
