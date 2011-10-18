@@ -1468,25 +1468,25 @@ void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int
  *
  */
 string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input, bool LHS) {
-	std::stringstream out;
-	out << nodenum;
+//	std::stringstream out;
+//	out << nodenum;
 //	std::string str;
 //	str = out.str();
 //	char *buf = new char[std::strlen(str.c_str())];
 //	std::strcpy(buf,str.c_str());
 
-	string ret;
+	string ret="";
 	if(t->getKind()==TREE_EXPR) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP || ((Expr*)t)->getExprKind()==EXPR_UOP) {
-			ret += opToNodename(((ExprBop*)t)->getOp());
+			ret = opToNodename(((ExprBop*)t)->getOp());
 		} else if (((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += "if";
+			ret = "if";
 		} else {
-			ret += t ? t->toString().replace_all("\n","") : string("<nil>");
+			ret = t ? t->toString().replace_all("\n","") : string("<nil>");
 		}
 	} else {
 		string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-		ret += " "+treekindToString(t->getKind())+" "+ t_str;
+		ret = " "+treekindToString(t->getKind())+" "+ t_str;
 	}
 	bool found = false;
 	if (list_input != NULL)
@@ -1507,13 +1507,17 @@ string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input, bool
 		*/				
 	
 	if(!((t->getKind()==TREE_EXPR) && (((Expr*)t)->getExprKind()==EXPR_VALUE)) && !found)  
-		ret += "_"+string(out.str().c_str());
+	{
+		ret += "_";
+		ret += string("%d",nodenum);
 	
+	}
 	else if (found && LHS)
 	{
 
 		list_input->remove(ret);			
-		ret += "_"+string(out.str().c_str());
+		ret += "_";
+		ret += string("%d",nodenum);
 		
 	}
 		
