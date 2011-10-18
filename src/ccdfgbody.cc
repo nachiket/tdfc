@@ -1082,7 +1082,8 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						*fout << nodetofout(dfg, src, nodenums) << " ";
+						*fout << nodetofout(dfg, src, nodenums);
+						*fout << " ";
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
@@ -1558,7 +1559,7 @@ string nodetovarstring(node n, Tree* t) {
  */
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 
-	//cout << " enter node to fout fn " << endl;
+//	cout << " enter node to fout fn " << endl;
 
 	if(dfg->indeg(src)==0 || dfg->outdeg(src)==0) { // shouldn't we process outputs similarly as well?
 		
@@ -1614,8 +1615,8 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 				return asym->toString();
 			} 
 			else {
-//				return nodetostring(src, (*dfg)[src],nodenums[src]);
-		//		cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+				//cout << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+				return nodetostring(src, (*dfg)[src],nodenums[src]);
 		//		exit(-1);
 			}
 		} 
