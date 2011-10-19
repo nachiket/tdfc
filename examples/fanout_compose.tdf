@@ -1,0 +1,9 @@
+fanout_compose(
+input double a,
+input double b,
+output double c1,
+output double c2)
+{
+	simpleadd(a,b,c1);
+	simpleadd(a,b,c2);
+}

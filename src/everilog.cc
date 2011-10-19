@@ -1824,7 +1824,13 @@ void tdfToVerilog_fsm_stmt (OperatorBehavioral *op,
         case BUILTIN_PRINTF: {
 	  break;
 	}
+        case BUILTIN_FRAMECLOSE: {
+	  cout << "skipping frameclose during Verilog construction" << endl;
+	  break;
+	}
 	default: {
+	  cout << "StatementKind=" << stmtkindToString(s->getStmtKind()) << endl;
+	  cout << "Statement=" << s->toString() << endl;
 	  assert(!"-everilog unknown builtin stmt");
 	  break;
 	}
