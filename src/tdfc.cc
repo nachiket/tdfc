@@ -617,11 +617,13 @@ void emitCC (int dpr, int dps)
   Operator* iterop;
   forall(iterop,*(gSuite->getOperators()))
   {
-	  op=iterop;
+    ccheader(op); 
+    ccbody(op,dpr); // NACHIKET
+//	  op=iterop;
   }
 
+  /* 20/Oct/2011 Testing Unroll+Banking
     timestamp(string("begin processing ")+op->getName());
-    // TODO: eventually move flatten here
 
     // testing existence of segment operator in op...
     list<Stmt*> op_stmts = *((OperatorCompose*)op)->getStmts();
@@ -653,26 +655,6 @@ void emitCC (int dpr, int dps)
 	    	}
 	    }
 	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
-/*	    Operator *inner_op=ebuiltin->getOp();
-	    if(inner_op->getOpKind() == OP_BUILTIN && 
-	       ((OperatorBuiltin*)inner_op)->getBuiltinKind()==BUILTIN_SEGMENT) {
-		    cout << "FOUND SEMGNET CALL" << endl;
-		    // Now halve the depth...
-		    Symbol* seg_sym;
-		    forall(seg_sym, *inner_op->getArgs()) {
-			    // maybe adjust awidth instead of nelems???->NO!
-			    if (seg_sym->getName() == string("awidth")) {
-				    Type* seg_addr_type = ((SymbolVar*)seg_sym)->getType();
-
-				    cout << "AWIDTDH=" << seg_addr_type->getWidth() << endl;
-				    cout << "AWIDTDH VALUE=" << ((SymbolVar*)seg_sym)->declToString() << endl;
-				    seg_addr_type->setWidth(seg_addr_type->getWidth()-1);
-				    cout << "AWIDTDH=" << seg_addr_type->getWidth() << endl;
-				    cout << "AWIDTDH VALUE=" << ((SymbolVar*)seg_sym)->declToString() << endl;
-			    }
-		    }
-	    }
-*/
 	}
     }
 
@@ -706,8 +688,6 @@ void emitCC (int dpr, int dps)
 		newSymStream1->setName(symStream->getName()+"_1");
 		cop_args->append(newSymStream1);
 
-//		cop->getSymtab()->addSymbol(newSymStream);
-//		cop->getArgs()->append(newSymStream)
     }
 
     OperatorCompose *cop=new OperatorCompose(NULL,string("nachiket_composedop"),
@@ -794,6 +774,8 @@ void emitCC (int dpr, int dps)
 
     ccheader(cop);
     ccbody(cop, dpr);
+
+    */ // 20/Oct/2011 Unrolling+Banking transformations..
 
     /*timestamp(string("begin instances for ")+op->getName());
     set<string>* instance_names=instances(op,TARGET_CC,dps); 
