@@ -66,6 +66,8 @@
 #include "Q_lowqli_out_r_p_srl_r.h"
 
 #include "SEG_rw.h" // 16/Oct/2011
+#include "SEG_rw_fsm.h" // 20/Oct/2011
+#include "SEG_rw_dp.h" // 20/Oct/2011
 
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
@@ -1602,6 +1604,8 @@ void tdfToVerilog_base_segments_toFile ()
 {
   // also write segments
   tdfToVerilog_base_segment_toFile("SEG_rw.v",	     	     SEG_rw);
+  tdfToVerilog_base_segment_toFile("SEG_rw_dp.v",	     SEG_rw_dp);
+  tdfToVerilog_base_segment_toFile("SEG_rw_fsm.v",	     SEG_rw_fsm);
 }
 
 void tdfToVerilog_base_queues_toFile ()
