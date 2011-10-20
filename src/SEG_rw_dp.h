@@ -3,8 +3,18 @@
 #define _TDF_SEG_RW_DP_
 
 const char* SEG_rw_dp = "\n\
-\n\
-\n\
+// SEG_rw_dp.v\n\
+// //\n\
+// //  - A read-write segment datapath (BlockRAM)\n\
+// //\n\
+// //  - Nachiket Kapre,  16/Oct/11\n\
+// \n\
+// \n\
+// `ifdef  SEG_rw_dp\n\
+// `else\n\
+// `define SEG_rw_dp\n\
+// \n\
+// \n\
 module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
   parameter nelems=0; (unused?)\n\

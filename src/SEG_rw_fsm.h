@@ -2,6 +2,18 @@
 #define _TDF_SEG_RW_FSM_
 
 const char* SEG_rw_fsm = "\n\
+// SEG_rw_fsm.v\n\
+// //\n\
+// //  - A read-write segment FSM\n\
+// //\n\
+// //  - Nachiket Kapre,  16/Oct/11\n\
+// \n\
+// \n\
+// `ifdef  SEG_rw_fsm\n\
+// `else\n\
+// `define SEG_rw_fsm\n\
+// \n\
+// \n\
 module SEG_rw_fsm (clock, reset, addr_e, addr_v, addr_b, dataR_e, dataR_v, dataR_b, dataW_e, dataW_v, dataW_b, write_e, write_v, write_b, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
   input  clock;\n\
