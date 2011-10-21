@@ -65,6 +65,10 @@
 #include "Q_lowqli_in_r_p_srl_r.h"
 #include "Q_lowqli_out_r_p_srl_r.h"
 
+#include "SEG_rw.h" // 16/Oct/2011
+#include "SEG_rw_fsm.h" // 20/Oct/2011
+#include "SEG_rw_dp.h" // 20/Oct/2011
+
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
 //#include <LEDA/core/map.h>
@@ -297,9 +301,12 @@ void tdfToVerilog_compose_scanTdf (OperatorCompose *op,
   op->map(tdfToVerilog_compose_scanTdf_map, (TreeMap)NULL, (void*)info);
 
   // - Ensure composition is either netlist or page
-  int opIsNetlist = !info->composeCalls.empty() && info->behavCalls.empty();
-  int opIsPage    = !info->behavCalls.empty()   && info->composeCalls.empty();
-  if (!opIsNetlist && !opIsPage)
+  int opIsNetlist = !info->composeCalls.empty() ;
+  int opIsPage    = (!info->behavCalls.empty()   && info->composeCalls.empty());
+
+cout << info->composeCalls.size() << "," << info->behavCalls.size() << "," << info->segmentCalls.size() <<endl;
+
+  if (!opIsNetlist && !opIsPage && info->segmentCalls.empty())
     fatal(1, "-everilog cannot handle compositional op "+op->getName()+", "
 	     "expecting either a netlist (that calls no behavioral ops) "
 	     "or a page (that calls no compositional ops)", op->getToken());
@@ -1541,6 +1548,32 @@ string tdfToVerilog_composeTop_toString (OperatorCompose *op,
   return ret;
 }
 
+////////////////////////////////////////////////////////////////
+//  tdfToVerilog_..._toFile  (emit to files)
+
+void tdfToVerilog_base_segment_toFile (const char* fileName,
+				     const char* fileContent)
+{
+  // - emit Verilog base segment implementation "SEG_xxx.v"
+  //     by writing *fileContent into file named *fileName*
+  //     in current directory
+
+  ofstream fout(fileName);
+  if (!fout)
+    fatal(1,"-everilog could not open output file "+string(fileName));
+
+  // - comment
+  string comment = "// Verilog base segment " + string(fileName) + "\n"
+                   "// " + tdfcComment() + "\n";
+  fout << comment;
+
+  // - Verilog module
+  fout << fileContent;
+
+  fout.close();
+}
+
+
 
 ////////////////////////////////////////////////////////////////
 //  tdfToVerilog_..._toFile  (emit to files)
@@ -1567,9 +1600,17 @@ void tdfToVerilog_base_queue_toFile (const char* fileName,
   fout.close();
 }
 
+void tdfToVerilog_base_segments_toFile ()
+{
+  // also write segments
+  tdfToVerilog_base_segment_toFile("SEG_rw.v",	     	     SEG_rw);
+  tdfToVerilog_base_segment_toFile("SEG_rw_dp.v",	     SEG_rw_dp);
+  tdfToVerilog_base_segment_toFile("SEG_rw_fsm.v",	     SEG_rw_fsm);
+}
 
 void tdfToVerilog_base_queues_toFile ()
 {
+
   tdfToVerilog_base_queue_toFile("Q_blackbox.v",	     Q_blackbox);
   tdfToVerilog_base_queue_toFile("Q_wire.v",		     Q_wire);
   tdfToVerilog_base_queue_toFile("Q_srl.v",		     Q_srl);		  // Q_srl_oreg3_prefull.v
@@ -1816,6 +1857,7 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
   tdfToVerilog_compose_scanTdf(op,&info);
 
   tdfToVerilog_base_queues_toFile();		// - base queues "Q_xxx.v"
+  tdfToVerilog_base_segments_toFile();		// - base segments "SEG_xxx.v"
 
   tdfToVerilog_q_toFile          (op,&info);	// - output + local queues
   tdfToVerilog_qin_toFile        (op,&info);	// - input queues
@@ -1847,9 +1889,18 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
     OperatorSegment *calledop = (OperatorSegment*)segmentCall->getOp();
     assert(calledop->getOpKind()==OP_BUILTIN &&
 	   ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT);
-    tdfToVerilog_blackbox_toFile(calledop);
+    // following tweo lines of code were added to deal with constant folding..
+        resolve_bound_values((Operator**)(&calledop));
+        set_values(calledop, true);
+    if(calledop->getSegmentKind()==SEGMENT_RW) {
+    	tdfToVerilog_segrw_toFile(calledop);
+    } else {
+    	tdfToVerilog_blackbox_toFile(calledop);
+    }
+
   }
 }
+
 
 
 ////////////////////////////////////////////////////////////////
@@ -1868,13 +1919,14 @@ bool instanceSegmentOps_premap (Tree *t, void *i)
 	// - found call to segment op -- make instance
 	ExprBuiltin *segCall = (ExprBuiltin*)t;
 	Operator    *segOp   = segCall->getOp();
-	Operator *newSegOp   = (Operator*)segOp->duplicate();	// - uniq dup
-	newSegOp->link();
-	segCall->setOp(newSegOp);
-	static int segmentOpNum = 0;				// - uniq name
-	newSegOp->setName(segOp->getName()+string("_%d",segmentOpNum++));
+////	Operator *newSegOp   = (Operator*)segOp->duplicate();	// - uniq dup
+////	newSegOp->link();
+////	segCall->setOp(newSegOp);
+////	static int segmentOpNum = 0;				// - uniq name
+////	newSegOp->setName(segOp->getName()+string("_%d",segmentOpNum++));
 	set_values(segCall,true);				// - bind vals
-	// warn("*** CALL "+t->toString()+" INDUCES "+ newSegOp->toString());
+        resolve_bound_values(&segOp);
+////	warn("*** CALL "+t->toString()+" INDUCES "+ newSegOp->toString());
       }
       return false;
     default:
@@ -1889,7 +1941,7 @@ void instanceSegmentOps (Operator *op)
   //     (unique duplicate, unique rename, bind param values)
   // - Segment ops are of type OperatorBuiltin and have no behavioral code,
   //     so instancing them is useful only for -everilog w/black box seg ops
-
+cout << " Wheeeeeeeeeeeeeee" << endl;
   op->map(instanceSegmentOps_premap);
 }
 
@@ -1919,6 +1971,8 @@ void tdfToVerilog_compose (OperatorCompose *iop)
     forall (calledop, calledops) {
       assert(calledop->getOpKind()==OP_COMPOSE);
       // warn("*** EMITTING VERILOG FOR PAGE "+calledop->getName());
+      set_values(calledop,true);				// - bind vals
+      resolve_bound_values(&calledop);
       tdfToVerilog_compose_toFile((OperatorCompose*)calledop);
     }
   }

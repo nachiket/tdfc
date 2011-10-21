@@ -1,14 +1,19 @@
 // Verilog data-path module for segrw_d1_ScOrEtMp0
 // Emitted by ../../tdfc version 1.158, Tue Dec 14 12:18:04 2004
+// revised by Nachiket on 16/Oct/2011
 
-module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);
+module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);
+
+  parameter nelems=127;
+  parameter awidth=7;
+  parameter dwidth=7;
 
   input  clock;
   input  reset;
 
-  input  [3:0] addr_d;
-  output [7:0] dataR_d;
-  input  [7:0] dataW_d;
+  input  [awidth-1:0] addr_d;
+  output [dwidth-1:0] dataR_d;
+  input  [dwidth-1:0] dataW_d;
   input  write_d;
 
   input  state;
@@ -25,15 +30,15 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
   parameter statecase_2 = 2'd2;
 
 //reg [7:0] contents_at_addrreg, contents_at_addrreg_;	// -EC
-  reg [7:0] contents_at_addrreg_;			// +EC
-  reg [7:0] contents [15:0] /* synthesis syn_ramstyle="block_ram" */ ;	// +EC
+  reg [nelems-1:0] contents_at_addrreg_;			// +EC
+  reg [nelems-1:0] contents [dwidth-1:0] /* synthesis syn_ramstyle="block_ram" */ ;	// +EC
   reg 	    en_;					// +EC
    
   reg writereg, writereg_;
-  reg [3:0] addrreg, addrreg_;
-  reg [7:0] datareg, datareg_;
+  reg [awidth-1:0] addrreg, addrreg_;
+  reg [dwidth-1:0] datareg, datareg_;
 
-  reg [7:0] dataR_d_;
+  reg [dwidth-1:0] dataR_d_;
 
   reg flag_steady_0_;
   reg flag_steady_1_;
@@ -49,8 +54,8 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
     if (!reset)  begin
 //    contents_at_addrreg <= 8'bx;					// -EC
       writereg <= 1'bx;
-      addrreg <= 4'bx;
-      datareg <= 8'bx;
+      addrreg <= awidth'bx;
+      datareg <= dwidth'bx;
     end
     else  begin
 //    contents_at_addrreg <= contents_at_addrreg_;			// -EC
@@ -65,13 +70,13 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
   end									// +EC
 
   always @*  begin
-    dataR_d_ = 8'bx;
+    dataR_d_ = dwidth'bx;
 
     flag_steady_0_ = 1'bx;
     flag_steady_1_ = 1'bx;
 
     en_ = 0;						// +EC
-    contents_at_addrreg_ = 8'bx;			// +EC
+    contents_at_addrreg_ = dwidth'bx;			// +EC
 
 //  contents_at_addrreg_ = contents_at_addrreg;		// -EC
     writereg_ = writereg;
@@ -122,4 +127,4 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
     endcase  // case (state_reg)
   end  // always @*
 
-endmodule  // segrw_d1_ScOrEtMp0_dp
+endmodule  // SEG_rw_dp

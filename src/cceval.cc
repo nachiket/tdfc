@@ -218,7 +218,7 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 }
 
-string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, bool autoesl, bool *expo, bool *log)
+string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, bool autoesl, bool *expo, bool *log, bool *div)
 {
   if (expr==(Expr *)NULL)
     {
@@ -306,8 +306,8 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 		      if (first==1)
 			first=0;
 		      else
-			res=res+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type, autoesl, expo, log)+string(")")+
-			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime, cuda, gappa, type, autoesl, expo, log)
+			res=res+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type, autoesl, expo, log, div)+string(")")+
+			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime, cuda, gappa, type, autoesl, expo, log, div)
 			  +string("))|");
 		      // NOTE: evaluate get width here is probably
 		      //  temporary until revamp bindvalues to use map2
@@ -316,7 +316,7 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 		      cast = (bexpr_cctype==exp_cctype)
 				? string() : ("("+bexpr_cctype+")");
 		    }
-		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type, autoesl, expo, log)+string("))");
+		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type, autoesl, expo, log, div)+string("))");
 		  return(res);
 		}
 	      else
@@ -360,26 +360,34 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
     case EXPR_COND:
       {
 	ExprCond * cexpr=(ExprCond *)expr;
-	return("(("+ccEvalExpr(cexpr->getCond(), retime, cuda, gappa, type, autoesl, expo, log)+")?("+
-	       ccEvalExpr(cexpr->getThenPart(), retime, cuda, gappa, type, autoesl, expo, log)+"):("+
-	       ccEvalExpr(cexpr->getElsePart(), retime, cuda, gappa, type, autoesl, expo, log)+"))");
+	return("(("+ccEvalExpr(cexpr->getCond(), retime, cuda, gappa, type, autoesl, expo, log, div)+")?("+
+	       ccEvalExpr(cexpr->getThenPart(), retime, cuda, gappa, type, autoesl, expo, log, div)+"):("+
+	       ccEvalExpr(cexpr->getElsePart(), retime, cuda, gappa, type, autoesl, expo, log, div)+"))");
       }
     case EXPR_BOP:
       {
 	ExprBop *bexpr=(ExprBop *)expr;
+	string ops=opToString(bexpr->getOp());
 
-	// wrong thing for "." operator...
-        // TODO: deal properly with fixed point construction/representation
-    return("("+ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type, autoesl, expo, log)+
-		   opToString(bexpr->getOp())+
-		   ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type, autoesl, expo, log)+")");
-	  }
+	string istr0=ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type, autoesl, expo, log, div);
+	string istr1=ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type, autoesl, expo, log, div);
+	if (autoesl && (ops == "/"))
+	{
+		if (div != NULL && ops == "/")
+			*div = true;
+		return("div_flopoco("+istr0+","+istr1+")");
+	} else {
+		// wrong thing for "." operator...
+        	// TODO: deal properly with fixed point construction/representation
+		return("("+istr0+opToString(bexpr->getOp())+istr1+")");
+	}
+      }
     case EXPR_UOP:
       {
 	ExprUop *uexpr=(ExprUop *)expr;
 	string ops=opToString(uexpr->getOp());
 	Expr *iexpr=uexpr->getExpr();
-	string istr=ccEvalExpr(iexpr, retime, cuda, gappa, type, autoesl, expo, log);
+	string istr=ccEvalExpr(iexpr, retime, cuda, gappa, type, autoesl, expo, log, div);
 	if (autoesl && (ops == "exp" || ops =="log"))
 	{
 		if (expo != NULL && ops == "exp")
@@ -413,9 +421,9 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 	        real_cctype = getCCvarType(real_type);
 
 	if (c_cctype!=real_cctype)
-	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime, cuda, gappa, type, autoesl, expo, log)+"))" );
+	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime, cuda, gappa, type, autoesl, expo, log, div)+"))" );
 	else
-	  return( ccEvalExpr(real_expr, retime, cuda, gappa, type, autoesl, expo, log) );
+	  return( ccEvalExpr(real_expr, retime, cuda, gappa, type, autoesl, expo, log, div) );
 
 	// EC:  My code above generalizes Andre's code below.
 	//      Above code assumes that type checking was done,

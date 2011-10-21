@@ -1,14 +1,18 @@
 // Verilog data-path module for segrw_d1_ScOrEtMp0
 // Emitted by ../../tdfc version 1.158, Tue Dec 14 12:06:25 2004
 
-module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);
+module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);
+
+  parameter nelems=127;
+  parameter dwidth=127;
+  parameter awidth=7;
 
   input  clock;
   input  reset;
 
-  input  [3:0] addr_d;
-  output [7:0] dataR_d;
-  input  [7:0] dataW_d;
+  input  [awidth-1:0] addr_d;
+  output [dwidth-1:0] dataR_d;
+  input  [dwidth-1:0] dataW_d;
   input  write_d;
 
   input  state;
@@ -24,16 +28,16 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
   parameter statecase_1 = 2'd1;
   parameter statecase_2 = 2'd2;
 
-//reg [7:0] contents_at_addrreg, contents_at_addrreg_;	// -EC
-  reg [7:0] contents_at_addrreg_;			// +EC
-  reg [7:0] contents [15:0];				// +EC
+//  reg [dwidth-1] contents_at_addrreg, contents_at_addrreg_;	// -EC
+  reg [dwidth-1:0] contents_at_addrreg_;			// +EC
+  reg [dwidth-1:0] contents [nelems-1:0];				// +EC
   reg 	    en_;					// +EC
    
   reg writereg, writereg_;
-  reg [3:0] addrreg, addrreg_;
-  reg [7:0] datareg, datareg_;
+  reg [awidth-1:0] addrreg, addrreg_;
+  reg [dwidth-1:0] datareg, datareg_;
 
-  reg [7:0] dataR_d_;
+  reg [dwidth-1:0] dataR_d_;
 
   reg flag_steady_0_;
   reg flag_steady_1_;
@@ -47,10 +51,10 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
 
   always @(posedge clock or negedge reset)  begin
     if (!reset)  begin
-//    contents_at_addrreg <= 8'bx;					// -EC
-      writereg <= 1'bx;
-      addrreg <= 4'bx;
-      datareg <= 8'bx;
+//    contents_at_addrreg <= dwidth'bx;					// -EC
+      writereg <= 'b0;
+      addrreg <= 'b0;
+      datareg <= 'b0;
     end
     else  begin
 //    contents_at_addrreg <= contents_at_addrreg_;			// -EC
@@ -62,12 +66,12 @@ module segrw_d1_ScOrEtMp0_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, s
   end  // always @(posedge...)
 
   always @*  begin
-    dataR_d_ = 8'bx;
+    dataR_d_ = 'b0;
 
     flag_steady_0_ = 1'bx;
     flag_steady_1_ = 1'bx;
 
-    contents_at_addrreg_ = contents_at_addrreg;
+    //contents_at_addrreg_ <= 'b0;
     writereg_ = writereg;
     addrreg_ = addrreg;
     datareg_ = datareg;

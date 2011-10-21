@@ -33,7 +33,7 @@
 #define _TDF_Q_SRL_
 
 
-const char* Q_srl = "\\n\
+const char* Q_srl = "\
 // Q_srl_oreg3_prefull.v\n\
 //\n\
 //  - In-page queue with parameterizable depth, bit width\n\

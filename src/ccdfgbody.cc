@@ -1082,7 +1082,8 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						*fout << nodetofout(dfg, src, nodenums) << " ";
+						*fout << nodetofout(dfg, src, nodenums);
+						*fout << " ";
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
@@ -1468,25 +1469,25 @@ void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int
  *
  */
 string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input, bool LHS) {
-	std::stringstream out;
-	out << nodenum;
+//	std::stringstream out;
+//	out << nodenum;
 //	std::string str;
 //	str = out.str();
 //	char *buf = new char[std::strlen(str.c_str())];
 //	std::strcpy(buf,str.c_str());
 
-	string ret;
+	string ret="";
 	if(t->getKind()==TREE_EXPR) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP || ((Expr*)t)->getExprKind()==EXPR_UOP) {
-			ret += opToNodename(((ExprBop*)t)->getOp());
+			ret = opToNodename(((ExprBop*)t)->getOp());
 		} else if (((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += "if";
+			ret = "if";
 		} else {
-			ret += t ? t->toString().replace_all("\n","") : string("<nil>");
+			ret = t ? t->toString().replace_all("\n","") : string("<nil>");
 		}
 	} else {
 		string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-		ret += " "+treekindToString(t->getKind())+" "+ t_str;
+		ret = " "+treekindToString(t->getKind())+" "+ t_str;
 	}
 	bool found = false;
 	if (list_input != NULL)
@@ -1507,13 +1508,17 @@ string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input, bool
 		*/				
 	
 	if(!((t->getKind()==TREE_EXPR) && (((Expr*)t)->getExprKind()==EXPR_VALUE)) && !found)  
-		ret += "_"+string(out.str().c_str());
+	{
+		ret += "_";
+		ret += string("%d",nodenum);
 	
+	}
 	else if (found && LHS)
 	{
 
 		list_input->remove(ret);			
-		ret += "_"+string(out.str().c_str());
+		ret += "_";
+		ret += string("%d",nodenum);
 		
 	}
 		
@@ -1554,7 +1559,7 @@ string nodetovarstring(node n, Tree* t) {
  */
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 
-	//cout << " enter node to fout fn " << endl;
+//	cout << " enter node to fout fn " << endl;
 
 	if(dfg->indeg(src)==0 || dfg->outdeg(src)==0) { // shouldn't we process outputs similarly as well?
 		
@@ -1610,8 +1615,8 @@ string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 				return asym->toString();
 			} 
 			else {
-//				return nodetostring(src, (*dfg)[src],nodenums[src]);
-		//		cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+				//cout << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+				return nodetostring(src, (*dfg)[src],nodenums[src]);
 		//		exit(-1);
 			}
 		} 

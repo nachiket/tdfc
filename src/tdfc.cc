@@ -65,6 +65,7 @@
 #include "synplify.h"
 #include "dummypages.h"
 #include "pipeext.h"
+#include "bindvalues.h"
 #include "blockdfg.h"
 
 
@@ -613,12 +614,169 @@ void emitCC (int dpr, int dps)
     ccrename(op);
   // all operators must be renamed before the processing in the
   // following loop
-  forall(op,*(gSuite->getOperators()))
+  Operator* iterop;
+  forall(iterop,*(gSuite->getOperators()))
   {
-    timestamp(string("begin processing ")+op->getName());
-    // TODO: eventually move flatten here
     ccheader(op); 
     ccbody(op,dpr); // NACHIKET
+//	  op=iterop;
+  }
+
+  /* 20/Oct/2011 Testing Unroll+Banking
+    timestamp(string("begin processing ")+op->getName());
+
+    // testing existence of segment operator in op...
+    list<Stmt*> op_stmts = *((OperatorCompose*)op)->getStmts();
+    Stmt* op_stmt;
+    forall(op_stmt, op_stmts) {
+	    cout << "Statement=" << op_stmt->toString() <<endl;
+        if ((op_stmt->getStmtKind()==STMT_BUILTIN)) {
+	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+	    Expr *expr=((StmtBuiltin *)op_stmt)->getBuiltin();
+	    ExprBuiltin *ebuiltin=(ExprBuiltin*)expr;
+	    Expr* e_iter;
+	    if(((OperatorBuiltin*)ebuiltin->getOp())->getBuiltinKind()==BUILTIN_SEGMENT) {
+		int cntr=0;
+		forall(e_iter, *ebuiltin->getArgs()) {
+		    // need to HALVE depth of array here!
+		    cout << "exprbuiltin:" << e_iter->toString() << endl;
+		    if(cntr==1) {
+			    //awidth is here...
+			    Expr* e_iter_new = new ExprBop(NULL, '-', (Expr*)e_iter->duplicate(), constIntExpr(1));
+			    cout << e_iter_new->toString() << endl;
+			    e_iter=e_iter_new;
+		    } else if(cntr==2) {
+			    // nelems is here
+			    Expr* e_iter_new = new ExprBop(NULL, '/', (Expr*)e_iter->duplicate(), constIntExpr(2));
+			    cout << e_iter_new->toString() << endl;
+			    e_iter=e_iter_new;
+		    }
+		    cntr++;
+	    	}
+	    }
+	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+	}
+    }
+
+    ccheader(op); 
+    ccbody(op,dpr); // NACHIKET
+
+    // testing DUPLICATE function
+    Operator* dupOp = (Operator*)op->duplicate();
+    dupOp->setName(string("nachiket_duplicateop"));
+    ccheader(dupOp);
+    ccbody(dupOp, dpr);
+
+    // building COMPOSE operator...
+    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
+    list<Stmt*>     *cop_stmts=new list<Stmt*>;
+    // expand IOs...
+    list<Symbol*>   *args = op->getArgs();
+    list<Symbol*>   *cop_args = new list<Symbol*>;
+    Symbol *symStream;
+    forall (symStream,*op->getArgs()) {
+	        // - add symStream to new behav-op
+		if (symStream->isParam())   // - ignore params, they are bound
+			continue;
+		assert(symStream->isStream());
+
+		// duplicate
+		Symbol *newSymStream0=(Symbol*)symStream->duplicate();
+		newSymStream0->setName(symStream->getName()+"_0");
+		cop_args->append(newSymStream0);
+		Symbol *newSymStream1=(Symbol*)symStream->duplicate();
+		newSymStream1->setName(symStream->getName()+"_1");
+		cop_args->append(newSymStream1);
+
+    }
+
+    OperatorCompose *cop=new OperatorCompose(NULL,string("nachiket_composedop"),
+		    op->getRetSym(),cop_args,
+		    cop_vars,cop_stmts);
+
+    
+    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
+    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,op);
+    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
+    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
+    op_call_stmt->setParent(cop);
+
+    ExprCall *dupop_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
+    StmtCall *dupop_call_stmt=new StmtCall(NULL,dupop_call_expr);
+    cop->getStmts()->append(dupop_call_stmt);     // - HACK: modifying stmt list
+    dupop_call_stmt->setParent(cop);
+
+    // wiring up COMPOSEOP to OP and DUPOP calls..
+    symStream=NULL;
+    forall (symStream,*op->getArgs()) {
+	    // - add symStream to new behav-op
+	    if (symStream->isParam())   // - ignore params, they are bound?
+		    continue;
+	    assert(symStream->isStream());
+
+	    // find symbol in composeOp
+	    Symbol* cop_symStream;
+	    bool found=false;
+    	    forall (cop_symStream,*cop->getArgs()) {
+		    if(cop_symStream->getName() == string(symStream->getName()+"_0")) {
+			    found=true;
+			    break;
+		    }
+	    }
+
+	    assert(found);
+
+	    // first wireup "OP"
+	    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
+	    op_call_expr->getArgs()->append(e);
+	    e->setParent(op_call_expr);
+    }
+	    
+    forall (symStream,*dupOp->getArgs()) {
+	    // - add symStream to new behav-op
+	    if (symStream->isParam())   // - ignore params, they are bound?
+		    continue;
+	    assert(symStream->isStream());
+	    
+	    // find symbol in composeOp
+	    Symbol* cop_symStream;
+	    bool found=false;
+    	    forall (cop_symStream,*cop->getArgs()) {
+		    if(cop_symStream->getName() == string(symStream->getName()+"_1")) {
+			    found=true;
+			    break;
+		    }
+	    }
+
+	    assert(found);
+
+	    // second wireup "DUPOP"
+	    ExprLValue *dupe=new ExprLValue(NULL,cop_symStream);
+	    dupop_call_expr->getArgs()->append(dupe);
+	    dupe->setParent(dupop_call_expr);
+    }
+
+
+    op->thread(NULL); 
+    op->link();
+    dupOp->thread(NULL);
+    dupOp->link();
+    cop->thread(cop->getParent());
+    cop->link();
+
+    gSuite->addOperator(dupOp);
+    gSuite->addOperator(cop);
+    gSuite->link();
+// After some though, we decided to avoid doing split/merge...
+// Merge require fanin tracking and gathering...
+// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
+//    doCopyOps((Tree**)&gSuite);
+
+    ccheader(cop);
+    ccbody(cop, dpr);
+
+    */ // 20/Oct/2011 Unrolling+Banking transformations..
+
     /*timestamp(string("begin instances for ")+op->getName());
     set<string>* instance_names=instances(op,TARGET_CC,dps); 
     
@@ -634,7 +792,6 @@ void emitCC (int dpr, int dps)
     */
     
     //cout << endl;
-  }
 }
 
 void emitCUDA ()
@@ -740,10 +897,12 @@ void emitAutoESLC ()
     // TODO: eventually move flatten here
     bool exp = false; 
     bool log = false;
-    ccautoeslbody(op , &exp, &log);
-    ccautoeslheader(op, exp, log); 
+    bool div = false; 
+    // Nachiket asks on 14th Sept 2011: Helene, why aren't we just using autoesl boolean flag?
+    ccautoeslbody(op , &exp, &log, &div);
+    ccautoeslheader(op, exp, log, div); 
     ccautoeslwrapper(op); 
-    ccautoesltcl(op); 
+    ccautoesltcl(op, exp, log, div); 
     ccautoeslmake(op);
     cout << endl;
   }
@@ -758,7 +917,11 @@ void emitVerilog ()
   Operator *op;
   forall(op,*gSuite->getOperators()) {
     cout << "Processing op" << op->getName() << endl;
-    instances(op,TARGET_VERILOG,0);
+    bindvalues(op,NULL);
+    resolve_bound_values(&op);
+    set_values(op, true);
+    tdfToVerilog_instance(op,NULL);
+    //instances(op,TARGET_VERILOG,0); Sep 20 2011 - Nachiket continues to befuddled with 64-bit crash on instance() calls.. wtf?
   }
 }
 

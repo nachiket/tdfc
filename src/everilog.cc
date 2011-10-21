@@ -75,6 +75,9 @@
 //       - apps:  (1<<x) is 0, should be (ONE<<x) with ONE of wide type
 
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "expr.h"
 #include "expr.h"
 #include "state.h"
 #include <LEDA/core/d_array.h>
@@ -297,11 +300,12 @@ bool isConstWidth (Type *t, int *width,
       if (private_recurse_top) {
 	Type *evalType (Type* t);  // - dups + const folds type; in blockdfg.cc
 	Type *tt = evalType(t);
+	    //cout << "Offending type=" << typekindToString(tt->getTypeKind()) << " width=" << *width << endl;
 	bool ret = isConstWidth(tt,width,false);  // - (sets width)
 	if (!ret) {
 	  // - fatal diagnostic here is more meaningful than assert elsewhere
 	  Tree *p=t->getParent();
-	  fatal(1, "-everilog: cannot handle non-constant width in type " +
+	  fatal(1, "-everilog: we think: cannot handle non-constant width in type " +
 		   tt->toString() + (p ? (" of "+p->toString()) : string()),
 		p ? p->getToken() : t->getToken());
 	}
@@ -1145,6 +1149,34 @@ void addEmptyLine (string *s)
     *s += "\n";
 }
 
+string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
+					   EVerilogInfo *info)
+{
+  // - emit parameter list for Verilog behavioral op module:
+
+  string ret;
+
+  ret = "#(";
+
+  // - module declaration:  stream I/O
+  list<Symbol*> args = args_with_retsym_first(op);
+  Symbol *arg;
+  forall (arg, args) {
+    if (arg->isParam()) {
+      // - params should already be bound, ignore
+      Expr* e_val = ((SymbolVar*)arg)->getValue();
+      if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
+      	      int value = ((ExprValue*)e_val)->getIntVal();
+	      ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + ") ,";
+      }
+      continue;
+    }
+  }
+  
+  ret = ret(0,ret.length()-1-2);	// - drop last ", "
+  ret += ") ";
+  return ret;
+}
 
 string tdfToVerilog_fsm_dp_args_toString  (OperatorBehavioral *op,
 					   EVerilogInfo *info)
@@ -1792,7 +1824,13 @@ void tdfToVerilog_fsm_stmt (OperatorBehavioral *op,
         case BUILTIN_PRINTF: {
 	  break;
 	}
+        case BUILTIN_FRAMECLOSE: {
+	  cout << "skipping frameclose during Verilog construction" << endl;
+	  break;
+	}
 	default: {
+	  cout << "StatementKind=" << stmtkindToString(s->getStmtKind()) << endl;
+	  cout << "Statement=" << s->toString() << endl;
 	  assert(!"-everilog unknown builtin stmt");
 	  break;
 	}
@@ -3304,6 +3342,7 @@ void tdfToVerilog_fsm_dp_toFile (OperatorBehavioral *op, EVerilogInfo *info)
   fout.close();
 }
 
+
 // 3rd September 2011: Nachiket
 void tdfToUCF(OperatorBehavioral *op, EVerilogInfo *info) 
 {
@@ -3337,6 +3376,80 @@ void tdfToVerilog_toFile (OperatorBehavioral *op)
 
   // 3rd September 2011: Nachiket writing out dummy best-guess UCF constraints
   tdfToUCF(op, &info);
+}
+
+void tdfToVerilog_segrw_toFile (Operator *op)
+{
+  // - emit Verilog for behavioral *op to ".v" files
+  // - creates files in current working directory:
+  //     <op>.v  <op>_fsm.v  <op>_dp.v
+
+  EVerilogInfo info;
+  op->map(tdfToVerilog_scanTdf_map, (TreeMap)NULL, (void*)&info);
+  
+  string fileName_blackbox = op->getName() + ".v";
+
+  ofstream fout(fileName_blackbox);
+  if (!fout)
+    fatal(1,"-everilog could not open output file "+fileName_blackbox);
+
+  // - emit Verilog wrapper module for *op
+  // - wrapper Verilog specifies inputs and outputs binding 
+  //   but no internal code
+
+  string ret;
+  string indent;
+  
+  string comment = "// Verilog top (segment) module for " + op->getName() + "\n"
+                 + "// " + tdfcComment() + "\n";
+  fout << comment;
+
+
+  // - segrw module declaration
+  ret = indent + "module " + op->getName() + " ("
+      +  CLOCK_NAME + ", " + RESET_NAME + ", ";
+  fout << ret;
+
+  fout << endl;
+
+  // - segrw module declaration:  stream I/O
+  // - HACK:  cast op into behavioral op
+  fout << tdfToVerilog_fsm_dp_args_toString((OperatorBehavioral*)op,&info);
+
+  // -  segrw module declaration:  finish
+  fout   << ")  ;\n";
+  indent += "  ";
+
+  fout << endl;
+
+  // - segrw module arg types:  clock, reset, stream I/O
+  // - HACK:  cast op into behavioral op
+  fout << tdfToVerilog_fsm_dp_argTypes_toString((OperatorBehavioral*)op,&info,
+					       indent);
+
+  fout << endl;
+
+  int DEPTH=0;
+  int ADDR_WIDTH=0;
+  int DATA_WIDTH=0;
+
+  // TODO: Add instantiation of SEG_rw..
+  fout << indent + "SEG_rw ";
+  fout << tdfToVerilog_fsm_dp_params_toString((OperatorBehavioral*)op,&info);
+  
+  fout << "(" << CLOCK_NAME << ", " << RESET_NAME << ", ";
+  fout << tdfToVerilog_fsm_dp_args_toString((OperatorBehavioral*)op,&info);	
+  fout << indent << ");";
+  
+  fout << endl;
+
+  // - finish
+  indent = indent(0,indent.length()-1-2);
+  ret = indent + "endmodule  // " + op->getName() + "\n";
+  fout << ret;
+  fout << endl;
+
+  fout.close();
 }
 
 
@@ -3394,8 +3507,13 @@ void tdfToVerilog_instance_OLD (Operator *iop,
 void tdfToVerilog_instance (Operator *iop,
 			    list<OperatorBehavioral*> *instances)
 {
-  if (iop->getOpKind()==OP_COMPOSE)
+  if (iop->getOpKind()==OP_COMPOSE) {
+    set_values(iop,true);				// - bind vals
+    resolve_bound_values(&iop);
     tdfToVerilog_compose((OperatorCompose*)iop);    // - emit page + contents
-  else
+  } else {
+    set_values(iop,true);				// - bind vals
+    resolve_bound_values(&iop);
     tdfToVerilog((OperatorBehavioral*)iop);	    // - emit indiv behav op
+  }
 }

@@ -72,8 +72,10 @@ public:
   static void	init		();		// initialize pre-defined types
 
   TypeKind	getTypeKind	() const	{ return typeKind;  }
+  void		setWidth	(int width_val) { width=width_val;     }
   int		getWidth	() const	{ return width;     }
   Expr*		getWidthExpr	() const	{ return widthExpr; }
+  void		setWidthExpr	(Expr* expr) 	{ widthExpr=expr; }
   Expr*		makeWidthExpr	() const;
   Expr*		getPredExpr	() const	{ return predExpr;  }
   bool		isSigned	() const	{ return signd; }

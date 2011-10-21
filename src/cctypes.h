@@ -49,6 +49,7 @@
 #define TYPE_SCORE_SEGMENT_OPERATOR_RANDOM_WRITE          "ScoreSegmentOperatorWriteOnly"
 #define TYPE_SCORE_SEGMENT_OPERATOR_RANDOM_READ_WRITE     "ScoreSegmentOperatorReadWrite"
 #define TYPE_SCORE_SEGMENT_OPERATOR_SEQUENTIAL_READ       "ScoreSegmentOperatorSeqReadOnly"
+#define TYPE_SCORE_SEGMENT_OPERATOR_SEQUENTIAL_CYCLIC_READ       "ScoreSegmentOperatorSeqCyclicReadOnly"
 #define TYPE_SCORE_SEGMENT_OPERATOR_SEQUENTIAL_WRITE      "ScoreSegmentOperatorSeqWriteOnly"
 #define TYPE_SCORE_SEGMENT_OPERATOR_SEQUENTIAL_READ_WRITE "ScoreSegmentOperatorSeqReadWrite"
 

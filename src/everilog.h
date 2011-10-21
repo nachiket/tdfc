@@ -80,6 +80,7 @@ string        tdfToVerilog_fsmbb_toString    (OperatorBehavioral *op,
 string        tdfToVerilog_fsm_dp_toString   (OperatorBehavioral *op,
 					      EVerilogInfo *info);
 void          tdfToVerilog_blackbox_toFile   (Operator *op);
+void          tdfToVerilog_segrw_toFile      (Operator *op);
 void          tdfToVerilog_toFile            (OperatorBehavioral *op);
 void          addEmptyLine                   (string *s);
 
