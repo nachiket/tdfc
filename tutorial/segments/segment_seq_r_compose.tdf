@@ -1,0 +1,10 @@
+segment_compose(
+param unsigned[256][16] contents,
+output unsigned[16] rddata
+) {
+
+	unsigned[16] rddata;
+
+	segment_seq_r(16, 8, 256, contents, rddata);
+
+}
