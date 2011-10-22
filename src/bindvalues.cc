@@ -1536,10 +1536,10 @@ bool set_values_preMap (Tree *t, void *aux)
   if (t->getKind()==TREE_EXPR)
     {
       Expr *expr = (Expr *)t;
-      if ( expr->getExprKind()==EXPR_CALL ||
+      if ( expr->getExprKind()==EXPR_CALL || (
 	  (expr->getExprKind()==EXPR_BUILTIN &&
 	   ((OperatorBuiltin*)((ExprBuiltin*)expr)->getOp())->
-				getBuiltinKind()==BUILTIN_SEGMENT) && aux)
+				getBuiltinKind()==BUILTIN_SEGMENT) && aux))
 	{
 	  ExprCall *ecall=(ExprCall *)expr;
 	  list <Expr*> *actuals=ecall->getArgs();
@@ -1626,7 +1626,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
   if(rec!=NULL)
   forall(sym,*(op->getArgs()))
     {
-      if (rec->isParam(i))
+      if (rec->isParam(i)) {
 	if (ccParamCausesInstance(sym))
 	  {
 	    SymbolVar *svar=(SymbolVar *)sym;
@@ -1670,6 +1670,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 			       rec->getParam(i)
 			       )),sym->getToken());
 	  }
+      }
       i++;
 	
     }
