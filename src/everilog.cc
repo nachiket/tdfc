@@ -3089,7 +3089,7 @@ string tdfToVerilog_dp_alwaysCombi_toString (OperatorBehavioral *op,
 	bool did_goto = false;
 	Stmt *s;
 	forall (s, *scase->getStmts()) {
-	  cout << "\t Kapre is generating Verilog for state=" << s->toString() <<  endl;
+//	  cout << "\t Kapre is generating Verilog for state=" << s->toString() <<  endl;
 	  tdfToVerilog_dp_stmt(op,info,s,&stmts,indent,&did_goto);
 	}
 	string stmt;
@@ -3482,6 +3482,7 @@ void tdfToVerilog_toCerr (OperatorBehavioral *op)
 void tdfToVerilog (OperatorBehavioral *op)
 {
   // - emit Verilog for behavioral operator *op
+  warn("Emitting Verilog for behavioral " + op->getName());
   tdfToVerilog_toFile(op);
 }
 

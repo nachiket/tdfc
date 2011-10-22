@@ -1927,6 +1927,7 @@ bool instanceSegmentOps_premap (Tree *t, void *i)
 	// - found call to segment op -- make instance
 	ExprBuiltin *segCall = (ExprBuiltin*)t;
 	Operator    *segOp   = segCall->getOp();
+        warn("Emitting Verilog for segment " + segOp->getName());
 ////	Operator *newSegOp   = (Operator*)segOp->duplicate();	// - uniq dup
 ////	newSegOp->link();
 ////	segCall->setOp(newSegOp);
@@ -1949,7 +1950,7 @@ void instanceSegmentOps (Operator *op)
   //     (unique duplicate, unique rename, bind param values)
   // - Segment ops are of type OperatorBuiltin and have no behavioral code,
   //     so instancing them is useful only for -everilog w/black box seg ops
-cout << " Wheeeeeeeeeeeeeee" << endl;
+//cout << " Wheeeeeeeeeeeeeee" << endl;
   op->map(instanceSegmentOps_premap);
 }
 
@@ -1964,7 +1965,7 @@ void tdfToVerilog_compose (OperatorCompose *iop)
 
   extern bool gPagePartitioning, gPagePartitioning1, gPagePartitioningMetis;
 
-  warn("Emitting Verilog for " + iop->getName());
+  warn("Emitting Verilog for compose " + iop->getName());
 
   // - make instances of segment ops  (WARNING: modifies iop)
   instanceSegmentOps(iop);
