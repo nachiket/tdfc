@@ -69,6 +69,10 @@
 #include "SEG_rw_fsm.h" // 20/Oct/2011
 #include "SEG_rw_dp.h" // 20/Oct/2011
 
+#include "SEG_r.h" // 22/Oct/2011
+#include "SEG_r_fsm.h" // 22/Oct/2011
+#include "SEG_r_dp.h" // 22/Oct/2011
+
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
 //#include <LEDA/core/map.h>
@@ -1606,6 +1610,10 @@ void tdfToVerilog_base_segments_toFile ()
   tdfToVerilog_base_segment_toFile("SEG_rw.v",	     	     SEG_rw);
   tdfToVerilog_base_segment_toFile("SEG_rw_dp.v",	     SEG_rw_dp);
   tdfToVerilog_base_segment_toFile("SEG_rw_fsm.v",	     SEG_rw_fsm);
+
+  tdfToVerilog_base_segment_toFile("SEG_r.v",	     	     SEG_r);
+  tdfToVerilog_base_segment_toFile("SEG_r_dp.v",	     SEG_r_dp);
+  tdfToVerilog_base_segment_toFile("SEG_r_fsm.v",	     SEG_r_fsm);
 }
 
 void tdfToVerilog_base_queues_toFile ()
