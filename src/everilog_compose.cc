@@ -1897,15 +1897,11 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
     OperatorSegment *calledop = (OperatorSegment*)segmentCall->getOp();
     assert(calledop->getOpKind()==OP_BUILTIN &&
 	   ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT);
-    // following tweo lines of code were added to deal with constant folding..
+	// following tweo lines of code were added to deal with constant folding..
         resolve_bound_values((Operator**)(&calledop));
         set_values(calledop, true);
-    if(calledop->getSegmentKind()==SEGMENT_RW) {
-    	tdfToVerilog_segrw_toFile(calledop);
-    } else {
-    	tdfToVerilog_blackbox_toFile(calledop);
-    }
-
+    	tdfToVerilog_seg_toFile(calledop);
+   	//tdfToVerilog_blackbox_toFile(calledop);    
   }
 }
 
