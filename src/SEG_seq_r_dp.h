@@ -1,21 +1,21 @@
 
-#ifndef _TDF_SEG_R_DP_
-#define _TDF_SEG_R_DP_
+#ifndef _TDF_SEG_SEQR_DP_
+#define _TDF_SEG_SEQR_DP_
 
-const char* SEG_r_dp = "\n\
-// SEG_r_dp.v\n\
+const char* SEG_seq_r_dp = "\n\
+// SEG_seqr_dp.v\n\
 // //\n\
-// //  - A read-only segment datapath (BlockRAM)\n\
+// //  - A sequential read-only segment datapath (BlockRAM)\n\
 // //\n\
 // //  - Nachiket Kapre,  22/Oct/11\n\
 // \n\
 // \n\
- `ifdef  SEG_r_dp\n\
+ `ifdef  SEG_seqr_dp\n\
  `else\n\
- `define SEG_r_dp\n\
+ `define SEG_seqr_dp\n\
 // \n\
 // \n\
-module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
+module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
   parameter nelems=0; \n\
   parameter dwidth=127;\n\
@@ -24,7 +24,6 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
   input  clock;\n\
   input  reset;\n\
 \n\
-  input  [awidth-1:0] addr_d;\n\
   output [dwidth-1:0] dataR_d;\n\
 \n\
   input  state;\n\
@@ -42,7 +41,6 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
 \n\
   reg [dwidth-1:0] contents_at_addrreg_;\n\
   reg [dwidth-1:0] contents [nelems-1:0];\n\
-  reg 	    en_;\n\
 \n\
   reg [awidth-1:0] addrreg, addrreg_;\n\
   reg [dwidth-1:0] datareg, datareg_;\n\
@@ -65,7 +63,6 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
       datareg <= 'b0;\n\
     end\n\
     else  begin\n\
-      if (en_) begin contents[addrreg] <= contents_at_addrreg_; end;	// +EC\n\
       addrreg <= addrreg_;\n\
       datareg <= datareg_;\n\
     end\n\
@@ -77,21 +74,19 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
 \n\
-    writereg_ = writereg;\n\
     addrreg_ = addrreg;\n\
     datareg_ = datareg;\n\
-\n\
-    en_       = 0;\n\
 \n\
     did_goto_ = 0;\n\
 \n\
     case (state)\n\
       state_steady:  begin\n\
         if (statecase == statecase_1)  begin\n\
-          addrreg_ = addr_d;\n\
-          begin\n\
+       		if(addrreg_ < nelems -1) begin \n\
+			addrreg_ = addrreg_+1; // TODO: Abid please add addrreg_<=N-1 check here.. \n\
+		end \n\
             dataR_d_ = contents[addrreg];		\n\
-          end\n\
+         // end\n\
           did_goto_ = 1;\n\
         end\n\
       end\n\
@@ -99,11 +94,11 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
   end  // always @*\n\
 \n\
 \n\
-endmodule // SEG_r_dp\n\
+endmodule // SEG_seqr_dp\n\
 \n\
 \n\
-`endif  // `ifdef  SEG_r_dp\n\
+`endif  // `ifdef  SEG_seqr_dp\n\
 ";
 
 
-#endif  // #ifndef _TDF_SEG_R_DP_
+#endif  // #ifndef _TDF_SEG_SEQR_DP_

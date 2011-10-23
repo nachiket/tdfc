@@ -3435,8 +3435,13 @@ void tdfToVerilog_seg_toFile (Operator *op)
   	inner_name="SEG_rw ";
   } else if(((OperatorSegment*)op)->getSegmentKind()==SEGMENT_R) {
   	inner_name="SEG_r ";
-  }
-
+  
+  } else if(((OperatorSegment*)op)->getSegmentKind()==SEGMENT_SEQ_R) {
+  	inner_name="SEG_seq_r ";
+  	
+  } else if(((OperatorSegment*)op)->getSegmentKind()==SEGMENT_SEQ_CYCLIC_R) {
+  	inner_name="SEG_seq_cyclic_r ";
+}
   fout << indent + inner_name;
   fout << tdfToVerilog_fsm_dp_params_toString((OperatorBehavioral*)op,&info);
   

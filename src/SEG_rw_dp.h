@@ -10,14 +10,14 @@ const char* SEG_rw_dp = "\n\
 // //  - Nachiket Kapre,  16/Oct/11\n\
 // \n\
 // \n\
-// `ifdef  SEG_rw_dp\n\
-// `else\n\
-// `define SEG_rw_dp\n\
+ `ifdef  SEG_rw_dp\n\
+ `else\n\
+ `define SEG_rw_dp\n\
 // \n\
 // \n\
 module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
-  parameter nelems=0; (unused?)\n\
+  parameter nelems=0; \n\
   parameter dwidth=127;\n\
   parameter awidth=7;\n\
 \n\
@@ -123,7 +123,7 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
           end\n\
           else  begin\n\
             dataR_d_ = contents[addrreg];		\n\
-          end\n\\n\
+          end\n\
           did_goto_ = 1;\n\
         end\n\
       end\n\

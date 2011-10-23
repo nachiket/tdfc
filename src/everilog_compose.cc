@@ -73,6 +73,13 @@
 #include "SEG_r_fsm.h" // 22/Oct/2011
 #include "SEG_r_dp.h" // 22/Oct/2011
 
+#include "SEG_seq_r.h" // 22/Oct/2011
+#include "SEG_seq_r_fsm.h" // 22/Oct/2011
+#include "SEG_seq_r_dp.h" // 22/Oct/2011
+
+#include "SEG_seq_cyclic_r.h" // 23/Oct/2011
+#include "SEG_seq_cyclic_r_fsm.h" // 23/Oct/2011
+#include "SEG_seq_cyclic_r_dp.h" // 23/Oct/2011
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
 //#include <LEDA/core/map.h>
@@ -1614,6 +1621,14 @@ void tdfToVerilog_base_segments_toFile ()
   tdfToVerilog_base_segment_toFile("SEG_r.v",	     	     SEG_r);
   tdfToVerilog_base_segment_toFile("SEG_r_dp.v",	     SEG_r_dp);
   tdfToVerilog_base_segment_toFile("SEG_r_fsm.v",	     SEG_r_fsm);
+  
+  tdfToVerilog_base_segment_toFile("SEG_seq_r.v",	     	     SEG_seq_r);
+  tdfToVerilog_base_segment_toFile("SEG_seq_r_dp.v",	     SEG_seq_r_dp);
+  tdfToVerilog_base_segment_toFile("SEG_seq_r_fsm.v",	     SEG_seq_r_fsm);
+  
+  tdfToVerilog_base_segment_toFile("SEG_seq_cyclic_r.v",	     	     SEG_seq_cyclic_r);
+  tdfToVerilog_base_segment_toFile("SEG_seq_cyclic_r_dp.v",	     SEG_seq_cyclic_r_dp);
+  tdfToVerilog_base_segment_toFile("SEG_seq_cyclic_r_fsm.v",	     SEG_seq_cyclic_r_fsm);
 }
 
 void tdfToVerilog_base_queues_toFile ()
