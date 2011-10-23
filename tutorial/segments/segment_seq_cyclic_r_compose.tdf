@@ -4,9 +4,7 @@ output unsigned[16] rddata
 ) {
 
 	unsigned[16] rddata;
-	unsigned[8] address;
 
-	address_gen(address);
-	segment_r(16, 8, 256, contents, address, rddata);
+	segment_seq_cyclic_r(16, 8, 256, contents, rddata);
 
 }

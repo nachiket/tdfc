@@ -754,7 +754,7 @@ bool collect_retime_exprs(Tree *t, void *aux)
 	  if ((val->getIntVal())==0)
 	    value_zero=1;
 	}
-      if (!value_zero)
+      if (!value_zero) {
 	if (rset!=(set<Expr *> *)NULL)
 	{
 	  rset->insert(rexpr);
@@ -765,6 +765,7 @@ bool collect_retime_exprs(Tree *t, void *aux)
 	    rset->insert(rexpr);
 	    sym->setAnnote(MAX_RETIME_DEPTH,(void *)rset);
 	  }
+      }
     }
 
   return(0);
@@ -1204,6 +1205,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
       *fout << "  }" << endl;
       // any final stuff
       if (!noReturnValue(rsym))
+      {
 	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
 	  {
 	    *fout <<"  if (!output_close[" 
@@ -1215,12 +1217,14 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 		  << ");" << endl;
 	  }
 	else
-	{
-	  *fout << "  STREAM_CLOSE(" 
-		<< "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		<< "]"
-		<< ");" << endl;
-	}
+	  {
+	    *fout << "  STREAM_CLOSE(" 
+	  	  << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
+	 	  << "]"
+		  << ");" << endl;
+	  }
+      }
+
       forall(sym,*argtypes)
 	{
 	  if (sym->isStream())

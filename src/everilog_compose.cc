@@ -69,6 +69,10 @@
 #include "SEG_rw_fsm.h" // 20/Oct/2011
 #include "SEG_rw_dp.h" // 20/Oct/2011
 
+#include "SEG_r.h" // 22/Oct/2011
+#include "SEG_r_fsm.h" // 22/Oct/2011
+#include "SEG_r_dp.h" // 22/Oct/2011
+
 #include <LEDA/core/list.h>
 #include <LEDA/core/array.h>
 //#include <LEDA/core/map.h>
@@ -1606,6 +1610,10 @@ void tdfToVerilog_base_segments_toFile ()
   tdfToVerilog_base_segment_toFile("SEG_rw.v",	     	     SEG_rw);
   tdfToVerilog_base_segment_toFile("SEG_rw_dp.v",	     SEG_rw_dp);
   tdfToVerilog_base_segment_toFile("SEG_rw_fsm.v",	     SEG_rw_fsm);
+
+  tdfToVerilog_base_segment_toFile("SEG_r.v",	     	     SEG_r);
+  tdfToVerilog_base_segment_toFile("SEG_r_dp.v",	     SEG_r_dp);
+  tdfToVerilog_base_segment_toFile("SEG_r_fsm.v",	     SEG_r_fsm);
 }
 
 void tdfToVerilog_base_queues_toFile ()
@@ -1889,15 +1897,11 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
     OperatorSegment *calledop = (OperatorSegment*)segmentCall->getOp();
     assert(calledop->getOpKind()==OP_BUILTIN &&
 	   ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT);
-    // following tweo lines of code were added to deal with constant folding..
+	// following tweo lines of code were added to deal with constant folding..
         resolve_bound_values((Operator**)(&calledop));
         set_values(calledop, true);
-    if(calledop->getSegmentKind()==SEGMENT_RW) {
-    	tdfToVerilog_segrw_toFile(calledop);
-    } else {
-    	tdfToVerilog_blackbox_toFile(calledop);
-    }
-
+    	tdfToVerilog_seg_toFile(calledop);
+   	//tdfToVerilog_blackbox_toFile(calledop);    
   }
 }
 
@@ -1919,6 +1923,7 @@ bool instanceSegmentOps_premap (Tree *t, void *i)
 	// - found call to segment op -- make instance
 	ExprBuiltin *segCall = (ExprBuiltin*)t;
 	Operator    *segOp   = segCall->getOp();
+        warn("Emitting Verilog for segment " + segOp->getName());
 ////	Operator *newSegOp   = (Operator*)segOp->duplicate();	// - uniq dup
 ////	newSegOp->link();
 ////	segCall->setOp(newSegOp);
@@ -1941,7 +1946,7 @@ void instanceSegmentOps (Operator *op)
   //     (unique duplicate, unique rename, bind param values)
   // - Segment ops are of type OperatorBuiltin and have no behavioral code,
   //     so instancing them is useful only for -everilog w/black box seg ops
-cout << " Wheeeeeeeeeeeeeee" << endl;
+//cout << " Wheeeeeeeeeeeeeee" << endl;
   op->map(instanceSegmentOps_premap);
 }
 
@@ -1956,7 +1961,7 @@ void tdfToVerilog_compose (OperatorCompose *iop)
 
   extern bool gPagePartitioning, gPagePartitioning1, gPagePartitioningMetis;
 
-  warn("Emitting Verilog for " + iop->getName());
+  warn("Emitting Verilog for compose " + iop->getName());
 
   // - make instances of segment ops  (WARNING: modifies iop)
   instanceSegmentOps(iop);

@@ -3089,7 +3089,7 @@ string tdfToVerilog_dp_alwaysCombi_toString (OperatorBehavioral *op,
 	bool did_goto = false;
 	Stmt *s;
 	forall (s, *scase->getStmts()) {
-	  cout << "\t Kapre is generating Verilog for state=" << s->toString() <<  endl;
+//	  cout << "\t Kapre is generating Verilog for state=" << s->toString() <<  endl;
 	  tdfToVerilog_dp_stmt(op,info,s,&stmts,indent,&did_goto);
 	}
 	string stmt;
@@ -3378,7 +3378,7 @@ void tdfToVerilog_toFile (OperatorBehavioral *op)
   tdfToUCF(op, &info);
 }
 
-void tdfToVerilog_segrw_toFile (Operator *op)
+void tdfToVerilog_seg_toFile (Operator *op)
 {
   // - emit Verilog for behavioral *op to ".v" files
   // - creates files in current working directory:
@@ -3429,12 +3429,15 @@ void tdfToVerilog_segrw_toFile (Operator *op)
 
   fout << endl;
 
-  int DEPTH=0;
-  int ADDR_WIDTH=0;
-  int DATA_WIDTH=0;
+  // TODO: Add instantiation of SEG_<type>..
+  string inner_name="";
+  if(((OperatorSegment *)op)->getSegmentKind()==SEGMENT_RW) {
+  	inner_name="SEG_rw ";
+  } else if(((OperatorSegment*)op)->getSegmentKind()==SEGMENT_R) {
+  	inner_name="SEG_r ";
+  }
 
-  // TODO: Add instantiation of SEG_rw..
-  fout << indent + "SEG_rw ";
+  fout << indent + inner_name;
   fout << tdfToVerilog_fsm_dp_params_toString((OperatorBehavioral*)op,&info);
   
   fout << "(" << CLOCK_NAME << ", " << RESET_NAME << ", ";
@@ -3482,6 +3485,7 @@ void tdfToVerilog_toCerr (OperatorBehavioral *op)
 void tdfToVerilog (OperatorBehavioral *op)
 {
   // - emit Verilog for behavioral operator *op
+  warn("Emitting Verilog for behavioral " + op->getName());
   tdfToVerilog_toFile(op);
 }
 

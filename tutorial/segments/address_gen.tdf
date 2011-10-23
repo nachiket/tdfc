@@ -1,0 +1,18 @@
+address_gen(
+output unsigned[8] address
+) {
+	
+	unsigned[8] address_r=0;
+
+	state generate_address():
+		address_r=(address_r+1)%256;
+		address=address_r;
+
+		if(address_r==255) {
+			goto done_state;
+		}
+
+	state done_state():
+		stay;
+
+}
