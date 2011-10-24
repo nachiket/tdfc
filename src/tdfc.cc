@@ -86,8 +86,9 @@ int      gCycleTime             = 1;	 // "-T" cycle time    for "-pt"
 // bool  gEmitStreamDepth	= false; // true for "-esd" stream depth analss
 int	 gStreamDepthMax	= 2;     // "-SD" max stream depth for "-esd"
 
-// - Nachiket: Added unroll factor option
+// - Nachiket: Added unroll factor and reduce depth option
 int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
+int	 gReduceDepth	= 1;     // "-r" specify reduce depth for computation...
 
 // - EC: should move these elsewhere, maybe to synplify.cc
 bool     gSynplify              = false; // true for "-synplify"
@@ -95,8 +96,8 @@ bool     gSynplify              = false; // true for "-synplify"
 enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
-		  TARGET_GAPPA,
-		  TARGET_GAPPA00,
+	      TARGET_GAPPA,
+	      TARGET_GAPPA00,
 	      TARGET_MICROBLAZE,
 	      TARGET_AUTOESL,
 	      TARGET_VERILOG,
@@ -694,8 +695,8 @@ bool print_postmap(Tree* t, void* i) {
 
 void doUnroll(int unroll_factor) {
 
-	if(unroll_factor==1)
-		return;
+  if(unroll_factor==1)
+    return;
 
   Operator *op;
   set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
@@ -704,7 +705,20 @@ void doUnroll(int unroll_factor) {
     unroll(op,unroll_factor);
   }
 
-	return;
+}
+
+void doReduceTree(int tree_depth) {
+
+  if(tree_depth==1)
+    return;
+
+  Operator *op;
+  set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
+  forall(op, set_of_operators_before_mod) { // allows us to iterate over a set we're modifying...
+    cout << "// operator " << op->getName() << '\n';
+    reduce_tree(op,tree_depth);
+  }
+
 }
 
 void emitTDF ()
@@ -1253,6 +1267,12 @@ int main(int argc, char *argv[])
       if (gUnrollFactor<0)
 	usage();
     }
+    else if (strcmp(argv[arg],"-r")==0		// -r <d>  : reduce tree depth
+			&& argc>=arg+1+1) {
+      gReduceDepth = atoi(argv[++arg]);
+      if (gReduceDepth<0)
+	usage();
+    }
     else if (argv[arg][0]=='-')			// -...  : unrecognised option
       usage();
     else					// file name to parse
@@ -1291,6 +1311,10 @@ int main(int argc, char *argv[])
     // - Perform operator unrolling
     timestamp(string("Unrolling operator with factor=")+string("%d",gUnrollFactor));
     doUnroll(gUnrollFactor);
+
+    // - Perform operator reduce-tree unroll
+    timestamp(string("Reduce-tree unrolling of operator with depth=")+string("%d",gReduceDepth));
+    doReduceTree(gReduceDepth);
 
     // - Add printf() calls to debug state firing
     if (optionDebugStateFiring) {
