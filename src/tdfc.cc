@@ -707,6 +707,119 @@ void doUnroll(int unroll_factor) {
 
 }
 
+void reduce_tree (Operator* op, int reduce_depth) {
+
+	// - unroll operators internal to the computation
+  	// - 20/Oct/2011 Testing Unroll+Banking
+    cout << string("begin processing unroll of ") << op->getName() << endl;
+
+    // reduce-tree unroll only possible on leaf nodes..
+    if(op->getOpKind()==OP_COMPOSE) {
+    	return;
+    }
+
+    // unrolling function
+    int i=0;
+    list<Operator*> *dupOpArr = new list<Operator*>();
+    for(i=reduce_depth;i>=0;i--)
+    {
+    	for(j=0;j<=2**i;j++)
+    	{
+	    Operator* dupOp = (Operator*)op->duplicate();
+	    string dupOpName=op->getName()+"_"+string("%d",i)+"_"+string("%d",j);
+	    //cout << "Name=" << dupOpName << endl;
+	    dupOp->setName(dupOpName);
+	    dupOpArr->append(dupOp);
+	}
+    }
+
+    // building COMPOSE operator...
+    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
+    list<Stmt*>     *cop_stmts=new list<Stmt*>;
+    // expand IOs...
+    list<Symbol*>   *args = op->getArgs();
+    list<Symbol*>   *cop_args = new list<Symbol*>;
+    Symbol *symStream;
+    forall (symStream,*op->getArgs()) {
+	        // - add symStream to new behav-op
+		if (symStream->isParam())   // - ignore params, they are bound
+			continue;
+		assert(symStream->isStream());
+
+		// replicate all operator streams
+		for(i=0;i<2**reduce_depth;i++) 
+		{
+			Symbol *newSymStreamDup=(Symbol*)symStream->duplicate();
+			newSymStreamDup->setName(symStream->getName()+"_"+string("%d",i));
+			cop_args->append(newSymStreamDup);
+		}
+    }
+
+    OperatorCompose *cop=new OperatorCompose(NULL,op->getName(),
+		    op->getRetSym(),cop_args,
+		    cop_vars,cop_stmts);
+
+    
+    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
+    i=0;
+    Operator* dupOp;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
+	    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
+	    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
+	    op_call_stmt->setParent(cop);
+
+	    // wiring up COMPOSEOP to OP and DUPOP calls..
+	    symStream=NULL;
+	    forall (symStream,*dupOp->getArgs()) {
+		    // - add symStream to new behav-op
+		    if (symStream->isParam())   // - ignore params, they are bound?
+			    continue;
+		    assert(symStream->isStream());
+
+		    // find symbol in composeOp
+		    Symbol* cop_symStream;
+		    bool found=false;
+		    forall (cop_symStream,*cop->getArgs()) {
+			    if(cop_symStream->getName() == string(symStream->getName()+"_"+string("%d",i))) {
+				    found=true;
+				    break;
+			    }
+		    }
+
+		    assert(found);
+
+		    // first wireup "OP"
+		    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
+		    op_call_expr->getArgs()->append(e);
+		    e->setParent(op_call_expr);
+	    }
+
+	    dupOp->thread(NULL); 
+	    dupOp->link();
+	    i++;
+    }
+
+    cop->thread(cop->getParent());
+    cop->link();
+
+    i=0;
+    dupOp=NULL;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    gSuite->addOperator(dupOp);
+    }
+    gSuite->removeOperator(op);
+    gSuite->addOperator(cop);
+    gSuite->link();
+
+// After some though, we decided to avoid doing split/merge...
+// Merge require fanin tracking and gathering...
+// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
+
+}
+
 void doReduceTree(int tree_depth) {
 
   if(tree_depth==1)
