@@ -86,6 +86,9 @@ int      gCycleTime             = 1;	 // "-T" cycle time    for "-pt"
 // bool  gEmitStreamDepth	= false; // true for "-esd" stream depth analss
 int	 gStreamDepthMax	= 2;     // "-SD" max stream depth for "-esd"
 
+// - Nachiket: Added unroll factor option
+int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
+
 // - EC: should move these elsewhere, maybe to synplify.cc
 bool     gSynplify              = false; // true for "-synplify"
 
@@ -520,6 +523,151 @@ set<string> *instances(Operator *op, Target targ,
   return(res);
 }
 
+void unroll (Operator* op, int unroll_factor)
+{
+	// - unroll operators internal to the computation
+  	// - 20/Oct/2011 Testing Unroll+Banking
+
+    timestamp(string("begin processing unroll of ")+op->getName());
+
+    // testing existence of segment operator in op...
+    /*
+    list<Stmt*> op_stmts = *((OperatorCompose*)op)->getStmts();
+    Stmt* op_stmt;
+    forall(op_stmt, op_stmts) {
+        if ((op_stmt->getStmtKind()==STMT_BUILTIN)) {
+	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+	    Expr *expr=((StmtBuiltin *)op_stmt)->getBuiltin();
+	    ExprBuiltin *ebuiltin=(ExprBuiltin*)expr;
+	    Expr* e_iter;
+	    if(((OperatorBuiltin*)ebuiltin->getOp())->getBuiltinKind()==BUILTIN_SEGMENT) {
+		int cntr=0;
+		forall(e_iter, *ebuiltin->getArgs()) {
+		    // need to HALVE depth of array here!
+		    cout << "exprbuiltin:" << e_iter->toString() << endl;
+		    if(cntr==1) {
+			    //awidth is here...
+			    Expr* e_iter_new = new ExprBop(NULL, '-', (Expr*)e_iter->duplicate(), constIntExpr(1));
+			    cout << e_iter_new->toString() << endl;
+			    e_iter=e_iter_new;
+		    } else if(cntr==2) {
+			    // nelems is here
+			    Expr* e_iter_new = new ExprBop(NULL, '/', (Expr*)e_iter->duplicate(), constIntExpr(2));
+			    cout << e_iter_new->toString() << endl;
+			    e_iter=e_iter_new;
+		    }
+		    cntr++;
+	    	}
+	    }
+	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+	}
+    }
+    */
+
+    // unrolling function
+    int i=0;
+    list<Operator*> *dupOpArr = new list<Operator*>();
+    for(i=0;i<unroll_factor;i++)
+    {
+	    Operator* dupOp = (Operator*)op->duplicate();
+	    string dupOpName=op->getName()+"_"+string("%d",i);
+//	    cout << "Name=" << dupOpName << endl;
+	    dupOp->setName(dupOpName);
+	    dupOpArr->append(dupOp);
+    }
+
+    // building COMPOSE operator...
+    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
+    list<Stmt*>     *cop_stmts=new list<Stmt*>;
+    // expand IOs...
+    list<Symbol*>   *args = op->getArgs();
+    list<Symbol*>   *cop_args = new list<Symbol*>;
+    Symbol *symStream;
+    forall (symStream,*op->getArgs()) {
+	        // - add symStream to new behav-op
+		if (symStream->isParam())   // - ignore params, they are bound
+			continue;
+		assert(symStream->isStream());
+
+		// duplicate all operator streams
+		for(i=0;i<unroll_factor;i++) 
+		{
+			Symbol *newSymStreamDup=(Symbol*)symStream->duplicate();
+			newSymStreamDup->setName(symStream->getName()+"_"+string("%d",i));
+			cop_args->append(newSymStreamDup);
+		}
+    }
+
+    OperatorCompose *cop=new OperatorCompose(NULL,op->getName(),
+		    op->getRetSym(),cop_args,
+		    cop_vars,cop_stmts);
+
+    
+    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
+    i=0;
+    Operator* dupOp;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
+	    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
+	    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
+	    op_call_stmt->setParent(cop);
+
+	    // wiring up COMPOSEOP to OP and DUPOP calls..
+	    symStream=NULL;
+	    forall (symStream,*dupOp->getArgs()) {
+		    // - add symStream to new behav-op
+		    if (symStream->isParam())   // - ignore params, they are bound?
+			    continue;
+		    assert(symStream->isStream());
+
+		    // find symbol in composeOp
+		    Symbol* cop_symStream;
+		    bool found=false;
+		    forall (cop_symStream,*cop->getArgs()) {
+			    if(cop_symStream->getName() == string(symStream->getName()+"_"+string("%d",i))) {
+				    found=true;
+				    break;
+			    }
+		    }
+
+		    assert(found);
+
+		    // first wireup "OP"
+		    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
+		    op_call_expr->getArgs()->append(e);
+		    e->setParent(op_call_expr);
+	    }
+
+	    dupOp->thread(NULL); 
+	    dupOp->link();
+	    i++;
+    }
+
+    cop->thread(cop->getParent());
+    cop->link();
+
+    i=0;
+    dupOp=NULL;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    gSuite->addOperator(dupOp);
+    }
+    gSuite->removeOperator(op);
+    gSuite->addOperator(cop);
+    gSuite->link();
+
+// After some though, we decided to avoid doing split/merge...
+// Merge require fanin tracking and gathering...
+// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
+
+}
+
+void doUnroll(int unroll_factor) {
+  Operator *op;
+  forall(op,*gSuite->getOperators())
+    unroll(op,unroll_factor);
+}
 
 void emitTDF ()
 {
@@ -617,181 +765,11 @@ void emitCC (int dpr, int dps)
   Operator* iterop;
   forall(iterop,*(gSuite->getOperators()))
   {
+    op=iterop;
     ccheader(op); 
     ccbody(op,dpr); // NACHIKET
-//	  op=iterop;
   }
 
-  /* 20/Oct/2011 Testing Unroll+Banking
-    timestamp(string("begin processing ")+op->getName());
-
-    // testing existence of segment operator in op...
-    list<Stmt*> op_stmts = *((OperatorCompose*)op)->getStmts();
-    Stmt* op_stmt;
-    forall(op_stmt, op_stmts) {
-	    cout << "Statement=" << op_stmt->toString() <<endl;
-        if ((op_stmt->getStmtKind()==STMT_BUILTIN)) {
-	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
-	    Expr *expr=((StmtBuiltin *)op_stmt)->getBuiltin();
-	    ExprBuiltin *ebuiltin=(ExprBuiltin*)expr;
-	    Expr* e_iter;
-	    if(((OperatorBuiltin*)ebuiltin->getOp())->getBuiltinKind()==BUILTIN_SEGMENT) {
-		int cntr=0;
-		forall(e_iter, *ebuiltin->getArgs()) {
-		    // need to HALVE depth of array here!
-		    cout << "exprbuiltin:" << e_iter->toString() << endl;
-		    if(cntr==1) {
-			    //awidth is here...
-			    Expr* e_iter_new = new ExprBop(NULL, '-', (Expr*)e_iter->duplicate(), constIntExpr(1));
-			    cout << e_iter_new->toString() << endl;
-			    e_iter=e_iter_new;
-		    } else if(cntr==2) {
-			    // nelems is here
-			    Expr* e_iter_new = new ExprBop(NULL, '/', (Expr*)e_iter->duplicate(), constIntExpr(2));
-			    cout << e_iter_new->toString() << endl;
-			    e_iter=e_iter_new;
-		    }
-		    cntr++;
-	    	}
-	    }
-	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
-	}
-    }
-
-    ccheader(op); 
-    ccbody(op,dpr); // NACHIKET
-
-    // testing DUPLICATE function
-    Operator* dupOp = (Operator*)op->duplicate();
-    dupOp->setName(string("nachiket_duplicateop"));
-    ccheader(dupOp);
-    ccbody(dupOp, dpr);
-
-    // building COMPOSE operator...
-    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
-    list<Stmt*>     *cop_stmts=new list<Stmt*>;
-    // expand IOs...
-    list<Symbol*>   *args = op->getArgs();
-    list<Symbol*>   *cop_args = new list<Symbol*>;
-    Symbol *symStream;
-    forall (symStream,*op->getArgs()) {
-	        // - add symStream to new behav-op
-		if (symStream->isParam())   // - ignore params, they are bound
-			continue;
-		assert(symStream->isStream());
-
-		// duplicate
-		Symbol *newSymStream0=(Symbol*)symStream->duplicate();
-		newSymStream0->setName(symStream->getName()+"_0");
-		cop_args->append(newSymStream0);
-		Symbol *newSymStream1=(Symbol*)symStream->duplicate();
-		newSymStream1->setName(symStream->getName()+"_1");
-		cop_args->append(newSymStream1);
-
-    }
-
-    OperatorCompose *cop=new OperatorCompose(NULL,string("nachiket_composedop"),
-		    op->getRetSym(),cop_args,
-		    cop_vars,cop_stmts);
-
-    
-    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
-    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,op);
-    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
-    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
-    op_call_stmt->setParent(cop);
-
-    ExprCall *dupop_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
-    StmtCall *dupop_call_stmt=new StmtCall(NULL,dupop_call_expr);
-    cop->getStmts()->append(dupop_call_stmt);     // - HACK: modifying stmt list
-    dupop_call_stmt->setParent(cop);
-
-    // wiring up COMPOSEOP to OP and DUPOP calls..
-    symStream=NULL;
-    forall (symStream,*op->getArgs()) {
-	    // - add symStream to new behav-op
-	    if (symStream->isParam())   // - ignore params, they are bound?
-		    continue;
-	    assert(symStream->isStream());
-
-	    // find symbol in composeOp
-	    Symbol* cop_symStream;
-	    bool found=false;
-    	    forall (cop_symStream,*cop->getArgs()) {
-		    if(cop_symStream->getName() == string(symStream->getName()+"_0")) {
-			    found=true;
-			    break;
-		    }
-	    }
-
-	    assert(found);
-
-	    // first wireup "OP"
-	    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
-	    op_call_expr->getArgs()->append(e);
-	    e->setParent(op_call_expr);
-    }
-	    
-    forall (symStream,*dupOp->getArgs()) {
-	    // - add symStream to new behav-op
-	    if (symStream->isParam())   // - ignore params, they are bound?
-		    continue;
-	    assert(symStream->isStream());
-	    
-	    // find symbol in composeOp
-	    Symbol* cop_symStream;
-	    bool found=false;
-    	    forall (cop_symStream,*cop->getArgs()) {
-		    if(cop_symStream->getName() == string(symStream->getName()+"_1")) {
-			    found=true;
-			    break;
-		    }
-	    }
-
-	    assert(found);
-
-	    // second wireup "DUPOP"
-	    ExprLValue *dupe=new ExprLValue(NULL,cop_symStream);
-	    dupop_call_expr->getArgs()->append(dupe);
-	    dupe->setParent(dupop_call_expr);
-    }
-
-
-    op->thread(NULL); 
-    op->link();
-    dupOp->thread(NULL);
-    dupOp->link();
-    cop->thread(cop->getParent());
-    cop->link();
-
-    gSuite->addOperator(dupOp);
-    gSuite->addOperator(cop);
-    gSuite->link();
-// After some though, we decided to avoid doing split/merge...
-// Merge require fanin tracking and gathering...
-// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
-//    doCopyOps((Tree**)&gSuite);
-
-    ccheader(cop);
-    ccbody(cop, dpr);
-
-    */ // 20/Oct/2011 Unrolling+Banking transformations..
-
-    /*timestamp(string("begin instances for ")+op->getName());
-    set<string>* instance_names=instances(op,TARGET_CC,dps); 
-    
-    string fname=op->getName() + string(".instances");
-    ofstream *fout=new ofstream(fname);
-    string str;
-    forall(str,*instance_names)
-      {
-	*fout << " " << str;
-      }
-    *fout << endl;
-    fout->close();
-    */
-    
-    //cout << endl;
 }
 
 void emitCUDA ()
@@ -1231,6 +1209,12 @@ int main(int argc, char *argv[])
       if (gStreamDepthMax<0)
 	usage();
     }
+    else if (strcmp(argv[arg],"-u")==0		// -u <d>  : unroll factor
+			&& argc>=arg+1+1) {
+      gUnrollFactor = atoi(argv[++arg]);
+      if (gUnrollFactor<0)
+	usage();
+    }
     else if (argv[arg][0]=='-')			// -...  : unrecognised option
       usage();
     else					// file name to parse
@@ -1265,6 +1249,10 @@ int main(int argc, char *argv[])
     // - Infer fanout and expand calls to copy() fanout operator
     timestamp(string("begin infering fanout and expanding copy()"));
     doCopyOps((Tree**)&gSuite);
+
+    // - Perform operator unrolling
+    timestamp(string("Unrolling operator with factor=")+string("%d",gUnrollFactor));
+    doUnroll(gUnrollFactor);
 
     // - Add printf() calls to debug state firing
     if (optionDebugStateFiring) {
