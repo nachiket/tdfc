@@ -531,38 +531,44 @@ void unroll (Operator* op, int unroll_factor)
     timestamp(string("begin processing unroll of ")+op->getName());
 
     // testing existence of segment operator in op...
-    /*
+    if(op->getOpKind()==OP_COMPOSE) {
     list<Stmt*> op_stmts = *((OperatorCompose*)op)->getStmts();
     Stmt* op_stmt;
     forall(op_stmt, op_stmts) {
         if ((op_stmt->getStmtKind()==STMT_BUILTIN)) {
-	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+//	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
 	    Expr *expr=((StmtBuiltin *)op_stmt)->getBuiltin();
+//	    cout << "Expressions=" << expr->toString() <<endl;
 	    ExprBuiltin *ebuiltin=(ExprBuiltin*)expr;
 	    Expr* e_iter;
 	    if(((OperatorBuiltin*)ebuiltin->getOp())->getBuiltinKind()==BUILTIN_SEGMENT) {
 		int cntr=0;
-		forall(e_iter, *ebuiltin->getArgs()) {
+		forall(e_iter, *ebuiltin->getMutableArgs()) {
 		    // need to HALVE depth of array here!
-		    cout << "exprbuiltin:" << e_iter->toString() << endl;
+		    // Assume that EXPR is of type ExprValue.. no symbolic bs allowed here!
+		    if(!e_iter->getExprKind()==EXPR_VALUE && (cntr==1 || cntr==2)) { 
+			   cout << "ERROR: Assume bindvalues have already assigned segment params to constants.." << exprkindToString(e_iter->getExprKind()) << endl;			   		    }
+
 		    if(cntr==1) {
 			    //awidth is here...
-			    Expr* e_iter_new = new ExprBop(NULL, '-', (Expr*)e_iter->duplicate(), constIntExpr(1));
-			    cout << e_iter_new->toString() << endl;
-			    e_iter=e_iter_new;
+			    int awidth=((ExprValue*)e_iter)->getIntVal();
+			    assert(awidth!=0);
+			    ((ExprValue*)e_iter)->setIntVal(awidth-1);
 		    } else if(cntr==2) {
 			    // nelems is here
-			    Expr* e_iter_new = new ExprBop(NULL, '/', (Expr*)e_iter->duplicate(), constIntExpr(2));
-			    cout << e_iter_new->toString() << endl;
-			    e_iter=e_iter_new;
+			    int nelems=((ExprValue*)e_iter)->getIntVal();
+			    assert(nelems!=0);
+			    ((ExprValue*)e_iter)->setIntVal(nelems/2);
 		    }
+//		    cout << "exprbuiltin:" << e_iter->toString() << endl;
 		    cntr++;
 	    	}
 	    }
-	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+//	    cout << "Expressions=" << expr->toString() <<endl;
+//	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
 	}
     }
-    */
+    }
 
     // unrolling function
     int i=0;

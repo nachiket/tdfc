@@ -183,6 +183,7 @@ public:
 
   Operator*		getOp		() const	 { return op;   }
   list<Expr*>*		getArgs		() const	 { return args; }
+  list<Expr*>*		getMutableArgs	()      	 { return args; }
   void			setOp		(Operator *op_i) { assert(op=op_i); }
 
   virtual bool		equals		(const Expr *x) const;
