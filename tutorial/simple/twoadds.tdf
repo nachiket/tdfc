@@ -1,0 +1,10 @@
+twoadds(
+input double a,
+input double b,
+output double c1,
+output double c2
+)
+{
+	add(a,b,c1);
+	add(a,b,c2);
+}
