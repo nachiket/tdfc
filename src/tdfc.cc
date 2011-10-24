@@ -523,12 +523,22 @@ set<string> *instances(Operator *op, Target targ,
   return(res);
 }
 
-void unroll (Operator* op, int unroll_factor)
+bool unroll_premap (Tree* t, void* j)
 {
+	if(t->getKind()==TREE_SUITE) {
+		return false;
+	} else if(t->getKind()==TREE_OPERATOR) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void unroll (Operator* op, int unroll_factor) {
+
 	// - unroll operators internal to the computation
   	// - 20/Oct/2011 Testing Unroll+Banking
-
-    timestamp(string("begin processing unroll of ")+op->getName());
+    cout << string("begin processing unroll of ") << op->getName() << endl;
 
     // testing existence of segment operator in op...
     if(op->getOpKind()==OP_COMPOSE) {
@@ -568,7 +578,6 @@ void unroll (Operator* op, int unroll_factor)
 //	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
 	}
     }
-    return;
     }
 
     // unrolling function
@@ -578,7 +587,7 @@ void unroll (Operator* op, int unroll_factor)
     {
 	    Operator* dupOp = (Operator*)op->duplicate();
 	    string dupOpName=op->getName()+"_"+string("%d",i);
-//	    cout << "Name=" << dupOpName << endl;
+	    cout << "Name=" << dupOpName << endl;
 	    dupOp->setName(dupOpName);
 	    dupOpArr->append(dupOp);
     }
@@ -670,14 +679,32 @@ void unroll (Operator* op, int unroll_factor)
 
 }
 
+bool print_premap(Tree* t, void* i) {
+	// Jesus!
+	cout << t->toString() << endl;
+	return false;
+}
+
+bool print_postmap(Tree* t, void* i) {
+	// Jesus!
+	cout << "WTF" << endl;
+	return true;
+}
+
+
 void doUnroll(int unroll_factor) {
 
 	if(unroll_factor==1)
 		return;
 
   Operator *op;
-  forall(op,*gSuite->getOperators())
+  set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
+  forall(op, set_of_operators_before_mod) { // allows us to iterate over a set we're modifying...
+    cout << "// operator " << op->getName() << '\n';
     unroll(op,unroll_factor);
+  }
+
+	return;
 }
 
 void emitTDF ()
