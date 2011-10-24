@@ -664,6 +664,10 @@ void unroll (Operator* op, int unroll_factor)
 }
 
 void doUnroll(int unroll_factor) {
+
+	if(unroll_factor==1)
+		return;
+
   Operator *op;
   forall(op,*gSuite->getOperators())
     unroll(op,unroll_factor);
