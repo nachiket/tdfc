@@ -568,6 +568,7 @@ void unroll (Operator* op, int unroll_factor)
 //	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
 	}
     }
+    return;
     }
 
     // unrolling function
