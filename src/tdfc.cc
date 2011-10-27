@@ -86,8 +86,9 @@ int      gCycleTime             = 1;	 // "-T" cycle time    for "-pt"
 // bool  gEmitStreamDepth	= false; // true for "-esd" stream depth analss
 int	 gStreamDepthMax	= 2;     // "-SD" max stream depth for "-esd"
 
-// - Nachiket: Added unroll factor option
+// - Nachiket: Added unroll factor and reduce depth option
 int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
+int	 gReduceDepth	= 1;     // "-r" specify reduce depth for computation...
 
 // - EC: should move these elsewhere, maybe to synplify.cc
 bool     gSynplify              = false; // true for "-synplify"
@@ -95,8 +96,8 @@ bool     gSynplify              = false; // true for "-synplify"
 enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
-		  TARGET_GAPPA,
-		  TARGET_GAPPA00,
+	      TARGET_GAPPA,
+	      TARGET_GAPPA00,
 	      TARGET_MICROBLAZE,
 	      TARGET_AUTOESL,
 	      TARGET_VERILOG,
@@ -694,8 +695,8 @@ bool print_postmap(Tree* t, void* i) {
 
 void doUnroll(int unroll_factor) {
 
-	if(unroll_factor==1)
-		return;
+  if(unroll_factor==1)
+    return;
 
   Operator *op;
   set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
@@ -704,7 +705,133 @@ void doUnroll(int unroll_factor) {
     unroll(op,unroll_factor);
   }
 
-	return;
+}
+
+void reduce_tree (Operator* op, int reduce_depth) {
+
+	// - unroll operators internal to the computation
+  	// - 20/Oct/2011 Testing Unroll+Banking
+    cout << string("begin processing unroll of ") << op->getName() << endl;
+
+    // reduce-tree unroll only possible on leaf nodes..
+    if(op->getOpKind()==OP_COMPOSE) {
+    	return;
+    }
+
+    // unrolling function
+    int i=0;
+    list<Operator*> *dupOpArr = new list<Operator*>();
+    for(i=reduce_depth;i>=0;i--)
+    {
+    	for(j=0;j<=2**i;j++)
+    	{
+	    Operator* dupOp = (Operator*)op->duplicate();
+	    string dupOpName=op->getName()+"_"+string("%d",i)+"_"+string("%d",j);
+	    //cout << "Name=" << dupOpName << endl;
+	    dupOp->setName(dupOpName);
+	    dupOpArr->append(dupOp);
+	}
+    }
+
+    // building COMPOSE operator...
+    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
+    list<Stmt*>     *cop_stmts=new list<Stmt*>;
+    // expand IOs...
+    list<Symbol*>   *args = op->getArgs();
+    list<Symbol*>   *cop_args = new list<Symbol*>;
+    Symbol *symStream;
+    forall (symStream,*op->getArgs()) {
+	        // - add symStream to new behav-op
+		if (symStream->isParam())   // - ignore params, they are bound
+			continue;
+		assert(symStream->isStream());
+
+		// replicate all operator streams
+		for(i=0;i<2**reduce_depth;i++) 
+		{
+			Symbol *newSymStreamDup=(Symbol*)symStream->duplicate();
+			newSymStreamDup->setName(symStream->getName()+"_"+string("%d",i));
+			cop_args->append(newSymStreamDup);
+		}
+    }
+
+    OperatorCompose *cop=new OperatorCompose(NULL,op->getName(),
+		    op->getRetSym(),cop_args,
+		    cop_vars,cop_stmts);
+
+    
+    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
+    i=0;
+    Operator* dupOp;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
+	    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
+	    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
+	    op_call_stmt->setParent(cop);
+
+	    // wiring up COMPOSEOP to OP and DUPOP calls..
+	    symStream=NULL;
+	    forall (symStream,*dupOp->getArgs()) {
+		    // - add symStream to new behav-op
+		    if (symStream->isParam())   // - ignore params, they are bound?
+			    continue;
+		    assert(symStream->isStream());
+
+		    // find symbol in composeOp
+		    Symbol* cop_symStream;
+		    bool found=false;
+		    forall (cop_symStream,*cop->getArgs()) {
+			    if(cop_symStream->getName() == string(symStream->getName()+"_"+string("%d",i))) {
+				    found=true;
+				    break;
+			    }
+		    }
+
+		    assert(found);
+
+		    // first wireup "OP"
+		    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
+		    op_call_expr->getArgs()->append(e);
+		    e->setParent(op_call_expr);
+	    }
+
+	    dupOp->thread(NULL); 
+	    dupOp->link();
+	    i++;
+    }
+
+    cop->thread(cop->getParent());
+    cop->link();
+
+    i=0;
+    dupOp=NULL;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    gSuite->addOperator(dupOp);
+    }
+    gSuite->removeOperator(op);
+    gSuite->addOperator(cop);
+    gSuite->link();
+
+// After some though, we decided to avoid doing split/merge...
+// Merge require fanin tracking and gathering...
+// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
+
+}
+
+void doReduceTree(int tree_depth) {
+
+  if(tree_depth==1)
+    return;
+
+  Operator *op;
+  set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
+  forall(op, set_of_operators_before_mod) { // allows us to iterate over a set we're modifying...
+    cout << "// operator " << op->getName() << '\n';
+    reduce_tree(op,tree_depth);
+  }
+
 }
 
 void emitTDF ()
@@ -1253,6 +1380,12 @@ int main(int argc, char *argv[])
       if (gUnrollFactor<0)
 	usage();
     }
+    else if (strcmp(argv[arg],"-r")==0		// -r <d>  : reduce tree depth
+			&& argc>=arg+1+1) {
+      gReduceDepth = atoi(argv[++arg]);
+      if (gReduceDepth<0)
+	usage();
+    }
     else if (argv[arg][0]=='-')			// -...  : unrecognised option
       usage();
     else					// file name to parse
@@ -1291,6 +1424,10 @@ int main(int argc, char *argv[])
     // - Perform operator unrolling
     timestamp(string("Unrolling operator with factor=")+string("%d",gUnrollFactor));
     doUnroll(gUnrollFactor);
+
+    // - Perform operator reduce-tree unroll
+    timestamp(string("Reduce-tree unrolling of operator with depth=")+string("%d",gReduceDepth));
+    doReduceTree(gReduceDepth);
 
     // - Add printf() calls to debug state firing
     if (optionDebugStateFiring) {
