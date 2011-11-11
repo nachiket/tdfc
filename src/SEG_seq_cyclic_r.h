@@ -29,24 +29,24 @@
 //////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef _TDF_SEG_SEQR_
-#define _TDF_SEG_SEQR_
+#ifndef _TDF_SEG_SEQCYCLICR_
+#define _TDF_SEG_SEQCYCLICR_
 
 
-const char* SEG_seqr = "\n\
-// SEG_seqr.v\n\
+const char* SEG_seq_cyclic_r = "\n\
+// SEG_seq_cyclic_r.v\n\
 //\n\
 //  - A read-only segment mapped to a BlockRAM\n\
 //\n\
-//  - Nachiket Kapre,  22/Oct/11\n\
+//  - Nachiket Kapre, amended by Abid Rafique  23/Oct/11\n\
 \n\
 \n\
-`ifdef  SEG_seqr\n\
+`ifdef  SEG_seq_cyclic_r\n\
 `else\n\
-`define SEG_seqr\n\
+`define SEG_seq_cyclic_r\n\
 \n\
 \n\
-module SEG_seqr (clock, reset, dataR_d, dataR_e, dataR_v, dataR_b);\n\
+module SEG_seq_cyclic_r (clock, reset, dataR_d, dataR_e, dataR_v, dataR_b);\n\
 \n\
    parameter nelems =  0;    // - greatest #items in memory (maybe unused) \n\
    parameter awidth = 16;    // - width of arrr (addr_d)\n\
@@ -65,14 +65,14 @@ module SEG_seqr (clock, reset, dataR_d, dataR_e, dataR_v, dataR_b);\n\
    wire flag_steady_0;\n\
    wire flag_steady_1;\n\
 \n\
-   SEG_seqr_fsm fsm (clock, reset, dataR_e, dataR_v, dataR_b, state, statecase, flag_steady_0, flag_steady_1);\n\
-   SEG_seqr_dp #(.nelems(nelems),.awidth(awidth),.dwidth(dwidth)) dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
+   SEG_seq_cyclic_r_fsm fsm (clock, reset, dataR_e, dataR_v, dataR_b, state, statecase, flag_steady_0, flag_steady_1);\n\
+   SEG_seq_cyclic_r_dp #(.nelems(nelems),.awidth(awidth),.dwidth(dwidth)) dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
 \n\
-endmodule // SEG_seqr\n\
+endmodule // SEG_seq_cyclic_r\n\
 \n\
 \n\
-`endif	// `ifdef  SEG_seqr\n\
+`endif	// `ifdef  SEG_seq_cyclic_r\n\
 ";
 
 

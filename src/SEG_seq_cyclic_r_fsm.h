@@ -1,20 +1,20 @@
-#ifndef _TDF_SEG_SEQR_FSM_
-#define _TDF_SEG_SEQR_FSM_
+#ifndef _TDF_SEG_SEQCYCLICR_FSM_
+#define _TDF_SEG_SEQCYCLICR_FSM_
 
-const char* SEG_seqr_fsm = "\n\
+const char* SEG_seq_cyclic_r_fsm = "\n\
 // SEG_seqr_fsm.v\n\
 // //\n\
 // //  - A read-only segment FSM\n\
 // //\n\
-// //  - Nachiket Kapre,  22/Oct/11\n\
+// //  - Nachiket Kapre,  22/Oct/11 Amended by Abid on 23/Oct/2011\n\
 // \n\
 // \n\
-// `ifdef  SEG_seqr_fsm\n\
-// `else\n\
-// `define SEG_seqr_fsm\n\
+ `ifdef  SEG_seq_cyclic_r_fsm\n\
+ `else\n\
+ `define SEG_seq_cyclic_r_fsm\n\
 // \n\
 // \n\
-module SEG_seqr_fsm (clock, reset, dataR_e, dataR_v, dataR_b, state, statecase, flag_steady_0, flag_steady_1);\n\
+module SEG_seq_cyclic_r_fsm (clock, reset, dataR_e, dataR_v, dataR_b, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
   input  clock;\n\
   input  reset;\n\
@@ -87,10 +87,10 @@ module SEG_seqr_fsm (clock, reset, dataR_e, dataR_v, dataR_b, state, statecase, 
 \n\
   end  // always @*\n\
 \n\
-endmodule  // SEG_seqr_fsm\n\
+endmodule  // SEG_seq_cyclic_r_fsm\n\
 \n\
 \n\
-`endif   // `ifdef SEG_seqr_fsm\n\
+`endif   // `ifdef SEG_seq_cyclic_r_fsm\n\
 ";
 
-#endif  // #ifdef _TDF_SEG_SEQR_FSM_
+#endif  // #ifdef _TDF_SEG_SEQCYCLICR_FSM_

@@ -1,23 +1,23 @@
 
-#ifndef _TDF_SEG_SEQR_DP_
-#define _TDF_SEG_SEQR_DP_
+#ifndef _TDF_SEG_SEQCYCLICR_DP_
+#define _TDF_SEG_SEQCYCLICR_DP_
 
-const char* SEG_seqr_dp = "\n\
-// SEG_seqr_dp.v\n\
+const char* SEG_seq_cyclic_r_dp = "\n\
+// SEG_seq_cyclic_r_dp.v\n\
 // //\n\
-// //  - A sequential read-only segment datapath (BlockRAM)\n\
+// //  - A sequential cyclic read-only segment datapath (BlockRAM)\n\
 // //\n\
-// //  - Nachiket Kapre,  22/Oct/11\n\
+// //  - Nachiket Kapre,  22/Oct/11 Amended by Abid Rafique 23/Oct/11\n\
 // \n\
 // \n\
-// `ifdef  SEG_seqr_dp\n\
-// `else\n\
-// `define SEG_seqr_dp\n\
+ `ifdef  SEG_seq_cyclic_r_dp\n\
+ `else\n\
+ `define SEG_seq_cyclic_r_dp\n\
 // \n\
 // \n\
-module SEG_seqr_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
+module SEG_seq_cyclic_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
-  parameter nelems=0; (unused?)\n\
+  parameter nelems=0; \n\
   parameter dwidth=127;\n\
   parameter awidth=7;\n\
 \n\
@@ -74,7 +74,6 @@ module SEG_seqr_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
 \n\
-    writereg_ = writereg;\n\
     addrreg_ = addrreg;\n\
     datareg_ = datareg;\n\
 \n\
@@ -83,10 +82,14 @@ module SEG_seqr_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag
     case (state)\n\
       state_steady:  begin\n\
         if (statecase == statecase_1)  begin\n\
-          addrreg_ = addrreg_+1; // TODO: Abid please add addrreg_<=N-1 check here.. \n\
-          begin\n\
+	       	if(addrreg_ < nelems -1) begin\n\
+			 addrreg_ = addrreg_+1; // TODO: Abid please add addrreg_<=N-1 check here.. \n\
+		end \n\
+		else begin\n\
+			addrreg_ = 0; \n\
+		end \n\
             dataR_d_ = contents[addrreg];		\n\
-          end\n\
+        //  end\n\
           did_goto_ = 1;\n\
         end\n\
       end\n\
@@ -94,10 +97,10 @@ module SEG_seqr_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, flag
   end  // always @*\n\
 \n\
 \n\
-endmodule // SEG_seqr_dp\n\
+endmodule // SEG_seq_cyclic_r_dp\n\
 \n\
 \n\
-`endif  // `ifdef  SEG_seqr_dp\n\
+`endif  // `ifdef  SEG_seq_cyclic_r_dp\n\
 ";
 
 

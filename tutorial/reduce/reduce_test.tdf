@@ -1,0 +1,20 @@
+reduce_test(
+param unsigned[16] N,
+input double a,
+output double b)
+{
+	double accum_val=0;
+	unsigned[16] cntr=0;
+
+	state accumulate(a):
+		accum_val=accum_val+a;
+		cntr=(cntr+1)%N;
+		if(cntr==0) {
+			goto drive_output;	
+		}
+	
+	state drive_output():
+		b=accum_val;
+		goto accumulate;
+
+}

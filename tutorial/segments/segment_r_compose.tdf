@@ -3,7 +3,6 @@ param unsigned[256][16] contents,
 output unsigned[16] rddata
 ) {
 
-	unsigned[16] rddata;
 	unsigned[8] address;
 
 	address_gen(address);
