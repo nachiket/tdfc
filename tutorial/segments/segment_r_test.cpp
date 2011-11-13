@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     int index=0;
     while(1) {
     	if(!STREAM_EMPTY(rddata)) {
-//	  cout << "Index= " << index++ << " Data= " << STREAM_READ_NOACC(rddata) << endl;
+	  cout << "Index= " << index++ << " Data= " << STREAM_READ_NOACC(rddata) << endl;
 	  STREAM_READ_NOACC(rddata);
 	}
     }
