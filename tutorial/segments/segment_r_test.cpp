@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
     score_init();
 
-    UNSIGNED_SCORE_SEGMENT contents = NEW_UNSIGNED_SCORE_SEGMENT(16, 16);
+    UNSIGNED_SCORE_SEGMENT contents = NEW_UNSIGNED_SCORE_SEGMENT(256, 16);
 //    contents->returnAccess();
 //    for(int i=0;i<16;i++) {
 //	contents->setData(i,i);

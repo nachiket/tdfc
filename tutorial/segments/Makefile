@@ -10,7 +10,7 @@ ALL_TDF=*.tdf
 
 ALL: 	$(ALL_TDF:.tdf=.cc) segment_r_test.o segment_seq_r_test.o segment_seq_cyclic_r_test.o
 
-$(ALL_TDF:.tdf=.cc):
+$(ALL_TDF:.tdf=.cc): $(ALL_TDF)
 	tdfc -ecc *.tdf 
 
 clean:	
