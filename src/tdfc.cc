@@ -719,11 +719,11 @@ void reduce_tree (Operator* op, int reduce_depth) {
     }
 
     // unrolling function
-    int i=0;
+    int i=0,j=0;
     list<Operator*> *dupOpArr = new list<Operator*>();
     for(i=reduce_depth;i>=0;i--)
     {
-    	for(j=0;j<=2**i;j++)
+    	for(j=0;j<=pow(2,i);j++)
     	{
 	    Operator* dupOp = (Operator*)op->duplicate();
 	    string dupOpName=op->getName()+"_"+string("%d",i)+"_"+string("%d",j);
@@ -747,7 +747,7 @@ void reduce_tree (Operator* op, int reduce_depth) {
 		assert(symStream->isStream());
 
 		// replicate all operator streams
-		for(i=0;i<2**reduce_depth;i++) 
+		for(i=0;i<pow(2,reduce_depth);i++) 
 		{
 			Symbol *newSymStreamDup=(Symbol*)symStream->duplicate();
 			newSymStreamDup->setName(symStream->getName()+"_"+string("%d",i));
