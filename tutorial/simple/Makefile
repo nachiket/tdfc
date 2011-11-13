@@ -19,7 +19,7 @@ add.o:	add_test.cpp *.tdf $(ALL_TDF:.tdf=.cc)
 		$(LIBRARY_PATHS) \
 		add_test.cpp \
 		$(ALL_TDF:.tdf=.cc) \
-		-o add_test.o 
+		-o add_test.o \
 		$(LIBRARIES) 
 
 clean:	
