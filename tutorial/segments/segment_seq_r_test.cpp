@@ -5,8 +5,6 @@
 #include "segment_seq_r_compose.h"
 using namespace std;
 
-ofstream* ScoreOperator::fout=NULL;
-
 int main(int argc, char *argv[]) {
 
     score_init();
