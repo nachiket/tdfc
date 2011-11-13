@@ -1,4 +1,4 @@
-segment_compose(
+segment_seq_cyclic_r_compose(
 param unsigned[256][16] contents,
 output unsigned[16] rddata
 ) {
