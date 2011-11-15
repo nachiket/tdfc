@@ -719,7 +719,7 @@ void reduce_tree (Operator* op, int reduce_depth) {
     }
 
     // unrolling function
-    int i=0;
+    int i=0,j=0;
     list<Operator*> *dupOpArr = new list<Operator*>();
     for(i=reduce_depth;i>=0;i--)
     {
