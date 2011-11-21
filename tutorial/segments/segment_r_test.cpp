@@ -10,11 +10,11 @@ int main(int argc, char *argv[]) {
 
     score_init();
 
-    UNSIGNED_SCORE_SEGMENT contents = NEW_UNSIGNED_SCORE_SEGMENT(256, 16);
-//    contents->returnAccess();
-//    for(int i=0;i<16;i++) {
-//	contents->setData(i,i);
-//    }
+    UNSIGNED_SCORE_SEGMENT contents = NEW_UNSIGNED_SCORE_SEGMENT(512, 16);
+    contents->returnAccess();
+    for(int i=0;i<512;i++) {
+	contents->setData(i,i);
+    }
     UNSIGNED_SCORE_STREAM rddata = NEW_UNSIGNED_SCORE_STREAM(16);
 
     NEW_segment_r_compose(contents, rddata);

@@ -1,11 +1,11 @@
 segment_r_compose(
-param unsigned[256][16] contents,
+param unsigned[512][16] contents,
 output unsigned[16] rddata
 ) {
 
-	unsigned[8] address;
+	unsigned[9] address;
 
 	address_gen(address);
-	segment_r(16, 8, 256, contents, address, rddata);
+	segment_r(16, 9, 512, contents, address, rddata);
 
 }
