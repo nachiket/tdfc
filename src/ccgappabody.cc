@@ -85,7 +85,9 @@ int gappa_notation(ofstream *fout,
   ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>", exp);
   ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>", exp);
   ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>", exp);
-  ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>", exp);
+  if(false) {
+	  ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>", exp);
+  }
   if_nb = ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx", exp);
 
   return if_nb;
@@ -399,7 +401,9 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 				*fout << indent << sym->getName() + "_m in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 				*fout << indent << sym->getName() + "_fl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 				*fout << indent << sym->getName() + "_dbl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
-				*fout << indent << sym->getName() + "_cuda32 in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+  				if(false) {
+					*fout << indent << sym->getName() + "_cuda32 in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
+				}
 				*fout << indent << sym->getName() + "_fx in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 			  }
 			/*  *fout << indent << "((" << sym->getName() + "_cuda32- " +sym->getName() +"_m )/ "  + 
@@ -479,11 +483,13 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    *fout << " /" << "\\ "  << endl; 
 			    *fout << indent; 
 			    
-			    *fout << "(" + sym->getName() + "_cuda32-" + sym->getName() + "_m"
+  			    if(false) {
+			    	*fout << "(" + sym->getName() + "_cuda32-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
 			           
-			    *fout << " /" << "\\ "  << endl; 
-			    *fout << indent;			    
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent;			    
+			    }
 			    
 			    
 			    // we also add the question for absolute error
@@ -500,10 +506,12 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    
 			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fl) in ?";			    
 			    
-			    *fout << " /" << "\\ "  << endl; 
-			    *fout << indent; 
+  			    if(false) {
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent; 
 			    
-			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_cuda32) in ?";			    
+			    	*fout << "(" + sym->getName() + "_m-" + sym->getName() + "_cuda32) in ?";			    
+			    }
 			    
 			    if (n != nboutput)      
 					*fout << " /" << "\\ "  << endl; 
@@ -564,8 +572,9 @@ void ccgappabody (Operator *op, bool OO)
   list<Symbol*> *argtypes=op->getArgs(); // get input/output arguments of the operator
   // start new output file
   string fname=name;
-  if (OO)
-	fname+="00";
+  if (!OO)
+	fname+="01";
+	
   fname+=".g";
   // how convert string -> char * ?
   ofstream *fout=new ofstream(fname); // construc an object and open a file with the name fname

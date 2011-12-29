@@ -263,7 +263,7 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log, bool *div)
 	  *fout << "data_t div_flopoco(data_t in0, data_t in1)" << endl;
 	  *fout << "{" << endl;
 	  //*fout << "\t*out = in;" << endl;
-	  *fout << "\treturn in0*in1;" << endl;
+	  *fout << "\treturn in0/in1;" << endl;
 	  *fout << "}" << endl;
   }
   
