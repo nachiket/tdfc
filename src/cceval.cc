@@ -221,6 +221,9 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 int power_of_two_dup(long long val)
 {
+	if(val==0)
+		return(-1);
+
 	int cnt=0;
 	long long p2=1;
 	while (p2!=0)
