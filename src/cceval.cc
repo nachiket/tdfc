@@ -218,6 +218,23 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 }
 
+
+int power_of_two_dup(long long val)
+{
+	int cnt=0;
+	long long p2=1;
+	while (p2!=0)
+	{
+		if (p2==val)
+			return(cnt);
+		p2=p2<<1;
+		cnt++;
+	}
+	return(-1);
+}
+
+
+
 string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, bool autoesl, bool *expo, bool *log, bool *div)
 {
   if (expr==(Expr *)NULL)
@@ -371,7 +388,13 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 
 	string istr0=ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type, autoesl, expo, log, div);
 	string istr1=ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type, autoesl, expo, log, div);
-	if (autoesl && (ops == "/"))
+
+	int v2=0;
+	if(bexpr->getExpr2()->getExprKind()==EXPR_VALUE) {
+		v2=((ExprValue *)bexpr->getExpr2())->getIntVal();
+	}
+
+	if (autoesl && (ops == "/") && !power_of_two_dup(v2))
 	{
 		if (div != NULL && ops == "/")
 			*div = true;

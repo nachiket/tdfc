@@ -97,7 +97,7 @@ enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
 	      TARGET_GAPPA,
-	      TARGET_GAPPA00,
+	      TARGET_GAPPA01,
 	      TARGET_MICROBLAZE,
 	      TARGET_AUTOESL,
 	      TARGET_VERILOG,
@@ -130,6 +130,7 @@ void usage ()
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
     << "         -egappa      : emit input language for gappa (precision analysis) with CPU compatible types\n"
+    << "         -egappa01    : emit gappa code with unified IF condition rage [0,1]\n"
     << "         -egappagpu   : emit input language for gappa (precision analysis) with GPU/CUDA compatible types\n"
     << "         -edot        : emit dataflow graph for Graphviz visualization\n"
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
@@ -481,7 +482,7 @@ set<string> *instances(Operator *op, Target targ,
 	case TARGET_GAPPA:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
-	case TARGET_GAPPA00:		
+	case TARGET_GAPPA01:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
 	case TARGET_MICROBLAZE:		
@@ -977,14 +978,15 @@ void emitGAPPA ()
 	  }
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
-    if (ccCheckRanges(op))
+    if (ccCheckRanges(op)) {
 //		cout << "Operator : \n" <<op->toString() << endl;
-		ccgappabody(op); // Helene
+		ccgappabody(op, true); // Helene
+    }
     cout << endl;
   }
 }
 
-void emitGAPPA00 ()
+void emitGAPPA01 ()
 {
   // - emit gappa code for all operators  (-egappaGPU option)
   
@@ -999,8 +1001,9 @@ void emitGAPPA00 ()
 	  }
     timestamp(string("begin processing ")+op->getName());
     
-    if (ccCheckRanges(op))
-		ccgappabody(op, true); // Helene
+    if (ccCheckRanges(op)) {
+	ccgappabody(op, false); // Helene
+    }
 
     cout << endl;
   }
@@ -1179,8 +1182,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_CUDA;
     else if (strcmp(argv[arg],"-egappa")==0)// -egappa    : emit gappa
       optionTarget = TARGET_GAPPA;
-    else if (strcmp(argv[arg],"-egappa00")==0)// -egappa    : emit gappa
-      optionTarget = TARGET_GAPPA00;
+    else if (strcmp(argv[arg],"-egappa01")==0)// -egappa01    : emit gappa
+      optionTarget = TARGET_GAPPA01;
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
     else if (strcmp(argv[arg],"-eautoesl")==0)	// -eautoesl   : emit AutoESL C
@@ -1447,7 +1450,7 @@ int main(int argc, char *argv[])
 							optionDebugPageStep); break;
       case TARGET_CUDA:		emitCUDA();			  break;
       case TARGET_GAPPA :	emitGAPPA();			  break;
-      case TARGET_GAPPA00 :	emitGAPPA00();			  break;
+      case TARGET_GAPPA01 :	emitGAPPA01();			  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
       case TARGET_AUTOESL:	emitAutoESLC();		  	break;
       case TARGET_VERILOG:	emitVerilog();			  break;
