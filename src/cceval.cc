@@ -392,16 +392,19 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 	string istr0=ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type, autoesl, expo, log, div);
 	string istr1=ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type, autoesl, expo, log, div);
 
-	int v2=0;
+	int v2=-1;
 	if(bexpr->getExpr2()->getExprKind()==EXPR_VALUE) {
 		v2=((ExprValue *)bexpr->getExpr2())->getIntVal();
+		//cout << "Value " << v2 << "Istr=" << istr1 << endl;
 	}
 
-	if (autoesl && (ops == "/") && power_of_two_dup(v2)!=-1)
+	if (autoesl && (ops == "/") && v2==-1 && power_of_two_dup(v2)==-1)
 	{
 		if (div != NULL && ops == "/")
 			*div = true;
+
 		return("div_flopoco("+istr0+","+istr1+")");
+//		return("("+istr0+opToString(bexpr->getOp())+istr1+")");
 	} else {
 		// wrong thing for "." operator...
         	// TODO: deal properly with fixed point construction/representation
