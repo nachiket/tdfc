@@ -228,6 +228,8 @@ void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
   *fout << "add_library		xilinx/virtex6/virtex6_fpv5" << endl; 
   *fout << "add_library		xilinx/virtex6/virtex6" << endl; 
   *fout << "create_clock	-period 3ns" << endl; 
+  *fout << "set_directive_pipeline " << name << endl; 
+  *fout << "set_directive_dataflow " << name << endl; 
   if(exp)
 	  *fout << "set_directive_inline -off exp_flopoco" << endl; 
   if(log)
@@ -238,7 +240,7 @@ void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
 
   *fout << "elaborate -lm" << endl; 
   *fout << "autosyn" << endl; 
-  *fout << "automg" << endl; 
+  *fout << "autoimpl -setup -rtl vhdl" << endl; 
   
   // close up
   fout->close();

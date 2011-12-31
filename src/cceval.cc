@@ -398,7 +398,7 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 		//cout << "Value " << v2 << "Istr=" << istr1 << endl;
 	}
 
-	if (autoesl && (ops == "/") && v2==-1 && power_of_two_dup(v2)==-1)
+	if (autoesl && (ops == "/") && v2==-1)
 	{
 		if (div != NULL && ops == "/")
 			*div = true;
