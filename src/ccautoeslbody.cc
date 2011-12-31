@@ -104,11 +104,24 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 	  *fout << ";" << endl;
 	}
 
+      // define constants and constant values...
+      Symbol *sym;
+      list<Symbol*> *argtypes=op->getArgs();
+      forall(sym,*argtypes)
+      {
+	      if(sym->isParam())
+	      {
+		      if (((SymbolVar*)sym)->getNumber() != "")
+		      	    *fout << "    data_t " << sym->getName() <<" = "<< "(" << ((SymbolVar*)sym)->getNumber() <<  ");"<<endl;                     
+		      else
+		      	    *fout << "    data_t " << sym->getName() <<";" << endl;
+	      }
+      }
+
       // declare variable/type for holding input stream tokens
       int icnt=0;
       int ocnt=0;
       Symbol *rsym=op->getRetSym();
-      list<Symbol*> *argtypes=op->getArgs();
 
       int *early_free=new int[icnt];
       for (int i=0;i<icnt;i++)

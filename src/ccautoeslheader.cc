@@ -54,25 +54,22 @@ void autoesl_functional_signature(ofstream *fout,
   Symbol *sym;
   forall(sym,*argtypes)
   {
-	  if (i>0) *fout << ",\n";
-	  string prefix="";
 	  // detect if input or output..
-	  if (sym->isStream()) {
-		  SymbolStream *ssym=(SymbolStream *)sym;
-		  if (ssym->getDir()==STREAM_OUT) {
-			  prefix="*";
-		  }
+	  if (sym->isStream() && !sym->isParam()) {
+	  	if (i>0) *fout << ",\n";
+	  	string prefix="";
+		SymbolStream *ssym=(SymbolStream *)sym;
+		if (ssym->getDir()==STREAM_OUT) {
+		   prefix="*";
+		}
+		//if (sym->getType()->toString() != "boolean")
+		*fout << "\t" << "data_t" << " " << prefix << sym->getName();
+		//else
+		//*fout << "\t" << "bool"  << " " << prefix << sym->getName();
+	  
+	  	i++;
 	  }
 
-	  //*fout << "\t" << sym->getType()->toString() 
-	//	  << " " << prefix << sym->getName();
-		
-		//if (sym->getType()->toString() != "boolean")
-			*fout << "\t" << "data_t" << " " << prefix << sym->getName();
-		//else
-			//*fout << "\t" << "bool"  << " " << prefix << sym->getName();
-		
-	  i++;
   }
 
   *fout << "\n)" << estr << endl;
