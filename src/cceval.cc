@@ -398,15 +398,23 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
 		//cout << "Value " << v2 << "Istr=" << istr1 << endl;
 	}
 
-	if (autoesl && (ops == "/") && v2==-1)
+	int vparam=-1;
+	if(bexpr->getExpr2()->getExprKind()==EXPR_LVALUE) {
+		ExprLValue* lval=(ExprLValue*)bexpr->getExpr2();
+		Symbol   *sym    = lval->getSymbol();
+		//cout << sym->getName() << " is a param=" << sym->isParam() << endl;
+		if(sym->isParam()) {
+			vparam=1;
+		}
+	}
+
+	if (autoesl && (ops == "/") && v2==-1 && vparam==-1)
 	{
 		if (div != NULL && ops == "/")
 			*div = true;
 
 		return("div_flopoco("+istr0+","+istr1+")");
-//		return("("+istr0+opToString(bexpr->getOp())+istr1+")");
 	} else {
-		// wrong thing for "." operator...
         	// TODO: deal properly with fixed point construction/representation
 		return("("+istr0+opToString(bexpr->getOp())+istr1+")");
 	}
