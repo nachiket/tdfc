@@ -255,7 +255,7 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log, bool *div)
 	  *fout << "data_t exp_flopoco(data_t in)" << endl;
 	  *fout << "{" << endl;
 	  //*fout << "\t*out = in;" << endl;
-	  *fout << "\treturn in+in;" << endl;
+	  *fout << "\treturn in*in;" << endl;
 	  *fout << "}" << endl;
   }
   
@@ -266,7 +266,7 @@ void ccautoeslbody (Operator *op, bool *exp, bool *log, bool *div)
 	  *fout << "data_t log_flopoco(data_t in)" << endl;
 	  *fout << "{" << endl;
 	  //*fout << "\t*out = in;" << endl;
-	  *fout << "\treturn in+in;" << endl;
+	  *fout << "\treturn in*in;" << endl;
 	  *fout << "}" << endl;
   }
   
