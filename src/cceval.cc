@@ -258,7 +258,7 @@ string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, b
   switch(expr->getExprKind())
     {
     case EXPR_VALUE:
-      return(expr->toString()); // may need to check if this right
+      return(string("(")+expr->toString()+string(")")); // may need to check if this right
     case EXPR_ARRAY:
       return(expr->toString()); // Not sure if this is valid.. 31/7/2011 - Nachiket
     case EXPR_LVALUE:
