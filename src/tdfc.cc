@@ -1190,8 +1190,14 @@ int main(int argc, char *argv[])
 	      usage();
       }
     }
-    else if (strcmp(argv[arg],"-egappa01")==0)// -egappa01    : emit gappa
+    else if (strcmp(argv[arg],"-egappa01")==0   
+		    && argc>=arg+1+1) { 	// -egappa01    : emit gappa with inclusive [0,1] range for condition variables..
       optionTarget = TARGET_GAPPA01;
+      gFixedBits =  atoi(argv[++arg]);
+      if (gFixedBits<=0) {
+	      usage();
+      }
+    }
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
     else if (strcmp(argv[arg],"-eautoesl")==0 
