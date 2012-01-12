@@ -73,20 +73,21 @@ int gappa_notation(ofstream *fout,
 			    list<Symbol*> *argtypes,
 			    Operator *op,
 			    string classname,
-			    string *exp)
+			    string *exp,
+			    int fixed_bits)
 {
 	// fixed point size
-	*fout << "@fx = fixed<-32,ne>;\n" << endl; 
+	*fout << "@fx = fixed<-"<< fixed_bits << ",ne>;\n" << endl; 
 	
 	// variables and parameters with different precisions 
   
   int if_nb;
   
   ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>", exp);
-  ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>", exp);
   ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>", exp);
   if(false) {
-	  ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>", exp);
+  	ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>", exp);
+	ccwritegappa(fout, argtypes, op, classname, "_cuda32",  "float<cuda_32,ne>", exp);
   }
   if_nb = ccwritegappa(fout, argtypes, op, classname, "_fx",  "fx", exp);
 
@@ -399,9 +400,9 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			  if ( ((SymbolStream*)sym)->getRange() != "" )
 			  {
 				*fout << indent << sym->getName() + "_m in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
-				*fout << indent << sym->getName() + "_fl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 				*fout << indent << sym->getName() + "_dbl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
   				if(false) {
+					*fout << indent << sym->getName() + "_fl in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 					*fout << indent << sym->getName() + "_cuda32 in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 				}
 				*fout << indent << sym->getName() + "_fx in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
@@ -465,11 +466,6 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 				n++; // we ask the question regarding the relative error on all of the outputs
 				*fout << indent;
 				
-				*fout << "(" + sym->getName() + "_fl-" + sym->getName() + "_m"
-			          +")/" + sym->getName() +"_m in ?"; 
-			           
-			    *fout << " /" << "\\ "  << endl; 
-			    *fout << indent;			    
 			    
 				*fout << "(" + sym->getName() + "_dbl-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
@@ -484,6 +480,12 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    *fout << indent; 
 			    
   			    if(false) {
+				*fout << "(" + sym->getName() + "_fl-" + sym->getName() + "_m"
+			          +")/" + sym->getName() +"_m in ?"; 
+			           
+			    *fout << " /" << "\\ "  << endl; 
+			    *fout << indent;			    
+
 			    	*fout << "(" + sym->getName() + "_cuda32-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
 			           
@@ -501,12 +503,13 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    
 			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_dbl) in ?";
 
-			    *fout << " /" << "\\ "  << endl; 
-			    *fout << indent; 
-			    
-			    *fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fl) in ?";			    
-			    
   			    if(false) {
+
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent; 
+			    
+			    	*fout << "(" + sym->getName() + "_m-" + sym->getName() + "_fl) in ?";			    
+			    
 			    	*fout << " /" << "\\ "  << endl; 
 			    	*fout << indent; 
 			    
@@ -554,10 +557,10 @@ bool ccCheckRanges(Operator *op)
 }
 
 
-//
+//
 ////////////////////////////////////////////////////////////////////////
 // Helene Martorell: Top level routine to create master gappa++ code
-void ccgappabody (Operator *op, bool OO)
+void ccgappabody (Operator *op, bool OO, int fixed_bits)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
@@ -588,7 +591,7 @@ void ccgappabody (Operator *op, bool OO)
   string exp ="";
 
   // Notation for making the script readable
-  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp); // defines the fixed point precision and all
+  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp, fixed_bits); // defines the fixed point precision and all
 						//different variables associated with different 
 						//precisions
   *fout <<  endl ;

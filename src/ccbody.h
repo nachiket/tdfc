@@ -46,7 +46,7 @@ void ccautoeslmake(Operator* op);
 void ccautoesltcl(Operator* op, bool exp, bool log, bool div);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
-void ccgappabody(Operator *op, bool OO = false);
+void ccgappabody(Operator *op, bool OO = false, int fixed_bits=100000);
 bool ccCheckRanges(Operator *op);
 
 void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, string type, string precision, int *if_nb,string* exp = NULL);
