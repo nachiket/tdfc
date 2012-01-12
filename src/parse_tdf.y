@@ -511,7 +511,7 @@ ioDecl
 					$$=new SymbolStream($3,$3->str,$2,STREAM_IN, $5->toString(), $7->toString());
 				}
 				else
-					yyerror("invalid type for RANGE expression");
+					yyerror("invalid type for RANGE expression"+typekindToString(typeE->getTypeKind())+" and "+typekindToString(typeE2->getTypeKind()));
 					
 			  }
 			  else if ($1->code==OUTPUT)
