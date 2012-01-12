@@ -90,7 +90,7 @@ int	 gStreamDepthMax	= 2;     // "-SD" max stream depth for "-esd"
 int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
 int	 gReduceDepth	= 1;     // "-r" specify reduce depth for computation...
 
-int 	gFixedBits = 32;
+int 	 gFixedBits = 32;
 
 // - EC: should move these elsewhere, maybe to synplify.cc
 bool     gSynplify              = false; // true for "-synplify"
@@ -1182,20 +1182,26 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_CC;
     else if (strcmp(argv[arg],"-ecuda")==0)	// -ecuda      : emit CUDA
       optionTarget = TARGET_CUDA;
-    else if (strcmp(argv[arg],"-egappa")==0 && argc>=arg+1+1)// -egappa    : emit gappa
+    else if (strcmp(argv[arg],"-egappa")==0 
+		    && argc>=arg+1+1) { 	// -egappa    : emit gappa
       optionTarget = TARGET_GAPPA;
       gFixedBits =  atoi(argv[++arg]);
-      if (gFixedBits<0)
+      if (gFixedBits<=0) {
 	      usage();
+      }
+    }
     else if (strcmp(argv[arg],"-egappa01")==0)// -egappa01    : emit gappa
       optionTarget = TARGET_GAPPA01;
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
-    else if (strcmp(argv[arg],"-eautoesl")==0 && argc>=arg+1+1)	// -eautoesl   : emit AutoESL C
+    else if (strcmp(argv[arg],"-eautoesl")==0 
+		    && argc>=arg+1+1) {		// -eautoesl   : emit AutoESL C
       optionTarget = TARGET_AUTOESL;
       gFixedBits =  atoi(argv[++arg]);
-      if (gFixedBits<0)
+      if (gFixedBits<=0) {
 	      usage();
+      }
+    }
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
       optionTarget = TARGET_VERILOG;
     else if (strcmp(argv[arg],"-eIR")==0) {	// -eIR      : IntermRep/synth
