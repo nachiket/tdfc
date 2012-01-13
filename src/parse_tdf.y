@@ -501,14 +501,14 @@ ioDecl
 */
 	
 			    
-			    
-			    if ((typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
+			    if ((typeE->getTypeKind()==TYPE_ANY || typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
 						|| typeE->getTypeKind()==TYPE_FLOAT || typeE->getTypeKind()==TYPE_FIXED)
 						
-						&& (typeE2->getTypeKind()==TYPE_DOUBLE ||typeE2->getTypeKind() == TYPE_INT 
+						&& (typeE2->getTypeKind()==TYPE_ANY || typeE2->getTypeKind()==TYPE_DOUBLE ||typeE2->getTypeKind() == TYPE_INT 
 						|| typeE2->getTypeKind()==TYPE_FLOAT|| typeE2->getTypeKind()==TYPE_FIXED))
 			    {
 					$$=new SymbolStream($3,$3->str,$2,STREAM_IN, $5->toString(), $7->toString());
+//					cout << $5->toString() << endl;
 				}
 				else
 					yyerror("invalid type for RANGE expression"+typekindToString(typeE->getTypeKind())+" and "+typekindToString(typeE2->getTypeKind()));
