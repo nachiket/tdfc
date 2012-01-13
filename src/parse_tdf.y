@@ -558,11 +558,20 @@ ioDecl
 */			      		    
 			    
 			    if ((typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
-						|| typeE->getTypeKind()==TYPE_FLOAT || typeE->getTypeKind()==TYPE_FIXED))
+						|| typeE->getTypeKind()==TYPE_FLOAT))
 			    {
 					$$=new SymbolVar($3,$3->str,$2, $5->toString());
-				}
-				else
+				} else if (typeE->getTypeKind()==TYPE_FIXED) {
+					Type *t=$5->getType();
+					double fixedVal=0;
+					TypeFixed *tf=(TypeFixed*)t;
+					fixedVal=((ExprValue*)$5)->getIntVal()+(((ExprValue*)$5)->getFracVal()/pow(10,tf->getFracWidth()));
+
+					//cout  << "fixedVal=" << fixedVal << endl;
+					//cout  << "fixedVal=" << string("%f",fixedVal) << endl;
+
+					$$=new SymbolVar($3,$3->str,$2, string("%f",fixedVal));
+				} else
 					yyerror("invalid type for RANGE expression");
 				
 				 
@@ -1197,6 +1206,8 @@ fixedExpr
 					wf=tf->getWidth();
 			      long long vi=((ExprValue*)$1)->getIntVal(),
 					vf=((ExprValue*)$3)->getIntVal();
+
+					//cout << "wf=" << wf << ", vf=" << vf << endl;
 			      Type *t = new TypeFixed(wi,wf,false);
 			      $$=(Expr*)new ExprValue($2,t,vi,vf);
 			    }
@@ -1233,13 +1244,16 @@ atomExpr
 			{ 
 			  const char *tokenChars=$1->str;
 			  if (  tokenChars[0]=='0' &&
-			       (tokenChars[1]=='b' || tokenChars[1]=='B'))
+			       (tokenChars[1]=='b' || tokenChars[1]=='B')) {
 			    // binary "0b..."
 			    $$=constIntExpr(strtoll($1->str.del(0,1),NULL,2),
 					    $1);
-			  else
+			  } else {
 			    // decimal, octal, or hex
-			    $$=constIntExpr(strtoll($1->str,NULL,0),$1);
+			    //cout << $1->str << ", length=" << $1->str.length() << endl;
+			    //$$=constIntExpr(strtoll($1->str,NULL,0),$1);
+			    $$=constIntExprWithWidth($1->str.length(),strtoll($1->str,NULL,0),$1);
+			  }
 			}
 
 | NUMDBL
