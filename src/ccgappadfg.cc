@@ -403,9 +403,26 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 						 string RHS = "(";
 						list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 						int edgenum=0;
+
+						// Nachiket 14/1/2012 - Is the order of visiting edges consistent??
+						edge e1_test;
+						forall_in_edges (e1_test,n) {
+							node src=(*dfg).source(e1_test);
+							string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
+							cout << "Loop: Edge Source=" << temp << endl;
+						}
+
+						edge in1=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(0));
+						node src1=(*dfg).source(in1);
+						string temp1 = nodetostring(src1,(dfgVal)[src1],nodenums[src1], list_input);
+						cout << "Iter: Edge Source=" << temp1 << endl;
+						edge in2=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(1));
+						node src2=(*dfg).source(in2);
+						string temp2 = nodetostring(src2,(dfgVal)[src2],nodenums[src2], list_input);
+						cout << "Iter: Edge Source=" << temp2 << endl;
+					
 						edge e;
 						forall_in_edges (e,n) {
-					
 						// - examine inputs of n
 						node src=(*dfg).source(e);
 						string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);

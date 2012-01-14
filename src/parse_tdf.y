@@ -1203,7 +1203,9 @@ fixedExpr
 				tf->getTypeKind()==TYPE_INT)
 			    {
 			      int	wi=ti->getWidth(),
-					wf=tf->getWidth();
+					wf=tf->getWidth2();
+					// use Width2 for fraction..
+
 			      long long vi=((ExprValue*)$1)->getIntVal(),
 					vf=((ExprValue*)$3)->getIntVal();
 
@@ -1251,7 +1253,7 @@ atomExpr
 			  } else {
 			    // decimal, octal, or hex
 			    //cout << $1->str << ", length=" << $1->str.length() << endl;
-			    //$$=constIntExpr(strtoll($1->str,NULL,0),$1);
+			    //$$=constIntExprWithWidth(strtoll($1->str,NULL,0),$1->str.length(),$1);
 			    $$=constIntExprWithWidth($1->str.length(),strtoll($1->str,NULL,0),$1);
 			  }
 			}
