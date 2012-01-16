@@ -91,6 +91,9 @@ int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
 int	 gReduceDepth	= 1;     // "-r" specify reduce depth for computation...
 
 int 	 gFixedBits = 32;
+int 	 gFracBits = 24;
+int 	 gIntBits = 8;
+int 	 gDouble = 1;
 
 // - EC: should move these elsewhere, maybe to synplify.cc
 bool     gSynplify              = false; // true for "-synplify"
@@ -131,15 +134,15 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
-    << "         -egappa      : emit input language for gappa (precision analysis) with CPU compatible types\n"
-    << "         -egappa01    : emit gappa code with unified IF condition rage [0,1]\n"
+    << "         -egappa   <frac>   : emit input language for gappa (precision analysis) with CPU compatible types\n"
+    << "         -egappa01 <frac>   : emit gappa code with unified IF condition rage [0,1]\n"
     << "         -egappagpu   : emit input language for gappa (precision analysis) with GPU/CUDA compatible types\n"
     << "         -edot        : emit dataflow graph for Graphviz visualization\n"
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
     << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
     << "         -embz        : emit C code for the Microblaze\n"
     << "         -ecuda       : emit CUDA code for NVIDIA GPU\n"
-    << "         -eautoesl    : emit C code for AutoESL/Xilinx\n"
+    << "         -eautoesl <frac> <int> <double>   : emit C code for AutoESL/Xilinx\n"
     << "         -everilog    : emit Verilog\n"
     << "         -eIR         : emit page synthesis info (implies -xc -mt)\n"
 				  // -mt avoids a core-dump, to be investigated
@@ -1048,7 +1051,7 @@ void emitAutoESLC ()
     bool div = false; 
     // Nachiket asks on 14th Sept 2011: Helene, why aren't we just using autoesl boolean flag?
     ccautoeslbody(op , &exp, &log, &div);
-    ccautoeslheader(op, exp, log, div); 
+    ccautoeslheader(op, exp, log, div, gDouble, gFracBits, gIntBits); 
     ccautoeslwrapper(op); 
     ccautoesltcl(op, exp, log, div); 
     ccautoeslmake(op);
@@ -1201,10 +1204,18 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
     else if (strcmp(argv[arg],"-eautoesl")==0 
-		    && argc>=arg+1+1) {		// -eautoesl   : emit AutoESL C
+		    && argc>=arg+1+1+1+1) {	// -eautoesl   : emit AutoESL C
       optionTarget = TARGET_AUTOESL;
-      gFixedBits =  atoi(argv[++arg]);
-      if (gFixedBits<=0) {
+      gFracBits =  atoi(argv[++arg]);
+      if (gFracBits<=0) {
+	      usage();
+      }
+      gIntBits =  atoi(argv[++arg]);
+      if (gIntBits<=0) {
+	      usage();
+      }
+      gDouble =  atoi(argv[++arg]);
+      if (gDouble<0 || gDouble>1) {
 	      usage();
       }
     }

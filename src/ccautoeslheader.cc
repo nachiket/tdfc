@@ -105,7 +105,7 @@ void autoesl_functional_constructor(ofstream *fout,
   *fout << "\n)" << endl;
 }
 
-void ccautoeslheader (Operator *op, bool exp, bool log, bool div)
+void ccautoeslheader (Operator *op, bool exp, bool log, bool div, int double_type, int frac_bits, int int_bits)
 {
   
   string name=op->getName();
@@ -131,8 +131,12 @@ void ccautoeslheader (Operator *op, bool exp, bool log, bool div)
   *fout << "#include \"ap_fixed.h\"" << endl;
   *fout << "#include \"systemc.h\"" << endl;
   *fout << endl;
-  
-  *fout << "typedef double data_t;" << endl;
+ 
+  if(double_type==1) {
+  	*fout << "typedef double data_t;" << endl;
+  } else {
+  	*fout << "typedef ap_fixed<"<<frac_bits<<","<<int_bits<<"> data_t;" << endl;
+  }
   
   if (exp) {
 	//*fout << "void exp_flopoco( double in, double *out); " << endl;
