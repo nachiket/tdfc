@@ -134,6 +134,8 @@ void ccautoeslheader (Operator *op, bool exp, bool log, bool div, int double_typ
  
   if(double_type==1) {
   	*fout << "typedef double data_t;" << endl;
+  } else if(double_type==2) {
+  	*fout << "typedef float data_t;" << endl;
   } else {
   	*fout << "typedef ap_fixed<"<<frac_bits<<","<<int_bits<<"> data_t;" << endl;
   }
