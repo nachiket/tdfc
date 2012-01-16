@@ -54,6 +54,7 @@ class Type : public Tree
 protected:
   TypeKind	typeKind;
   int		width;			// -1 if not static const
+  int		width2;			// for fixed-point types with leading zeros..
   Expr		*widthExpr;		// NULL if static const or unknown
   bool		signd;			// true:signed, false:unsigned
   Expr		*predExpr;		// predicate for type validity
@@ -64,6 +65,8 @@ public:
   Type (TypeKind typeKind_i, Expr *predExpr_i=NULL);	// TYPE_BOOL, ANY, NONE
   Type (TypeKind typeKind_i, int   width_i,
 	bool signd_i, Expr *predExpr_i=NULL);		// TYPE_INT
+  Type (TypeKind typeKind_i, int   width_i, int width2_i,
+	bool signd_i, Expr *predExpr_i=NULL);		// TYPE_FIXED with fraction width that needs representing in digits..
   Type (TypeKind typeKind_i, Expr *widthExpr_i,
 	bool signd_i, Expr *predExpr_i=NULL);		// TYPE_INT
   // virtual ~Type () { }
@@ -74,6 +77,7 @@ public:
   TypeKind	getTypeKind	() const	{ return typeKind;  }
   void		setWidth	(int width_val) { width=width_val;     }
   int		getWidth	() const	{ return width;     }
+  int		getWidth2	() const	{ return width2;     }
   Expr*		getWidthExpr	() const	{ return widthExpr; }
   void		setWidthExpr	(Expr* expr) 	{ widthExpr=expr; }
   Expr*		makeWidthExpr	() const;

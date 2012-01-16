@@ -403,39 +403,82 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 						 string RHS = "(";
 						list<edge> dfg_in_edges_n=(*dfg).in_edges(n);
 						int edgenum=0;
-						edge e;
+
+						// Nachiket 14/1/2012 - Is the order of visiting edges consistent??
+						/*
+						edge e1_test;
+						forall_in_edges (e1_test,n) {
+							node src=(*dfg).source(e1_test);
+							string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
+							cout << "Loop: Edge Source=" << temp << "," << (*dfg)[e1_test] << endl;
+						}
+
+						edge in1=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(0));
+						node src1=(*dfg).source(in1);
+						string temp1 = nodetostring(src1,(dfgVal)[src1],nodenums[src1], list_input);
+						cout << "Iter: Edge Source=" << temp1 << "," << (*dfg)[in1] << endl;
+						edge in2=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(1));
+						node src2=(*dfg).source(in2);
+						string temp2 = nodetostring(src2,(dfgVal)[src2],nodenums[src2], list_input);
+						cout << "Iter: Edge Source=" << temp2 << "," << (*dfg)[in2] << endl;					       
 						forall_in_edges (e,n) {
+						*/
 					
-						// - examine inputs of n
-						node src=(*dfg).source(e);
-						string temp = nodetostring(src,(dfgVal)[src],nodenums[src], list_input);
-					
+						// edge1
+						edge e1, e2;
+						e1=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(0));
+						e2=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(1));
+						if((*dfg)[e1]==0 && (*dfg)[e2]==1) {
+							// things are fine..
+						} else {
+							e1=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(1));
+							e2=dfg_in_edges_n.inf(dfg_in_edges_n.get_item(0));
+						}
 						
-						string test;
-						bool found = false;
+						node src1=(*dfg).source(e1);					
+						string temp1 = nodetostring(src1,(dfgVal)[src1],nodenums[src1], list_input);
+						string test1; bool found1 = false;
 						
-						forall (test, *list_input)
-						{	
-							if (temp == test)
-								found = true;
+						forall (test1, *list_input) {	
+							found1 = (temp1 == test1)? true: found1;
 						}
 					
-						Tree *tree_temp=(*dfg)[src];
-						RHS+= temp;
-						if(!((tree_temp->getKind()==TREE_EXPR) && (((Expr*)tree_temp)->getExprKind()==EXPR_VALUE)) || found)  
+						Tree *tree_temp1=(*dfg)[src1];
+						RHS+= temp1;
+						if(!((tree_temp1->getKind()==TREE_EXPR) && (((Expr*)tree_temp1)->getExprKind()==EXPR_VALUE)) || found1)  
 						{
 								RHS+= type_val ;
 						}
 						
 						RHS += " ";
+						string fn = nodetofnstring(n,(dfgVal)[n]);
+						RHS += fn + " ";
+						
+						// edge2
+						node src2=(*dfg).source(e2);
+						string temp2 = nodetostring(src2,(dfgVal)[src2],nodenums[src2], list_input);
+						string test2; bool found2 = false;
+						
+						forall (test2, *list_input) {	
+							found2 = (temp2 == test2)? true: found2;
+						}
 					
+						Tree *tree_temp2=(*dfg)[src2];
+						RHS+= temp2;
+						if(!((tree_temp2->getKind()==TREE_EXPR) && (((Expr*)tree_temp2)->getExprKind()==EXPR_VALUE)) || found2)  
+						{
+								RHS+= type_val ;
+						}
+						
+						
+						/*
+						 * temporarily disable MAC detection..
 						if(edgenum==0) {
 							string fn = nodetofnstring(n,(dfgVal)[n]);
 					//		cout << "function : " << nodetofnstring(n,(dfgVal)[n]) << endl; 
 							if (type_val == "_cuda32" && (fn == "*" )) // check for MAC loop
 							{
-								edge ed;
-								
+								edge ed;								
 								
 								forall_out_edges (ed,n) 
 								{
@@ -457,7 +500,8 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 								RHS += fn + " ";
 						}
 						edgenum++;
-					}
+						*/
+					
 				
 					if (type_val != "_m")	
 					{

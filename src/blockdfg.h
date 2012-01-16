@@ -57,7 +57,8 @@ using leda::h_array;
 ////////////////////////////////////////////////////////////////
 //  BlockDFG type
 
-typedef GRAPH<Expr*,StmtAssign*> BlockDFG;
+//typedef GRAPH<Expr*,StmtAssign*> BlockDFG;
+typedef GRAPH<Expr*,int> BlockDFG;
 class BlockDfgInfo;
 
 

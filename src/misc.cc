@@ -453,9 +453,13 @@ int countBits (long long val)
   // - return number of significant low-order bits
   // - converse of count-leading-zeros
 
-  for (int numBits=sizeof(val)*8; numBits>0; numBits--)
-    if (val & (1ll<<(numBits-1)))
+  for (int numBits=sizeof(val)*8; numBits>0; numBits--)  {
+//    cout << "numBits=" << numBits << ", sizeof(val)="<< sizeof(val) << endl;
+//    cout << "val=" << val << ", maskedval=" << (val&(1ll<<(numBits-1))) << endl;
+    if (val & (1ll<<(numBits-1))) {
       return numBits;
+    }
+  }
   return 0;
 }
 

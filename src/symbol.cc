@@ -155,7 +155,7 @@ SymbolVar::SymbolVar (Token *token_i, const string &name_i,
 	: Symbol(token_i,SYMBOL_VAR,name_i,type_i)
 {
 	number = num;
-	//cout << "number = " << num << endl;
+	cout << "number = " << num << endl;
 }
 
 SymbolOp::SymbolOp (Token *token_i, Operator *op_i)

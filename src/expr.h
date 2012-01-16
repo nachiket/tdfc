@@ -464,6 +464,11 @@ static inline Expr* constIntExpr (long long val, Token *t=NULL) {
   return (Expr*)new ExprValue(t,new Type(TYPE_INT,countBits(val),false),val);
 }
 
+static inline Expr* constIntExprWithWidth (int width, long long val, Token *t=NULL) {
+  // get max of countBits and specified width.. for fractions it should default to width, for other constants it should take countBits result..
+  return (Expr*)new ExprValue(t,new Type(TYPE_INT,countBits(val),width,false),val);
+}
+
 // - create new constant-value expression of minimum-width signed type:
 static inline Expr* constIntExprS (long long val, Token *t=NULL) {
   return (Expr*)new ExprValue(t,new Type(TYPE_INT,countBits(val),true),(val));
