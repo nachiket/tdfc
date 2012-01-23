@@ -1,12 +1,11 @@
 add(
 input double a, 
 input double b, 
-output double c)
+input double c,
+output double e)
 {
-
-	state only(a,b):
-		c=a+b;
+	state only(a,b,c):
+		e=a+b+c;
 
 }
-
 
