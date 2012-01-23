@@ -91,10 +91,12 @@ void ccautoeslprocbody(ofstream *fout, string classname, Operator *op, bool *exp
 	  SymbolVar *asum=(SymbolVar *)sum;
 	  //*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
 	  
-	  //if (getCCvarType(asum) != "boolean")
-			*fout << "  " << "data_t" << " " << asum->getName() ;
-	  //else 
-		//	*fout << "  " << "bool" << " " << asum->getName() ;
+	  // Why did we get rid of boolean types during code-generation?
+	  // if (getCCvarType(asum) != "boolean") // For some reason bool return int.
+	  if (asum->getType()->getTypeKind() != TYPE_BOOL)
+		*fout << "  " << "data_t" << " " << asum->getName() ;
+	  else 
+		*fout << "  " << "bool" << " " << asum->getName() ;
 	  
 	  Expr* val=asum->getValue();
 	  if (val!=(Expr *)NULL)
