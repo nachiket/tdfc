@@ -153,6 +153,29 @@ Type::Type (TypeKind typeKind_i, int width_i,
     predExpr->setParent(this);
 }
 
+
+Type::Type (TypeKind typeKind_i, int width_i, int width2_i,
+	    bool signd_i, Expr *predExpr_i)	// TYPE_INT
+							// (also TYPE_FIXED)
+  : Tree(NULL,TREE_TYPE),
+    typeKind(typeKind_i),
+    width(width_i),
+    width2(width2_i),
+    widthExpr(NULL),
+    signd(signd_i),
+    predExpr(predExpr_i)
+    // linked(true),
+    // bindTime(predExpr ? predExpr->getBindTime() : BindTime(BIND_COMPILE))
+{
+  assert(typeKind==TYPE_INT || typeKind==TYPE_FIXED);
+  assert(width>=0);			// width 0 ok for const value 0
+  assert(width2>=0);			// width 0 ok for const value 0
+  if (widthExpr)
+    widthExpr->setParent(this);
+  if (predExpr)
+    predExpr->setParent(this);
+}
+
 Type::Type (TypeKind typeKind_i, Expr *widthExpr_i,
 	    bool signd_i, Expr *predExpr_i)	// TYPE_INT
 							// (also TYPE_FIXED)

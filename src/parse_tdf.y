@@ -194,7 +194,7 @@ Symbol* lookup (Token *t)
   Suite				*suite;
 };
 
-%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE FRAMECLOSE COPY DONE ELSE EOS EOFR EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM NUMDBL OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR ABS
+%token <token>	ATTENTION BITSOF BOOLEAN FLOAT DOUBLE CAT CLOSE FRAMECLOSE COPY DONE ELSE EOS EOFR EQUALS FALSE GOTO GTE ID_ IF INPUT LEFT_SHIFT LOGIC_AND LOGIC_OR LTE NOT_EQUALS NUM NUMDBL OUTPUT PARAM PASS_THROUGH_EXCEPTION PRINTF RIGHT_SHIFT SEGMENT_R_ SEGMENT_RW_ SEGMENT_SEQ_R_ SEGMENT_SEQ_CYCLIC_R_ SEGMENT_SEQ_RW_ SEGMENT_SEQ_W_ SEGMENT_W_ SIGNED STATE STAY STRING TRUE UNSIGNED WIDTHOF '(' ')' '{' '}' '[' ']' '<' '>' '-' '+' '~' '!' '@' '#' '%' '^' '&' '*' '/' '=' '|' ';' ':' ',' '.' '?' EXP LOG SQRT FLOOR ABS
 
 %type <token>		sizedType ioKind exception_opt exception equalOp inequalOp shiftOp addOp prodOp unaryOp exprOp logOp sqrtOp floorOp absOp
 %type <expr>		arraySize call lvalue expr condExpr logOrExpr logAndExpr bitOrExpr bitXorExpr bitAndExpr equalExpr inequalExpr shiftExpr addExpr prodExpr unaryExpr fixedExpr atomExpr builtinExpr floatExpr
@@ -432,6 +432,155 @@ ioDecl
 			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT);
 			  else  // ($1->code==PARAM)
 			    $$=new SymbolVar($3,$3->str,$2);
+			}
+| ioKind type ID_ '[' expr ',' expr ']'
+			{
+			  
+			  if ($1->code==INPUT)
+			  {
+			    Type *typeE = $5->getType();
+			    Type *typeE2 = $7->getType();
+			    
+/*			      
+			      if (typeE->getTypeKind() == TYPE_BOOL)
+						  yywarn ((const char*)(string("type of expr 1 : TYPE_BOOL ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_INT)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_INT ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FIXED)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_FIXED ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ARRAY)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_ARRAY ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ANY)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_ANY ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FLOAT)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_FLOAT ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_DOUBLE)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_DOUBLE ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_NONE)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_NONE ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_STATE)
+						yywarn ((const char*)(string("type of expr 1 : TYPE_STATE ") + 
+									+string("\n value of expr 1 : ") + $5->toString()));
+			      
+			      
+			      if (typeE2->getTypeKind() == TYPE_BOOL)
+						  yywarn ((const char*)(string("type of expr 2 : TYPE_BOOL ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_INT)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_INT ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_FIXED)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_FIXED ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_ARRAY)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_ARRAY ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_ANY)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_ANY ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_FLOAT)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_FLOAT ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_DOUBLE)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_DOUBLE ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_NONE)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_NONE ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+			      else if (typeE2->getTypeKind() == TYPE_STATE)
+						yywarn ((const char*)(string("type of expr 2 : TYPE_STATE ") + 
+									+string("\n value of expr 2 : ") + $7->toString()));
+*/
+	
+			    
+			    if ((typeE->getTypeKind()==TYPE_ANY || typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
+						|| typeE->getTypeKind()==TYPE_FLOAT || typeE->getTypeKind()==TYPE_FIXED)
+						
+						&& (typeE2->getTypeKind()==TYPE_ANY || typeE2->getTypeKind()==TYPE_DOUBLE ||typeE2->getTypeKind() == TYPE_INT 
+						|| typeE2->getTypeKind()==TYPE_FLOAT|| typeE2->getTypeKind()==TYPE_FIXED))
+			    {
+					$$=new SymbolStream($3,$3->str,$2,STREAM_IN, $5->toString(), $7->toString());
+//					cout << $5->toString() << endl;
+				}
+				else
+					yyerror("invalid type for RANGE expression"+typekindToString(typeE->getTypeKind())+" and "+typekindToString(typeE2->getTypeKind()));
+					
+			  }
+			  else if ($1->code==OUTPUT)
+			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT, $5->toString(), $7->toString());
+			  else  // ($1->code==PARAM)
+			    $$=new SymbolVar($3,$3->str,$2);
+			}
+			
+| ioKind type ID_ '=' expr 
+			{
+			  
+			  if ($1->code==PARAM)
+			  {
+			    Type *typeE = $5->getType();
+/*			    
+			      
+			      if (typeE->getTypeKind() == TYPE_BOOL)
+						  yywarn ((const char*)(string("type of param : TYPE_BOOL ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_INT)
+						yywarn ((const char*)(string("type of param : TYPE_INT ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FIXED)
+						yywarn ((const char*)(string("type of param : TYPE_FIXED ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ARRAY)
+						yywarn ((const char*)(string("type of param : TYPE_ARRAY ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_ANY)
+						yywarn ((const char*)(string("type of param : TYPE_ANY ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_FLOAT)
+						yywarn ((const char*)(string("type of param : TYPE_FLOAT ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_DOUBLE)
+						yywarn ((const char*)(string("type of param : TYPE_DOUBLE ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_NONE)
+						yywarn ((const char*)(string("type of param : TYPE_NONE ") + 
+									+string("\n value of param : ") + $5->toString()));
+			      else if (typeE->getTypeKind() == TYPE_STATE)
+						yywarn ((const char*)(string("type of param : TYPE_STATE ") + 
+									+string("\n value of param : ") + $5->toString()));
+*/			      		    
+			    
+			    if ((typeE->getTypeKind()==TYPE_DOUBLE ||typeE->getTypeKind() == TYPE_INT 
+						|| typeE->getTypeKind()==TYPE_FLOAT))
+			    {
+					$$=new SymbolVar($3,$3->str,$2, $5->toString());
+				} else if (typeE->getTypeKind()==TYPE_FIXED) {
+					Type *t=$5->getType();
+					double fixedVal=0;
+					TypeFixed *tf=(TypeFixed*)t;
+					fixedVal=((ExprValue*)$5)->getIntVal()+(((ExprValue*)$5)->getFracVal()/pow(10,tf->getFracWidth()));
+
+					//cout  << "fixedVal=" << fixedVal << endl;
+					//cout  << "fixedVal=" << string("%f",fixedVal) << endl;
+
+					$$=new SymbolVar($3,$3->str,$2, string("%f",fixedVal));
+				} else
+					yyerror("invalid type for RANGE expression");
+				
+				 
+					
+			  }
+			  else if ($1->code==OUTPUT)
+			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT);
+			  else  // ($1->code==INPUT)
+			    $$=new SymbolStream($3,$3->str,$2,STREAM_OUT);
 			}
 ;
 
@@ -797,6 +946,15 @@ segmentStmt
 			  ExprBuiltin *e=new ExprBuiltin($1,$3,o);
 			  $$=new StmtBuiltin($1,e);
 			}
+| SEGMENT_SEQ_CYCLIC_R_ '(' args ')'
+			{
+			  OperatorSegment *o
+			    = new OperatorSegment($1,string("_dummy_seg_op"),
+						  SEGMENT_SEQ_CYCLIC_R,
+						  type_none,new list<Symbol*>);
+			  ExprBuiltin *e=new ExprBuiltin($1,$3,o);
+			  $$=new StmtBuiltin($1,e);
+			}
 | SEGMENT_SEQ_W_ '(' args ')'
 			{
 			  OperatorSegment *o
@@ -1040,19 +1198,26 @@ fixedExpr
 			      yyerror("fixed number requires unsigned parts");
 			    // detect constant parts:
 			    if ($1->getExprKind()==EXPR_VALUE &&
-			        $1->getExprKind()==EXPR_VALUE &&
+			        $3->getExprKind()==EXPR_VALUE &&
 				ti->getTypeKind()==TYPE_INT   &&
 				tf->getTypeKind()==TYPE_INT)
 			    {
 			      int	wi=ti->getWidth(),
-					wf=tf->getWidth();
+					wf=tf->getWidth2();
+					// use Width2 for fraction..
+
 			      long long vi=((ExprValue*)$1)->getIntVal(),
 					vf=((ExprValue*)$3)->getIntVal();
+
+					//cout << "wf=" << wf << ", vf=" << vf << endl;
 			      Type *t = new TypeFixed(wi,wf,false);
 			      $$=(Expr*)new ExprValue($2,t,vi,vf);
 			    }
 			    else // non-const parts
+			    {
+			    	printf("WTFBBQ!");
 			      $$=(Expr*)new ExprBop($2,'.',$1,$3);
+			    }
 			  }
 			  else
 			    $$=(Expr*)new ExprBop($2,'.',$1,$3);
@@ -1081,13 +1246,16 @@ atomExpr
 			{ 
 			  const char *tokenChars=$1->str;
 			  if (  tokenChars[0]=='0' &&
-			       (tokenChars[1]=='b' || tokenChars[1]=='B'))
+			       (tokenChars[1]=='b' || tokenChars[1]=='B')) {
 			    // binary "0b..."
 			    $$=constIntExpr(strtoll($1->str.del(0,1),NULL,2),
 					    $1);
-			  else
+			  } else {
 			    // decimal, octal, or hex
-			    $$=constIntExpr(strtoll($1->str,NULL,0),$1);
+			    //cout << $1->str << ", length=" << $1->str.length() << endl;
+			    //$$=constIntExprWithWidth(strtoll($1->str,NULL,0),$1->str.length(),$1);
+			    $$=constIntExprWithWidth($1->str.length(),strtoll($1->str,NULL,0),$1);
+			  }
 			}
 
 | NUMDBL

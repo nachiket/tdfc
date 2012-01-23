@@ -1,0 +1,11 @@
+AssignOutput(
+		input double dataIn,
+		output double dataOut
+	)
+{
+	state only(dataIn):
+	{
+		dataOut = dataIn;
+		goto only;
+	}
+}

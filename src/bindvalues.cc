@@ -130,8 +130,9 @@ ExprValue *newExprValue_int (Token *token, Type *type, long long val)
       else if (val<0)
 	newval = val |  (-1ll << (width-1));	// - set sign-extensn bits to 1
     }
-    else
+    else {
 	newval = val & ~(-1ll << width);	// - set high-order bits to 0
+    }
   }
 
   if (newval!=val)
@@ -1535,10 +1536,10 @@ bool set_values_preMap (Tree *t, void *aux)
   if (t->getKind()==TREE_EXPR)
     {
       Expr *expr = (Expr *)t;
-      if ( expr->getExprKind()==EXPR_CALL ||
+      if ( expr->getExprKind()==EXPR_CALL || (
 	  (expr->getExprKind()==EXPR_BUILTIN &&
 	   ((OperatorBuiltin*)((ExprBuiltin*)expr)->getOp())->
-				getBuiltinKind()==BUILTIN_SEGMENT) && aux)
+				getBuiltinKind()==BUILTIN_SEGMENT) && aux))
 	{
 	  ExprCall *ecall=(ExprCall *)expr;
 	  list <Expr*> *actuals=ecall->getArgs();
@@ -1622,9 +1623,10 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
   // (1) bind up args from record
   int i=0;
   Symbol *sym;
+  if(rec!=NULL)
   forall(sym,*(op->getArgs()))
     {
-      if (rec->isParam(i))
+      if (rec->isParam(i)) {
 	if (ccParamCausesInstance(sym))
 	  {
 	    SymbolVar *svar=(SymbolVar *)sym;
@@ -1668,6 +1670,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 			       rec->getParam(i)
 			       )),sym->getToken());
 	  }
+      }
       i++;
 	
     }
@@ -1677,7 +1680,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
   //                           and if expr has value,
   //                           replace exprlvalue with exprvalue
   resolve_bound_values(&op);
-  set_values(op);
+  set_values(op, true);
   timestamp(("end binding values ") + op->getName());
 
   // THIS IS PROBABLY BUGGY -- amd 9/1 

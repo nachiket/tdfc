@@ -44,6 +44,7 @@ void set_values (Operator *op,   bool bindSegOps=false);  // do all calls in op
 
 // - bind + propagate feedback record values into op
 void bindvalues(Operator *op, FeedbackRecord *rec);
+void resolve_bound_values(Operator **op);
 
 // - get bound value of array, chasing array param up call stack if necessary
 ExprArray* chaseArrayValue (Symbol *sym);

@@ -122,11 +122,12 @@ using std::endl;
 
 void match_fanin0_fanout0_nodes(BlockDfgInfo* dfgi, set<node>* n1_fanin0_set, set<node>* n0_fanout0_set, int n1_n2);
 
-node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
+node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e, int edge_index=0)
 {
   // - create DFG cone for Expr *e
   // - recurses to create + connect nodes for all subexpressions;
   // - create DFG edge from cone's root node to node uses_e (if uses_e != nil)
+  // - Nachiket 14/1/2012: Added edge_index to enable revisiting edge order of creation.. 
   // - if e is symbol ref and symbol has a live def in this block,
   //     then annotate edge with StmtAssign* for symbol's live def,
   //     otherwise annotate edge with NULL
@@ -143,7 +144,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;			  
 			  if (uses_e)
-			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
+			    (*dfgi->dfg).new_edge(n,uses_e,edge_index);
 //			    cout << "VAL:" << n << endl;
 			  return n;
 			}
@@ -212,7 +213,7 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			    (*dfgi->nodemap)[e]=n;
 //			    cout << "NEWLVAL:" << n << endl;
 			    if (uses_e)
-			      (*dfgi->dfg).new_edge(n,uses_e,asst);
+			      (*dfgi->dfg).new_edge(n,uses_e,edge_index); //asst
 			    return n;
 			  }
 			  else {
@@ -235,9 +236,9 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
                             (*dfgi->nodemap)[e]       =n_bitsel;
                             (*dfgi->nodemap)[e_bitsel]=n_bitsel;
 			    // edge ed =
-			    (*dfgi->dfg).new_edge(n,n_bitsel,asst);
+			    (*dfgi->dfg).new_edge(n,n_bitsel,edge_index); //asst
 			    if (uses_e)
-			      (*dfgi->dfg).new_edge(n_bitsel,uses_e,NULL);
+			      (*dfgi->dfg).new_edge(n_bitsel,uses_e,edge_index); // NULL
 			    return n_bitsel;
 			  }
 			}
@@ -245,22 +246,24 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *e1=((ExprUop*)e)->getExpr();
-			  createBlockDfg_for_expr(e1,dfgi,n);
+			  createBlockDfg_for_expr(e1,dfgi,n,0);
 			  if (uses_e)
-			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
+			    (*dfgi->dfg).new_edge(n,uses_e,edge_index);
 			  return n;
 			}
     case EXPR_BOP:	{
-//    			cout << "Found binary operator=" << e->toString() << " of type=" << opToString(((ExprBop*)e)->getOp())  << endl;
+    			cout << "Found binary operator=" << e->toString() << " of type=" << opToString(((ExprBop*)e)->getOp())  << endl;
+    			cout << "Expr1=" << ((ExprBop*)e)->getExpr1()->toString()  << endl;
+    			cout << "Expr2=" << ((ExprBop*)e)->getExpr2()->toString()  << endl;
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *e1=((ExprBop*)e)->getExpr1();
 			  Expr *e2=((ExprBop*)e)->getExpr2();
-			  createBlockDfg_for_expr(e1,dfgi,n);
-			  createBlockDfg_for_expr(e2,dfgi,n);
+			  createBlockDfg_for_expr(e1,dfgi,n,0);
+			  createBlockDfg_for_expr(e2,dfgi,n,1);
 //			  cout << "BOP: " << n << endl;
 			  if (uses_e)
-			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
+			    (*dfgi->dfg).new_edge(n,uses_e,edge_index);
 			  return n;
 			}
     case EXPR_COND:	{
@@ -270,20 +273,20 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  Expr *ec=((ExprCond*)e)->getCond();
 			  Expr *et=((ExprCond*)e)->getThenPart();
 			  Expr *ef=((ExprCond*)e)->getElsePart();
-			  createBlockDfg_for_expr(ec,dfgi,n);
-			  createBlockDfg_for_expr(et,dfgi,n);
-			  createBlockDfg_for_expr(ef,dfgi,n);
+			  createBlockDfg_for_expr(ec,dfgi,n,0);
+			  createBlockDfg_for_expr(et,dfgi,n,1);
+			  createBlockDfg_for_expr(ef,dfgi,n,2);
 			  if (uses_e)
-			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
+			    (*dfgi->dfg).new_edge(n,uses_e,edge_index);
 			  return n;
 			}
     case EXPR_CAST:	{
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *ev=((ExprCast*)e)->getExpr();
-			  createBlockDfg_for_expr(ev,dfgi,n);
+			  createBlockDfg_for_expr(ev,dfgi,n,0);
 			  if (uses_e)
-			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
+			    (*dfgi->dfg).new_edge(n,uses_e,edge_index);
 			  return n;
 			}
     case EXPR_BUILTIN:  {
@@ -291,10 +294,13 @@ node createBlockDfg_for_expr (Expr *e, BlockDfgInfo *dfgi, node uses_e)
 			  node n=(*dfgi->dfg).new_node(e);
 			  (*dfgi->nodemap)[e]=n;
 			  Expr *ea;
-			  forall (ea,*((ExprBuiltin*)e)->getArgs())
-			    createBlockDfg_for_expr(ea,dfgi,n);
+			  int eid=0;
+			  forall (ea,*((ExprBuiltin*)e)->getArgs()) {
+			    createBlockDfg_for_expr(ea,dfgi,n,eid);
+			    eid++;
+			  }
 			  if (uses_e)
-			    (*dfgi->dfg).new_edge(n,uses_e,NULL);
+			    (*dfgi->dfg).new_edge(n,uses_e,edge_index);
 			  return n;
 			}
     default:		{
@@ -373,9 +379,9 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 		ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
 		node srcnew=(*newdfg).new_node(trueVal);
 
-		(*newdfg).new_edge(srcnew, nnew);
-		(*newdfg).new_edge(srcnew, nnew);
-		(*newdfg).new_edge(srcnew, nnew);
+		(*newdfg).new_edge(srcnew, nnew, 0);
+		(*newdfg).new_edge(srcnew, nnew, 1);
+		(*newdfg).new_edge(srcnew, nnew, 2);
 		return;
 	}
 
@@ -393,34 +399,34 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 			Tree* tsrcnew=tsrc->duplicate();
 			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && fanin.size()==3) {
 			//cout << "EXPR_COND has 3 inputs.. output will always be driven!" << endl;
 			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
 			node srcnew=(*newdfg).new_node(trueVal);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			break;
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND && edge_count==0) {
 			Tree* tsrcnew=tsrc->duplicate();
 			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
 			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, true);
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)tsrc)->getExprKind()==EXPR_COND) {
 			Tree* tsrcnew=tsrc->duplicate();
 			((Expr*)tsrcnew)->setType(new Type(TYPE_BOOL));
 			node srcnew=(*newdfg).new_node((Expr*)tsrcnew);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 			recursiveFaninDuplicate(olddfg, newdfg, src, srcnew, false);	
 		} else if(t->getKind()==TREE_EXPR && ((Expr*)tsrc)->getExprKind()!=EXPR_COND) {
 			ExprValue* trueVal=new ExprValue(NULL,new Type(TYPE_BOOL),1,0);
 			node srcnew=(*newdfg).new_node(trueVal);
 
-			(*newdfg).new_edge(srcnew, nnew);
+			(*newdfg).new_edge(srcnew, nnew, NULL);
 		}
 
 		edge_count++;
@@ -429,7 +435,7 @@ void recursiveFaninDuplicate(BlockDFG *olddfg, BlockDFG *newdfg, node n, node nn
 	if(addfalse) {
 		ExprValue* falseVal=new ExprValue(NULL,new Type(TYPE_BOOL),0,0);
 		node srcnew=(*newdfg).new_node(falseVal);
-		(*newdfg).new_edge(srcnew, nnew);
+		(*newdfg).new_edge(srcnew, nnew, NULL);
 	}
 }
 
@@ -586,7 +592,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 			  ExprValue* gotoStateVal = new ExprValue(NULL, gotoState->getName());
 			  node gotonode = (*dfgi->dfg).new_node(gotoStateVal);
 			  (*dfgi->nodemap)[gotoStateVal]=gotonode;
-			  (*dfgi->dfg).new_edge(gotonode, statenode);
+			  (*dfgi->dfg).new_edge(gotonode, statenode, NULL);
 
 //			  cout << "GOTO Processing " << sym->toString() << " going to state=" << gotoState->getName() << endl;
 
@@ -622,7 +628,7 @@ bool createBlockDfg_map (Tree *t, void *i)
 //			  cout << "--Dealing with an IF statement " << &t << " in DFG " << dfgi << endl;
 			  //cout << ((StmtIf*)t)->toString() << endl;
 
-    	      Expr *ec=((StmtIf*)t)->getCond();
+			  Expr *ec=((StmtIf*)t)->getCond();
 
 			  //createBlockDfg_for_expr(ec,dfgi,n);
 			  Stmt *thenPart=((StmtIf*)t)->getThenPart();
@@ -1402,7 +1408,7 @@ void initialize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 	ExprValue* currentStateVal = new ExprValue(NULL, dfgi->sc->getStateName());
 	node currentnode = dfg->new_node(currentStateVal);
 	(*nodemap)[currentStateVal]=currentnode;
-	dfg->new_edge(currentnode, nextstate);
+	dfg->new_edge(currentnode, nextstate, NULL);
 
 	StmtAssign* t1=new StmtAssign(NULL, nextstate_dummylval, currentnode);
 	(*livedefs)[nextstate_sym]=t1;
@@ -1423,7 +1429,7 @@ void initialize_dfginfo(BlockDfgInfo* dfgi, bool toplevel) {
 		ExprLValue* defaultVal = new ExprLValue(NULL, localsym);
 		node defaultnode = dfg->new_node(defaultVal);
 		(*nodemap)[defaultVal]=defaultnode;
-		dfg->new_edge(defaultnode, localvarnode);
+		dfg->new_edge(defaultnode, localvarnode, NULL);
 
 		// Why didn't we just initialize this as an assignment?
 		StmtAssign* t2=new StmtAssign(NULL, localvar_dummylval, defaultnode);
@@ -2203,7 +2209,9 @@ set<edge> addRawEdges (BlockDFG *dfg)
 
   edge e;
   forall_edges (e,*dfg) {
-    StmtAssign *asst=(*dfg)[e];
+    // 14/2/2012: Nachiket replaced StmtAssign* with int
+    // StmtAssign *asst=(*dfg)[e];
+    StmtAssign *asst=NULL;
     if (asst) {					// - visit all annotated edges
       Symbol *sym=asst->getLValue()->getSymbol();
       node po=po_of[sym];
@@ -2584,6 +2592,7 @@ Type* evalType (Type *t)
   else {
     // - int, width unknown
     Expr       *widthExpr = t->getWidthExpr();
+	  
     Expr *evaledWidthExpr = evalExpr(widthExpr);
     if (evaledWidthExpr==widthExpr)
       evaledWidthExpr = (Expr*)widthExpr->duplicate();
@@ -2607,7 +2616,8 @@ Type* makeBitSelType (BlockDFG *dfg, node n)
   assert((*dfg).indeg(n)==1);
   edge  ein=(*dfg).first_in_edge(n);
   Type* tin;				// - type of sym being subscripted
-  StmtAssign *asst=(*dfg)[ein];		// - live def of sym being subscripted
+  //StmtAssign *asst=(*dfg)[ein];		// - live def of sym being subscripted
+  StmtAssign *asst=NULL;		// - live def of sym being subscripted
   if (asst)
     tin=asst->getLValue()->getSymbol()->getType();  // - sym type from live def
   else {
@@ -2849,7 +2859,7 @@ void reformBlockDFGs (BlockDFG *dfg, array<set<node> > *partitions,
 	    // - note, edge def->PO should NOT be annotated
 	    //     with assignment to the PO var!  [was: asst]
 	    node po =new_dfg.new_node(lval);
-	    edge poe=new_dfg.new_edge(new_nodes[n],po,(StmtAssign*)NULL);
+	    edge poe=new_dfg.new_edge(new_nodes[n],po,NULL);
 	    assert(poe);
 	  }
 	}
@@ -2908,18 +2918,16 @@ void reformBlockDFGs (BlockDFG *dfg, array<set<node> > *partitions,
 	  list<edge> new_dfg_in_edges_n=new_dfg.in_edges(new_nodes[n]);
 	  if (edgenum==0) {
 	    if (new_dfg_in_edges_n.empty())
-	      pie=new_dfg.new_edge(pi,new_nodes[n],(StmtAssign*)NULL);
+	      pie=new_dfg.new_edge(pi,new_nodes[n],NULL);
 	    else {
 	      edge new_nextedge=new_dfg_in_edges_n.head();
-	      pie=new_dfg.new_edge(pi,new_nextedge,(StmtAssign*)NULL,
-							LEDA::before);
+	      pie=new_dfg.new_edge(pi,new_nextedge,0, LEDA::before);
 	    }
 	  }
 	  else {
 	    edge new_prevedge=new_dfg_in_edges_n.inf(
 			      new_dfg_in_edges_n.get_item(edgenum-1));
-	    pie=new_dfg.new_edge(pi,new_prevedge,(StmtAssign*)NULL,
-							LEDA::after);
+	    pie=new_dfg.new_edge(pi,new_prevedge, 0, LEDA::after);
 	  } 
 	  assert(pie);
 	}
@@ -2997,7 +3005,8 @@ Expr* reconstructTDF_edge (BlockDFG *new_dfg, edge e, Expr *ee)
        ((*new_dfg)[e] ? (*new_dfg)[e]->toString() : string("<nil>")) + ")");
   */
 
-  StmtAssign *asst=(*new_dfg)[e];
+  //StmtAssign *asst=(*new_dfg)[e];
+  StmtAssign *asst=NULL;
   if (asst) {
     // - return sym ref (dup) without bit-sel
     ExprLValue *lval=asst->getLValue();

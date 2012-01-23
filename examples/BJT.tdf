@@ -1,0 +1,32 @@
+BJT(
+// simple parameters
+param double betaR,
+param double betaF,
+param double Is,
+param double Vt,
+param double n,
+// input quantities
+input double Vb[0,1],
+input double Vc[0,1],
+input double Ve[0,1],
+// output quantities
+output double Ie,
+output double Ib,
+output double Ic
+)
+{
+	state only(Vb,Vc,Ve):
+{
+// Ebers-Moll model :
+// Is is the saturation current of each diode multiplied by the gain alphaF and alphaR
+
+	double Vbe = (Vb - Ve);
+	double Vbc = (Vb - Vc);
+
+	Ic = Is * (exp(Vbe/(n*Vt)) - exp(Vbc/(n*Vt))) - (Is/betaR) *(exp(Vbc/(n*Vt))-1);
+	Ib = (Is / betaF)* (exp(Vbe/(n*Vt)) - 1) + (Is/betaR) * (exp(Vbc/(n*Vt)) - 1);
+	Ie = Is *(exp(Vbe/(n*Vt)) - exp(Vbc/(n*Vt))) + (Is/betaF) * (exp(Vbe/(n*Vt))-1);
+
+}
+
+}

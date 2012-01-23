@@ -1,0 +1,43 @@
+MOS(
+// simple parameters
+param double W,
+param double L,
+param double k,
+param double Vth,
+param double n,
+param double Io,
+param double Vt,
+param double Va,
+param double lambda,
+param double Xjl,
+// input quantities
+input double Vgs[0,2],
+input double Vds[0,5],
+// output quantities
+output double Id,
+output double gm
+)
+{
+
+// Xjl is the lateral diffusion parameter
+// W is the width of the transistor
+// L is the length of the transistor
+// k = µo * Cox
+// n is an ideality parameter
+	state only(Vgs, Vds):
+		if (Vgs < Vth)
+		{ 
+			Id = Io*(exp((Vgs-Vth)/(Vt*n)));
+			gm = (Io/(Vt*n))*(exp((Vgs-Vth)/(Vt*n)));
+		}
+		else if (Vgs > Vth && Vds < (Vgs-Vth) )
+		{
+			Id = (k*W/(L-2*Xjl)) * ((Vgs-Vth)*Vds - Vds*Vds/2) * (1+lambda*Va);
+			gm = (k*W/(L-2*Xjl)) * Vds * (1+lambda*Va);
+		}
+		else
+		{
+			Id = (k*W/(L-2*Xjl))/2 * (Vgs-Vth)* (Vgs-Vth)*(1+lambda*Va);
+			gm = (k*W/(L-2*Xjl)) * (1+lambda*Va) * (Vgs-Vth);
+		}
+}

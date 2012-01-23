@@ -1,0 +1,16 @@
+diode(
+// simple parameters
+param double vj=2.58642e-2,
+param double isat=1e-3,
+// input quantities
+input double v[1e-5, 0.1],
+// output quantities
+output double i,
+output double gm
+)
+{
+	state only(v):
+		gm = isat*exp(v/vj)/vj;
+		i = isat*(exp(v/vj)-1);
+}
+

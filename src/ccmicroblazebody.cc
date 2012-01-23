@@ -816,15 +816,18 @@ bool microblaze_collect_retime_exprs(Tree *t, void *aux)
 	  if ((val->getIntVal())==0)
 	    value_zero=1;
 	}
-      if (!value_zero)
-	if (rset!=(set<Expr *> *)NULL)
-	  rset->insert(rexpr);
+      if (!value_zero) {
+	if (rset!=(set<Expr *> *)NULL) 
+	  {
+	    rset->insert(rexpr);
+	  }
 	else
 	  {
 	    rset=new set<Expr *>();
 	    rset->insert(rexpr);
 	    sym->setAnnote(MAX_RETIME_DEPTH,(void *)rset);
 	  }
+      }
     }
 
   return(0);
@@ -1193,7 +1196,7 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 
       *fout << "  }" << endl;
       // any final stuff
-      if (!noReturnValue(rsym))
+      if (!noReturnValue(rsym)) {
 	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
 	  {
 	    *fout <<"  if (!"<<classname<<"_ptr->output_close[" 
@@ -1203,10 +1206,13 @@ void ccmicroblazeprocrun(ofstream *fout, string classname, Operator *op)
 		  << classname << "_ptr->outputs[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		  << "]);" << endl;
 	  }
-	else
+	else {
 	  *fout << "  STREAM_CLOSE(" 
 		<< classname << "_ptr->outputs[" << (long)(rsym->getAnnote(CC_STREAM_ID))
 		<< "]);" << endl;
+        }
+      }
+
       forall(sym,*argtypes)
 	{
 	  if (sym->isStream())

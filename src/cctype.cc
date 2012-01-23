@@ -555,9 +555,3 @@ string getCCtype (Symbol *rsym, bool treat_as_stream)
 }
 
 
-
-
-
-
-
-

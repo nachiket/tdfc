@@ -171,7 +171,7 @@ void ccComposeEvalExpr(ofstream *fout, Expr *expr, Symbol *rsym)
 
 	// wrong thing for "." operator...
         // TODO: deal properly with fixed point construction/representation
-	*fout << "(";
+	*fout << "("; // mickey???
 	ccComposeEvalExpr(fout,bexpr->getExpr1(),rsym);
 // 1-2-2010: Don't understand the deal with processing %..
 //	if(bexpr->getOp()=='%') {
@@ -297,6 +297,7 @@ void ccCompose (ofstream *fout, string name, OperatorCompose *op)
     {
       Symbol *asum=lsyms->inf(item);
       syms->insert(asum);
+		cout << asum->getName() << " is an array." << endl;
       *fout << "    " << getCCtype(asum,1) << " " << asum->getName()
 	    << ";" << endl;
       
@@ -686,7 +687,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 	    << "    pthread_attr_init(a_thread_attribute);\n"
 	    << "    pthread_attr_setdetachstate(a_thread_attribute,PTHREAD_CREATE_DETACHED);\n"
 	    << "    pthread_create(&rpt,a_thread_attribute,&" 
-	    << op->getName() << "_proc_run, this);"
+	    << op->getName() << "_proc_run, this);\n"
+	    << "    pthread_attr_destroy(a_thread_attribute);" 
+	    << "    free(a_thread_attribute);" 
 	    << endl;
     }
   else if (op->getOpKind()==OP_COMPOSE)
@@ -718,6 +721,9 @@ void ccconstruct(ofstream *fout,string name, Operator *op)
 
 
   *fout << "  }" << endl; // else no instance, run proc_run
+  *fout << "  free(params);" << endl;
+  *fout << "  free(name);" << endl;
+  *fout << "  free(instance_fn);" << endl;
   *fout << "}" << endl; // end of constructor
   
 }
@@ -748,7 +754,7 @@ bool collect_retime_exprs(Tree *t, void *aux)
 	  if ((val->getIntVal())==0)
 	    value_zero=1;
 	}
-      if (!value_zero)
+      if (!value_zero) {
 	if (rset!=(set<Expr *> *)NULL)
 	{
 	  rset->insert(rexpr);
@@ -759,6 +765,7 @@ bool collect_retime_exprs(Tree *t, void *aux)
 	    rset->insert(rexpr);
 	    sym->setAnnote(MAX_RETIME_DEPTH,(void *)rset);
 	  }
+      }
     }
 
   return(0);
@@ -814,11 +821,30 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	{
 	  Symbol *sum=lsyms->inf(item2);
 	  SymbolVar *asum=(SymbolVar *)sum;
-	  *fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
 	  Expr* val=asum->getValue();
-	  if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
-	  *fout << ";" << endl;
+
+	  // 21/8/2011 - Nachiket - Needs to support SEGMENT initializations
+	  // C++ implementations use (long long) types to support segments..
+	  if(!sum->isArray()) {
+	  	*fout << "  " << getCCvarType(asum) << " " << asum->getName() ;
+	  	if (val!=(Expr *)NULL)
+	      		*fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
+	  	*fout << ";" << endl;
+	  } else { 
+	  	if(val && val->getExprKind()==EXPR_ARRAY) {
+			ExprArray *earr =(ExprArray *)val;
+			list<Expr *>*elist=earr->getExprs();
+			// this is for supporting ARRAY types with initialized values..
+			*fout << "  long long " << asum->getName() << 
+				"["<< elist->size() <<"]";
+		} else {
+		    fatal(-1,"tdfc is not supporting uninitialized arrays.");	
+		}
+
+	  	if (val!=(Expr *)NULL)
+	      		*fout << "=" << ccEvalExpr(EvaluateExpr(val)) ;
+	  	*fout << ";" << endl;
+	  }
 	}
 
       // declare/initialize retiming slots for input streams
@@ -1138,8 +1164,11 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 	      Stmt* stmt;
 	      forall(stmt,*(acase->getStmts()))
 		{
+		  //ccStmt(fout,string("          "),stmt,early_close,
+		//	 STATE_PREFIX,0); 
 		  ccStmt(fout,string("          "),stmt,early_close,
-			 STATE_PREFIX,0); // 0 was default for ccStmt.h
+			 STATE_PREFIX,0, true, false, false, false, "", NULL, NULL); 
+		  // 0 was default for ccStmt.h
 		}
 	      *fout << "        }" << endl;
 	      *fout << "        else" << endl;
@@ -1176,6 +1205,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
       *fout << "  }" << endl;
       // any final stuff
       if (!noReturnValue(rsym))
+      {
 	if (early_close[(long)(rsym->getAnnote(CC_STREAM_ID))])
 	  {
 	    *fout <<"  if (!output_close[" 
@@ -1187,12 +1217,14 @@ void ccprocrun(ofstream *fout, string name, Operator *op,
 		  << ");" << endl;
 	  }
 	else
-	{
-	  *fout << "  STREAM_CLOSE(" 
-		<< "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
-		<< "]"
-		<< ");" << endl;
-	}
+	  {
+	    *fout << "  STREAM_CLOSE(" 
+	  	  << "out[" << (long)(rsym->getAnnote(CC_STREAM_ID))
+	 	  << "]"
+		  << ");" << endl;
+	  }
+      }
+
       forall(sym,*argtypes)
 	{
 	  if (sym->isStream())

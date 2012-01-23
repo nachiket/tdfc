@@ -48,7 +48,7 @@ Note: builtins expecting to handle here
 using std::cout;
 using std::endl;
 
-string retimeName(string name, Expr * dexpr, bool retime)
+string retimeName(string name, Expr * dexpr, bool retime, bool cuda)
 {
 
  if(retime) {
@@ -60,7 +60,7 @@ string retimeName(string name, Expr * dexpr, bool retime)
    else
       // 6/22 think this is right?
       return(string("%s_retime[%s]",(const char *)name,
-		  (const char *)ccEvalExpr(dexpr, retime)));
+		  (const char *)ccEvalExpr(dexpr, retime, cuda)));
  } else {
 // cout << "Yeah?!!" << endl; exit(-1);
    if (dexpr==(Expr *)NULL)
@@ -70,7 +70,7 @@ string retimeName(string name, Expr * dexpr, bool retime)
    else
       // 6/22 think this is right?
       return(string("%s",(const char *)name,
-		  (const char *)ccEvalExpr(dexpr, retime)));
+		  (const char *)ccEvalExpr(dexpr, retime, cuda)));
  }
 }
 
@@ -218,7 +218,27 @@ string simplify_select(string name, Expr *high, Expr *low, bool ll)
 
 }
 
-string ccEvalExpr(Expr *expr, bool retime)
+
+int power_of_two_dup(long long val)
+{
+	if(val==0)
+		return(-1);
+
+	int cnt=0;
+	long long p2=1;
+	while (p2!=0)
+	{
+		if (p2==val)
+			return(cnt);
+		p2=p2<<1;
+		cnt++;
+	}
+	return(-1);
+}
+
+
+
+string ccEvalExpr(Expr *expr, bool retime, bool cuda, bool gappa, string type, bool autoesl, bool *expo, bool *log, bool *div)
 {
   if (expr==(Expr *)NULL)
     {
@@ -235,21 +255,40 @@ string ccEvalExpr(Expr *expr, bool retime)
     //     to mark un-type-checked trees with type=NULL, not TYPE_ANY
     //     (requires modifying parser and many tree constructors)
   }
-
   switch(expr->getExprKind())
     {
     case EXPR_VALUE:
-      return(expr->toString()); // may need to check if this right
+      return(string("(")+expr->toString()+string(")")); // may need to check if this right
+    case EXPR_ARRAY:
+      return(expr->toString()); // Not sure if this is valid.. 31/7/2011 - Nachiket
     case EXPR_LVALUE:
       {
 	ExprLValue *lexpr=(ExprLValue *)expr;
 	string name;
 	if ((lexpr->getSymbol()->isStream())
 	    && (((SymbolStream *)(lexpr->getSymbol()))->getDir()==STREAM_IN))
-	  name=retimeName(lexpr->getSymbol()->getName(),
-			  lexpr->getRetime(), retime);
-	else
-	  name=lexpr->getSymbol()->getName();
+	{
+
+	//cout << "name=" << lexpr->getSymbol()->getName() << "cuda=" << cuda << endl;
+
+	  if(cuda) {
+	    name=retimeName(lexpr->getSymbol()->getName(),
+			  lexpr->getRetime(), retime, cuda)+string("[idx]");
+	  } else if (gappa) {
+		  // Miss Helene Martorelle introudced a CUDA bug :P
+		name=retimeName(lexpr->getSymbol()->getName(),
+			  lexpr->getRetime(), retime, cuda)+type;
+	  } else {
+		name=retimeName(lexpr->getSymbol()->getName(),
+			  lexpr->getRetime(), retime, cuda);
+	  }
+	}
+	else {
+		// 21/8/2011 - Nachiket - Array subscripts need to be extracted if present..
+		//cout << "LEXPR=" << lexpr->toString() << endl;
+		// OLD name=lexpr->getSymbol()->getName()+type+"["+"]";
+		name=lexpr->toString()+type;
+	}
 	if (lexpr->usesAllBits())
 	  return(name);
 	else
@@ -287,8 +326,8 @@ string ccEvalExpr(Expr *expr, bool retime)
 		      if (first==1)
 			first=0;
 		      else
-			res=res+cast+ccEvalExpr(prevexp, retime)+string(")")+
-			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime)
+			res=res+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type, autoesl, expo, log, div)+string(")")+
+			  string("<<(")+ccEvalExpr(EvaluateGetWidth(exp), retime, cuda, gappa, type, autoesl, expo, log, div)
 			  +string("))|");
 		      // NOTE: evaluate get width here is probably
 		      //  temporary until revamp bindvalues to use map2
@@ -297,7 +336,7 @@ string ccEvalExpr(Expr *expr, bool retime)
 		      cast = (bexpr_cctype==exp_cctype)
 				? string() : ("("+bexpr_cctype+")");
 		    }
-		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime)+string("))");
+		  res=res+string("(")+cast+ccEvalExpr(prevexp, retime, cuda, gappa, type, autoesl, expo, log, div)+string("))");
 		  return(res);
 		}
 	      else
@@ -341,27 +380,61 @@ string ccEvalExpr(Expr *expr, bool retime)
     case EXPR_COND:
       {
 	ExprCond * cexpr=(ExprCond *)expr;
-	return("(("+ccEvalExpr(cexpr->getCond(), retime)+")?("+
-	       ccEvalExpr(cexpr->getThenPart(), retime)+"):("+
-	       ccEvalExpr(cexpr->getElsePart(), retime)+"))");
+	return("(("+ccEvalExpr(cexpr->getCond(), retime, cuda, gappa, type, autoesl, expo, log, div)+")?("+
+	       ccEvalExpr(cexpr->getThenPart(), retime, cuda, gappa, type, autoesl, expo, log, div)+"):("+
+	       ccEvalExpr(cexpr->getElsePart(), retime, cuda, gappa, type, autoesl, expo, log, div)+"))");
       }
     case EXPR_BOP:
       {
 	ExprBop *bexpr=(ExprBop *)expr;
+	string ops=opToString(bexpr->getOp());
 
-	// wrong thing for "." operator...
-        // TODO: deal properly with fixed point construction/representation
-	return("("+ccEvalExpr(bexpr->getExpr1(), retime)+
-	       opToString(bexpr->getOp())+
-	       ccEvalExpr(bexpr->getExpr2(), retime)+")");
+	string istr0=ccEvalExpr(bexpr->getExpr1(), retime, cuda, gappa, type, autoesl, expo, log, div);
+	string istr1=ccEvalExpr(bexpr->getExpr2(), retime, cuda, gappa, type, autoesl, expo, log, div);
+
+	int v2=-1;
+	if(bexpr->getExpr2()->getExprKind()==EXPR_VALUE) {
+		v2=((ExprValue *)bexpr->getExpr2())->getIntVal();
+		//cout << "Value " << v2 << "Istr=" << istr1 << endl;
+	}
+
+	int vparam=-1;
+	if(bexpr->getExpr2()->getExprKind()==EXPR_LVALUE) {
+		ExprLValue* lval=(ExprLValue*)bexpr->getExpr2();
+		Symbol   *sym    = lval->getSymbol();
+		//cout << sym->getName() << " is a param=" << sym->isParam() << endl;
+		if(sym->isParam()) {
+			vparam=1;
+		}
+	}
+
+	if (autoesl && (ops == "/") && v2==-1 && vparam==-1)
+	{
+		if (div != NULL && ops == "/")
+			*div = true;
+
+		return("div_flopoco("+istr0+","+istr1+")");
+	} else {
+        	// TODO: deal properly with fixed point construction/representation
+		return("("+istr0+opToString(bexpr->getOp())+istr1+")");
+	}
       }
     case EXPR_UOP:
       {
 	ExprUop *uexpr=(ExprUop *)expr;
 	string ops=opToString(uexpr->getOp());
 	Expr *iexpr=uexpr->getExpr();
-	string istr=ccEvalExpr(iexpr, retime);
-	return(("("+ops)+("("+istr)+"))");
+	string istr=ccEvalExpr(iexpr, retime, cuda, gappa, type, autoesl, expo, log, div);
+	if (autoesl && (ops == "exp" || ops =="log"))
+	{
+		if (expo != NULL && ops == "exp")
+			*expo = true;
+		if (log != NULL && ops == "log")
+			*log = true;
+		return(("("+ops)+"_flopoco"+("("+istr)+"))");
+	}
+	else
+		return(("("+ops) +("("+istr)+"))");
       }
     case EXPR_CAST:
       {
@@ -385,9 +458,9 @@ string ccEvalExpr(Expr *expr, bool retime)
 	        real_cctype = getCCvarType(real_type);
 
 	if (c_cctype!=real_cctype)
-	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime)+"))" );
+	  return( "(("+c_cctype+")("+ccEvalExpr(real_expr, retime, cuda, gappa, type, autoesl, expo, log, div)+"))" );
 	else
-	  return( ccEvalExpr(real_expr, retime) );
+	  return( ccEvalExpr(real_expr, retime, cuda, gappa, type, autoesl, expo, log, div) );
 
 	// EC:  My code above generalizes Andre's code below.
 	//      Above code assumes that type checking was done,
@@ -406,7 +479,7 @@ string ccEvalExpr(Expr *expr, bool retime)
 	//   return(ccEvalExpr(real_expr));
       }
     default:
-      fatal(-1,(string("ccEvalExpr: unknown Expression type [")+expr->toString()+
+      fatal(-1,(string("ccEvalExpr: unknown Expression with value [")+expr->toString()+
 		string("]")),
 	    expr->getToken());
       return("0");

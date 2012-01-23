@@ -1,0 +1,3 @@
+EnableCoalesceStageData(0x4,,,);
+EnableCoalesceStageData(0x4,,,);
+EnableCoalesceStageData(0x2,,,);

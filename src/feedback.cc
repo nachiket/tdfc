@@ -209,11 +209,13 @@ int feedback_order(FeedbackRecord * const &A,  FeedbackRecord * const &B)
 {
   for (int i=0;i<A->params();i++)
     {
-      if (A->isParam(i))
-	if (A->getParam(i) > B->getParam(i))
+      if (A->isParam(i)) {
+	if (A->getParam(i) > B->getParam(i)) {
 	  return(-1);
-	else if (A->getParam(i) < B->getParam(i))
+	} else if (A->getParam(i) < B->getParam(i)) {
 	  return(1);
+	}
+      }
     }
   return(0); // all equal
 }

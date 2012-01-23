@@ -246,6 +246,7 @@ syms		({openclosebr}|{openclosebar}|{openclosepar}|{lgt}|{sign}|{osym})
 "segment_w"	{ return_token(SEGMENT_W_);	}
 "segment_rw"	{ return_token(SEGMENT_RW_);	}
 "segment_seq_r"	{ return_token(SEGMENT_SEQ_R_);	}
+"segment_seq_cyclic_r"	{ return_token(SEGMENT_SEQ_CYCLIC_R_);	}
 "segment_seq_w"	{ return_token(SEGMENT_SEQ_W_);	}
 "segment_seq_rw" {return_token(SEGMENT_SEQ_RW_);}
 "true"		{ return_token(TRUE);		}

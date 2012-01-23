@@ -1,0 +1,19 @@
+address_gen(
+output unsigned[9] address
+) {
+	
+	unsigned[9] address_r=0;
+
+	state generate_address():
+		address_r=(address_r+1)%512;
+		address=address_r;
+		printf("Address=%lld\n",address_r);
+
+		if(address_r==511) {
+			goto done_state;
+		}
+
+	state done_state():
+		stay;
+
+}

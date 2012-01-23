@@ -1,0 +1,13 @@
+
+tdfc_copy(
+           //params bound at instantiation time
+	   input float x,
+           output float y)
+{
+
+        state Copy(x):
+        {
+		y = x;
+	}
+
+} 

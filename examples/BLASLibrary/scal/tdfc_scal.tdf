@@ -1,0 +1,14 @@
+
+tdfc_scal(
+           //params bound at instantiation time
+	   param float alpha,
+	   input float x,
+	   output float x_out)
+{
+
+        state Scal(x):
+        {
+		x_out = x*alpha;
+	}
+
+} 

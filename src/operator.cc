@@ -384,6 +384,7 @@ OperatorSegment* makeOperatorSegment (Token *token_i,
   {
     case SEGMENT_R:
     case SEGMENT_SEQ_R:
+    case SEGMENT_SEQ_CYCLIC_R:
       {
 	Symbol *dataSym  = new SymbolStream(NULL,"data",
 					    (Type*)dataType->duplicate(),
@@ -451,6 +452,12 @@ OperatorSegment* makeOperatorSegment (Token *token_i,
     case SEGMENT_SEQ_R:
       {
 	o=new OperatorSegment(token_i,"segment_seq_r",SEGMENT_SEQ_R,
+			      dataType,args_i);
+	break;
+      }
+    case SEGMENT_SEQ_CYCLIC_R:
+      {
+	o=new OperatorSegment(token_i,"segment_seq_cyclic_r",SEGMENT_SEQ_CYCLIC_R,
 			      dataType,args_i);
 	break;
       }

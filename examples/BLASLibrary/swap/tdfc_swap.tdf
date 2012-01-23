@@ -1,0 +1,16 @@
+
+tdfc_swap(
+           //params bound at instantiation time
+	   input float x,
+	   input float y,
+	   output float x_out,
+	   output float y_out)
+{
+        state Swap(x):
+        {
+		float temp = x;
+		x_out = y;
+		y_out = temp;
+	}
+
+} 

@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 1999 The Regents of the University of California 
 // Permission to use, copy, modify, and distribute this software and
@@ -65,6 +65,7 @@
 #include "synplify.h"
 #include "dummypages.h"
 #include "pipeext.h"
+#include "bindvalues.h"
 #include "blockdfg.h"
 
 
@@ -85,12 +86,25 @@ int      gCycleTime             = 1;	 // "-T" cycle time    for "-pt"
 // bool  gEmitStreamDepth	= false; // true for "-esd" stream depth analss
 int	 gStreamDepthMax	= 2;     // "-SD" max stream depth for "-esd"
 
+// - Nachiket: Added unroll factor and reduce depth option
+int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
+int	 gReduceDepth	= 1;     // "-r" specify reduce depth for computation...
+
+int 	 gFixedBits = 32;
+int 	 gFracBits = 24;
+int 	 gIntBits = 8;
+int 	 gDouble = 1;
+
 // - EC: should move these elsewhere, maybe to synplify.cc
 bool     gSynplify              = false; // true for "-synplify"
 
 enum Target { TARGET_TDF,
 	      TARGET_CC,
+	      TARGET_CUDA,
+	      TARGET_GAPPA,
+	      TARGET_GAPPA01,
 	      TARGET_MICROBLAZE,
+	      TARGET_AUTOESL,
 	      TARGET_VERILOG,
 	      TARGET_NEWREP,
 	    //TARGET_CLUSTERS,
@@ -120,10 +134,15 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
+    << "         -egappa   <frac>   : emit input language for gappa (precision analysis) with CPU compatible types\n"
+    << "         -egappa01 <frac>   : emit gappa code with unified IF condition rage [0,1]\n"
+    << "         -egappagpu   : emit input language for gappa (precision analysis) with GPU/CUDA compatible types\n"
     << "         -edot        : emit dataflow graph for Graphviz visualization\n"
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
     << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
     << "         -embz        : emit C code for the Microblaze\n"
+    << "         -ecuda       : emit CUDA code for NVIDIA GPU\n"
+    << "         -eautoesl <frac> <int> <double>   : emit C code for AutoESL/Xilinx\n"
     << "         -everilog    : emit Verilog\n"
     << "         -eIR         : emit page synthesis info (implies -xc -mt)\n"
 				  // -mt avoids a core-dump, to be investigated
@@ -273,7 +292,7 @@ bool find_behav_ops_map (Tree *t, void *aux)
 }
 
 
-set<string> *instances (Operator *op, Target targ,
+set<string> *instances(Operator *op, Target targ,
 			int debug_page_step=0)
 {
 
@@ -462,7 +481,19 @@ set<string> *instances (Operator *op, Target targ,
 	case TARGET_CC:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
+	case TARGET_CUDA:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
+	case TARGET_GAPPA:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
+	case TARGET_GAPPA01:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
 	case TARGET_MICROBLAZE:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
+	case TARGET_AUTOESL:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
 	case TARGET_VERILOG:
@@ -499,6 +530,315 @@ set<string> *instances (Operator *op, Target targ,
   return(res);
 }
 
+bool unroll_premap (Tree* t, void* j)
+{
+	if(t->getKind()==TREE_SUITE) {
+		return false;
+	} else if(t->getKind()==TREE_OPERATOR) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void unroll (Operator* op, int unroll_factor) {
+
+	// - unroll operators internal to the computation
+  	// - 20/Oct/2011 Testing Unroll+Banking
+    cout << string("begin processing unroll of ") << op->getName() << endl;
+
+    // testing existence of segment operator in op...
+    if(op->getOpKind()==OP_COMPOSE) {
+    list<Stmt*> op_stmts = *((OperatorCompose*)op)->getStmts();
+    Stmt* op_stmt;
+    forall(op_stmt, op_stmts) {
+        if ((op_stmt->getStmtKind()==STMT_BUILTIN)) {
+//	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+	    Expr *expr=((StmtBuiltin *)op_stmt)->getBuiltin();
+//	    cout << "Expressions=" << expr->toString() <<endl;
+	    ExprBuiltin *ebuiltin=(ExprBuiltin*)expr;
+	    Expr* e_iter;
+	    if(((OperatorBuiltin*)ebuiltin->getOp())->getBuiltinKind()==BUILTIN_SEGMENT) {
+		int cntr=0;
+		forall(e_iter, *ebuiltin->getMutableArgs()) {
+		    // need to HALVE depth of array here!
+		    // Assume that EXPR is of type ExprValue.. no symbolic bs allowed here!
+		    if(!e_iter->getExprKind()==EXPR_VALUE && (cntr==1 || cntr==2)) { 
+			   cout << "ERROR: Assume bindvalues have already assigned segment params to constants.." << exprkindToString(e_iter->getExprKind()) << endl;			   		    }
+
+		    if(cntr==1) {
+			    //awidth is here...
+			    int awidth=((ExprValue*)e_iter)->getIntVal();
+			    assert(awidth!=0);
+			    ((ExprValue*)e_iter)->setIntVal(awidth-1);
+		    } else if(cntr==2) {
+			    // nelems is here
+			    int nelems=((ExprValue*)e_iter)->getIntVal();
+			    assert(nelems!=0);
+			    ((ExprValue*)e_iter)->setIntVal(nelems/2);
+		    }
+//		    cout << "exprbuiltin:" << e_iter->toString() << endl;
+		    cntr++;
+	    	}
+	    }
+//	    cout << "Expressions=" << expr->toString() <<endl;
+//	    cout << "StatementBuiltin=" << op_stmt->toString() <<endl;
+	}
+    }
+    }
+
+    // unrolling function
+    int i=0;
+    list<Operator*> *dupOpArr = new list<Operator*>();
+    for(i=0;i<unroll_factor;i++)
+    {
+	    Operator* dupOp = (Operator*)op->duplicate();
+	    string dupOpName=op->getName()+"_"+string("%d",i);
+	    cout << "Name=" << dupOpName << endl;
+	    dupOp->setName(dupOpName);
+	    dupOpArr->append(dupOp);
+    }
+
+    // building COMPOSE operator...
+    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
+    list<Stmt*>     *cop_stmts=new list<Stmt*>;
+    // expand IOs...
+    list<Symbol*>   *args = op->getArgs();
+    list<Symbol*>   *cop_args = new list<Symbol*>;
+    Symbol *symStream;
+    forall (symStream,*op->getArgs()) {
+	        // - add symStream to new behav-op
+		if (symStream->isParam())   // - ignore params, they are bound
+			continue;
+		assert(symStream->isStream());
+
+		// duplicate all operator streams
+		for(i=0;i<unroll_factor;i++) 
+		{
+			Symbol *newSymStreamDup=(Symbol*)symStream->duplicate();
+			newSymStreamDup->setName(symStream->getName()+"_"+string("%d",i));
+			cop_args->append(newSymStreamDup);
+		}
+    }
+
+    OperatorCompose *cop=new OperatorCompose(NULL,op->getName(),
+		    op->getRetSym(),cop_args,
+		    cop_vars,cop_stmts);
+
+    
+    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
+    i=0;
+    Operator* dupOp;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
+	    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
+	    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
+	    op_call_stmt->setParent(cop);
+
+	    // wiring up COMPOSEOP to OP and DUPOP calls..
+	    symStream=NULL;
+	    forall (symStream,*dupOp->getArgs()) {
+		    // - add symStream to new behav-op
+		    if (symStream->isParam())   // - ignore params, they are bound?
+			    continue;
+		    assert(symStream->isStream());
+
+		    // find symbol in composeOp
+		    Symbol* cop_symStream;
+		    bool found=false;
+		    forall (cop_symStream,*cop->getArgs()) {
+			    if(cop_symStream->getName() == string(symStream->getName()+"_"+string("%d",i))) {
+				    found=true;
+				    break;
+			    }
+		    }
+
+		    assert(found);
+
+		    // first wireup "OP"
+		    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
+		    op_call_expr->getArgs()->append(e);
+		    e->setParent(op_call_expr);
+	    }
+
+	    dupOp->thread(NULL); 
+	    dupOp->link();
+	    i++;
+    }
+
+    cop->thread(cop->getParent());
+    cop->link();
+
+    i=0;
+    dupOp=NULL;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    gSuite->addOperator(dupOp);
+    }
+    gSuite->removeOperator(op);
+    gSuite->addOperator(cop);
+    gSuite->link();
+
+// After some though, we decided to avoid doing split/merge...
+// Merge require fanin tracking and gathering...
+// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
+
+}
+
+bool print_premap(Tree* t, void* i) {
+	// Jesus!
+	cout << t->toString() << endl;
+	return false;
+}
+
+bool print_postmap(Tree* t, void* i) {
+	// Jesus!
+	cout << "WTF" << endl;
+	return true;
+}
+
+
+void doUnroll(int unroll_factor) {
+
+  if(unroll_factor==1)
+    return;
+
+  Operator *op;
+  set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
+  forall(op, set_of_operators_before_mod) { // allows us to iterate over a set we're modifying...
+    cout << "// operator " << op->getName() << '\n';
+    unroll(op,unroll_factor);
+  }
+
+}
+
+void reduce_tree (Operator* op, int reduce_depth) {
+
+	// - unroll operators internal to the computation
+  	// - 20/Oct/2011 Testing Unroll+Banking
+    cout << string("begin processing unroll of ") << op->getName() << endl;
+
+    // reduce-tree unroll only possible on leaf nodes..
+    if(op->getOpKind()==OP_COMPOSE) {
+    	return;
+    }
+
+    // unrolling function
+    int i=0,j=0;
+    list<Operator*> *dupOpArr = new list<Operator*>();
+    for(i=reduce_depth;i>=0;i--)
+    {
+    	for(j=0;j<=pow(2,i);j++)
+    	{
+	    Operator* dupOp = (Operator*)op->duplicate();
+	    string dupOpName=op->getName()+"_"+string("%d",i)+"_"+string("%d",j);
+	    //cout << "Name=" << dupOpName << endl;
+	    dupOp->setName(dupOpName);
+	    dupOpArr->append(dupOp);
+	}
+    }
+
+    // building COMPOSE operator...
+    SymTab          *cop_vars=new SymTab(SYMTAB_BLOCK);
+    list<Stmt*>     *cop_stmts=new list<Stmt*>;
+    // expand IOs...
+    list<Symbol*>   *args = op->getArgs();
+    list<Symbol*>   *cop_args = new list<Symbol*>;
+    Symbol *symStream;
+    forall (symStream,*op->getArgs()) {
+	        // - add symStream to new behav-op
+		if (symStream->isParam())   // - ignore params, they are bound
+			continue;
+		assert(symStream->isStream());
+
+		// replicate all operator streams
+		for(i=0;i<pow(2,reduce_depth);i++) 
+		{
+			Symbol *newSymStreamDup=(Symbol*)symStream->duplicate();
+			newSymStreamDup->setName(symStream->getName()+"_"+string("%d",i));
+			cop_args->append(newSymStreamDup);
+		}
+    }
+
+    OperatorCompose *cop=new OperatorCompose(NULL,op->getName(),
+		    op->getRetSym(),cop_args,
+		    cop_vars,cop_stmts);
+
+    
+    // creating required calls to unrolled OP and DUPOP inside COMPOSEOP
+    i=0;
+    Operator* dupOp;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    ExprCall *op_call_expr=new ExprCall(NULL,new list<Expr*>,dupOp);
+	    StmtCall *op_call_stmt=new StmtCall(NULL,op_call_expr);
+	    cop->getStmts()->append(op_call_stmt);     // - HACK: modifying stmt list
+	    op_call_stmt->setParent(cop);
+
+	    // wiring up COMPOSEOP to OP and DUPOP calls..
+	    symStream=NULL;
+	    forall (symStream,*dupOp->getArgs()) {
+		    // - add symStream to new behav-op
+		    if (symStream->isParam())   // - ignore params, they are bound?
+			    continue;
+		    assert(symStream->isStream());
+
+		    // find symbol in composeOp
+		    Symbol* cop_symStream;
+		    bool found=false;
+		    forall (cop_symStream,*cop->getArgs()) {
+			    if(cop_symStream->getName() == string(symStream->getName()+"_"+string("%d",i))) {
+				    found=true;
+				    break;
+			    }
+		    }
+
+		    assert(found);
+
+		    // first wireup "OP"
+		    ExprLValue *e=new ExprLValue(NULL,cop_symStream);
+		    op_call_expr->getArgs()->append(e);
+		    e->setParent(op_call_expr);
+	    }
+
+	    dupOp->thread(NULL); 
+	    dupOp->link();
+	    i++;
+    }
+
+    cop->thread(cop->getParent());
+    cop->link();
+
+    i=0;
+    dupOp=NULL;
+    forall(dupOp, *dupOpArr) {
+	    assert(dupOp!=NULL);
+	    gSuite->addOperator(dupOp);
+    }
+    gSuite->removeOperator(op);
+    gSuite->addOperator(cop);
+    gSuite->link();
+
+// After some though, we decided to avoid doing split/merge...
+// Merge require fanin tracking and gathering...
+// Also, streams will have to rescale bandwidths which may not necessarily be feasibly... max bitwidth capped at 64-bit... need to sequentialise/mux/demux stream tokens...
+
+}
+
+void doReduceTree(int tree_depth) {
+
+  if(tree_depth==1)
+    return;
+
+  Operator *op;
+  set<Operator*> set_of_operators_before_mod = *gSuite->getOperators();
+  forall(op, set_of_operators_before_mod) { // allows us to iterate over a set we're modifying...
+    cout << "// operator " << op->getName() << '\n';
+    reduce_tree(op,tree_depth);
+  }
+
+}
 
 void emitTDF ()
 {
@@ -548,19 +888,13 @@ void emitDOT ()
   cout << endl;
 
 
-  int leaf_operators=0;
-  forall(op,*gSuite->getOperators()) {
-	if(op->getOpKind()==OP_BEHAVIORAL) {
-		leaf_operators++;
-	}
-  }
-//  cout << "TotalOperators " << leaf_operators << endl;
 
   forall(op,*gSuite->getOperators()) {
-//    if(op->getOpKind()==OP_COMPOSE) {
+    if(op->getOpKind()==OP_COMPOSE) {
+//  	Operator *fop=flatten(op);
        cout << ((Operator*)op)->toDOTString("\t");
        cout << endl;
-//    }
+    }
   }
 
   cout << "}" << endl;
@@ -599,29 +933,87 @@ void emitCC (int dpr, int dps)
     ccrename(op);
   // all operators must be renamed before the processing in the
   // following loop
+  Operator* iterop;
+  forall(iterop,*(gSuite->getOperators()))
+  {
+    op=iterop;
+    ccheader(op); 
+    ccbody(op,dpr); // NACHIKET
+  }
+
+}
+
+void emitCUDA ()
+{
+  // - emit C code for all operators  (-embz option)
+  
+  Operator *op;
+  forall(op,*(gSuite->getOperators()))
+    ccrename(op);
+  // all operators must be renamed before the processing in the
+  // following loop
   forall(op,*(gSuite->getOperators()))
   {
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
-    ccheader(op); 
-    ccbody(op,dpr); // NACHIKET
-    /*timestamp(string("begin instances for ")+op->getName());
-    set<string>* instance_names=instances(op,TARGET_CC,dps); 
-    
-    string fname=op->getName() + string(".instances");
-    ofstream *fout=new ofstream(fname);
-    string str;
-    forall(str,*instance_names)
-      {
-	*fout << " " << str;
-      }
-    *fout << endl;
-    fout->close();
-    */
-    
-    //cout << endl;
+    cccudaheader(op); 
+    cccudabody(op);
+    cccudawrapper(op); 
+    cout << endl;
   }
 }
+
+void emitGAPPA ()
+{
+  // - emit gappa code for all operators  (-egappa option)
+  
+  Operator *op;
+	
+//    forall(op,*(gSuite->getOperators()))
+//    ccrename(op);
+   // I am not sure I need to rename the operators
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {  
+	  if (op->getOpKind()==OP_BEHAVIORAL)
+	  {
+		  OperatorBehavioral *bop=(OperatorBehavioral *)op;
+		  bop->buildDataflowGraph();
+	  }
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    if (ccCheckRanges(op)) {
+//		cout << "Operator : \n" <<op->toString() << endl;
+		ccgappabody(op, true, gFixedBits); // Helene
+    }
+    cout << endl;
+  }
+}
+
+void emitGAPPA01 ()
+{
+  // - emit gappa code for all operators  (-egappaGPU option)
+  
+  Operator *op;
+	
+  forall(op,*(gSuite->getOperators()))
+  {  
+	  if (op->getOpKind()==OP_BEHAVIORAL)
+	  {
+		  OperatorBehavioral *bop=(OperatorBehavioral *)op;
+		  bop->buildDataflowGraph();
+	  }
+    timestamp(string("begin processing ")+op->getName());
+    
+    if (ccCheckRanges(op)) {
+	ccgappabody(op, false, gFixedBits); // Helene
+    }
+
+    cout << endl;
+  }
+}
+
 
 void emitMicroblazeC ()
 {
@@ -642,6 +1034,31 @@ void emitMicroblazeC ()
   }
 }
 
+void emitAutoESLC ()
+{
+  // - emit C code for all operators  (-eautoesl option)  
+  Operator *op;
+  forall(op,*(gSuite->getOperators()))
+    ccrename(op);
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    bool exp = false; 
+    bool log = false;
+    bool div = false; 
+    // Nachiket asks on 14th Sept 2011: Helene, why aren't we just using autoesl boolean flag?
+    ccautoeslbody(op , &exp, &log, &div);
+    ccautoeslheader(op, exp, log, div, gDouble, gFracBits, gIntBits); 
+    ccautoeslwrapper(op); 
+    ccautoesltcl(op, exp, log, div); 
+    ccautoeslmake(op);
+    cout << endl;
+  }
+}
+
 void emitVerilog ()
 {
   // - emit Verilog code for all operators  (-everilog option)
@@ -651,7 +1068,11 @@ void emitVerilog ()
   Operator *op;
   forall(op,*gSuite->getOperators()) {
     cout << "Processing op" << op->getName() << endl;
-    instances(op,TARGET_VERILOG,0);
+    bindvalues(op,NULL);
+    resolve_bound_values(&op);
+    set_values(op, true);
+    tdfToVerilog_instance(op,NULL);
+    //instances(op,TARGET_VERILOG,0); Sep 20 2011 - Nachiket continues to befuddled with 64-bit crash on instance() calls.. wtf?
   }
 }
 
@@ -762,8 +1183,42 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_DFGCC;
     else if (strcmp(argv[arg],"-ecc")==0)	// -ecc      : emit C++
       optionTarget = TARGET_CC;
+    else if (strcmp(argv[arg],"-ecuda")==0)	// -ecuda      : emit CUDA
+      optionTarget = TARGET_CUDA;
+    else if (strcmp(argv[arg],"-egappa")==0 
+		    && argc>=arg+1+1) { 	// -egappa    : emit gappa
+      optionTarget = TARGET_GAPPA;
+      gFixedBits =  atoi(argv[++arg]);
+      if (gFixedBits<=0) {
+	      usage();
+      }
+    }
+    else if (strcmp(argv[arg],"-egappa01")==0   
+		    && argc>=arg+1+1) { 	// -egappa01    : emit gappa with inclusive [0,1] range for condition variables..
+      optionTarget = TARGET_GAPPA01;
+      gFixedBits =  atoi(argv[++arg]);
+      if (gFixedBits<=0) {
+	      usage();
+      }
+    }
     else if (strcmp(argv[arg],"-embz")==0)	// -embz      : emit C for Microblaze
       optionTarget = TARGET_MICROBLAZE;
+    else if (strcmp(argv[arg],"-eautoesl")==0 
+		    && argc>=arg+1+1+1+1) {	// -eautoesl   : emit AutoESL C
+      optionTarget = TARGET_AUTOESL;
+      gFracBits =  atoi(argv[++arg]);
+      if (gFracBits<=0) {
+	      usage();
+      }
+      gIntBits =  atoi(argv[++arg]);
+      if (gIntBits<=0) {
+	      usage();
+      }
+      gDouble =  atoi(argv[++arg]);
+      if (gDouble<0 || gDouble>1) {
+	      usage();
+      }
+    }
     else if (strcmp(argv[arg],"-everilog")==0)	// -everilog : emit Verilog
       optionTarget = TARGET_VERILOG;
     else if (strcmp(argv[arg],"-eIR")==0) {	// -eIR      : IntermRep/synth
@@ -953,6 +1408,18 @@ int main(int argc, char *argv[])
       if (gStreamDepthMax<0)
 	usage();
     }
+    else if (strcmp(argv[arg],"-u")==0		// -u <d>  : unroll factor
+			&& argc>=arg+1+1) {
+      gUnrollFactor = atoi(argv[++arg]);
+      if (gUnrollFactor<0)
+	usage();
+    }
+    else if (strcmp(argv[arg],"-r")==0		// -r <d>  : reduce tree depth
+			&& argc>=arg+1+1) {
+      gReduceDepth = atoi(argv[++arg]);
+      if (gReduceDepth<0)
+	usage();
+    }
     else if (argv[arg][0]=='-')			// -...  : unrecognised option
       usage();
     else					// file name to parse
@@ -988,6 +1455,14 @@ int main(int argc, char *argv[])
     timestamp(string("begin infering fanout and expanding copy()"));
     doCopyOps((Tree**)&gSuite);
 
+    // - Perform operator unrolling
+    timestamp(string("Unrolling operator with factor=")+string("%d",gUnrollFactor));
+    doUnroll(gUnrollFactor);
+
+    // - Perform operator reduce-tree unroll
+    timestamp(string("Reduce-tree unrolling of operator with depth=")+string("%d",gReduceDepth));
+    doReduceTree(gReduceDepth);
+
     // - Add printf() calls to debug state firing
     if (optionDebugStateFiring) {
       timestamp(string("begin adding debug info for state firing"));
@@ -1001,10 +1476,14 @@ int main(int argc, char *argv[])
       case TARGET_TDF:		emitTDF();			  break;
       case TARGET_DOT:		emitDOT();			  break;
       case TARGET_DFG:		emitDFG();			  break;
-      case TARGET_DFGCC:	emitDFGCC();		  	  break;
+      case TARGET_DFGCC:	emitDFGCC();		  break;
       case TARGET_CC:		emitCC(optionDebugProcRun,
-				       optionDebugPageStep);	  break;
+							optionDebugPageStep); break;
+      case TARGET_CUDA:		emitCUDA();			  break;
+      case TARGET_GAPPA :	emitGAPPA();			  break;
+      case TARGET_GAPPA01 :	emitGAPPA01();			  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
+      case TARGET_AUTOESL:	emitAutoESLC();		  	break;
       case TARGET_VERILOG:	emitVerilog();			  break;
       case TARGET_NEWREP:	emitNewRep();			  break;
       case TARGET_RI:		emitRI();			  break;

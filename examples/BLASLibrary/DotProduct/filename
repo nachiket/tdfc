@@ -1,0 +1,820 @@
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[double] ,
+input  dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 4,
+input double dataIn
+)
+param unsigned[4] 16,
+input double dataIn
+)
+param unsigned[4] 16,
+input double dataIn
+)
+param unsigned[4] 16,
+input double dataIn
+)
+param unsigned[4] 16,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+Coalesce (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+dd (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+dd (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+dd (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+dd (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+}
+dd (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+
+}
+CoalesceStage (
+param unsigned[4] 8,
+input double dataIn
+)
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+
+}
+{
+	double Reg_11;
+	double AdderOut1;
+
+	double Reg_21;
+	double Reg_22;
+	double AdderOut2;
+
+	double Reg_41;
+	double Reg_42;
+	double Reg_43;
+	double Reg_44;
+	double AdderOut3;
+
+	FP_Add(Reg_11,dataIn,AdderOut1);
+	AssignOutput(Reg_11,dataIn);
+
+	FP_Add(Reg_22,AdderOut1,AdderOut2);
+	AssignOutput(Reg_21,AdderOut1);
+	AssignOutput(Reg_22,Reg_21);
+
+	FP_Add(Reg_44,AdderOut2,AdderOut3);
+	AssignOutput(Reg_41,AdderOut2);
+	AssignOutput(Reg_42,Reg_41);
+	AssignOutput(Reg_43,Reg_42);
+	AssignOutput(Reg_44,Reg_43);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

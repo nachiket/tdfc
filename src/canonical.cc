@@ -1019,7 +1019,8 @@ void exline_processMemRef (StmtAssign *stmt,
   {
     formal =cFormals->succ(formal);
     cFormal=cFormals->inf(formal);
-    cActual=constIntExpr(32);		// HACK - using fixed awidth=32
+    cActual=arrayType->getElemType()->makeWidthExpr();
+    //cActual=constIntExpr(32);		// HACK - using fixed awidth=32
     ExprBuiltin tmpCall(NULL, new list<Expr*>(*ei_s->exlineActuals), seg);
     exline_processCallArg(cFormal,cActual,&tmpCall,ei_op,ei_s, firstTime,true);
   }

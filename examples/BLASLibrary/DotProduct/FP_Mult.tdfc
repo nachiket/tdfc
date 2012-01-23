@@ -1,0 +1,12 @@
+FP_Mult(
+	input double x,
+	input double y,
+	output double z
+	)
+{
+	state Multiply(x,y):
+	{
+		z = x * y;
+		goto Multiply;
+	}
+}

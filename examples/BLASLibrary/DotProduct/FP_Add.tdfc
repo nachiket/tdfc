@@ -1,0 +1,15 @@
+
+FP_Add(
+	input double x,
+	input double y,
+	output double z
+	)
+{
+	double temp;
+	state Add(x,y):
+	{
+		temp = x + y;
+		z = temp;
+		goto Add;
+	}
+}

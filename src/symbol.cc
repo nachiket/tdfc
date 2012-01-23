@@ -124,10 +124,17 @@ void Symbol::setStreamValid() {
 }
 
 SymbolStream::SymbolStream (Token *token_i, const string &name_i,
-			    Type *type_i,   StreamDir dir_i)
+			    Type *type_i,   StreamDir dir_i, string low, string high)
   : Symbol(token_i,SYMBOL_STREAM,name_i,type_i),
     dir(dir_i)
 {
+	if (low != "" && high != "")
+	{
+		//cout << "range = low : " << low << " \t high : " << high   << endl;
+		range = "[" + low + "," + high + "]";
+	}
+	else 
+		range = "";
 }
 
 
@@ -143,6 +150,13 @@ SymbolVar::SymbolVar (Token *token_i, const string &name_i,
     depth->setParent(this);
 }
 
+SymbolVar::SymbolVar (Token *token_i, const string &name_i, 
+						Type *type_i,  string num)
+	: Symbol(token_i,SYMBOL_VAR,name_i,type_i)
+{
+	number = num;
+	cout << "number = " << num << endl;
+}
 
 SymbolOp::SymbolOp (Token *token_i, Operator *op_i)
   : Symbol(token_i,SYMBOL_OP,op_i->getName(),
@@ -410,12 +424,13 @@ void SymTab::addSymbol (Symbol *sym_i)
     fatal(1, string("Cannot insert stream symbol \"")+symName+
 	     "\" into block symbol table", NULL);
 
+// 8/8/2011 Put to rest speculation.. LEDA 6.3 vs 6.2 it is!
 // Nachiket's debugging of dictionary!!
-// cout << "Attempting to add name " << symName << " for symbol " << sym_i->toString() <<  " with pointer " << symbols << endl;
-// cout << "Symbol size=" << symbols->size() << endl;
-// if(symName=="<none>") {
-//	 cout << "null being added?" << endl;
-// }
+//cout << "Attempting to add name " << symName << " for symbol " << sym_i->toString() <<  " with pointer " << symbols << endl;
+//cout << "Symbol size=" << symbols->size() << endl;
+//if(symName=="<none>") {
+//	cout << "null being added?" << endl;
+//}
 
   dic_item i=symbols->lookup(symName);
   if (i)

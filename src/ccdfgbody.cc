@@ -80,7 +80,7 @@ using leda::node_list;
 using leda::array;
 
 void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int>* depths);
-string nodetostring(node n, Tree* t, int nodenum);
+//string nodetostring(node n, Tree* t, int nodenum, bool gappa = false);
 string nodetovarstring(node n, Tree* t);
 string nodetofnstring(node n, Tree* t);
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums); // simplify node name generation for all types of operations
@@ -1082,7 +1082,8 @@ void ccdfgprocrun(ofstream *fout, string name, Operator *op,
 					forall (e,dfg_in_edges_n) {
 						// - examine inputs of n
 						node src=(*dfg).source(e);
-						*fout << nodetofout(dfg, src, nodenums) << " ";
+						*fout << nodetofout(dfg, src, nodenums);
+						*fout << " ";
 						if(edgenum==0) {
 							*fout << nodetofnstring(n,(dfgVal)[n]) + " ";
 						}
@@ -1467,29 +1468,60 @@ void computeASAPOrdering(BlockDFG* dfg, node_list* arranged_list, node_array<int
 		Tree *t=(*dfg)[n];
  *
  */
-string nodetostring(node n, Tree* t, int nodenum) {
-	std::stringstream out;
-	out << nodenum;
+string nodetostring(node n, Tree* t, int nodenum, list<string>* list_input, bool LHS) {
+//	std::stringstream out;
+//	out << nodenum;
 //	std::string str;
 //	str = out.str();
 //	char *buf = new char[std::strlen(str.c_str())];
 //	std::strcpy(buf,str.c_str());
 
-	string ret;
+	string ret="";
 	if(t->getKind()==TREE_EXPR) {
 		if(((Expr*)t)->getExprKind()==EXPR_BOP || ((Expr*)t)->getExprKind()==EXPR_UOP) {
-			ret += opToNodename(((ExprBop*)t)->getOp());
+			ret = opToNodename(((ExprBop*)t)->getOp());
 		} else if (((Expr*)t)->getExprKind()==EXPR_COND) {
-			ret += "if";
+			ret = "if";
 		} else {
-			ret += t ? t->toString().replace_all("\n","") : string("<nil>");
+			ret = t ? t->toString().replace_all("\n","") : string("<nil>");
 		}
 	} else {
 		string t_str = t ? t->toString().replace_all("\n","") : string("<nil>");
-		ret += " "+treekindToString(t->getKind())+" "+ t_str;
+		ret = " "+treekindToString(t->getKind())+" "+ t_str;
 	}
+	bool found = false;
+	if (list_input != NULL)
+	{
+		string temp;
+		forall (temp, *list_input)
+		{
+			if ( ret == temp)
+				found = true;
+		}
+	}
+	
+	/*if ((t->getKind()==TREE_EXPR))
+		cout << "tree is TREE_EXPR" << endl;
+	
+	if (((Expr*)t)->getExprKind()==EXPR_VALUE)
+		cout << "expr kind is EXPR_VALUE" << endl;
+		*/				
+	
+	if(!((t->getKind()==TREE_EXPR) && (((Expr*)t)->getExprKind()==EXPR_VALUE)) && !found)  
+	{
+		ret += "_";
+		ret += string("%d",nodenum);
+	
+	}
+	else if (found && LHS)
+	{
 
-	ret += "_"+string(out.str().c_str());
+		list_input->remove(ret);			
+		ret += "_";
+		ret += string("%d",nodenum);
+		
+	}
+		
 	return ret;
 }
 
@@ -1527,44 +1559,74 @@ string nodetovarstring(node n, Tree* t) {
  */
 string nodetofout(BlockDFG* dfg, node src, node_array<int> nodenums) {
 
+//	cout << " enter node to fout fn " << endl;
+
 	if(dfg->indeg(src)==0 || dfg->outdeg(src)==0) { // shouldn't we process outputs similarly as well?
+		
+		//cout << " dfg->indeg(src)==0 || dfg->outdeg(src)==0" << endl;
+		
 		Tree* t=(*dfg)[src];
 		TypeKind type = ((Expr*)t)->typeCheck()->getTypeKind();
-		if(dfg->indeg(src)==0 && type==TYPE_STATE) {
+		if(dfg->indeg(src)==0 && type==TYPE_STATE) 
+		{
+			
+			//cout << " dfg->indeg(src)==0 && type==TYPE_STATE" << endl;
+			
 			return string("STATE_"+nodetovarstring(src, (*dfg)[src]));
-		} else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) {
+		} 
+		else if(t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE) 
+		{
+			//cout << "t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_LVALUE"  << endl;
+			
 			Symbol *asym=((ExprLValue*)t)->getSymbol();
 			if (asym!=NULL && asym->isStream() && !asym->isStreamValid())
 			{
+				//cout << "asym!=NULL && asym->isStream() && !asym->isStreamValid()" << endl;
+				
 				SymbolStream *ssym=(SymbolStream *)asym;
 				if (ssym->getDir()==STREAM_IN)
 				{
+					//cout << " ssym->getDir()==STREAM_IN " << endl;
 					return nodetovarstring(src, (*dfg)[src]);
-				} else if(ssym->getDir()==STREAM_OUT){
+				}
+				else if(ssym->getDir()==STREAM_OUT)
+				{
+					//cout << "ssym->getDir()==STREAM_OUT" << endl;
 					return nodetovarstring(src, (*dfg)[src]);
 
-				} else {
+				}
+				else 
+				{
 					cerr << "STREAM directions fail during name generation" << endl;
 					exit(-1);
 				}
-			} else if(asym!=NULL && asym->isReg()){ // local variables are "registers" you idiot! nomenclature!!
+			} 
+			else if(asym!=NULL && asym->isReg())
+			{ // local variables are "registers" you idiot! nomenclature!!
 				//cout << "Found register! " << nodetovarstring(src, (*dfg)[src]) << endl;
+				//cout << " asym!=NULL && asym->isReg()" << endl;
 				return nodetovarstring(src, (*dfg)[src]);
-			} else if (asym!=NULL && asym->isStreamValid()) {
+			} 
+			else if (asym!=NULL && asym->isStreamValid()) 
+			{
+				//cout << " asym!=NULL && asym->isStreamValid() " << endl;
 //			cout << "what?>" << endl;
 				//return string("what? asym->toString()");
 				return asym->toString();
-			} else {
-//				return nodetostring(src, (*dfg)[src],nodenums[src]);
-		//		cerr << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+			} 
+			else {
+				//cout << "node is not a stream.. What kind of a variable is this? neither local nor stream!?!" << endl;
+				return nodetostring(src, (*dfg)[src],nodenums[src]);
 		//		exit(-1);
 			}
-		} else {
+		} 
+		else {
 			// this is a constant? what can we check?
 			return nodetovarstring(src, (*dfg)[src]);
 		}
 
-	} else {
+	} 
+	else {
 		return nodetostring(src, (*dfg)[src],nodenums[src]);
 	}
 
