@@ -1,13 +1,11 @@
-add(input double a, input double b, input boolean c, output double d)
+add(
+input double a, 
+input double b, 
+input double c,
+output double e)
 {
-
 	state only(a,b,c):
-		if(c) {
-			d=a+b;
-		} else {
-			d=a-b;		
-		}
-
-
+		e=a+b+c;
 
 }
+
