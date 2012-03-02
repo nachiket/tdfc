@@ -1,7 +1,7 @@
 add(
-input double a, 
-input double b, 
-output double c)
+input unsigned[8] a, 
+input unsigned[8] b, 
+output unsigned[8] c)
 {
 
 	state only(a,b):

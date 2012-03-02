@@ -6,18 +6,20 @@ LIBRARY_PATHS = -L/opt/leda \
 
 LIBRARIES= -lleda -lX11 -lScoreRuntime -lpthread
 
-ALL_TDF=*.tdf
+#ALL_TDF=$(wildcard *.tdf)
+ALL_TDF := add.tdf
+ALL_TDF_CC := $(ALL_TDF:.tdf=.cc)
 
-ALL: 	$(ALL_TDF:.tdf=.cc) add.o twoadd.o
+ALL: 	add.o $(ALL_TDF:.tdf=.cc)
 
-$(ALL_TDF:.tdf=.cc):
-	tdfc -ecc *.tdf 
+$(ALL_TDF:.tdf=.cc): $(ALL_TDF)
+	tdfc -ecc $(ALL_TDF) 
 
-add.o:	add_test.cpp *.tdf $(ALL_TDF:.tdf=.cc)
+add.o:	add_test.cc $(ALL_TDF) $(ALL_TDF_CC)
 	g++-4.4 -g -Wno-write-strings \
 		$(INCLUDE_PATHS) \
 		$(LIBRARY_PATHS) \
-		add_test.cpp \
+		add_test.cc \
 		$(ALL_TDF:.tdf=.cc) \
 		-o add_test.o \
 		$(LIBRARIES) 
