@@ -1,0 +1,11 @@
+twoadds_linked(
+input unsigned[8] a,
+input unsigned[8] b,
+input unsigned[8] c,
+output unsigned[8] d)
+{
+	unsigned[8] temp;
+
+	add(a,b,temp);
+	add(temp,c,d);
+}
