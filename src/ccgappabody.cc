@@ -84,6 +84,9 @@ int gappa_notation(ofstream *fout,
   int if_nb;
   
   ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>", exp);
+  // capture uncertainty in parameters with _u..
+  ccwritegappa(fout, argtypes, op, classname, "_u",  "float<ieee_64,ne>", exp);
+
   ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>", exp);
   if(false) {
   	ccwritegappa(fout, argtypes, op, classname, "_fl",  "float<ieee_32,ne>", exp);
@@ -299,11 +302,12 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
     {
       if(sym->isParam()) 
       {
-		  //if (type != "_m")
+		  if (type == "_u")
 		  {
-			//  *fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  ");"<<endl;
+		        // for uncertain parameters, write out dummy constants
+			*fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  "_ );"<<endl;
 		  }
-		  //else 
+		  else 
 		  {
 			  //cout << "in gappa body number = " << ((SymbolVar*)sym)->getNumber() << endl ; 
 			  if (((SymbolVar*)sym)->getNumber() != "")
@@ -385,6 +389,13 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			  n++;
 		      *fout << " /" << "\\ " << endl;
 		  }
+		} else if (sym->isParam()) {
+			// handle user-supplied uncertainty...
+			if (((SymbolVar*)sym)->getNumber() != "") {
+				// do something with this... ((SymbolVar*)sym)->getNumber();
+				*fout << sym->getName()<< "_" << type <<" in ["<< ((SymbolVar*)sym)->getNumber() << "," << ((SymbolVar*)sym)->getNumber() << ");"<<endl;			  
+		      		*fout << " /" << "\\ " << endl;
+			}
 		}
 	}
 	n = 0;

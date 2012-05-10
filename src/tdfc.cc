@@ -91,6 +91,7 @@ int	 gUnrollFactor	= 1;     // "-u" specify unroll factor for computation...
 int	 gReduceDepth	= 1;     // "-r" specify reduce depth for computation...
 
 int 	 gFixedBits = 32;
+int 	 gUncertain = -5; // 1e-5
 int 	 gFracBits = 24;
 int 	 gIntBits = 8;
 int 	 gDouble = 1;
@@ -134,8 +135,9 @@ void usage ()
     << "         -I<dir>      : specify #include directory for C-preprocessor\n"
     << "         -etdf        : emit TDF code (default)\n"
     << "         -ecc         : emit behavioral C++ code\n"
-    << "         -egappa   <frac>   : emit input language for gappa (precision analysis) with CPU compatible types\n"
+    << "         -egappa   <frac>   : emit input language for gappa (precision analysis) with CPU compatible types and split IFs\n"
     << "         -egappa01 <frac>   : emit gappa code with unified IF condition rage [0,1]\n"
+    << "         -egappa_uncertain <frac> <percent>  : emit gappa code with split IFs and uncertain parameter inputs, <frac>=fixed-point fraction bits, 1e^<percent>=uncertainty percentage exponent\n"
     << "         -egappagpu   : emit input language for gappa (precision analysis) with GPU/CUDA compatible types\n"
     << "         -edot        : emit dataflow graph for Graphviz visualization\n"
     << "         -edfg        : emit dataflow graph for Nachiket's SPICE backend\n"
@@ -1192,6 +1194,15 @@ int main(int argc, char *argv[])
       if (gFixedBits<=0) {
 	      usage();
       }
+    }
+    else if (strcmp(argv[arg],"-egappa_uncertain")==0 
+		    && argc>=arg+1+1+1) { 	// -egappa    : emit gappa
+      optionTarget = TARGET_GAPPA;
+      gFixedBits =  atoi(argv[++arg]);
+      if (gFixedBits<=0) {
+	      usage();
+      }
+      gUncertain = atoi(argv[++arg]);
     }
     else if (strcmp(argv[arg],"-egappa01")==0   
 		    && argc>=arg+1+1) { 	// -egappa01    : emit gappa with inclusive [0,1] range for condition variables..
