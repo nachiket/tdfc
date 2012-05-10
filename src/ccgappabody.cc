@@ -306,7 +306,7 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
 		  if (type == "_u")
 		  {
 		        // for uncertain parameters, write out dummy constants
-			*fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() <<  "_ );"<<endl;
+			*fout << sym->getName() << type <<" = "<< precision << "(" << sym->getName() << type <<  "_ );"<<endl;
 		  }
 		  else 
 		  {
@@ -391,10 +391,12 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 		      *fout << " /" << "\\ " << endl;
 		  }
 		} else if (uncertain && sym->isParam()) {
+			
+			*fout << indent;
 			// handle user-supplied uncertainty...
 			if (((SymbolVar*)sym)->getNumber() != "") {
 				// do something with this... ((SymbolVar*)sym)->getNumber();
-				*fout << sym->getName()<< "_" <<" in ["<< ((SymbolVar*)sym)->getNumber() << "," << ((SymbolVar*)sym)->getNumber() << "]"<<endl;			  
+				*fout << sym->getName()<< "_" <<" in ["<< ((SymbolVar*)sym)->getNumber() << "," << ((SymbolVar*)sym)->getNumber() << "]";	  
 		      		*fout << " /" << "\\ " << endl;
 			}
 		}
