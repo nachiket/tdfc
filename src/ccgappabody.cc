@@ -74,7 +74,8 @@ int gappa_notation(ofstream *fout,
 			    Operator *op,
 			    string classname,
 			    string *exp,
-			    int fixed_bits)
+			    int fixed_bits,
+			    bool uncertain)
 {
 	// fixed point size
 	*fout << "@fx = fixed<-"<< fixed_bits << ",ne>;\n" << endl; 
@@ -85,7 +86,7 @@ int gappa_notation(ofstream *fout,
   
   ccwritegappa(fout, argtypes, op, classname, "_m",  "float<ieee_64,ne>", exp);
   // capture uncertainty in parameters with _u..
-  ccwritegappa(fout, argtypes, op, classname, "_u",  "float<ieee_64,ne>", exp);
+  if(uncertain) {ccwritegappa(fout, argtypes, op, classname, "_u",  "float<ieee_64,ne>", exp);}
 
   ccwritegappa(fout, argtypes, op, classname, "_dbl",  "float<ieee_64,ne>", exp);
   if(false) {
@@ -347,7 +348,7 @@ int ccwritegappa(ofstream *fout, list<Symbol*> *argtypes,
     return if_nb;
 }
 
-void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb, bool OO, string exp )
+void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int if_nb, bool OO, string exp, bool uncertain, int uncertain_perc_exp)
 {
 	int nbinput = 0; // amount of input streams
 	int nboutput = 0; // amount of output streams
@@ -389,7 +390,7 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			  n++;
 		      *fout << " /" << "\\ " << endl;
 		  }
-		} else if (sym->isParam()) {
+		} else if (uncertain && sym->isParam()) {
 			// handle user-supplied uncertainty...
 			if (((SymbolVar*)sym)->getNumber() != "") {
 				// do something with this... ((SymbolVar*)sym)->getNumber();
@@ -571,7 +572,7 @@ bool ccCheckRanges(Operator *op)
 //
 ////////////////////////////////////////////////////////////////////////
 // Helene Martorell: Top level routine to create master gappa++ code
-void ccgappabody (Operator *op, bool OO, int fixed_bits)
+void ccgappabody (Operator *op, bool OO, bool uncertain, int fixed_bits, int uncertain_perc_exp)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
@@ -602,14 +603,14 @@ void ccgappabody (Operator *op, bool OO, int fixed_bits)
   string exp ="";
 
   // Notation for making the script readable
-  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp, fixed_bits); // defines the fixed point precision and all
+  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp, fixed_bits, uncretain); // defines the fixed point precision and all
 						//different variables associated with different 
 						//precisions
   *fout <<  endl ;
 
   // logical fomula gappa should proof
  
-  ccgappalogical(fout, argtypes, op, if_nb, OO, exp);
+  ccgappalogical(fout, argtypes, op, if_nb, OO, exp, uncertain, uncertain_perc_exp);
   *fout << endl;
 
   // hint to help gappa find the proof
