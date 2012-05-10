@@ -421,11 +421,6 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 				}
 				*fout << indent << sym->getName() + "_fx in " + ((SymbolStream*)sym)->getRange() + "/\\ " << endl;
 			  }
-			/*  *fout << indent << "((" << sym->getName() + "_cuda32- " +sym->getName() +"_m )/ "  + 
-								sym->getName() + "_m) in [-2b-23, 2b-23] /\\ " << endl; 
-			  
-				
-				*/												 // we should make sure that the outputs
 			  *fout << indent << "(" << sym->getName() + "_m >= 0x1p-53 \\/ "  ; // are never equal to zero
 			  *fout << sym->getName() + "_m <= - 0x1p-53)"; // since we want to have the relative error
 															// and therefore divide by the output.
@@ -493,6 +488,15 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    *fout << " /" << "\\ "  << endl; 
 			    *fout << indent; 
 			    
+  			    if(uncertain) {
+				*fout << "(" + sym->getName() + "_u-" + sym->getName() + "_m"
+			          +")/" + sym->getName() +"_m in ?"; 
+			           
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent;			    
+
+			    }
+
   			    if(false) {
 				*fout << "(" + sym->getName() + "_fl-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
@@ -528,6 +532,14 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    	*fout << indent; 
 			    
 			    	*fout << "(" + sym->getName() + "_m-" + sym->getName() + "_cuda32) in ?";			    
+			    }
+			    
+  			    if(uncertain) {
+
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent; 
+			    
+			    	*fout << "(" + sym->getName() + "_m-" + sym->getName() + "_u) in ?";			    
 			    }
 			    
 			    if (n != nboutput)      
