@@ -103,6 +103,7 @@ enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
 	      TARGET_GAPPA,
+	      TARGET_GAPPA_U,
 	      TARGET_GAPPA01,
 	      TARGET_MICROBLAZE,
 	      TARGET_AUTOESL,
@@ -487,6 +488,9 @@ set<string> *instances(Operator *op, Target targ,
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
 	case TARGET_GAPPA:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
+	case TARGET_GAPPA_U:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
 	case TARGET_GAPPA01:		
@@ -987,7 +991,7 @@ void emitGAPPA ()
     // TODO: eventually move flatten here
     if (ccCheckRanges(op)) {
 //		cout << "Operator : \n" <<op->toString() << endl;
-		ccgappabody(op, true, gFixedBits); // Helene
+		ccgappabody(op, true, gFixedBits, false, 0); // Helene
     }
     cout << endl;
   }
@@ -1009,13 +1013,27 @@ void emitGAPPA01 ()
     timestamp(string("begin processing ")+op->getName());
     
     if (ccCheckRanges(op)) {
-	ccgappabody(op, false, gFixedBits); // Helene
+	ccgappabody(op, false, gFixedBits, false, 0); // Helene
     }
 
     cout << endl;
   }
 }
 
+void emitGAPPAU ()
+{
+  // - emit gappa code for all operators  (-egappa option)
+  Operator *op;
+	
+  forall(op,*(gSuite->getOperators()))
+  {  
+    timestamp(string("begin processing ")+op->getName());
+    if (ccCheckRanges(op)) {
+		ccgappabody(op, true, gFixedBits, true, gUncertain); // Nachiket 
+    }
+    cout << endl;
+  }
+}
 
 void emitMicroblazeC ()
 {
@@ -1197,7 +1215,7 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(argv[arg],"-egappa_uncertain")==0 
 		    && argc>=arg+1+1+1) { 	// -egappa    : emit gappa
-      optionTarget = TARGET_GAPPA;
+      optionTarget = TARGET_GAPPA_U;
       gFixedBits =  atoi(argv[++arg]);
       if (gFixedBits<=0) {
 	      usage();
@@ -1492,6 +1510,7 @@ int main(int argc, char *argv[])
 							optionDebugPageStep); break;
       case TARGET_CUDA:		emitCUDA();			  break;
       case TARGET_GAPPA :	emitGAPPA();			  break;
+      case TARGET_GAPPA_U :	emitGAPPAU();			  break;
       case TARGET_GAPPA01 :	emitGAPPA01();			  break;
       case TARGET_MICROBLAZE:	emitMicroblazeC();		  break;
       case TARGET_AUTOESL:	emitAutoESLC();		  	break;

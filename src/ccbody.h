@@ -47,7 +47,7 @@ void ccautoesltcl(Operator* op, bool exp, bool log, bool div);
 void cccudabody(Operator *op);
 void cccudawrapper(Operator *op);
 //void ccgappabody(Operator *op, bool OO = false, int fixed_bits=100000);
-void ccgappabody (Operator *op, bool OO, bool uncertain, int fixed_bits, int uncertain_perc_exp)
+void ccgappabody (Operator *op, bool OO, bool uncertain, int fixed_bits, int uncertain_perc_exp);
 
 bool ccCheckRanges(Operator *op);
 

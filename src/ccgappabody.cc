@@ -394,7 +394,7 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			// handle user-supplied uncertainty...
 			if (((SymbolVar*)sym)->getNumber() != "") {
 				// do something with this... ((SymbolVar*)sym)->getNumber();
-				*fout << sym->getName()<< "_" << type <<" in ["<< ((SymbolVar*)sym)->getNumber() << "," << ((SymbolVar*)sym)->getNumber() << ");"<<endl;			  
+				*fout << sym->getName()<< "_" <<" in ["<< ((SymbolVar*)sym)->getNumber() << "," << ((SymbolVar*)sym)->getNumber() << ");"<<endl;			  
 		      		*fout << " /" << "\\ " << endl;
 			}
 		}
@@ -603,7 +603,7 @@ void ccgappabody (Operator *op, bool OO, bool uncertain, int fixed_bits, int unc
   string exp ="";
 
   // Notation for making the script readable
-  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp, fixed_bits, uncretain); // defines the fixed point precision and all
+  int if_nb = gappa_notation(fout,argtypes, op, classname, &exp, fixed_bits, uncertain); // defines the fixed point precision and all
 						//different variables associated with different 
 						//precisions
   *fout <<  endl ;
