@@ -991,7 +991,7 @@ void emitGAPPA ()
     // TODO: eventually move flatten here
     if (ccCheckRanges(op)) {
 //		cout << "Operator : \n" <<op->toString() << endl;
-		ccgappabody(op, true, gFixedBits, false, 0); // Helene
+		ccgappabody(op, true, false, gFixedBits, 0); // Helene
     }
     cout << endl;
   }
@@ -1013,7 +1013,7 @@ void emitGAPPA01 ()
     timestamp(string("begin processing ")+op->getName());
     
     if (ccCheckRanges(op)) {
-	ccgappabody(op, false, gFixedBits, false, 0); // Helene
+	ccgappabody(op, false, false, gFixedBits, 0); // Helene
     }
 
     cout << endl;
@@ -1034,7 +1034,7 @@ void emitGAPPAU ()
 	  }
     timestamp(string("begin processing ")+op->getName());
     if (ccCheckRanges(op)) {
-		ccgappabody(op, true, gFixedBits, true, gUncertain); // Nachiket 
+		ccgappabody(op, true, true, gFixedBits, gUncertain); // Nachiket 
     }
     cout << endl;
   }
