@@ -398,8 +398,8 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 				double limit = strtod(((SymbolVar*)sym)->getNumber(), NULL);
 				// do something with this... ((SymbolVar*)sym)->getNumber();
 				*fout << sym->getName()<< "_u_" <<" in "
-					<< "[" << limit-limit*pow(10,uncertain_perc_exp)
-					<< "," << limit+limit*pow(10,uncertain_perc_exp)
+					<< "[" << std::setprecision (15) << limit-limit*pow(10,uncertain_perc_exp)
+					<< "," << std::setprecision (15) << limit+limit*pow(10,uncertain_perc_exp)
 					<< "]";	  
 		      		*fout << " /" << "\\ " << endl;
 			}
