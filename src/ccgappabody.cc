@@ -395,8 +395,12 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			*fout << indent;
 			// handle user-supplied uncertainty...
 			if (((SymbolVar*)sym)->getNumber() != "") {
+				double limit = strtod(((SymbolVar*)sym)->getNumber(), NULL);
 				// do something with this... ((SymbolVar*)sym)->getNumber();
-				*fout << sym->getName()<< "_u_" <<" in ["<< ((SymbolVar*)sym)->getNumber() << "," << ((SymbolVar*)sym)->getNumber() << "]";	  
+				*fout << sym->getName()<< "_u_" <<" in "
+					<< "[" << limit-limit*pow(10,uncertain_perc_exp)
+					<< "," << limit+limit*pow(10,uncertain_perc_exp)
+					<< "]";	  
 		      		*fout << " /" << "\\ " << endl;
 			}
 		}
