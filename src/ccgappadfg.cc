@@ -231,7 +231,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 					if ( !true_m)
 					{
 					
-					if (type_val != "_m")
+					if (type_val != "_m" && type_val != "_u")
 						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
 					else 
 						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << " = ";
@@ -310,7 +310,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 				} else if(dfg->indeg(n)==2 && t->getKind()==TREE_EXPR && ((Expr*)t)->getExprKind()==EXPR_COND) {
 					
 					// if operator
-					if (type_val !="_m")
+					if (type_val !="_m" && type_val != "_u")
 						*fout << nodetofout(dfg, n, nodenums) << type_val << " " << precision << " = ";
 					else
 						*fout << nodetofout(dfg, n, nodenums) << type_val << " " <<  " = ";
@@ -503,7 +503,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 						*/
 					
 				
-					if (type_val != "_m")	
+					if (type_val != "_m" && type_val != "_u")	
 					{
 						if (type_val == "_cuda32" && nodetofout(dfg,n,nodenums).contains("multiply") && mac)
 							*fout << nodetofout(dfg,n,nodenums) << type_val << " " << " = ";
@@ -558,7 +558,7 @@ void ccgappadfgprocrun(ofstream *fout, string name, OperatorBehavioral *bop, str
 								// want to overwrite it
 						{
 					
-						if (type_val != "_m")
+						if (type_val != "_m" && type_val != "_u")
 							*fout << nodetostring(n,(dfgVal)[n],nodenums[n], list_total) << type_val  << " " << precision <<  " = ";
 						else
 						{
