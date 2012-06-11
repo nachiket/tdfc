@@ -49,6 +49,7 @@
 #include "ccrename.h"
 #include "ccheader.h"
 #include "ccbody.h"
+#include "ccmatlab.h"
 #include "ccinstance.h"
 #include "rateInstance.h"
 #include "ribody.h"

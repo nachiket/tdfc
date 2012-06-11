@@ -111,6 +111,7 @@ CSRCS		= tdfc.cc \
 		  instance.cc  feedback.cc bindvalues.cc \
 		  ccbody.cc    ccheader.cc \
 		  cccudabody.cc cccudawrapper.cc cccudaheader.cc \
+		  ccmatlab.cc \
 		  ccmicroblazebody.cc ccmicroblazeheader.cc \
 		  ccautoeslbody.cc ccautoeslheader.cc ccautoeslwrapper.cc \
 		  ccdfgbody.cc \
