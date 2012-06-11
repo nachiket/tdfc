@@ -883,7 +883,7 @@ void ccprocrun(ofstream *fout, string name, Operator *op)
 	      forall(stmt,*(acase->getStmts()))
 		{
 		  ccStmt(fout,string("          "),stmt,early_close,
-			 STATE_PREFIX,0, false, false, true, false, classname); 
+			 STATE_PREFIX,0, false, false, false, false, classname, NULL, NULL, NULL, true); 
 		  // 0 was default for ccStmt.h
 		}
 	    }

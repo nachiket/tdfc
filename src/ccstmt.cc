@@ -54,7 +54,7 @@ Note: builtins expecting to handle here
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime, 
 	    bool mblaze, bool cuda, bool autoesl,
-	    string classname, bool *exp, bool *log, bool* div)
+	    string classname, bool *exp, bool *log, bool* div, bool matlab)
 {
 
 if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl)) 
@@ -64,10 +64,6 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 
 //printf("Processing statement kind [%d] in ccStmt\n",(int)stmt->getStmtKind());
 
-//
-//	if(retime) {
-//		cout << "Such bullshit" << endl; exit(1);
-//	}
   switch (stmt->getStmtKind())
     {
 
@@ -75,7 +71,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
       {
 	StmtGoto *gstmt=(StmtGoto *)stmt;
 	
-	if(!cuda) {
+	if(!cuda && !matlab) {
 		*fout << indent << "state=" << state_prefix 
 		  // was:
 		  //	      << gstmt->getStateName() << ";" 
@@ -99,17 +95,17 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
       {
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
-	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log, div) 
+	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log, div, matlab) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname);
+	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
 	  {
 	    *fout << indent << "else {" << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div);
+		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -134,7 +130,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    if (first->getExprKind()!=EXPR_LVALUE)
 	      warn(string("close given invalid argument %s",
 			  first->toString()),first->getToken());
-	    else if(!cuda)
+	    else if(!cuda && !matlab)
 	      {
 	      	ExprLValue *lexpr=(ExprLValue *)first;
 		long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
@@ -164,7 +160,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		    if (first->getExprKind()!=EXPR_LVALUE)
 		      warn(string("frameclose given invalid argument %s",
 				  first->toString()),first->getToken());
-		    else if(!cuda)
+		    else if(!cuda && !matlab)
 		      {
 		      	ExprLValue *lexpr=(ExprLValue *)first;
 			long id=(long)(lexpr->getSymbol()->getAnnote(CC_STREAM_ID));
@@ -197,7 +193,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		    *fout << indent << "printf(\""
 		          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
 			  << "\"";
-	    } else {
+	    } else if (!matlab){
 		    *fout << indent << "fprintf(stderr,\""
 		          << ((Token*)bexpr->getAnnote(ANNOTE_PRINTF_STRING_TOKEN))->str
 			  << "\"";
@@ -209,9 +205,9 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 				    orig->getType()->getTypeKind()!=TYPE_DOUBLE) {
 			    //*fout << ", (long long)" --> Not sure if this is such a good idea in any case
 			    *fout << ", "
-				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, false, "", autoesl, exp, log, div) << "";
+				    << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, false, "", autoesl, exp, log, div, matlab) << "";
 		    } else {
-			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, false, "", autoesl, exp, log, div) << "";
+			    *fout << ", " << ccEvalExpr(EvaluateExpr(args->inf(i)), retime, cuda, false, "", autoesl, exp, log, div, matlab) << "";
 		    }
 	    }
 	    *fout << ");" << endl;
@@ -250,12 +246,14 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 			*fout<<asym->getName()<<"[idx] = (" ;
 		} else if(autoesl) {
 			*fout<<"*"<<asym->getName()<<" = (" ;
+		} else if(matlab) {
+			*fout<<asym->getName()<<" = (" ;
 		} else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]," ;
 		}
-		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div) << ");" << endl;
+		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab) << ");" << endl;
 	      }
 	    else
 	      {
@@ -271,14 +269,14 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    // 22/8/2011 - Nachiket - LHS assignment also needs appropriate index
 	    if (lval->usesAllBits())
 	      *fout<<indent<<lval->toString()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div)<<";"<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<";"<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
 		Expr *high_expr=lval->getPosHigh();
-		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda, false, "", autoesl, exp, log, div);
-		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda, false, "", autoesl, exp, log, div);
-		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div);
+		string lstr=ccEvalExpr(EvaluateExpr(low_expr), retime, cuda, false, "", autoesl, exp, log, div, matlab);
+		string hstr=ccEvalExpr(EvaluateExpr(high_expr), retime, cuda, false, "", autoesl, exp, log, div, matlab);
+		string rstr=ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab);
 		string one =getCCvarType(asym).pos("long long")>=0 ? "1ll":"1";
 		*fout << indent
 		      << asym->getName() << "="
@@ -316,7 +314,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log, div) ;
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log, div, matlab) ;
 	    *fout << ";" << endl;
 	  }
 
@@ -324,7 +322,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	forall(astmt,*(bstmt->getStmts()))
 	  {
 	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-			in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div);
+			in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab);
 	  }
 
 	*fout << indent << "}" << endl;
