@@ -103,9 +103,10 @@ void matlab_constructor_signatures(ofstream *fout,
 	{
 		if (i>0) *fout << ",";
 		if(sym->isParam())
-			*fout << sym->getType()->toString() << " " << sym->getName() ;
+			*fout << " " << sym->getName() ;
 		else
-			*fout << sym->getType()->toString() << "* " << sym->getName() ;
+			*fout << " " << sym->getName() ;
+			//*fout << sym->getType()->toString() << "* " << sym->getName() ;
 		i++;
 	}
 
