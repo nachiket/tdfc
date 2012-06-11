@@ -294,7 +294,7 @@ void ccmatlab (Operator *op)
   }
   // broiler name
   *fout << "function cc_" << single_output_name << "=" << name << "(";
-  matlab_constructor_signatures(*fout, *rsym, *argtypes, false);
+  matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ")" << endl;
 
   // proc_run
