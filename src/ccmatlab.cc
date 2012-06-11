@@ -85,6 +85,34 @@ using leda::dic_item;
 using leda::string;
 using std::ofstream;
 
+
+void matlab_constructor_signatures(ofstream *fout,
+		Symbol *rsym,
+		list<Symbol*> *argtypes, bool state_id)
+{
+
+	int i=1;
+	if(state_id) {
+		*fout << "int n_start_state" ; // April 10th 2010
+	} else {
+		i=0;
+	}
+
+	Symbol *sym;
+	forall(sym,*argtypes)
+	{
+		if (i>0) *fout << ",";
+		if(sym->isParam())
+			*fout << sym->getType()->toString() << " " << sym->getName() ;
+		else
+			*fout << sym->getType()->toString() << "* " << sym->getName() ;
+		i++;
+	}
+
+
+}
+
+
 //
 ////////////////////////////////////////////////////////////////////////
 // procrun for master instance
@@ -258,15 +286,15 @@ void ccmatlab (Operator *op)
 	  if (rsym->isStream())
 	  {
 		  SymbolStream *ssym=(SymbolStream *)rsym;
-		  if (ssym->getDir()!=STREAM_OUT)
+		  if (ssym->getDir()==STREAM_OUT)
 		  {
 			  single_output_name = ssym->getName();
 		  }
 	  }
   }
   // broiler name
-  *fout << "function " << single_output_name << "=" << name << "(";
-  constructor_signatures_notypes(fout,rsym,argtypes);
+  *fout << "function cc_" << single_output_name << "=" << name << "(";
+  matlab_constructor_signatures(*fout, *rsym, *argtypes, false);
   *fout << ")" << endl;
 
   // proc_run
