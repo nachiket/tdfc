@@ -102,6 +102,7 @@ bool     gSynplify              = false; // true for "-synplify"
 enum Target { TARGET_TDF,
 	      TARGET_CC,
 	      TARGET_CUDA,
+	      TARGET_MATLAB,
 	      TARGET_GAPPA,
 	      TARGET_GAPPA_U,
 	      TARGET_GAPPA01,
@@ -145,6 +146,7 @@ void usage ()
     << "         -edfgcc      : emit C++ version of the dataflow graph for verifying Nachiket's SPICE backend\n"
     << "         -embz        : emit C code for the Microblaze\n"
     << "         -ecuda       : emit CUDA code for NVIDIA GPU\n"
+    << "         -ematlab     : emit Matlab code for the SCORE operator (originally intended for monte-carlo support) \n"
     << "         -eautoesl <frac> <int> <double>   : emit C code for AutoESL/Xilinx\n"
     << "         -everilog    : emit Verilog\n"
     << "         -eIR         : emit page synthesis info (implies -xc -mt)\n"
@@ -485,6 +487,9 @@ set<string> *instances(Operator *op, Target targ,
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
 	case TARGET_CUDA:		
+	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
+	  break;
+	case TARGET_MATLAB:		
 	  res->insert(ccinstance(iop,op->getName(),rec,debug_page_step));
 	  break;
 	case TARGET_GAPPA:		
@@ -969,6 +974,24 @@ void emitCUDA ()
   }
 }
 
+void emitMATLAB ()
+{
+  // - emit C code for all operators  (-embz option)
+  
+  Operator *op;
+  forall(op,*(gSuite->getOperators()))
+    ccrename(op);
+  // all operators must be renamed before the processing in the
+  // following loop
+  forall(op,*(gSuite->getOperators()))
+  {
+    timestamp(string("begin processing ")+op->getName());
+    // TODO: eventually move flatten here
+    ccmatlab(op);
+    cout << endl;
+  }
+}
+
 void emitGAPPA ()
 {
   // - emit gappa code for all operators  (-egappa option)
@@ -1210,6 +1233,8 @@ int main(int argc, char *argv[])
       optionTarget = TARGET_CC;
     else if (strcmp(argv[arg],"-ecuda")==0)	// -ecuda      : emit CUDA
       optionTarget = TARGET_CUDA;
+    else if (strcmp(argv[arg],"-ematlab")==0)	// -ematlab    : emit Matlab
+      optionTarget = TARGET_MATLAB;
     else if (strcmp(argv[arg],"-egappa")==0 
 		    && argc>=arg+1+1) { 	// -egappa    : emit gappa
       optionTarget = TARGET_GAPPA;
@@ -1514,6 +1539,7 @@ int main(int argc, char *argv[])
       case TARGET_CC:		emitCC(optionDebugProcRun,
 							optionDebugPageStep); break;
       case TARGET_CUDA:		emitCUDA();			  break;
+      case TARGET_MATLAB:	emitMATLAB();			  break;
       case TARGET_GAPPA :	emitGAPPA();			  break;
       case TARGET_GAPPA_U :	emitGAPPAU();			  break;
       case TARGET_GAPPA01 :	emitGAPPA01();			  break;
