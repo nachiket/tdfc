@@ -118,7 +118,7 @@ void matlab_constructor_signatures(ofstream *fout,
 ////////////////////////////////////////////////////////////////////////
 // procrun for master instance
 
-void ccprocrun(ofstream *fout, string classname, Operator *op)
+void ccprocrun(ofstream *fout, string classname, Operator *op, bool fixed)
 {
 
   if (op->getOpKind()==OP_COMPOSE)
@@ -233,7 +233,7 @@ void ccprocrun(ofstream *fout, string classname, Operator *op)
 	      forall(stmt,*(acase->getStmts()))
 		{
 		  ccStmt(fout,string("          "),stmt,early_close,
-			 STATE_PREFIX,0, false, false, false, false, classname, NULL, NULL, NULL, true); 
+			 STATE_PREFIX,0, false, false, false, false, classname, NULL, NULL, NULL, true, fixed); 
 		  // 0 was default for ccStmt.h
 		}
 	    }
@@ -264,18 +264,14 @@ void ccmatlab (Operator *op, bool fixed)
   Symbol *rsym=op->getRetSym();
   string classname;
   if (noReturnValue(rsym))
-      if(fixed) {
-        classname=name+"_fixed";
-      } else {
-        classname=name;
-      }
+      classname=name;
   else
     classname=NON_FUNCTIONAL_PREFIX + name;
 
 
   list<Symbol*> *argtypes=op->getArgs();
   // start new output file
-  string fname=name+".m";
+  string fname=fixed?name+"_fixed.m":name+".m";
   // how convert string -> char * ?
   ofstream *fout=new ofstream(fname);
   *fout << "\% cctdfc autocompiled file" << endl;
