@@ -54,7 +54,7 @@ Note: builtins expecting to handle here
 void ccStmt(ofstream *fout, string indent, Stmt *stmt, int *early_close,
 	    string state_prefix, bool in_pagestep, bool retime, 
 	    bool mblaze, bool cuda, bool autoesl,
-	    string classname, bool *exp, bool *log, bool* div, bool matlab)
+	    string classname, bool *exp, bool *log, bool* div, bool matlab, bool fixed)
 {
 
 if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl)) 
@@ -98,14 +98,14 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log, div, matlab) 
 	      << ") {" << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
-	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab);
+	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab, fixed);
 	*fout << indent << "}" << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
 	  {
 	    *fout << indent << "else {" << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
-		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab);
+		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab, fixed);
 	    *fout << indent << "}" << endl;
 	  }
 	return;
@@ -268,8 +268,8 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    /* MAYBE: add mask here to get rid of any bits out of type range */
 	    // 22/8/2011 - Nachiket - LHS assignment also needs appropriate index
 	    if (lval->usesAllBits())
-	      *fout<<indent<<lval->toString()<<"="
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<";"<<endl;
+	      *fout<<indent<<lval->toString()<<"="<<(fixed?"fi(":"")
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<(fixed?",total_bits, fixed_bits);":";")<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
@@ -314,15 +314,19 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log, div, matlab) ;
-	    *fout << ";" << endl;
+	      *fout << "=" << (fixed?"fi(":"") << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log, div, matlab) ;
+	    if(fixed) {
+	      *fout << "total_bits, fixed_bits);" << endl;
+	    } else {
+	      *fout << ";" << endl;
+	    }
 	  }
 
 	Stmt* astmt;
 	forall(astmt,*(bstmt->getStmts()))
 	  {
 	    ccStmt(fout,string("%s  ",indent),astmt,early_close,state_prefix,
-			in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab);
+			in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab, fixed);
 	  }
 
 	*fout << indent << "}" << endl;

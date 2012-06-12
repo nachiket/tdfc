@@ -307,7 +307,7 @@ void ccmatlab (Operator *op, bool fixed)
   }
 
   // proc_run
-  ccprocrun(fout,classname,op);
+  ccprocrun(fout,classname,op, fixed);
   *fout << endl;
 
   // close up
