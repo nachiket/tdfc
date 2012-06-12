@@ -315,3 +315,116 @@ void ccmatlab (Operator *op, bool fixed)
 
 }
 
+////////////////////////////////////////////////////////////////////////
+// Generate the test wrapper to explore the entire design space..
+void ccmatlabwrapper (Operator *op)
+{
+  //N.B. assumes renaming of variables to avoid name conflicts
+  //  w/ keywords, locally declared, etc. has already been done
+  
+  string name=op->getName();
+  Symbol *rsym=op->getRetSym();
+  string classname;
+  if (noReturnValue(rsym))
+      classname=name;
+  else
+    classname=NON_FUNCTIONAL_PREFIX + name;
+
+
+  list<Symbol*> *argtypes=op->getArgs();
+  // start new output file
+  string fname=name+"_test.m";
+
+  // how convert string -> char * ?
+  ofstream *fout=new ofstream(fname);
+  *fout << "\% cctdfc autocompiled file" << endl;
+  *fout << "\% tdfc version " << TDFC_VERSION << endl;
+  time_t currentTime;
+  time (&currentTime);
+  *fout << "\% " << ctime(&currentTime) << endl;
+
+  // generate the input distributions..
+  *fout << "\% Declare the uncertainty percentages and #sample counts..." << endl;
+  *fout << "UNCERTAINTY=1e-6;" << endl;
+  *fout << "SAMPLES=100;" << endl;
+  *fout << endl;
+  
+  *fout << "\% declare all mean parameter mean values upfront..." << endl;
+  forall(sym,*argtypes) {
+	  if (sym->isParam()) {
+		  if (((SymbolVar*)sym)->getNumber() != "")
+			  *fout << sym->getName() << "_mean = "<< "(" << ((SymbolVar*)sym)->getNumber() <<  ");"<<endl;
+		  else
+			  cerr << "Unsupported uninitialized parameters.." << endl;
+	  }
+  }
+  *fout << endl;
+
+  *fout << "\% construct arrays of SAMPLES length from uniform random distribution.." << endl;
+  forall(sym,*argtypes) {
+	  if (sym->isParam()) {
+		  *fout << sym->getName() << " = " << sym->getName() << "_mean - " << sym->getName() << "_mean*(UNCERTAINTY/100) + (2*" << sym->getName() << "_mean*(UNCERTAINTY/100)).*rand(SAMPLES,1);"<<endl;
+	  }
+  }
+  *fout << endl;
+  
+  *fout << "\% user supplied range for inputs..." << endl;
+  *fout << endl;
+  
+  *fout << "\% specify the range over which fixed-point will be tested for quality.." << endl;
+  *fout << "frac_bits = 8:8:64;" << endl;
+  *fout << endl;
+  
+  // find the sole output of the function..
+  // TODO: create array to pack multiple outputs...
+  string single_output_name;
+  Symbol* sym;
+  if (noReturnValue(rsym))
+  {
+      forall(sym,*argtypes) {
+	  if (sym->isStream())
+	  {
+		  SymbolStream *ssym=(SymbolStream *)sym;
+		  if (ssym->getDir()==STREAM_OUT)
+		  {
+			  single_output_name = ssym->getName();
+		  }
+	  }
+      }
+  }
+
+  *fout << "\% map the generated samplespace over the device evaluations.." << endl;
+  *fout << classname << "_inputs_dbl = allprod("; 
+  matlab_constructor_signatures(fout, rsym, argtypes, false);
+  *fout << ")" << endl;
+  *fout << single_output_name << "_dbl_temp = arrayfun(@" << classname << ","; 
+  for(int cnt=0; cnt<input_count-1;cnt++) {
+  	*fout << classname <<"_inputs_dbl(:,"<<(cnt+1)<<", ";
+  }
+  *fout << classname << "_inputs_dbl(:,"<<(input_count)<<");" << endl;
+
+  *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp,[";
+  matlab_constructor_signatures(fout, rsym, argtypes, false);
+  *fout <<< "]);" << endl;
+  
+  *fout << classname << "_inputs_fx = allprod("; 
+  matlab_constructor_signatures(fout, rsym, argtypes, false);
+  *fout << ", frac_bits)" << endl;
+  *fout << single_output_name << "_fx_temp = arrayfun(@" << classname << "_fixed,";
+  for(int cnt=0; cnt<input_count-1;cnt++) {
+  	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<", ";
+  }
+  *fout << classname << "_inputs_fx(:,"<<(input_count)<<");" << endl;
+
+  *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp,[";
+  matlab_constructor_signatures(fout, rsym, argtypes, false);
+  *fout << "]);" << endl;
+  
+  *fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
+  *fout << endl;
+
+  // close up
+  fout->close();
+
+}
+
