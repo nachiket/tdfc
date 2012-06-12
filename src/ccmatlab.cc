@@ -102,17 +102,74 @@ void matlab_constructor_signatures(ofstream *fout,
 	forall(sym,*argtypes)
 	{
 		if (i>0) *fout << ",";
-		if(sym->isParam())
-			*fout << " " << sym->getName() ;
-		else
-			*fout << " " << sym->getName() ;
-			//*fout << sym->getType()->toString() << "* " << sym->getName() ;
+		if(sym->isParam()) {
+			*fout << " " << sym->getName();
+		}
+
+		if(sym->isStream()) {
+			SymbolStream *ssym=(SymbolStream *)rsym;
+			if (ssym->getDir()==STREAM_OUT) {
+				*fout << " " << sym->getName();
+			}
+		}
 		i++;
 	}
-
-
 }
 
+void matlab_constructor_for_montecarlo(ofstream *fout,
+		Symbol *rsym,
+		list<Symbol*> *argtypes)
+{
+
+	int i=0;
+
+	Symbol *sym;
+	forall(sym,*argtypes)
+	{
+		if (i>0) *fout << ",";
+		if(sym->isParam()) {
+			*fout << " numel(" << sym->getName() << ")";
+		}
+
+		if(sym->isStream()) {
+			SymbolStream *ssym=(SymbolStream *)rsym;
+			if (ssym->getDir()==STREAM_IN) {
+				*fout << " numel(" << sym->getName() << ")";
+			}
+		}
+		i++;
+	}
+}
+
+
+int matlab_get_input_count(Symbol *rsym,
+		list<Symbol*> *argtypes)
+{
+
+	int i=0;
+
+	Symbol *sym;
+	forall(sym,*argtypes)
+	{
+		if(sym->isParam()) {
+			i++;
+		}
+
+		if(sym->isStream()) {
+			SymbolStream *ssym=(SymbolStream *)rsym;
+			if (ssym->getDir()==STREAM_IN) {
+				i++;
+			}
+		}
+	}
+
+	return i;
+}
+
+
+//
+////////////////////////////////////////////////////////////////////////
+// procrun for master instance
 
 //
 ////////////////////////////////////////////////////////////////////////
@@ -350,6 +407,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << endl;
   
   *fout << "\% declare all mean parameter mean values upfront..." << endl;
+  Symbol* sym;
   forall(sym,*argtypes) {
 	  if (sym->isParam()) {
 		  if (((SymbolVar*)sym)->getNumber() != "")
@@ -378,7 +436,6 @@ void ccmatlabwrapper (Operator *op)
   // find the sole output of the function..
   // TODO: create array to pack multiple outputs...
   string single_output_name;
-  Symbol* sym;
   if (noReturnValue(rsym))
   {
       forall(sym,*argtypes) {
@@ -393,6 +450,7 @@ void ccmatlabwrapper (Operator *op)
       }
   }
 
+  int input_count = matlab_get_input_count(rsym, argtypes);
   *fout << "\% map the generated samplespace over the device evaluations.." << endl;
   *fout << classname << "_inputs_dbl = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
@@ -404,8 +462,8 @@ void ccmatlabwrapper (Operator *op)
   *fout << classname << "_inputs_dbl(:,"<<(input_count)<<");" << endl;
 
   *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp,[";
-  matlab_constructor_signatures(fout, rsym, argtypes, false);
-  *fout <<< "]);" << endl;
+  matlab_constructor_for_montecarlo(fout, rsym, argtypes);
+  *fout << "]);" << endl;
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
@@ -417,7 +475,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << classname << "_inputs_fx(:,"<<(input_count)<<");" << endl;
 
   *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp,[";
-  matlab_constructor_signatures(fout, rsym, argtypes, false);
+  matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]);" << endl;
   
   *fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
