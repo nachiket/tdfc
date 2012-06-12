@@ -108,7 +108,7 @@ void matlab_constructor_signatures(ofstream *fout,
 
 		if(sym->isStream()) {
 			SymbolStream *ssym=(SymbolStream *)rsym;
-			if (ssym->getDir()==STREAM_OUT) {
+			if (ssym->getDir()==STREAM_IN) {
 				*fout << " " << sym->getName();
 			}
 		}
@@ -126,7 +126,6 @@ void matlab_constructor_for_montecarlo(ofstream *fout,
 	Symbol *sym;
 	forall(sym,*argtypes)
 	{
-		if (i>0) *fout << ",";
 		if(sym->isParam()) {
 			*fout << " numel(" << sym->getName() << ")";
 		}
@@ -457,9 +456,9 @@ void ccmatlabwrapper (Operator *op)
   *fout << ")" << endl;
   *fout << single_output_name << "_dbl_temp = arrayfun(@" << classname << ","; 
   for(int cnt=0; cnt<input_count-1;cnt++) {
-  	*fout << classname <<"_inputs_dbl(:,"<<(cnt+1)<<", ";
+  	*fout << classname <<"_inputs_dbl(:,"<<(cnt+1)<<"), ";
   }
-  *fout << classname << "_inputs_dbl(:,"<<(input_count)<<");" << endl;
+  *fout << classname << "_inputs_dbl(:,"<<(input_count)<<"));" << endl;
 
   *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp,[";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
@@ -474,9 +473,9 @@ void ccmatlabwrapper (Operator *op)
   }
   *fout << classname << "_inputs_fx(:,"<<(input_count)<<");" << endl;
 
-  *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp,[";
+  *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp,[ ";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
-  *fout << "]);" << endl;
+  *fout << " numel(frac_bits)]);" << endl;
   
   *fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
   *fout << endl;
