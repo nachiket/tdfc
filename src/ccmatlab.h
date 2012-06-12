@@ -35,4 +35,4 @@
 
 using leda::node_list;
 
-void ccmatlab(Operator *op);
+void ccmatlab(Operator *op, bool fixed);

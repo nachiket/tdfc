@@ -989,7 +989,8 @@ void emitMATLAB ()
   {
     timestamp(string("begin processing ")+op->getName());
     // TODO: eventually move flatten here
-    ccmatlab(op);
+    ccmatlab(op, false);
+    ccmatlab(op, true);
     cout << endl;
   }
 }

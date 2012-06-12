@@ -255,7 +255,7 @@ void ccprocrun(ofstream *fout, string classname, Operator *op)
 //
 ////////////////////////////////////////////////////////////////////////
 // Top level routine to create Matlab code for operator
-void ccmatlab (Operator *op)
+void ccmatlab (Operator *op, bool fixed)
 {
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
@@ -264,9 +264,15 @@ void ccmatlab (Operator *op)
   Symbol *rsym=op->getRetSym();
   string classname;
   if (noReturnValue(rsym))
-      classname=name;
+      if(fixed) {
+        classname=name+"_fixed";
+      } else {
+        classname=name;
+      }
   else
     classname=NON_FUNCTIONAL_PREFIX + name;
+
+
   list<Symbol*> *argtypes=op->getArgs();
   // start new output file
   string fname=name+".m";
@@ -298,7 +304,11 @@ void ccmatlab (Operator *op)
   // broiler name
   *fout << "function " << single_output_name << " = " << name << "(";
   matlab_constructor_signatures(fout, rsym, argtypes, false);
-  *fout << ")" << endl;
+  if(fixed) {
+	*fout << ", total_bits, fixed_bits)" << endl;
+  } else {
+  	*fout << ")" << endl;
+  }
 
   // proc_run
   ccprocrun(fout,classname,op);
