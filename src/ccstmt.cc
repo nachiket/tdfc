@@ -257,7 +257,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]," ;
 		}
-		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab) << (fixed&&matlab?"1, total_bits, frac_bits);":");") << endl;
+		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab) << (fixed&&matlab?", 1, total_bits, frac_bits);":");") << endl;
 	      }
 	    else
 	      {
@@ -273,7 +273,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    // 22/8/2011 - Nachiket - LHS assignment also needs appropriate index
 	    if (lval->usesAllBits())
 	      *fout<<indent<<lval->toString()<<"="<<(fixed?"fi(":"")
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<(fixed?",total_bits, frac_bits);":";")<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<(fixed&&matlab?", 1, total_bits, frac_bits);":";")<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
