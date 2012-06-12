@@ -260,7 +260,6 @@ void ccmatlab (Operator *op)
   //N.B. assumes renaming of variables to avoid name conflicts
   //  w/ keywords, locally declared, etc. has already been done
   
-  
   string name=op->getName();
   Symbol *rsym=op->getRetSym();
   string classname;
@@ -283,7 +282,7 @@ void ccmatlab (Operator *op)
   // TODO: create array to pack multiple outputs...
   string single_output_name;
   Symbol* sym;
-  if (!noReturnValue(rsym))
+  if (noReturnValue(rsym))
   {
       forall(sym,*argtypes) {
 	  if (sym->isStream())
@@ -297,7 +296,7 @@ void ccmatlab (Operator *op)
       }
   }
   // broiler name
-  *fout << "function " << single_output_name << "=" << name << "(";
+  *fout << "function " << single_output_name << " = " << name << "(";
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ")" << endl;
 
