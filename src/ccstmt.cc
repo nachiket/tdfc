@@ -247,13 +247,17 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		} else if(autoesl) {
 			*fout<<"*"<<asym->getName()<<" = (" ;
 		} else if(matlab) {
-			*fout<<asym->getName()<<" = (" ;
+			if(fixed) {
+			  *fout<<asym->getName()<<" = fi(" ;
+			} else {
+			  *fout<<asym->getName()<<" = (" ;
+			}
 		} else {
 			*fout <<(in_pagestep?"STREAM_WRITE_ARRAY("
 				   : (floattyp)? "STREAM_WRITE_FLOAT(": (doubletyp)? "STREAM_WRITE_DOUBLE(":"STREAM_WRITE_NOACC(");
 			*fout << "out[" << id << "]," ;
 		}
-		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab) << ");" << endl;
+		*fout << ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab) << (fixed&&matlab?"1, total_bits, frac_bits);":");") << endl;
 	      }
 	    else
 	      {
@@ -269,7 +273,7 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	    // 22/8/2011 - Nachiket - LHS assignment also needs appropriate index
 	    if (lval->usesAllBits())
 	      *fout<<indent<<lval->toString()<<"="<<(fixed?"fi(":"")
-		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<(fixed?",total_bits, fixed_bits);":";")<<endl;
+		   <<ccEvalExpr(EvaluateExpr(rexp), retime, cuda, false, "", autoesl, exp, log, div, matlab)<<(fixed?",total_bits, frac_bits);":";")<<endl;
 	    else
 	      {
 		Expr *low_expr=lval->getPosLow();
@@ -314,12 +318,8 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 		  << " " << asum->getName() ;
 	    Expr* val=asum->getValue();
 	    if (val!=(Expr *)NULL)
-	      *fout << "=" << (fixed?"fi(":"") << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log, div, matlab) ;
-	    if(fixed) {
-	      *fout << "total_bits, fixed_bits);" << endl;
-	    } else {
-	      *fout << ";" << endl;
-	    }
+	      *fout << "=" << ccEvalExpr(EvaluateExpr(val), retime, cuda, false, "", autoesl, exp, log, div, matlab) ;
+	    *fout << ";" << endl;
 	  }
 
 	Stmt* astmt;

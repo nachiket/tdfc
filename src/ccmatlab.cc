@@ -301,7 +301,7 @@ void ccmatlab (Operator *op, bool fixed)
   *fout << "function " << single_output_name << " = " << name << "(";
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   if(fixed) {
-	*fout << ", total_bits, fixed_bits)" << endl;
+	*fout << ", total_bits, frac_bits)" << endl;
   } else {
   	*fout << ")" << endl;
   }
