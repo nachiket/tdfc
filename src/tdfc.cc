@@ -977,11 +977,12 @@ void emitCUDA ()
 
 void emitMATLAB ()
 {
-  // - emit C code for all operators  (-embz option)
+  // - emit MATLAB code for all operators  (-ematlab option)
   
   Operator *op;
   forall(op,*(gSuite->getOperators()))
-    ccrename(op);
+    ccrename(op, true);
+
   // all operators must be renamed before the processing in the
   // following loop
   forall(op,*(gSuite->getOperators()))

@@ -68,10 +68,13 @@ bool add_prefix(Tree *t, void *aux)
 bool ccrename_treemap_false(Tree *t, void *aux)
 { return (0); }
 
-void ccrename(Operator *op)
+void ccrename(Operator *op, bool matlab)
 {
 
-  string *prefix=new string("cc_");
+  string *prefix=new string("");
+  if(!matlab) {
+  	prefix=new string("cc_");
+  }
   // may have split return value and operator name, so put back
 
   string opSaveName=op->getName();

@@ -282,19 +282,22 @@ void ccmatlab (Operator *op)
   // find the sole output of the function..
   // TODO: create array to pack multiple outputs...
   string single_output_name;
+  Symbol* sym;
   if (!noReturnValue(rsym))
   {
-	  if (rsym->isStream())
+      forall(sym,*argtypes) {
+	  if (sym->isStream())
 	  {
-		  SymbolStream *ssym=(SymbolStream *)rsym;
+		  SymbolStream *ssym=(SymbolStream *)sym;
 		  if (ssym->getDir()==STREAM_OUT)
 		  {
 			  single_output_name = ssym->getName();
 		  }
 	  }
+      }
   }
   // broiler name
-  *fout << "function cc_" << single_output_name << "=" << name << "(";
+  *fout << "function " << single_output_name << "=" << name << "(";
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ")" << endl;
 

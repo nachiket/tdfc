@@ -30,4 +30,4 @@
 
 #include "operator.h"
 
-void ccrename(Operator *op);
+void ccrename(Operator *op, bool matlab=false);
