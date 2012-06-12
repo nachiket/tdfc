@@ -991,6 +991,7 @@ void emitMATLAB ()
     // TODO: eventually move flatten here
     ccmatlab(op, false);
     ccmatlab(op, true);
+    ccmatlabwrapper(op);
     cout << endl;
   }
 }
