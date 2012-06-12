@@ -463,19 +463,21 @@ void ccmatlabwrapper (Operator *op)
   *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
+  *fout << endl;
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ", frac_bits)" << endl;
   *fout << single_output_name << "_fx_temp = arrayfun(@" << classname << "_fixed,";
   for(int cnt=0; cnt<input_count-1;cnt++) {
-  	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<", ";
+  	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<"), ";
   }
-  *fout << classname << "_inputs_fx(:,"<<(input_count)<<");" << endl;
+  *fout << classname << "_inputs_fx(:,"<<(input_count)<<"));" << endl;
 
   *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << " numel(frac_bits)]));" << endl;
+  *fout << endl;
   
   *fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
   *fout << endl;
