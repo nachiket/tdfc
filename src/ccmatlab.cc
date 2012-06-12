@@ -460,7 +460,7 @@ void ccmatlabwrapper (Operator *op)
   }
   *fout << classname << "_inputs_dbl(:,"<<(input_count)<<"));" << endl;
 
-  *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp,[";
+  *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp, fliplr[";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]);" << endl;
   
@@ -473,7 +473,7 @@ void ccmatlabwrapper (Operator *op)
   }
   *fout << classname << "_inputs_fx(:,"<<(input_count)<<");" << endl;
 
-  *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp,[ ";
+  *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp, fliplr[ ";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << " numel(frac_bits)]);" << endl;
   
