@@ -101,14 +101,15 @@ void matlab_constructor_signatures(ofstream *fout,
 	Symbol *sym;
 	forall(sym,*argtypes)
 	{
-		if (i>0) *fout << ",";
 		if(sym->isParam()) {
+			if (i>0) *fout << ",";
 			*fout << " " << sym->getName();
 		}
 
 		if(sym->isStream()) {
 			SymbolStream *ssym=(SymbolStream *)sym;
 			if (ssym->getDir()==STREAM_IN) {
+				if (i>0) *fout << ",";
 				*fout << " " << sym->getName();
 			}
 		}
