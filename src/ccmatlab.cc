@@ -469,12 +469,12 @@ void ccmatlabwrapper (Operator *op)
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
-  *fout << ", frac_bits+8, frac_bits);" << endl;
+  *fout << ", frac_bits);" << endl;
   *fout << single_output_name << "_fx_temp = arrayfun(@" << classname << "_fixed,";
-  for(int cnt=0; cnt<input_count-1;cnt++) {
+  for(int cnt=0; cnt<input_count;cnt++) {
   	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<"), ";
   }
-  *fout << classname << "_inputs_fx(:,"<<(input_count)<<"));" << endl;
+  *fout << classname << "_inputs_fx(:,"<<(input_count+1)<<"));" << endl; // AHA! the second one has one extra random variable..
 
   *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
