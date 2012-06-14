@@ -354,7 +354,7 @@ void ccmatlab (Operator *op, bool fixed)
       }
   }
   // broiler name
-  *fout << "function " << single_output_name << " = " << name << "(";
+  *fout << "function " << single_output_name << " = " << name << (fixed?"_fixed(":"(");
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   if(fixed) {
 	*fout << ", total_bits, frac_bits)" << endl;
@@ -464,6 +464,7 @@ void ccmatlabwrapper (Operator *op)
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
   *fout << endl;
+  *fout << "dlmwrite('"<<single_output_name<<"_dbl.mat',"<<single_output_name<<"_dbl,'precision',16);" << endl;
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
@@ -478,8 +479,9 @@ void ccmatlabwrapper (Operator *op)
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << " numel(frac_bits)]));" << endl;
   *fout << endl;
+  *fout << "dlmwrite('"<<single_output_name<<"_fx.mat',"<<single_output_name<<"_fx,'precision',64);" << endl; // For fixed-point matrices, not sure how much precision is adequate!
   
-  *fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
+  //*fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
   *fout << endl;
 
   // close up
