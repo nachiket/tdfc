@@ -454,7 +454,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << "\% map the generated samplespace over the device evaluations.." << endl;
   *fout << classname << "_inputs_dbl = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
-  *fout << ")" << endl;
+  *fout << ");" << endl;
   *fout << single_output_name << "_dbl_temp = arrayfun(@" << classname << ","; 
   for(int cnt=0; cnt<input_count-1;cnt++) {
   	*fout << classname <<"_inputs_dbl(:,"<<(cnt+1)<<"), ";
@@ -469,7 +469,7 @@ void ccmatlabwrapper (Operator *op)
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
-  *fout << ", frac_bits)" << endl;
+  *fout << ", frac_bits);" << endl;
   *fout << single_output_name << "_fx_temp = arrayfun(@" << classname << "_fixed,";
   for(int cnt=0; cnt<input_count-1;cnt++) {
   	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<"), ";
