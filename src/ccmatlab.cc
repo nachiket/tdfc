@@ -107,7 +107,7 @@ void matlab_constructor_signatures(ofstream *fout,
 		}
 
 		if(sym->isStream()) {
-			SymbolStream *ssym=(SymbolStream *)rsym;
+			SymbolStream *ssym=(SymbolStream *)sym;
 			if (ssym->getDir()==STREAM_IN) {
 				*fout << " " << sym->getName();
 			}
@@ -131,7 +131,7 @@ void matlab_constructor_for_montecarlo(ofstream *fout,
 		}
 
 		if(sym->isStream()) {
-			SymbolStream *ssym=(SymbolStream *)rsym;
+			SymbolStream *ssym=(SymbolStream *)sym;
 			if (ssym->getDir()==STREAM_IN) {
 				*fout << " numel(" << sym->getName() << ")";
 			}
@@ -155,7 +155,7 @@ int matlab_get_input_count(Symbol *rsym,
 		}
 
 		if(sym->isStream()) {
-			SymbolStream *ssym=(SymbolStream *)rsym;
+			SymbolStream *ssym=(SymbolStream *)sym;
 			if (ssym->getDir()==STREAM_IN) {
 				i++;
 			}
