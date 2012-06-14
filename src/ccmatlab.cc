@@ -355,11 +355,11 @@ void ccmatlab (Operator *op, bool fixed)
       }
   }
   // broiler name
-  *fout << "function " << single_output_name << " = " << name << (fixed?"_fixed(":"(");
+  *fout << "function " << single_output_name << "_fx = " << name << (fixed?"_fixed(":"(");
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   if(fixed) {
 	*fout << ", frac_bits)" << endl;
-	*fout << "\ttotal_bits = frac_bits+8;" << endl;
+	*fout << "\t\ttotal_bits = frac_bits+8;" << endl;
   } else {
   	*fout << ")" << endl;
   }
@@ -367,6 +367,8 @@ void ccmatlab (Operator *op, bool fixed)
   // proc_run
   ccprocrun(fout,classname,op, fixed);
   *fout << endl;
+  
+  *fout << "\t\t" << single_output_name << "_fx = " << single_output_name << ".double;" << endl;
 
   // close up
   fout->close();
