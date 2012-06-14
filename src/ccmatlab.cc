@@ -358,7 +358,8 @@ void ccmatlab (Operator *op, bool fixed)
   *fout << "function " << single_output_name << " = " << name << (fixed?"_fixed(":"(");
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   if(fixed) {
-	*fout << ", total_bits, frac_bits)" << endl;
+	*fout << ", frac_bits)" << endl;
+	*fout << "\ttotal_bits = frac_bits+8;" << endl;
   } else {
   	*fout << ")" << endl;
   }
