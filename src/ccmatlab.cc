@@ -484,7 +484,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
-  *fout << "dlmwrite('"<<single_output_name<<"_dbl.mat',"<<single_output_name<<"_dbl,'precision',16);" << endl;
+  *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_dbl.mat',"<<single_output_name<<"_dbl,'precision',16);" << endl;
   *fout << endl;
   
   *fout << classname << "_inputs_fx = allprod("; 
@@ -499,7 +499,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << " numel(frac_bits)]));" << endl;
-  *fout << "dlmwrite('"<<single_output_name<<"_fx.mat',"<<single_output_name<<"_fx,'precision',64);" << endl; // For fixed-point matrices, not sure how much precision is adequate!
+  *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_fx.mat',"<<single_output_name<<"_fx,'precision',64);" << endl; // For fixed-point matrices, not sure how much precision is adequate!
   *fout << endl;
   
   //*fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
