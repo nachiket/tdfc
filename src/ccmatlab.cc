@@ -360,6 +360,9 @@ void ccmatlab (Operator *op, bool fixed)
   if(fixed) {
 	*fout << ", frac_bits)" << endl;
 	*fout << "\t\ttotal_bits = frac_bits+8;" << endl;
+	*fout << "\t\tF = fimath('MaxProductWordLength',300,'MaxSumWordLength',300);" << endl;
+	*fout << "\t\tglobalfimath(F);" << endl;
+	*fout << "\t\tsaveglobalfimathpref;" << endl;
   } else {
   	*fout << ")" << endl;
   }
