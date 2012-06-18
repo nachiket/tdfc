@@ -164,7 +164,7 @@ public:
 
   StreamDir		getDir		() const	{ return dir; }
   string		getRange	() const	{ return range; }
-  string		getMatlabRange	(int samples) const	{ return range_left+":"+samples+":"+range_right ; }
+  string		getMatlabRange	() const	{ return range_left+":10:"+range_right ; }
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}
   virtual void		thread		(Tree *p);
