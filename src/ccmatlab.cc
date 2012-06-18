@@ -431,7 +431,21 @@ void ccmatlabwrapper (Operator *op)
   
   *fout << "\% user supplied range for inputs..." << endl;
   *fout << endl;
-  
+  if (noReturnValue(rsym))
+  {
+	  forall(sym,*argtypes) {
+		  if (sym->isStream())
+		  {
+			  SymbolStream *ssym=(SymbolStream *)sym;
+			  if (ssym->getDir()==STREAM_IN)
+			  {
+				  *fout << sym->getName() + " = " + ((SymbolStream*)sym)->getMatlabRange(10); // Hard-wired input range samples to 10
+			  }
+		  }
+	  }
+  }
+
+
   *fout << "\% specify the range over which fixed-point will be tested for quality.." << endl;
   *fout << "frac_bits = 8:8:64;" << endl;
   *fout << endl;

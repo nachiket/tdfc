@@ -132,9 +132,14 @@ SymbolStream::SymbolStream (Token *token_i, const string &name_i,
 	{
 		//cout << "range = low : " << low << " \t high : " << high   << endl;
 		range = "[" + low + "," + high + "]";
+		range_left = low;
+		range_right = high;
 	}
-	else 
+	else {
 		range = "";
+		range_left = "";
+		range_right = "";
+	}
 }
 
 

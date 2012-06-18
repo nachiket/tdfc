@@ -154,6 +154,8 @@ class SymbolStream : public Symbol
 private:
   StreamDir dir;
   string range;
+  string range_left;
+  string range_right;
 
 public:
   SymbolStream (Token *token_i, const string &name_i,
@@ -162,6 +164,7 @@ public:
 
   StreamDir		getDir		() const	{ return dir; }
   string		getRange	() const	{ return range; }
+  string		getMatlabRange	(int samples) const	{ return range_left+":"+samples+":"+range_right ; }
 
   virtual size_t	getSizeof	() const	{ return sizeof *this;}
   virtual void		thread		(Tree *p);
