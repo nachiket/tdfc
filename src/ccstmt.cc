@@ -96,18 +96,19 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	StmtIf *ifstmt=(StmtIf *)stmt;
 	*fout << indent << "if (" 
 	      << ccEvalExpr(EvaluateExpr(ifstmt->getCond()), retime, cuda, false, "", autoesl, exp, log, div, matlab) 
-	      << ") {" << endl;
+	      << ") "<< (matlab?"":"{") << endl;
 	ccStmt(fout,string("%s  ",indent),ifstmt->getThenPart(),
 	       early_close,state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab, fixed);
-	*fout << indent << "}" << endl;
+	*fout << indent << (matlab?"":"}") << endl;
 	Stmt *epart=ifstmt->getElsePart();
 	if (epart!=(Stmt *)NULL)
 	  {
-	    *fout << indent << "else {" << endl;
+	    *fout << indent << "else " << (matlab?"":"{") << endl;
 	    ccStmt(fout,string("%s  ",indent),epart,early_close,
 		   state_prefix,in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab, fixed);
-	    *fout << indent << "}" << endl;
+	    *fout << indent << (matlab?"":"}") << endl;
 	  }
+	if(matlab) *fout << indent << "end" << endl;
 	return;
       }
     case STMT_CALL:
@@ -307,7 +308,9 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 	SymTab *symtab=bstmt->getSymtab();
 	list<Symbol*>* lsyms=symtab->getSymbolOrder();
 	list_item item;
-	*fout << indent << "{" << endl;
+
+	if(!matlab)
+		*fout << indent << "{" << endl;
 
 	forall_items(item,*lsyms)
 	  {
@@ -329,7 +332,8 @@ if((cuda && autoesl) || (cuda && mblaze) || (mblaze && autoesl))
 			in_pagestep, retime, mblaze, cuda, autoesl, classname, exp, log, div, matlab, fixed);
 	  }
 
-	*fout << indent << "}" << endl;
+	if(!matlab) 
+		*fout << indent << "}" << endl;
 	
 	return;
       }
