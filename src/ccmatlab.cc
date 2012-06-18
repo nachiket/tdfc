@@ -367,8 +367,10 @@ void ccmatlab (Operator *op, bool fixed)
   // proc_run
   ccprocrun(fout,classname,op, fixed);
   *fout << endl;
-  
-  *fout << "\t\t" << single_output_name << "_fx = " << single_output_name << ".double;" << endl;
+ 
+  if(fixed) {
+    *fout << "\t\t" << single_output_name << "_fx = " << single_output_name << ".double;" << endl;
+  }
 
   // close up
   fout->close();
