@@ -355,7 +355,7 @@ void ccmatlab (Operator *op, bool fixed)
       }
   }
   // broiler name
-  *fout << "function " << single_output_name << "_fx = " << name << (fixed?"_fixed(":"(");
+  *fout << "function " << single_output_name << (fixed?"_fx = ": " = ") << name << (fixed?"_fixed(":"(");
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   if(fixed) {
 	*fout << ", frac_bits)" << endl;
