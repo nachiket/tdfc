@@ -608,7 +608,7 @@ void ccmatlabscript (Operator *op)
   *fout << endl;
 
   *fout << "UNCERTAINTY = logspace(-1,-20,20);" << endl;
-  *fout << "SAMPLES = 100;" << endl;
+  *fout << "SAMPLES = 10;" << endl;
   *fout << "BITWIDTH = 8:8:80;" << endl;
   *fout << endl;
   
