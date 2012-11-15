@@ -524,7 +524,7 @@ void ccmatlabwrapper (Operator *op)
   }
   *fout << classname << "_inputs_dbl_correct(:,"<<(input_count)<<"));" << endl;
 
-  *fout << single_output_name << "_dbl_correct = " << "reshape("<< single_output_name <<"_dbl_temp_correct, fliplr([";
+  *fout << single_output_name << "_dbl_correct = " << "reshape("<< single_output_name <<"_dbl_correct_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_dbl_correct.mat',"<<single_output_name<<"_dbl_correct,'precision',16);" << endl;
@@ -601,6 +601,7 @@ void ccmatlabscript (Operator *op)
 
   // generate the input distributions..
   *fout << "\% Declare the global math preferences..." << endl;
+  *fout << "F = fimath('MaxProductWordLength',300,'MaxSumWordLength',300);" << endl;  
   *fout << "globalfimath(F);" << endl;
   *fout << "saveglobalfimathpref;" << endl;
   *fout << "global frac_bits;" << endl;
@@ -620,14 +621,14 @@ void ccmatlabscript (Operator *op)
   
   string maxstr,minstr,tailstr;
   int input_count = matlab_get_input_count(rsym, argtypes);
-  for(int cnt=0; cnt<input_count-1;cnt++) {
+  for(int cnt=0; cnt<input_count;cnt++) {
   	maxstr += "max(";
   	minstr += "min(";
 	tailstr += ")";
   }
 
-  *fout << "\t\tmax_error="<<maxstr<<"("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<"" << endl;
-  *fout << "\t\tmin_error="<<minstr<<"("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<"" << endl;
+  *fout << "\t\tmax_error="<<maxstr<<"abs("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<"" << endl;
+  *fout << "\t\tmin_error="<<minstr<<"abs("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<"" << endl;
   *fout << "\tend" << endl;
   *fout << "end" << endl;
 
