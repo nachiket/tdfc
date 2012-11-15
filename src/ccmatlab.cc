@@ -631,6 +631,7 @@ void ccmatlabscript (Operator *op)
   *fout << "\t\tmax_error="<<maxstr<<"abs("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
   *fout << "\t\tmin_error="<<minstr<<"abs("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
   *fout << "\t\tfprintf(fid,'%g,%g,%g\\n',u,max_error,min_error);" << endl;
+  *fout << "\t\tfprintf('%d,%g,%g,%g\\n',frac_bits,u,max_error,min_error);" << endl;
   *fout << "\tend" << endl;
   *fout << "\tfclose(fid);" << endl;
   *fout << "end" << endl;
