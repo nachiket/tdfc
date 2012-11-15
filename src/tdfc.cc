@@ -992,6 +992,7 @@ void emitMATLAB ()
     ccmatlab(op, false);
     ccmatlab(op, true);
     ccmatlabwrapper(op);
+    ccmatlabscript(op);
     cout << endl;
   }
 }

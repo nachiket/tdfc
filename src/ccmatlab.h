@@ -37,3 +37,4 @@ using leda::node_list;
 
 void ccmatlab(Operator *op, bool fixed);
 void ccmatlabwrapper(Operator *op);
+void ccmatlabscript(Operator *op);

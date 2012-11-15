@@ -357,14 +357,10 @@ void ccmatlab (Operator *op, bool fixed)
   // broiler name
   *fout << "function " << single_output_name << (fixed?"_fx = ": " = ") << name << (fixed?"_fixed(":"(");
   matlab_constructor_signatures(fout, rsym, argtypes, false);
+  *fout << ")" << endl;
   if(fixed) {
-	*fout << ", frac_bits)" << endl;
+	*fout << "\t\tglobal frac_bits;" << endl;
 	*fout << "\t\ttotal_bits = frac_bits+8;" << endl;
-	*fout << "\t\tF = fimath('MaxProductWordLength',300,'MaxSumWordLength',300);" << endl;
-	*fout << "\t\tglobalfimath(F);" << endl;
-	*fout << "\t\tsaveglobalfimathpref;" << endl;
-  } else {
-  	*fout << ")" << endl;
   }
 
   // proc_run
@@ -408,57 +404,10 @@ void ccmatlabwrapper (Operator *op)
   time (&currentTime);
   *fout << "\% " << ctime(&currentTime) << endl;
 
-  // generate the input distributions..
-  *fout << "\% Declare the uncertainty percentages and #sample counts..." << endl;
-  *fout << "UNCERTAINTY=1e-6;" << endl;
-  *fout << "SAMPLES=100;" << endl;
-  *fout << endl;
-  
-  *fout << "\% declare all mean parameter mean values upfront..." << endl;
-  Symbol* sym;
-  forall(sym,*argtypes) {
-	  if (sym->isParam()) {
-		  if (((SymbolVar*)sym)->getNumber() != "")
-			  *fout << sym->getName() << "_mean = "<< "(" << ((SymbolVar*)sym)->getNumber() <<  ");"<<endl;
-		  else
-			  cerr << "Unsupported uninitialized parameters.." << endl;
-	  }
-  }
-  *fout << endl;
-
-  *fout << "\% construct arrays of SAMPLES length from uniform random distribution.." << endl;
-  forall(sym,*argtypes) {
-	  if (sym->isParam()) {
-		  *fout << sym->getName() << " = " << sym->getName() << "_mean - " << sym->getName() << "_mean*(UNCERTAINTY/100) + (2*" << sym->getName() << "_mean*(UNCERTAINTY/100)).*rand(SAMPLES,1);"<<endl;
-	  }
-  }
-  *fout << endl;
-  
-  *fout << "\% user supplied range for inputs..." << endl;
-  if (noReturnValue(rsym))
-  {
-	  forall(sym,*argtypes) {
-		  if (sym->isStream())
-		  {
-			  SymbolStream *ssym=(SymbolStream *)sym;
-			  if (ssym->getDir()==STREAM_IN)
-			  {
-				  //cout << "Input=" << sym->getName() << endl;
-				  *fout << sym->getName() + " = " + ((SymbolStream*)sym)->getMatlabRange() << ";" << endl; // Hard-wired input range samples to 10
-			  }
-		  }
-	  }
-  }
-  *fout << endl;
-
-
-  *fout << "\% specify the range over which fixed-point will be tested for quality.." << endl;
-  *fout << "frac_bits = 8:8:64;" << endl;
-  *fout << endl;
-  
   // find the sole output of the function..
   // TODO: create array to pack multiple outputs...
   string single_output_name;
+  Symbol* sym;
   if (noReturnValue(rsym))
   {
       forall(sym,*argtypes) {
@@ -473,6 +422,50 @@ void ccmatlabwrapper (Operator *op)
       }
   }
 
+  // generate the input distributions..
+  *fout << "\% Declare the uncertainty percentages and #sample counts..." << endl;
+  *fout << "function ["+single_output_name+"_fx, "+single_output_name+"_dbl, "+single_output_name+"_dbl_correct] = " << name << "_test(UNCERTAINTY, SAMPLES)" << endl;
+  *fout << endl;
+  
+  *fout << "\% declare all mean parameter mean values upfront..." << endl;
+  forall(sym,*argtypes) {
+	  if (sym->isParam()) {
+		  if (((SymbolVar*)sym)->getNumber() != "")
+			  *fout << sym->getName() << "_mean = "<< "(" << ((SymbolVar*)sym)->getNumber() <<  ");"<<endl;
+		  else
+			  cerr << "Unsupported uninitialized parameters.." << endl;
+	  }
+  }
+  *fout << endl;
+
+  *fout << "\% construct arrays of SAMPLES length from uniform random distribution.." << endl;
+  forall(sym,*argtypes) {
+	  if (sym->isParam()) {
+		  //*fout << sym->getName() << " = " << sym->getName() << "_mean - " << sym->getName() << "_mean*(UNCERTAINTY/100) + (2*" << sym->getName() << "_mean*(UNCERTAINTY/100)).*rand(SAMPLES,1);"<<endl;
+		  *fout << sym->getName() << " = unifrnd(" << sym->getName() << "_mean - " << sym->getName() << "_mean*UNCERTAINTY," << sym->getName() << "_mean + "+sym->getName()+"_mean*UNCERTAINTY, [SAMPLES 1]);"<<endl;
+	  }
+  }
+  *fout << endl;
+  
+  *fout << "\% user supplied range for inputs..." << endl;
+  if (noReturnValue(rsym))
+  {
+	  forall(sym,*argtypes) {
+		  if (sym->isStream())
+		  {
+			  SymbolStream *ssym=(SymbolStream *)sym;
+			  if (ssym->getDir()==STREAM_IN)
+			  {
+				  //cout << "Input=" << sym->getName() << endl;
+				  *fout << sym->getName() + " = linspace(" + ((SymbolStream*)sym)->getMatlabRange() << ",SAMPLES);" << endl; // Hard-wired input range samples to 10
+			  }
+		  }
+	  }
+  }
+  *fout << endl;
+
+  *fout << endl;
+  
   int input_count = matlab_get_input_count(rsym, argtypes);
   *fout << "\% map the generated samplespace over the device evaluations.." << endl;
   *fout << classname << "_inputs_dbl = allprod("; 
@@ -492,22 +485,109 @@ void ccmatlabwrapper (Operator *op)
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
-  *fout << ", frac_bits);" << endl;
+  *fout << ");" << endl;
   *fout << single_output_name << "_fx_temp = arrayfun(@" << classname << "_fixed,";
-  for(int cnt=0; cnt<input_count;cnt++) {
+  for(int cnt=0; cnt<input_count-1;cnt++) {
   	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<"), ";
   }
-  *fout << classname << "_inputs_fx(:,"<<(input_count+1)<<"));" << endl; // AHA! the second one has one extra random variable..
+  *fout << classname << "_inputs_fx(:,"<<(input_count)<<"));" << endl; // AHA! the second one has one extra random variable..
 
   *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
-  *fout << " numel(frac_bits)]));" << endl;
+  *fout << "]));" << endl;
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_fx.mat',"<<single_output_name<<"_fx,'precision',64);" << endl; // For fixed-point matrices, not sure how much precision is adequate!
   *fout << endl;
   
   //*fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
   *fout << endl;
 
+  // close up
+  fout->close();
+
+}
+
+////////////////////////////////////////////////////////////////////////
+// Generate the script that runs the test across different unceratinty/bitwidth permutations..
+void ccmatlabscript (Operator *op)
+{
+  //N.B. assumes renaming of variables to avoid name conflicts
+  //  w/ keywords, locally declared, etc. has already been done
+  
+  string name=op->getName();
+  Symbol *rsym=op->getRetSym();
+  string classname;
+  if (noReturnValue(rsym))
+      classname=name;
+  else
+    classname=NON_FUNCTIONAL_PREFIX + name;
+
+
+  list<Symbol*> *argtypes=op->getArgs();
+  // start new output file
+  string fname=name+"_script.m";
+
+  // how convert string -> char * ?
+  ofstream *fout=new ofstream(fname);
+  *fout << "\% cctdfc autocompiled file" << endl;
+  *fout << "\% tdfc version " << TDFC_VERSION << endl;
+  time_t currentTime;
+  time (&currentTime);
+  *fout << "\% " << ctime(&currentTime) << endl;
+
+  // find the sole output of the function..
+  // TODO: create array to pack multiple outputs...
+  string single_output_name;
+  Symbol* sym;
+  if (noReturnValue(rsym))
+  {
+      forall(sym,*argtypes) {
+	  if (sym->isStream())
+	  {
+		  SymbolStream *ssym=(SymbolStream *)sym;
+		  if (ssym->getDir()==STREAM_OUT)
+		  {
+			  single_output_name = ssym->getName();
+		  }
+	  }
+      }
+  }
+
+  // generate the input distributions..
+  *fout << "\% Declare the global math preferences..." << endl;
+  *fout << "globalfimath(F);" << endl;
+  *fout << "saveglobalfimathpref;" << endl;
+  *fout << "global frac_bits;" << endl;
+  *fout << endl;
+
+  *fout << "UNCERTAINTY = logspace(-1,-20,20);" << endl;
+  *fout << "SAMPLES = 100;" << endl;
+  *fout << "BITWIDTH = 8:8:80;" << endl;
+  *fout << endl;
+  
+  *fout << "\% Loop over the different combinations" << endl;
+  *fout << "for frac_bits = BITWIDTH" << endl;
+  *fout << "\tfor u = UNCERTAINTY" << endl;
+  *fout << endl;
+  *fout << "\t\t["<<single_output_name<<"_fx,"<<single_output_name<<"_dbl"<<single_output_name<<"_dbl_correct] = " << name+"_test(u,SAMPLES);" << endl;
+  *fout << endl;
+  *fout << "\t\tmax_eror=0;" << endl; 
+  *fout << "\t\tmin_eror=1e100;" << endl; 
+  
+  string maxstr,minstr,tailstr;
+  int input_count = matlab_get_input_count(rsym, argtypes);
+  for(int cnt=0; cnt<input_count-1;cnt++) {
+  	maxstr += "max(";
+  	minstr += "min(";
+	tailstr += ")";
+  }
+
+  *fout << "\t\tmax_error="<<maxstr<<"("<<single_output_name<<"_fx,"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
+  *fout << "\t\tmin_error="<<minstr<<"("<<single_output_name<<"_fx,"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
+  *fout << "\ttend" << endl;
+  *fout << "end" << endl;
+
+  *fout << endl;
+  
   // close up
   fout->close();
 
