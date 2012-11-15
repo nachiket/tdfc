@@ -141,6 +141,37 @@ void matlab_constructor_for_montecarlo(ofstream *fout,
 	}
 }
 
+void matlab_constructor_for_dummyeval(ofstream *fout,
+		Symbol *rsym,
+		list<Symbol*> *argtypes, bool state_id)
+{
+
+	int i=1;
+	if(state_id) {
+		*fout << "int n_start_state" ; // April 10th 2010
+	} else {
+		i=0;
+	}
+
+	Symbol *sym;
+	forall(sym,*argtypes)
+	{
+		if(sym->isParam()) {
+			if (i>0) *fout << ",";
+			*fout << " ones(SAMPLES,1).*" << sym->getName()<<"_mean";
+		}
+
+		if(sym->isStream()) {
+			SymbolStream *ssym=(SymbolStream *)sym;
+			if (ssym->getDir()==STREAM_IN) {
+				if (i>0) *fout << ",";
+				*fout << " " << sym->getName();
+			}
+		}
+		i++;
+	}
+}
+
 
 int matlab_get_input_count(Symbol *rsym,
 		list<Symbol*> *argtypes)
@@ -483,6 +514,22 @@ void ccmatlabwrapper (Operator *op)
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_dbl.mat',"<<single_output_name<<"_dbl,'precision',16);" << endl;
   *fout << endl;
   
+  *fout << "\% dummy perfect evaluations.." << endl;
+  *fout << classname << "_inputs_dbl_correct = allprod("; 
+  matlab_constructor_for_dummyeval(fout, rsym, argtypes, false);
+  *fout << ");" << endl;
+  *fout << single_output_name << "_dbl_correct_temp = arrayfun(@" << classname << ","; 
+  for(int cnt=0; cnt<input_count-1;cnt++) {
+  	*fout << classname <<"_inputs_dbl_correct(:,"<<(cnt+1)<<"), ";
+  }
+  *fout << classname << "_inputs_dbl_correct(:,"<<(input_count)<<"));" << endl;
+
+  *fout << single_output_name << "_dbl_correct = " << "reshape("<< single_output_name <<"_dbl_temp_correct, fliplr([";
+  matlab_constructor_for_montecarlo(fout, rsym, argtypes);
+  *fout << "]));" << endl;
+  *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_dbl_correct.mat',"<<single_output_name<<"_dbl_correct,'precision',16);" << endl;
+  *fout << endl;
+  
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ");" << endl;
@@ -568,10 +615,8 @@ void ccmatlabscript (Operator *op)
   *fout << "for frac_bits = BITWIDTH" << endl;
   *fout << "\tfor u = UNCERTAINTY" << endl;
   *fout << endl;
-  *fout << "\t\t["<<single_output_name<<"_fx,"<<single_output_name<<"_dbl"<<single_output_name<<"_dbl_correct] = " << name+"_test(u,SAMPLES);" << endl;
+  *fout << "\t\t["<<single_output_name<<"_fx,"<<single_output_name<<"_dbl,"<<single_output_name<<"_dbl_correct] = " << name+"_test(u,SAMPLES);" << endl;
   *fout << endl;
-  *fout << "\t\tmax_eror=0;" << endl; 
-  *fout << "\t\tmin_eror=1e100;" << endl; 
   
   string maxstr,minstr,tailstr;
   int input_count = matlab_get_input_count(rsym, argtypes);
@@ -581,9 +626,9 @@ void ccmatlabscript (Operator *op)
 	tailstr += ")";
   }
 
-  *fout << "\t\tmax_error="<<maxstr<<"("<<single_output_name<<"_fx,"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
-  *fout << "\t\tmin_error="<<minstr<<"("<<single_output_name<<"_fx,"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
-  *fout << "\ttend" << endl;
+  *fout << "\t\tmax_error="<<maxstr<<"("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<"" << endl;
+  *fout << "\t\tmin_error="<<minstr<<"("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<"" << endl;
+  *fout << "\tend" << endl;
   *fout << "end" << endl;
 
   *fout << endl;
