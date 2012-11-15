@@ -614,7 +614,7 @@ void ccmatlabscript (Operator *op)
   
   *fout << "\% Loop over the different combinations" << endl;
   *fout << "for frac_bits = BITWIDTH" << endl;
-  *fout << "\tfid = fopen(strcat('"<<name<<"_fx,num2str(frac_bits).dat'),'w');" << endl;
+  *fout << "\tfid = fopen(strcat('"<<name<<"_fx',num2str(frac_bits),'.csv'),'w');" << endl;
   *fout << "\tfor u = UNCERTAINTY" << endl;
   *fout << endl;
   *fout << "\t\t["<<single_output_name<<"_fx,"<<single_output_name<<"_dbl,"<<single_output_name<<"_dbl_correct] = " << name+"_test(u,SAMPLES);" << endl;
@@ -630,7 +630,7 @@ void ccmatlabscript (Operator *op)
 
   *fout << "\t\tmax_error="<<maxstr<<"abs("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
   *fout << "\t\tmin_error="<<minstr<<"abs("<<single_output_name<<"_fx-"<<single_output_name<<"_dbl_correct)"<<tailstr<<";" << endl;
-  *fout << "\t\tfprintf(fid,'%g,%g,%g\n',u,max_error,min_error);" << endl;
+  *fout << "\t\tfprintf(fid,'%g,%g,%g\\n',u,max_error,min_error);" << endl;
   *fout << "\tend" << endl;
   *fout << "\tfclose(fid);" << endl;
   *fout << "end" << endl;
