@@ -501,17 +501,17 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    	*fout << " /" << "\\ "  << endl; 
 			    	*fout << indent;			    
 
-//				*fout << "(" + sym->getName() + "_dbl-" + sym->getName() + "_u"
-//			          +")/" + sym->getName() +"_u in ?"; 
-//			           
-//			    	*fout << " /" << "\\ "  << endl; 
-//			    	*fout << indent;			    
-//				
-//				*fout << "(" + sym->getName() + "_fx-" + sym->getName() + "_u"
-//			          +")/" + sym->getName() +"_u in ?"; 
-//			           
-//			    	*fout << " /" << "\\ "  << endl; 
-//			    	*fout << indent;			    
+				*fout << "(" + sym->getName() + "_dbl-" + sym->getName() + "_u"
+			          +")/" + sym->getName() +"_u in ?"; 
+			           
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent;			    
+				
+				*fout << "(" + sym->getName() + "_fx-" + sym->getName() + "_u"
+			          +")/" + sym->getName() +"_u in ?"; 
+			           
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent;			    
 
 			    }
 
