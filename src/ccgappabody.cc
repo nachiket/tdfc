@@ -479,18 +479,20 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 				n++; // we ask the question regarding the relative error on all of the outputs
 				*fout << indent;
 				
+  			    if(!uncertain) {
 			    
 				*fout << "(" + sym->getName() + "_dbl-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
 			          
-			    *fout << " /" << "\\ "  << endl; 
-			    *fout << indent; 
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent; 
 			          
 				*fout << "(" + sym->getName() + "_fx-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
 			    
-			    *fout << " /" << "\\ "  << endl; 
-			    *fout << indent; 
+			    	*fout << " /" << "\\ "  << endl; 
+			    	*fout << indent; 
+			    }
 			    
   			    if(uncertain) {
 				*fout << "(" + sym->getName() + "_u-" + sym->getName() + "_m"
@@ -498,6 +500,18 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			           
 			    	*fout << " /" << "\\ "  << endl; 
 			    	*fout << indent;			    
+
+//				*fout << "(" + sym->getName() + "_dbl-" + sym->getName() + "_u"
+//			          +")/" + sym->getName() +"_u in ?"; 
+//			           
+//			    	*fout << " /" << "\\ "  << endl; 
+//			    	*fout << indent;			    
+//				
+//				*fout << "(" + sym->getName() + "_fx-" + sym->getName() + "_u"
+//			          +")/" + sym->getName() +"_u in ?"; 
+//			           
+//			    	*fout << " /" << "\\ "  << endl; 
+//			    	*fout << indent;			    
 
 			    }
 
