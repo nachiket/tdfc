@@ -479,7 +479,8 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 				n++; // we ask the question regarding the relative error on all of the outputs
 				*fout << indent;
 				
-  			    if(!uncertain) {
+  			    //if(!uncertain) {
+			    // need both errors
 			    
 				*fout << "(" + sym->getName() + "_dbl-" + sym->getName() + "_m"
 			          +")/" + sym->getName() +"_m in ?"; 
@@ -492,7 +493,7 @@ void ccgappalogical(ofstream *fout, list<Symbol*> *argtypes, Operator *op, int i
 			    
 			    	*fout << " /" << "\\ "  << endl; 
 			    	*fout << indent; 
-			    }
+			    //}
 			    
   			    if(uncertain) {
 				*fout << "(" + sym->getName() + "_u-" + sym->getName() + "_m"
