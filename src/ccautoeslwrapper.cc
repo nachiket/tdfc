@@ -238,6 +238,8 @@ void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
 
 
   *fout << "csynth_design" << endl; 
+  *fout << "export_design" << endl; 
+  *fout << "exit" << endl; 
   
   // close up
   fout->close();
