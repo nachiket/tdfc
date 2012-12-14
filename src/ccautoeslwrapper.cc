@@ -225,8 +225,7 @@ void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
   *fout << "add_file 		${TOP}.cpp" << endl; 
   *fout << "set_top  		${TOP}" << endl; 
   *fout << "open_solution	solution1" << endl; 
-  *fout << "add_library		xilinx/virtex6/virtex6_fpv5" << endl; 
-  *fout << "add_library		xilinx/virtex6/virtex6" << endl; 
+  *fout << "set_part 		xc7k160tfbg484-1" << endl; 
   *fout << "create_clock	-period 3ns" << endl; 
 //  *fout << "set_directive_pipeline " << name << endl; 
 //  *fout << "set_directive_dataflow " << name << endl; 
@@ -238,9 +237,7 @@ void ccautoesltcl (Operator *op, bool exp, bool log, bool div)
 	  *fout << "set_directive_inline -off div_flopoco" << endl; 
 
 
-  *fout << "elaborate -lm" << endl; 
-  *fout << "autosyn" << endl; 
-  *fout << "autoimpl -setup -rtl vhdl" << endl; 
+  *fout << "csynth_design" << endl; 
   
   // close up
   fout->close();
