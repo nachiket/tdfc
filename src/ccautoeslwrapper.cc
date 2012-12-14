@@ -279,7 +279,7 @@ void ccautoeslmake (Operator *op)
   *fout << "sim: $(DESIGN)" << endl; 
   *fout << "\t./$(DESIGN)" << endl; 
   *fout << "autoesl: $(DESIGN).tcl" << endl; 
-  *fout << "\tautoesl $<" << endl; 
+  *fout << "\tvivado_hls -f $<" << endl; 
   *fout << "hardware: $(DESIGN)_batch.prj/solution1/impl/vhdl/impl.sh" << endl; 
   *fout << "\tcd $(DESIGN)_batch.prj/solution1/impl/vhdl; ./impl.sh; cd ../../../../" << endl; 
   *fout << "$(DESIGN): $(DESIGN).o $(DESIGN)_test.o $(DESIGN).h" << endl;
