@@ -549,8 +549,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << "]));" << endl;
   *fout << "t3=toc;" << endl;
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_fx.mat',"<<single_output_name<<"_fx,'precision',64);" << endl; // For fixed-point matrices, not sure how much precision is adequate!
-  *fout << "t3=toc;" << endl;
-  *fout << "sprintf('%d %d %d\n',t1,t2,t3)" << endl;
+  *fout << "sprintf('%d %d %d\\n',t1,t2,t3)" << endl;
   *fout << endl;
   
   //*fout << "\% computing absolute errors w.r.t. mean double-precision value.." << endl;
