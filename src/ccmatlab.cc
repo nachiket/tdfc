@@ -502,15 +502,17 @@ void ccmatlabwrapper (Operator *op)
   *fout << classname << "_inputs_dbl = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ");" << endl;
+  *fout << "tic;" << endl;
   *fout << single_output_name << "_dbl_temp = arrayfun(@" << classname << ","; 
   for(int cnt=0; cnt<input_count-1;cnt++) {
-  	*fout << classname <<"_inputs_dbl(:,"<<(cnt+1)<<"), ";
+  	*fout << "gpuArray(" << classname <<"_inputs_dbl(:,"<<(cnt+1)<<")), ";
   }
   *fout << classname << "_inputs_dbl(:,"<<(input_count)<<"));" << endl;
 
   *fout << single_output_name << "_dbl = " << "reshape("<< single_output_name <<"_dbl_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
+  *fout << "t1=toc" << endl;
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_dbl.mat',"<<single_output_name<<"_dbl,'precision',16);" << endl;
   *fout << endl;
   
@@ -518,6 +520,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << classname << "_inputs_dbl_correct = allprod("; 
   matlab_constructor_for_dummyeval(fout, rsym, argtypes, false);
   *fout << ");" << endl;
+  *fout << "tic" << endl;
   *fout << single_output_name << "_dbl_correct_temp = arrayfun(@" << classname << ","; 
   for(int cnt=0; cnt<input_count-1;cnt++) {
   	*fout << classname <<"_inputs_dbl_correct(:,"<<(cnt+1)<<"), ";
@@ -527,12 +530,14 @@ void ccmatlabwrapper (Operator *op)
   *fout << single_output_name << "_dbl_correct = " << "reshape("<< single_output_name <<"_dbl_correct_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
+  *fout << "t2=toc" << endl;
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_dbl_correct.mat',"<<single_output_name<<"_dbl_correct,'precision',16);" << endl;
   *fout << endl;
   
   *fout << classname << "_inputs_fx = allprod("; 
   matlab_constructor_signatures(fout, rsym, argtypes, false);
   *fout << ");" << endl;
+  *fout << "tic" << endl;
   *fout << single_output_name << "_fx_temp = arrayfun(@" << classname << "_fixed,";
   for(int cnt=0; cnt<input_count-1;cnt++) {
   	*fout << classname <<"_inputs_fx(:,"<<(cnt+1)<<"), ";
@@ -542,6 +547,7 @@ void ccmatlabwrapper (Operator *op)
   *fout << single_output_name << "_fx = " << "reshape("<< single_output_name <<"_fx_temp, fliplr([";
   matlab_constructor_for_montecarlo(fout, rsym, argtypes);
   *fout << "]));" << endl;
+  *fout << "t3=toc" << endl;
   *fout << "dlmwrite('"<< classname <<"_"<<single_output_name<<"_fx.mat',"<<single_output_name<<"_fx,'precision',64);" << endl; // For fixed-point matrices, not sure how much precision is adequate!
   *fout << endl;
   
