@@ -601,7 +601,7 @@ void ccmatlabscript (Operator *op)
 
   // generate the input distributions..
   *fout << "\% Declare the global math preferences..." << endl;
-  *fout << "F = fimath('MaxProductWordLength',300,'MaxSumWordLength',300);" << endl;  
+  *fout << "F = fimath('MaxProductWordLength',500,'MaxSumWordLength',500);" << endl;  
   *fout << "globalfimath(F);" << endl;
   *fout << "saveglobalfimathpref;" << endl;
   *fout << "global frac_bits;" << endl;
