@@ -69,15 +69,15 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
     did_goto_ = 0;\n\
 \n\
     if(!reset) begin \n\
-	addrreg = 0;\n\
+	addrreg <= 'b0;\n\
     end \n\
     else if (state==state_steady && statecase == statecase_1)  begin\n\
   	if(addrreg < nelems -1) begin \n\
-		addrreg = addrreg+1;\n\
-    		did_goto_ = 1;\n\
+		addrreg <= addrreg+1;\n\
+    		did_goto_ <= 1;\n\
 	end \n\
-        dataR_d_ = contents[addrreg];\n\
     end\n\
+    dataR_d_ <= contents[addrreg];\n\
   end  // always @*\n\
 \n\
 \n\
