@@ -73,6 +73,7 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
       writereg <= writereg_;\n\
       addrreg <= addrreg_;\n\
       datareg <= datareg_;\n\
+      dataR_d_ = contents[addrreg];		\n\
     end\n\
   end  // always @(posedge...)\n\
 \n\
@@ -122,7 +123,6 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
 	    en_ = 1;					\n\
           end\n\
           else  begin\n\
-            dataR_d_ = contents[addrreg];		\n\
           end\n\
           did_goto_ = 1;\n\
         end\n\
