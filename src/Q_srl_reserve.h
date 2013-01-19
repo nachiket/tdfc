@@ -33,7 +33,7 @@
 #define _TDF_Q_SRL_RESERVE_
 
 
-const char* Q_srl_reserve = "\n\
+const char* Q_srl_reserve = \n\
 // Q_srl_reserve_oreg3_prefull_preresv_SIMPLE.v\n\
 //\n\
 //  - In-page queue with parameterizable depth, bit width, reserve capacity\n\
@@ -96,15 +96,15 @@ module Q_srl_reserve (clock, reset, i_d, i_v, i_b, o_d, o_v, o_b);\n\
    parameter width   = 16;   // - width of data (i_d, o_d)\n\
    parameter reserve =  1;   // - remaining capacity at/below which emit bp\n\
    \n\
-   `define LOG2 (  (((depth))     ==0) ? 0	/* - depth==0   LOG2=0 */ \n\
-		 : (((depth-1)>>0)==0) ? 0	/* - depth<=1   LOG2=0 */ \n\
-		 : (((depth-1)>>1)==0) ? 1	/* - depth<=2   LOG2=1 */ \n\
-		 : (((depth-1)>>2)==0) ? 2	/* - depth<=4   LOG2=2 */ \n\
-		 : (((depth-1)>>3)==0) ? 3	/* - depth<=8   LOG2=3 */ \n\
-		 : (((depth-1)>>4)==0) ? 4	/* - depth<=16  LOG2=4 */ \n\
-		 : (((depth-1)>>5)==0) ? 5	/* - depth<=32  LOG2=5 */ \n\
-		 : (((depth-1)>>6)==0) ? 6	/* - depth<=64  LOG2=6 */ \n\
-		 : (((depth-1)>>7)==0) ? 7	/* - depth<=128 LOG2=7 */ \n\
+   `define LOG2 (  (((depth))     ==0) ? 0	/* - depth==0   LOG2=0 */ \\n\
+		 : (((depth-1)>>0)==0) ? 0	/* - depth<=1   LOG2=0 */ \\n\
+		 : (((depth-1)>>1)==0) ? 1	/* - depth<=2   LOG2=1 */ \\n\
+		 : (((depth-1)>>2)==0) ? 2	/* - depth<=4   LOG2=2 */ \\n\
+		 : (((depth-1)>>3)==0) ? 3	/* - depth<=8   LOG2=3 */ \\n\
+		 : (((depth-1)>>4)==0) ? 4	/* - depth<=16  LOG2=4 */ \\n\
+		 : (((depth-1)>>5)==0) ? 5	/* - depth<=32  LOG2=5 */ \\n\
+		 : (((depth-1)>>6)==0) ? 6	/* - depth<=64  LOG2=6 */ \\n\
+		 : (((depth-1)>>7)==0) ? 7	/* - depth<=128 LOG2=7 */ \\n\
 		 :                       8)	/* - depth<=256 LOG2=8 */   \n\
 \n\
 // parameter addrwidth = LOG2;			// - width of queue addr\n\

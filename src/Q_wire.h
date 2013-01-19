@@ -33,7 +33,7 @@
 #define _TDF_Q_WIRE_
 
 
-const char* Q_wire = "\n\
+const char* Q_wire = \n\
 // Q_wire.v\n\
 //\n\
 //  - Pass-through stream queue, wire in to out\n\

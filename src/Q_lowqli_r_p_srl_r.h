@@ -33,7 +33,7 @@
 #define _TDF_Q_LOWQLI_R_P_SRL_R_
 
 
-const char* Q_lowqli_r_p_srl_r = "\n\
+const char* Q_lowqli_r_p_srl_r = \n\
 // - Q_lowqli_r_p_srl_r.v\n\
 //\n\
 //  - Stream with parameterizable bit width, consisting of\n\

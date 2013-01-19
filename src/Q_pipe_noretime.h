@@ -33,7 +33,7 @@
 #define _TDF_Q_PIPE_NORETIME_
 
 
-const char* Q_pipe_noretime = "\n\
+const char* Q_pipe_noretime = \n\
 // Q_pipe_noretime.v\n\
 //\n\
 //  - Pipelined interconnect stage(s),\n\

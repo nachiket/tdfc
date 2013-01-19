@@ -33,7 +33,7 @@
 #define _TDF_Q_BLACKBOX_
 
 
-static char* Q_blackbox = "//\n\
+static char* Q_blackbox = \n\
 // Q_blackbox.v\n\
 //\n\
 //  - Black box stream queue\n\
