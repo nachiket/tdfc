@@ -79,7 +79,7 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
   end  // always @(posedge...)\n\
 \n\
   always @*  begin\n\
-    dataR_d_ = 'b0;\n\
+    //dataR_d_ = 'b0;\n\
 \n\
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
@@ -108,9 +108,6 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
             contents_at_addrreg_ = datareg_;\n\
 	    en_ = 1;					\n\
           end\n\
-          else  begin\n\
-            dataR_d_ = contents[addrreg];		\n\
-          end\n\
           addrreg_ = addr_d;\n\
           datareg_ = dataW_d;\n\
           writereg_ = write_d;\n\
@@ -122,8 +119,6 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
           if (flag_steady_1_)  begin\n\
             contents_at_addrreg_ = datareg_;\n\
 	    en_ = 1;					\n\
-          end\n\
-          else  begin\n\
           end\n\
           did_goto_ = 1;\n\
         end\n\
