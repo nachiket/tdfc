@@ -51,6 +51,7 @@ module SEG_r (clock, reset, addr_d, addr_e, addr_v, addr_b, dataR_d, dataR_e, da
    parameter nelems =  0;    // - greatest #items in memory (maybe unused) \n\
    parameter awidth = 16;    // - width of arrr (addr_d)\n\
    parameter dwidth = 16;    // - width of data (dataR_d, dataW_d)\n\
+   parameter filename  = \"testing.mif\";    // - width of data (dataR_d, dataW_d)\n\
 \n\
    input     clock;\n\
    input     reset;\n\
@@ -70,7 +71,7 @@ module SEG_r (clock, reset, addr_d, addr_e, addr_v, addr_b, dataR_d, dataR_e, da
    wire flag_steady_1;\n\
 \n\
    SEG_r_fsm fsm (clock, reset, addr_e, addr_v, addr_b, dataR_e, dataR_v, dataR_b, state, statecase, flag_steady_0, flag_steady_1);\n\
-   SEG_r_dp #(.nelems(nelems),.awidth(awidth),.dwidth(dwidth)) dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
+   SEG_r_dp #(.nelems(nelems),.awidth(awidth),.dwidth(dwidth),.filename(filename)) dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0, flag_steady_1);\n\
 \n\
 \n\
 endmodule // SEG_r\n\
