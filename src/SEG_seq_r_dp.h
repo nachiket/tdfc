@@ -20,6 +20,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
   parameter nelems=0; \n\
   parameter dwidth=127;\n\
   parameter awidth=7;\n\
+  parameter filename="testing.mif";\n\
 \n\
   input  clock;\n\
   input  reset;\n\
@@ -42,6 +43,11 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
   reg [dwidth-1:0] contents_at_addrreg_;\n\
   reg [dwidth-1:0] contents [nelems-1:0];\n\
 \n\
+\n\
+  initial begin\n\
+      $readmemh(filename, contents, 0, nelems-1);\n\
+  end\n\
+\n\
   reg [awidth-1:0] addrreg, addrreg_;\n\
   reg [dwidth-1:0] datareg, datareg_;\n\
 \n\
@@ -57,40 +63,22 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
   assign flag_steady_0 = flag_steady_0_;\n\
   assign flag_steady_1 = flag_steady_1_;\n\
 \n\
-  always @(posedge clock or negedge reset)  begin\n\
-    if (!reset)  begin\n\
-      addrreg <= 'b0;\n\
-      datareg <= 'b0;\n\
-    end\n\
-    else  begin\n\
-      addrreg <= addrreg_;\n\
-      datareg <= datareg_;\n\
-    end\n\
-  end  // always @(posedge...)\n\
-\n\
-  always @*  begin\n\
-    datareg_ = 'b0;\n\
+  always @(posedge clock)  begin\n\
 \n\
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
+    did_goto_ = 0;\n\ 
 \n\
-    addrreg_ = addrreg;\n\
-    datareg_ = datareg;\n\
-\n\
-    did_goto_ = 0;\n\
-\n\
-    case (state)\n\
-      state_steady:  begin\n\
-        if (statecase == statecase_1)  begin\n\
-       		if(addrreg_ < nelems -1) begin \n\
-			addrreg_ = addrreg_+1; // TODO: Abid please add addrreg_<=N-1 check here.. \n\
-		end \n\
-            datareg_ = contents[addrreg];		\n\
-         // end\n\
-          did_goto_ = 1;\n\
-        end\n\
-      end\n\
-    endcase  // case (state_reg)\n\
+    if(!reset) begin \n\
+	addrreg = 0;\n\
+    end \n\
+    else if (state==state_steady && statecase == statecase_1)  begin\n\
+  	if(addrreg < nelems -1) begin \n\
+		addrreg = addrreg+1;\n\
+    		did_goto_ = 1;\n\ 
+	end \n\
+        dataR_d_ = contents[addrreg];\n\
+    end\n\
   end  // always @*\n\
 \n\
 \n\
