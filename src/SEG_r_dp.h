@@ -20,6 +20,7 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
   parameter nelems=0; \n\
   parameter dwidth=127;\n\
   parameter awidth=7;\n\
+  parameter filename=\"testing.mif\";\n\
 \n\
   input  clock;\n\
   input  reset;\n\
@@ -44,8 +45,11 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
   reg [dwidth-1:0] contents [nelems-1:0];\n\
   reg 	    en_;\n\
 \n\
+  initial begin\n\
+        $readmemh(filename, contents, 0, nelems-1);\n\
+  end\n\
+\n\
   reg [awidth-1:0] addrreg, addrreg_;\n\
-  reg [dwidth-1:0] datareg, datareg_;\n\
 \n\
   reg [dwidth-1:0] dataR_d_;\n\
 \n\
@@ -62,12 +66,13 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
   always @(posedge clock or negedge reset)  begin\n\
     if (!reset)  begin\n\
       addrreg <= 'b0;\n\
-      datareg <= 'b0;\n\
     end\n\
     else  begin\n\
       if (en_) begin contents[addrreg] <= contents_at_addrreg_; end;	// +EC\n\
       addrreg <= addrreg_;\n\
-      datareg <= datareg_;\n\
+      begin\n\
+        dataR_d_ = contents[addrreg];		\n\
+      end\n\
     end\n\
   end  // always @(posedge...)\n\
 \n\
@@ -78,7 +83,6 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
     flag_steady_1_ = 1'bx;\n\
 \n\
     addrreg_ = addrreg;\n\
-    datareg_ = datareg;\n\
 \n\
     en_       = 0;\n\
 \n\
@@ -88,9 +92,6 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
       state_steady:  begin\n\
         if (statecase == statecase_1)  begin\n\
           addrreg_ = addr_d;\n\
-          begin\n\
-            dataR_d_ = contents[addrreg];		\n\
-          end\n\
           did_goto_ = 1;\n\
         end\n\
       end\n\

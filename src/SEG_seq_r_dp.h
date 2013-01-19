@@ -20,7 +20,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
   parameter nelems=0; \n\
   parameter dwidth=127;\n\
   parameter awidth=7;\n\
-  parameter filename="testing.mif";\n\
+  parameter filename=\"testing.mif\";\n\
 \n\
   input  clock;\n\
   input  reset;\n\
@@ -67,7 +67,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
 \n\
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
-    did_goto_ = 0;\n\ 
+    did_goto_ = 0;\n\
 \n\
     if(!reset) begin \n\
 	addrreg = 0;\n\
@@ -75,7 +75,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
     else if (state==state_steady && statecase == statecase_1)  begin\n\
   	if(addrreg < nelems -1) begin \n\
 		addrreg = addrreg+1;\n\
-    		did_goto_ = 1;\n\ 
+    		did_goto_ = 1;\n\
 	end \n\
         dataR_d_ = contents[addrreg];\n\
     end\n\

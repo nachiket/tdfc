@@ -51,7 +51,7 @@ module SEG_seq_r (clock, reset, dataR_d, dataR_e, dataR_v, dataR_b);\n\
    parameter nelems =  0;    // - greatest #items in memory (maybe unused) \n\
    parameter awidth = 16;    // - width of arrr (addr_d)\n\
    parameter dwidth = 16;    // - width of data (dataR_d, dataW_d)\n\
-   parameter filename = "testing.mif";    // - filename for initialising BRAM contants - 19/1/2013 - Vital for synthesis..\n\
+   parameter filename = \"testing.mif\";    // - filename for initialising BRAM contants - 19/1/2013 - Vital for synthesis..\n\
 \n\
    input     clock;\n\
    input     reset;\n\
