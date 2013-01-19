@@ -33,7 +33,7 @@
 #define _TDF_Q_PIPE_
 
 
-const char* Q_pipe = "\\n\
+const char* Q_pipe = "\n\
 // Q_pipe.v\n\
 //\n\
 //  - Pipelined interconnect stage(s),\n\

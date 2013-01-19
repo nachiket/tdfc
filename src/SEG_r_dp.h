@@ -77,7 +77,6 @@ module SEG_r_dp (clock, reset, addr_d, dataR_d, state, statecase, flag_steady_0,
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
 \n\
-    writereg_ = writereg;\n\
     addrreg_ = addrreg;\n\
     datareg_ = datareg;\n\
 \n\

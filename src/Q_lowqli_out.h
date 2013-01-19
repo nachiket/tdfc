@@ -33,7 +33,7 @@
 #define _TDF_Q_LOWQLI_OUT_
 
 
-const char* Q_lowqli_out = "\\n\
+const char* Q_lowqli_out = "\n\
 `include \"Q_lowqli_out_p_p_srl_r.v\"\n\
 ";
 

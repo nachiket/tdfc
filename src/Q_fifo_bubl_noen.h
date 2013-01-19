@@ -33,7 +33,7 @@
 #define _TDF_Q_FIFO_BUBL_NOEN_
 
 
-const char* Q_fifo_bubl_noen = "\\n\
+const char* Q_fifo_bubl_noen = "\n\
 // Q_fifo_bubl_noen.v\n\
 //\n\
 //  - FIFO with back-pressure and bubbling,\n\

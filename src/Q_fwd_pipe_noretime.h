@@ -33,7 +33,7 @@
 #define _TDF_Q_FWD_PIPE_NORETIME_
 
 
-const char* Q_fwd_pipe_noretime = "\\n\
+const char* Q_fwd_pipe_noretime = "\n\
 // Q_fwd_pipe_noretime.v\n\
 //\n\
 //  - Forward pipelined interconnect stage(s),\n\

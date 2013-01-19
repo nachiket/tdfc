@@ -33,7 +33,7 @@
 #define _TDF_Q_LOWQLI_IN_R_P_SRL_R_
 
 
-const char* Q_lowqli_in_r_p_srl_r = "\\n\
+const char* Q_lowqli_in_r_p_srl_r = "\n\
 // - Q_lowqli_in_r_p_srl_r.v\n\
 //\n\
 //  - Input side (second half) of...\n\

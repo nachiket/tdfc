@@ -33,7 +33,7 @@
 #define _TDF_Q_LWPIPE_
 
 
-const char* Q_lwpipe = "\\n\
+const char* Q_lwpipe = "\n\
 // Q_lwpipe.v\n\
 //\n\
 //  - Stream with parameterizable queue depth, bit width,\n\

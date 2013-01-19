@@ -33,7 +33,7 @@
 #define _TDF_Q_LOWQLI_
 
 
-const char* Q_lowqli = "\\n\
+const char* Q_lowqli = "\n\
 `include \"Q_lowqli_p_p_srl_r.v\"\n\
 ";
 

@@ -42,6 +42,9 @@
 #include "symbol.h"
 #include "everilog_symtab.h"
 
+#include <sstream>
+#include <iostream>
+
 #include "Q_blackbox.h"
 #include "Q_wire.h"
 #include "Q_srl.h"
@@ -1320,6 +1323,10 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
                 + tdfToVerilog_q_args_toString(op,info, false,true,true)
 		+ ");\n";
 
+  // 29/1/2013 - Nachiket added code to allow multiple instances of same 
+  // function to have unique instances names! Bejesus!
+  int unique_instance_id_counter = 0; 
+  
   addEmptyLine(&ret);		// ----------------  
 
   // - noin module calls:  called compositional/behavioral ops +
@@ -1339,7 +1346,10 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
 	    calledop->getOpKind()==OP_BEHAVIORAL ||
 	   (calledop->getOpKind()==OP_BUILTIN &&
 	    ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT));
-    ret += indent + calledop->getName() + " " + calledop->getName() + "_ (";
+    std::ostringstream ss;
+    ss << unique_instance_id_counter;
+    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() +" (";
+    unique_instance_id_counter ++;
     ret += string(CLOCK_NAME) + ", " + string(RESET_NAME) + ", ";
 
     list<Symbol*> formals = args_with_retsym_first(calledop); // - TDF formals
@@ -1804,7 +1814,7 @@ void tdfToVerilog_noin_toFile (OperatorCompose *op, EVerilogInfoCompose *info)
   fout << comment;
 
   // - includes:  q
-  fout << "`include \"" + fileName_q + "\"\n";
+  //fout << "`include \"" + fileName_q + "\"\n";
 
   // - includes:  called ops
   list<ExprCall*> &calls = info->isPage ? info->behavCalls :info->composeCalls;
@@ -1814,7 +1824,7 @@ void tdfToVerilog_noin_toFile (OperatorCompose *op, EVerilogInfoCompose *info)
     assert(calledop->getOpKind()==OP_COMPOSE ||
 	   calledop->getOpKind()==OP_BEHAVIORAL);
     string fileName_calledop = calledop->getName() + ".v";
-    fout << "`include \"" + fileName_calledop + "\"\n";
+    //   fout << "`include \"" + fileName_calledop + "\"\n";
   }
   
   // - includes:  segment ops
@@ -1823,7 +1833,7 @@ void tdfToVerilog_noin_toFile (OperatorCompose *op, EVerilogInfoCompose *info)
     assert(calledop->getOpKind()==OP_BUILTIN &&
 	   ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT);
     string fileName_calledop = calledop->getName() + ".v";
-    fout << "`include \"" + fileName_calledop + "\"\n";
+    //fout << "`include \"" + fileName_calledop + "\"\n";
   }
   fout << "\n";
 
@@ -1855,8 +1865,9 @@ void tdfToVerilog_composeTop_toFile (OperatorCompose *op,
   fout << comment;
 
   // - includes
-  fout << "`include \"" + fileName_qin  + "\"\n";
-  fout << "`include \"" + fileName_noin + "\"\n\n";
+  // Xilinx XST does NOT like stray includes! Jesus!
+  //fout << "`include \"" + fileName_qin  + "\"\n";
+  //fout << "`include \"" + fileName_noin + "\"\n\n";
 
   // - Verilog module
   fout << tdfToVerilog_composeTop_toString(op,info);
@@ -1884,8 +1895,12 @@ void tdfToVerilog_compose_toFile (OperatorCompose *op)
 
   tdfToVerilog_q_toFile          (op,&info);	// - output + local queues
   tdfToVerilog_qin_toFile        (op,&info);	// - input queues
-  if (info.isPage)
-  tdfToVerilog_dpq_toFile        (op,&info);	// - w/o input queues, fsms
+
+  // Not sure why this isn't working properly - 29/1/2013
+  // Nachiket commented this crap out..
+  //if (info.isPage)
+  //   tdfToVerilog_dpq_toFile        (op,&info);	// - w/o input queues, fsms
+
   tdfToVerilog_noin_toFile       (op,&info);	// - w/o input queues
   tdfToVerilog_composeTop_toFile (op,&info);	// - top level
 
