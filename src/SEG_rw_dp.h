@@ -63,12 +63,13 @@ module SEG_rw_dp (clock, reset, addr_d, dataR_d, dataW_d, write_d, state, statec
   assign flag_steady_1 = flag_steady_1_;\n\
 \n\
   always @(posedge clock or negedge reset)  begin\n\
-    if (!reset)  begin\n\
-      writereg <= 'b0;\n\
-      addrreg <= 'b0;\n\
-      datareg <= 'b0;\n\
-    end\n\
-    else  begin\n\
+    //if (!reset)  begin\n\
+    //  writereg <= 'b0;\n\
+    //  addrreg <= 'b0;\n\
+    //  datareg <= 'b0;\n\
+    //end\n\
+    //else  begin\n\
+    begin\n\
       if (en_) begin contents[addrreg] <= contents_at_addrreg_; end;	// +EC\n\
       writereg <= writereg_;\n\
       addrreg <= addrreg_;\n\
