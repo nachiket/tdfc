@@ -49,7 +49,6 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
   end\n\
 \n\
   reg [awidth-1:0] addrreg, addrreg_;\n\
-  reg [dwidth-1:0] datareg, datareg_;\n\
 \n\
   reg [dwidth-1:0] dataR_d_;\n\
 \n\
@@ -58,7 +57,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
 \n\
   reg did_goto_;\n\
 \n\
-  assign dataR_d = datareg ;\n\
+  assign dataR_d = dataR_d_ ;\n\
 \n\
   assign flag_steady_0 = flag_steady_0_;\n\
   assign flag_steady_1 = flag_steady_1_;\n\
