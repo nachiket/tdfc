@@ -33,7 +33,7 @@
 #define _TDF_Q_SRL_RESERVE_
 
 
-const char* Q_srl_reserve = \n\
+const char* Q_srl_reserve = "\n\
 // Q_srl_reserve_oreg3_prefull_preresv_SIMPLE.v\n\
 //\n\
 //  - In-page queue with parameterizable depth, bit width, reserve capacity\n\

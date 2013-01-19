@@ -33,7 +33,7 @@
 #define _TDF_Q_SRL_RESERVE_LWPIPE_
 
 
-const char* Q_srl_reserve_lwpipe = \n\
+const char* Q_srl_reserve_lwpipe = "\n\
 // Q_srl_reserve_lwpipe.v\n\
 //\n\
 //  - Stream with parameterizable queue depth, bit width,\n\

@@ -33,7 +33,7 @@
 #define _TDF_Q_LOWQLI_OUT_R_P_SRL_R_
 
 
-const char* Q_lowqli_out_r_p_srl_r = \n\
+const char* Q_lowqli_out_r_p_srl_r = "\n\
 // - Q_lowqli_out_r_p_srl_r.v\n\
 //\n\
 //  - Output side (first half) of...\n\

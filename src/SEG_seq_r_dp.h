@@ -52,7 +52,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
 \n\
   reg did_goto_;\n\
 \n\
-  assign dataR_d = dataR_d_;\n\
+  assign dataR_d = datareg ;\n\
 \n\
   assign flag_steady_0 = flag_steady_0_;\n\
   assign flag_steady_1 = flag_steady_1_;\n\
@@ -69,7 +69,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
   end  // always @(posedge...)\n\
 \n\
   always @*  begin\n\
-    dataR_d_ = 'b0;\n\
+    datareg_ = 'b0;\n\
 \n\
     flag_steady_0_ = 1'bx;\n\
     flag_steady_1_ = 1'bx;\n\
@@ -85,7 +85,7 @@ module SEG_seq_r_dp (clock, reset, dataR_d, state, statecase, flag_steady_0, fla
        		if(addrreg_ < nelems -1) begin \n\
 			addrreg_ = addrreg_+1; // TODO: Abid please add addrreg_<=N-1 check here.. \n\
 		end \n\
-            dataR_d_ = contents[addrreg];		\n\
+            datareg_ = contents[addrreg];		\n\
          // end\n\
           did_goto_ = 1;\n\
         end\n\

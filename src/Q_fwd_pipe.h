@@ -33,7 +33,7 @@
 #define _TDF_Q_FWD_PIPE_
 
 
-const char* Q_fwd_pipe = \n\
+const char* Q_fwd_pipe = "\n\
 // Q_fwd_pipe.v\n\
 //\n\
 //  - Forward pipelined interconnect stage(s),\n\
