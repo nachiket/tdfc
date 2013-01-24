@@ -1353,7 +1353,7 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
     // assign values to parameters in segments at least!
     if(calledop->getOpKind()==OP_BUILTIN &&
 		    ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT) {
-	    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() + " #(";
+	    ret += indent + calledop->getName() + " #(";
 
 	    // - module arg types:  stream I/O
 	    list<Symbol*> args = args_with_retsym_first(calledop);
@@ -1375,7 +1375,8 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
 	    ret += ") ";
 
 	    //ret += " #(.nelems () ,.awidth () ,.dwidth () ) ";
-	    ret += " (";
+	    ret += " " + calledop->getName() + "_"+ ss.str().c_str() 
+		    ret += " (";
     } else {
 	    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() +" (";
     }
