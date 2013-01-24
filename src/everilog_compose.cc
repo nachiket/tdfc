@@ -1375,8 +1375,8 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
 	    ret += ") ";
 
 	    //ret += " #(.nelems () ,.awidth () ,.dwidth () ) ";
-	    ret += " " + calledop->getName() + "_"+ ss.str().c_str() 
-		    ret += " (";
+	    ret += " " + calledop->getName() + "_"+ ss.str().c_str() ;
+	    ret += " (";
     } else {
 	    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() +" (";
     }
