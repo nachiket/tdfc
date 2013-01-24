@@ -1167,7 +1167,12 @@ string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
       Expr* e_val = ((SymbolVar*)arg)->getValue();
       if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
       	      int value = ((ExprValue*)e_val)->getIntVal();
-	      ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + ") ,";
+	      if(op->getOpKind()==OP_BUILTIN &&
+			 ((OperatorBuiltin*)op)->getBuiltinKind()==BUILTIN_SEGMENT) {
+	        ret += "." + ((SymbolVar*)arg)->toString() + " (" + ((SymbolVar*)arg)->toString() + ") ,";
+	      } else {
+	        ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + ") ,";
+	      }
       }
       continue;
     }
@@ -1209,6 +1214,34 @@ string tdfToVerilog_fsm_dp_args_toString  (OperatorBehavioral *op,
     }    
   }
   ret = ret(0,ret.length()-1-2);	// - drop last ", "
+
+  return ret;
+}
+
+string tdfToVerilog_fsm_dp_paramTypes_toString  (OperatorBehavioral *op,
+					       EVerilogInfo *info,
+					       string indent)
+{
+  // - emit argument type declarations (input/output) for Verilog behav module:
+  //     clock, reset, stream data/eos/valid/bp
+
+  string ret = "\n";
+
+  // - module arg types:  stream I/O
+  list<Symbol*> args = args_with_retsym_first(op);
+  Symbol *arg;
+  forall (arg, args) {
+    if (arg->isParam()) {
+      // - params should already be bound, ignore
+      // 24/1/2013 - Yes, in an ideal world.. but this is fucked right now! - Nachiket
+      //continue;
+      Expr* e_val = ((SymbolVar*)arg)->getValue();
+      if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
+      	      int value = ((ExprValue*)e_val)->getIntVal();
+	      ret += "  parameter " + ((SymbolVar*)arg)->toString() + " = " + string("%d",value) + ";\n";
+      }
+    }
+  }
 
   return ret;
 }
@@ -3406,11 +3439,10 @@ void tdfToVerilog_seg_toFile (Operator *op)
 
 
   // - segrw module declaration
-  ret = indent + "module " + op->getName() + " ("
-      +  CLOCK_NAME + ", " + RESET_NAME + ", ";
+  ret = indent + "module " + op->getName(); 
   fout << ret;
-
-  fout << endl;
+  ret = indent + " (" +  CLOCK_NAME + ", " + RESET_NAME + ", ";
+  fout << ret;
 
   // - segrw module declaration:  stream I/O
   // - HACK:  cast op into behavioral op
@@ -3419,6 +3451,9 @@ void tdfToVerilog_seg_toFile (Operator *op)
   // -  segrw module declaration:  finish
   fout   << ")  ;\n";
   indent += "  ";
+  
+  fout << tdfToVerilog_fsm_dp_paramTypes_toString((OperatorBehavioral*)op,&info,
+					       indent);
 
   fout << endl;
 

@@ -1346,9 +1346,41 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
 	    calledop->getOpKind()==OP_BEHAVIORAL ||
 	   (calledop->getOpKind()==OP_BUILTIN &&
 	    ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT));
+    // unique instance numbers
     std::ostringstream ss;
     ss << unique_instance_id_counter;
-    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() +" (";
+
+    // assign values to parameters in segments at least!
+    if(calledop->getOpKind()==OP_BUILTIN &&
+		    ((OperatorBuiltin*)calledop)->getBuiltinKind()==BUILTIN_SEGMENT) {
+	    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() + " #(";
+
+	    // - module arg types:  stream I/O
+	    list<Symbol*> args = args_with_retsym_first(calledop);
+	    Symbol *arg;
+	    forall (arg, args) {
+		    if (arg->isParam()) {
+			    // - params should already be bound, ignore
+			    // 24/1/2013 - Yes, in an ideal world.. but this is fucked right now! - Nachiket
+			    //continue;
+			    Expr* e_val = ((SymbolVar*)arg)->getValue();
+			    if(e_val!=NULL && e_val->getExprKind()==EXPR_VALUE) {
+				    int value = ((ExprValue*)e_val)->getIntVal();
+				    ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + "), ";
+			    }
+		    }
+	    }
+
+	    ret = ret(0,ret.length()-1-2);        // - drop last ", "
+	    ret += ") ";
+
+	    //ret += " #(.nelems () ,.awidth () ,.dwidth () ) ";
+	    ret += " (";
+    } else {
+	    ret += indent + calledop->getName() + " " + calledop->getName() + "_"+ ss.str().c_str() +" (";
+    }
+
+    
     unique_instance_id_counter ++;
     ret += string(CLOCK_NAME) + ", " + string(RESET_NAME) + ", ";
 
@@ -1380,6 +1412,7 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
       Expr   *actual = actuals.inf(actuals_it);
       if (formal->isParam()) {
 	// - params should already be bound, ignore  (ignore arrays too)
+	// Exception: SEGMENTS
 	continue;
       }
       if (actual->getExprKind()!=EXPR_LVALUE)

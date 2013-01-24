@@ -1128,6 +1128,7 @@ void emitVerilog ()
     //instances(op,TARGET_VERILOG,0); 
     //Sep 20 2011 - Nachiket continues to befuddled with 64-bit crash on instance() calls.. wtf?
     // FRAK! Jan 19 2012 - This doesn't give proper names..
+    // Looks like the bound value is NULL or has encountered a memory leak somewhere...
   }
 }
 
