@@ -27,7 +27,7 @@
 // $Revision: 1.154 $
 //
 //////////////////////////////////////////////////////////////////////////////
-
+// Adding comment to test git commit.
 
 //#include <string.h>
 #include <LEDA/core/string.h>
