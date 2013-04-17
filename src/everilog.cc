@@ -1182,6 +1182,9 @@ string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
 	      } else {
 	        ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + ") ,";
 	      }
+      } else {
+	      // covering the case with no param assignment.. - 17-4-2013 - Nachiket
+	      ret += "." + ((SymbolVar*)arg)->toString() + " (" + ((SymbolVar*)arg)->toString() + ") ,";
       }
       continue;
     }
