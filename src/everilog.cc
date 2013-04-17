@@ -1235,7 +1235,7 @@ string tdfToVerilog_fsm_dp_paramdecls_toString  (OperatorBehavioral *op,
       // - params should already be bound, ignore
       // continue;
       // Nachiket 17-4-2013.. parameter propagation
-      ret += "  parameter " + arg->getName() + ";\n";
+      ret += "  parameter " + arg->getName() + " = 0;\n";
     } 
   }
 
@@ -2206,6 +2206,7 @@ string tdfToVerilog_expr_toString (OperatorBehavioral *op,
   Type *t = e->getType();
   if (t->getTypeKind()!=TYPE_BOOL &&
       t->getTypeKind()!=TYPE_DOUBLE && // Added by Nachiket on 16/8/2011
+      t->getTypeKind()!=TYPE_FLOAT && // Added by Nachiket on 17/4/2013
       t->getTypeKind()!=TYPE_INT)
     fatal(1,"-everilog cannot handle expression " + e->toString() +
 	    " since its type is neither boolean nor integer", e->getToken());
@@ -2322,6 +2323,11 @@ string tdfToVerilog_expr_toString (OperatorBehavioral *op,
       else if (sym->isLocal()) {
 	// - referenced symbol is TDF local variable
 	reg = info->always_assignable[ info->local[sym] ];
+      }
+      else if(sym->isParam()) {
+	// - adding support for param as a local symbol
+	reg = info->always_assignable[ info->local[sym] ];
+	ret += sym->getName();
       }
       else {
 	fatal(1, "-everilog cannot handle symbol reference "+e->toString(),
@@ -2601,7 +2607,7 @@ string tdfToVerilog_dp_paramdecls_toString (OperatorBehavioral *op,
     if (arg->isParam()) {
       // - params should already be bound, ignore
       // continue;
-      ret += "  parameter " + arg->getName() + ";\n";
+      ret += "  parameter " + arg->getName() + " = 0;\n";
     }
   }
   return ret;
