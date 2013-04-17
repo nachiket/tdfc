@@ -71,6 +71,8 @@ extern int    gPageLocalQueueWireDepth;     // "-qlw"  wire      depth, local: -
 // - Used by "everilog.cc" and "everilog_compose.cc"
 bool          isConstWidth                   (Type *t, int *width,
 					      int private_recurse_top=true);
+bool          isConstWidthSafe                (Type *t, int *width,
+					      int private_recurse_top=true);
 list<Symbol*> args_with_retsym_first         (Operator *op);
 EVerilogInfo* tdfToVerilog_scanTdf_alloc     (OperatorBehavioral *op);
 void          tdfToVerilog_scanTdf_dealloc   (OperatorBehavioral *op,

@@ -1581,7 +1581,7 @@ bool set_values_preMap (Tree *t, void *aux)
 		   //     << ((SymbolVar *)sym)->getValue()->toString() << endl;
 		  }
 		} else {
-		   cerr << "  nothing done for " << sym->getName() << endl;
+		   //cerr << "  nothing done for " << sym->getName() << endl;
 		}
 	    }
 	  // now recusrively call bindvalues on the called operator

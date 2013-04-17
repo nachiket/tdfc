@@ -145,7 +145,7 @@ Type::Type (TypeKind typeKind_i, int width_i,
     // linked(true),
     // bindTime(predExpr ? predExpr->getBindTime() : BindTime(BIND_COMPILE))
 {
-  assert(typeKind==TYPE_INT || typeKind==TYPE_FIXED);
+  assert(typeKind==TYPE_INT || typeKind==TYPE_FIXED || typeKind == TYPE_DOUBLE || typeKind == TYPE_FLOAT);
   assert(width>=0);			// width 0 ok for const value 0
   if (widthExpr)
     widthExpr->setParent(this);

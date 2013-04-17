@@ -267,6 +267,59 @@ bool symConsumedHere (Symbol *sym, StateCase *scase)
   return false;
 }
 
+bool isConstWidthSafe (Type *t, int *width,
+		   int private_recurse_top)
+{
+  // - if type *t is boolean or integer type with constant width,
+  //     then return true and set *width
+  // - for integer type, width may be from t->width or t->widthExpr
+  // - private_recurse_top is used privately, for recursion
+
+  if (t->getTypeKind()==TYPE_BOOL) {
+    *width = 1;
+    return true;
+  }
+  // added by Nachiket 16/8/2011.. testing floating-point processing...
+  else if (t->getTypeKind()==TYPE_DOUBLE) {
+    *width=64;
+    return true;
+  }
+  else if (t->getTypeKind()==TYPE_FLOAT) {
+    *width=32;
+    return true;
+  }
+  else if (t->getTypeKind()==TYPE_INT) {
+    if (t->getWidth()>=0) {
+      *width = t->getWidth();
+      return true;
+    }
+    else if (t->getWidthExpr()->getExprKind()==EXPR_VALUE) {
+      *width = ((ExprValue*)t->getWidthExpr())->getIntVal();
+      return true;
+    }
+    else {
+      // - try to constant-fold the type
+      //     * Andre's bindvalues() does not completely const-fold types
+      //     * my version:  evalType() in blockdfc.cc
+      if (private_recurse_top) {
+	Type *evalType (Type* t);  // - dups + const folds type; in blockdfg.cc
+	Type *tt = evalType(t);
+	    //cout << "Offending type=" << typekindToString(tt->getTypeKind()) << " width=" << *width << endl;
+	bool ret = isConstWidthSafe(tt,width,false);  // - (sets width)
+	return ret;
+      }
+      else
+	// - already constant-folded and recursed once, give up
+	return false;
+    }
+  }
+  else {
+    // - t is neither bool nor int
+    return false;
+  }
+
+  return false;		// - dummy
+}
 
 bool isConstWidth (Type *t, int *width,
 		   int private_recurse_top)
@@ -1297,32 +1350,55 @@ string tdfToVerilog_fsm_dp_argTypes_toString  (OperatorBehavioral *op,
       // - params should already be bound, ignore
       continue;
     }
+
     assert(arg->isStream());
     int argWidth;
-    string debugStr = op->getName() + ", " + arg->getName();
-    cout << debugStr.c_str() << endl;
-    if (!SKIP_NONCONST_ERR && !isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
-      fatal(1,"-everilog cannot handle non-constant width " +
-	      ( arg->getType()->getWidthExpr() ?
-	       (arg->getType()->getWidthExpr()->toString()+" ") : string()) +
-	      "of formal argument " + arg->getName() +
-	      " of op " + op->getName(),
-	    op->getToken());
-    if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
-      ret += indent + "input  " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
-					      : string())
-				+ info->input_data  [arg] + ";\n";
-      ret += indent + "input  " + info->input_eos   [arg] + ";\n";
-      ret += indent + "input  " + info->input_valid [arg] + ";\n";
-      ret += indent + "output " + info->input_bp    [arg] + ";\n";
-    }
-    else {  // arg is STREAM_OUT
-      ret += indent + "output " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
-					      : string())
-				+ info->output_data [arg] + ";\n";
-      ret += indent + "output " + info->output_eos  [arg] + ";\n";
-      ret += indent + "output " + info->output_valid[arg] + ";\n";
-      ret += indent + "input  " + info->output_bp   [arg] + ";\n";
+    if(arg->isStream() && !isConstWidthSafe(arg->getType(), &argWidth, true)) {
+	    //string debugStr = op->getName() + ", " + arg->getName();
+	    //cout << debugStr.c_str() << endl;
+	    Type* t;
+	    Type *evalType (Type* t);  // - dups + const folds type; in blockdfg.cc
+	    if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
+		    ret += indent + "input  " + evalType(arg->getType())->toString() + " "
+			    + info->input_data  [arg] + ";\n";
+		    ret += indent + "input  " + info->input_eos   [arg] + ";\n";
+		    ret += indent + "input  " + info->input_valid [arg] + ";\n";
+		    ret += indent + "output " + info->input_bp    [arg] + ";\n";
+	    }
+	    else {  // arg is STREAM_OUT
+		    ret += indent + "output " + evalType(arg->getType())->toString() + " "
+			    + info->output_data [arg] + ";\n";
+		    ret += indent + "output " + info->output_eos  [arg] + ";\n";
+		    ret += indent + "output " + info->output_valid[arg] + ";\n";
+		    ret += indent + "input  " + info->output_bp   [arg] + ";\n";
+	    }
+    } else {
+
+	    //string debugStr = op->getName() + ", " + arg->getName();
+	    //cout << debugStr.c_str() << endl;
+	    if (!SKIP_NONCONST_ERR && !isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
+		    fatal(1,"-everilog cannot handle non-constant width " +
+				    ( arg->getType()->getWidthExpr() ?
+				      (arg->getType()->getWidthExpr()->toString()+" ") : string()) +
+				    "of formal argument " + arg->getName() +
+				    " of op " + op->getName(),
+				    op->getToken());
+	    if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
+		    ret += indent + "input  " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
+				    : string())
+			    + info->input_data  [arg] + ";\n";
+		    ret += indent + "input  " + info->input_eos   [arg] + ";\n";
+		    ret += indent + "input  " + info->input_valid [arg] + ";\n";
+		    ret += indent + "output " + info->input_bp    [arg] + ";\n";
+	    }
+	    else {  // arg is STREAM_OUT
+		    ret += indent + "output " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
+				    : string())
+			    + info->output_data [arg] + ";\n";
+		    ret += indent + "output " + info->output_eos  [arg] + ";\n";
+		    ret += indent + "output " + info->output_valid[arg] + ";\n";
+		    ret += indent + "input  " + info->output_bp   [arg] + ";\n";
+	    }
     }
   }
 
@@ -2214,10 +2290,23 @@ string tdfToVerilog_expr_toString (OperatorBehavioral *op,
     fatal(1,"-everilog cannot handle expression " + e->toString() +
 	    " since its type is neither boolean nor integer", e->getToken());
 
-  int width;
-  if (!isConstWidth(t,&width))			// - (sets width)
-    fatal(1, "-everilog cannot handle expression " + e->toString() +
-	     " of non-constant width " + e->toString(), e->getToken());
+  //if (!isConstWidth(t,&width))			// - (sets width)
+  //  fatal(1, "-everilog cannot handle expression " + e->toString() +
+  //	     " of non-constant width " + e->toString(), e->getToken());
+
+    string widthStr;
+    int width;
+
+    if(!isConstWidthSafe(t, &width, false)) {
+	    Type* t1;
+	    Type* evalType (Type* t1);
+	    widthStr = evalType(t)->toString();
+	    width = -1;
+    } else {
+	    widthStr = (width>1 ? string("[%d:0] ",width-1) : string());
+    }
+
+
 
   switch (e->getExprKind())
   {
@@ -2640,17 +2729,32 @@ string tdfToVerilog_dp_argTypes_toString (OperatorBehavioral *op,
       continue;
     }
     assert(arg->isStream());
+
+    string argWidthStr;
     int argWidth;
-    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
-      fatal(1,"-everilog cannot handle non-constant width " +
-	      ( arg->getType()->getWidthExpr() ?
-	       (arg->getType()->getWidthExpr()->toString()+" ") : string()) +
-	      "of formal argument " + arg->getName() +
-	      " of op " + op->getName(),
-	    op->getToken());
+
+    if(!isConstWidthSafe(arg->getType(), &argWidth, false)) {
+	    Type* t;
+	    Type* evalType (Type* t);
+	    argWidthStr = evalType(arg->getType())->toString();
+    } else {
+	    argWidthStr = (argWidth>1 ? string("[%d:0] ",argWidth-1) : string());
+    }
+
+
+
+//    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
+//      fatal(1,"-everilog cannot handle non-constant width " +
+//	      ( arg->getType()->getWidthExpr() ?
+//	       (arg->getType()->getWidthExpr()->toString()+" ") : string()) +
+//	      "of formal argument " + arg->getName() +
+//	      " of op " + op->getName(),
+//	    op->getToken());
+
+
+
     if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
-      ret += indent + "input  " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
-					      : string())
+      ret += indent + "input  " + argWidthStr
 				+ info->input_data  [arg] + ";\n";
     //ret += indent + "input  " + info->input_eos   [arg] + ";\n";
     //ret += indent + "input  " + info->input_valid [arg] + ";\n";
@@ -2733,13 +2837,25 @@ string tdfToVerilog_dp_regs_toString (OperatorBehavioral *op,
 
   // - register variables (scalar)
   forall_defined (sym, info->reg) {
+//    if (!isConstWidth(sym->getType(),&width))		// - (sets width)
+//      assert(!"-everilog found register variable with non-const width");
+
+    string widthStr;
     int width;
-    if (!isConstWidth(sym->getType(),&width))		// - (sets width)
-      assert(!"-everilog found register variable with non-const width");
+
+    if(!isConstWidthSafe(sym->getType(), &width, false)) {
+	    Type* t;
+	    Type* evalType (Type* t);
+	    widthStr = evalType(sym->getType())->toString();
+    } else {
+	    widthStr = (width>1 ? string("[%d:0] ",width-1) : string());
+    }
+
+
     string reg = info->reg[sym];
     ret += indent + "reg "
         +  (sym->getType()->isSigned() ? "signed " : "")
-	+  (width>1 ? string("[%d:0] ",width-1) : string())
+	+  widthStr
 	+  reg + ", "
 	+  info->always_assignable[reg] + ";\n";
   }
@@ -2809,15 +2925,27 @@ string tdfToVerilog_dp_regs_toString (OperatorBehavioral *op,
       continue;
     }
     assert(arg->isStream());
+    
+    string argWidthStr;
     int argWidth;
-    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
-      assert(!"non-const width");			// - caught above
+
+    if(!isConstWidthSafe(arg->getType(), &argWidth, false)) {
+	    Type* t;
+	    Type* evalType (Type* t);
+	    argWidthStr = evalType(arg->getType())->toString();
+    } else {
+	    argWidthStr = (argWidth>1 ? string("[%d:0] ",argWidth-1) : string());
+    }
+
+
+//    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
+//      assert(!"non-const width");			// - caught above
     if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
     }
     else {  // arg is STREAM_OUT
       ret += indent + "reg "
 	  +  (arg->getType()->isSigned() ? "signed " : "")
-	  +  (argWidth>1 ? string("[%d:0] ",argWidth-1) : string())
+	  +  argWidthStr
 	  +  info->always_assignable[ info->output_data [arg] ] + ";\n";
     }
   }
@@ -2935,10 +3063,23 @@ string tdfToVerilog_dp_alwaysSeq_toString (OperatorBehavioral *op,
     }
     else {
       // - reg has NO initial value
-      int width;
-      if (!isConstWidth(sym->getType(),&width))		// - (sets width)
-	assert(!"-everilog found register variable with non-const width");
-      ret += indent + reg + string(" <= %d'bx;\n",width);
+      //int width;
+      //if (!isConstWidth(sym->getType(),&width))		// - (sets width)
+	// assert(!"-everilog found register variable with non-const width");
+
+    string symWidthStr;
+    int symWidth;
+
+    if(!isConstWidthSafe(sym->getType(), &symWidth, false)) {
+	    Type* t;
+	    Type* evalType (Type* t);
+	    symWidthStr = evalType(sym->getType())->toString();
+    } else {
+	    symWidthStr = (symWidth>1 ? string("[%d:0] ",symWidth-1) : string());
+    }
+
+
+      ret += indent + reg + string(" <= %d'bx;\n",symWidth);
     }
   }
 
@@ -3631,14 +3772,14 @@ void tdfToVerilog_instance (Operator *iop,
 			    list<OperatorBehavioral*> *instances)
 {
   if (iop->getOpKind()==OP_COMPOSE) {
-    bindvalues(iop,NULL);				// - bind vals
-    set_values(iop,true);				// - bind vals
-    resolve_bound_values(&iop);
+//    bindvalues(iop,NULL);				// - bind vals
+//    set_values(iop,true);				// - bind vals
+//    resolve_bound_values(&iop);
     tdfToVerilog_compose((OperatorCompose*)iop);    // - emit page + contents
   } else {
-    bindvalues(iop,NULL);				// - bind vals
-    set_values(iop,true);				// - bind vals
-    resolve_bound_values(&iop);
+//    bindvalues(iop,NULL);				// - bind vals
+//    set_values(iop,true);				// - bind vals
+//    resolve_bound_values(&iop);
     tdfToVerilog((OperatorBehavioral*)iop);	    // - emit indiv behav op
   }
 }

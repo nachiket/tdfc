@@ -2579,7 +2579,7 @@ Type* evalType (Type *t)
   TypeKind tkind=t->getTypeKind();
   if (tkind==TYPE_ANY)			// - fix bad types by type-checking
     return evalType(t->getParent()->typeCheck());
-  assert(tkind==TYPE_BOOL || tkind==TYPE_INT);
+  assert(tkind==TYPE_BOOL || tkind==TYPE_INT || tkind==TYPE_DOUBLE || tkind==TYPE_FLOAT);  
   int width=t->getWidth();
   if (tkind==TYPE_BOOL) {
     // - bool

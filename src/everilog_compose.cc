@@ -40,6 +40,7 @@
 #include "bindvalues.h"
 #include "everilog.h"
 #include "symbol.h"
+#include "type.h"
 #include "everilog_symtab.h"
 
 #include <sstream>
@@ -445,55 +446,83 @@ string tdfToVerilog_q_argTypes_toString (OperatorCompose *op,
       // - params should already be bound, ignore
       continue;
     }
+    // Nachiket - 17-4-2013 - special case for local streams..
+    if(!sym->isParam() && !sym->isStream()) {
+    	cout << "Symbol:" << sym->getName() << endl;
+	continue;
+    }
+    
     int symWidth;
-    if (!isConstWidth(sym->getType(),&symWidth))	// - (sets argWidth)
-      fatal(1,"-everilog cannot handle non-constant width " +
-	      ( sym->getType()->getWidthExpr() ?
-	       (sym->getType()->getWidthExpr()->toString()+" ") : string()) +
-	      "of stream " + sym->getName() +
-	      " of op " + op->getName(),
-	    op->getToken());
-    string sym_d, sym_e, sym_v, sym_b;
-    if (sym->isStream()) {
-      if (((SymbolStream*)sym)->getDir()==STREAM_IN) {	// sym is STREAM_IN
-	if (!doInputQueues)
-	  continue;
-	sym_d = info->input_data [sym];
-	sym_e = info->input_eos  [sym];
-	sym_v = info->input_valid[sym];
-	sym_b = info->input_bp   [sym];
-      }
-      else {  // sym is STREAM_OUT
-	if (!doOutputQueues)
-	  continue;
-	sym_d = info->output_data [sym];
-	sym_e = info->output_eos  [sym];
-	sym_v = info->output_valid[sym];
-	sym_b = info->output_bp   [sym];
-      }
+    if(sym->isStream() && !isConstWidthSafe(sym->getType(), &symWidth, true)) {
+	    //string debugStr = op->getName() + ", " + arg->getName();
+	    //cout << debugStr.c_str() << endl;
+	    Type* t;
+	    Type *evalType (Type* t);  // - dups + const folds type; in blockdfg.cc
+	    if (((SymbolStream*)sym)->getDir()==STREAM_IN) {
+		    ret += indent + "input  " + evalType(sym->getType())->toString() + " "
+			    + info->input_data  [sym] + ";\n";
+		    ret += indent + "input  " + info->input_eos   [sym] + ";\n";
+		    ret += indent + "input  " + info->input_valid [sym] + ";\n";
+		    ret += indent + "output " + info->input_bp    [sym] + ";\n";
+	    }
+	    else {  // sym is STREAM_OUT
+		    ret += indent + "output " + evalType(sym->getType())->toString() + " "
+			    + info->output_data [sym] + ";\n";
+		    ret += indent + "output " + info->output_eos  [sym] + ";\n";
+		    ret += indent + "output " + info->output_valid[sym] + ";\n";
+		    ret += indent + "input  " + info->output_bp   [sym] + ";\n";
+	    }
+
+    } else {
+	    if (!isConstWidth(sym->getType(),&symWidth))	// - (sets argWidth)
+		    fatal(1,"-everilog cannot handle non-constant width " +
+				    ( sym->getType()->getWidthExpr() ?
+				      (sym->getType()->getWidthExpr()->toString()+" ") : string()) +
+				    "of stream " + sym->getName() +
+				    " of op " + op->getName(),
+				    op->getToken());
+	    string sym_d, sym_e, sym_v, sym_b;
+	    if (sym->isStream()) {
+		    if (((SymbolStream*)sym)->getDir()==STREAM_IN) {	// sym is STREAM_IN
+			    if (!doInputQueues)
+				    continue;
+			    sym_d = info->input_data [sym];
+			    sym_e = info->input_eos  [sym];
+			    sym_v = info->input_valid[sym];
+			    sym_b = info->input_bp   [sym];
+		    }
+		    else {  // sym is STREAM_OUT
+			    if (!doOutputQueues)
+				    continue;
+			    sym_d = info->output_data [sym];
+			    sym_e = info->output_eos  [sym];
+			    sym_v = info->output_valid[sym];
+			    sym_b = info->output_bp   [sym];
+		    }
+	    }
+	    else {  // sym is local stream
+		    if (!doLocalQueues)
+			    continue;
+		    if (!info->usedStreams.member(sym))	// - skip stream if not used
+			    continue;
+		    sym_d = info->stream_data [sym];
+		    sym_e = info->stream_eos  [sym];
+		    sym_v = info->stream_valid[sym];
+		    sym_b = info->stream_bp   [sym];
+	    }
+	    ret += indent + "input  " + (symWidth>1 ? string("[%d:0] ",symWidth-1)
+			    : string())
+		    + info->qin[sym_d] + ";\n";
+	    ret += indent + "input  " + info->qin[sym_e] + ";\n";
+	    ret += indent + "input  " + info->qin[sym_v] + ";\n";
+	    ret += indent + "output " + info->qin[sym_b] + ";\n";
+	    ret += indent + "output " + (symWidth>1 ? string("[%d:0] ",symWidth-1)
+			    : string())
+		    + info->qout[sym_d] + ";\n";
+	    ret += indent + "output " + info->qout[sym_e] + ";\n";
+	    ret += indent + "output " + info->qout[sym_v] + ";\n";
+	    ret += indent + "input  " + info->qout[sym_b] + ";\n";
     }
-    else {  // sym is local stream
-      if (!doLocalQueues)
-	continue;
-      if (!info->usedStreams.member(sym))	// - skip stream if not used
-	continue;
-      sym_d = info->stream_data [sym];
-      sym_e = info->stream_eos  [sym];
-      sym_v = info->stream_valid[sym];
-      sym_b = info->stream_bp   [sym];
-    }
-    ret += indent + "input  " + (symWidth>1 ? string("[%d:0] ",symWidth-1)
-      					    : string())
-      			      + info->qin[sym_d] + ";\n";
-    ret += indent + "input  " + info->qin[sym_e] + ";\n";
-    ret += indent + "input  " + info->qin[sym_v] + ";\n";
-    ret += indent + "output " + info->qin[sym_b] + ";\n";
-    ret += indent + "output " + (symWidth>1 ? string("[%d:0] ",symWidth-1)
-      					    : string())
-      			      + info->qout[sym_d] + ";\n";
-    ret += indent + "output " + info->qout[sym_e] + ";\n";
-    ret += indent + "output " + info->qout[sym_v] + ";\n";
-    ret += indent + "input  " + info->qout[sym_b] + ";\n";
   }
 
   return ret;
@@ -528,90 +557,108 @@ string tdfToVerilog_q_calls_toString (OperatorCompose *op,
       // - params should already be bound, ignore
       continue;
     }
+    // Nachiket - 17-4-2013 - special case for local streams..
+    if(!sym->isParam() && !sym->isStream()) {
+    	cout << "Symbol:" << sym->getName() << endl;
+	continue;
+    }
     int depth;
-    int symWidth;
     int lidepth, lodepth, wdepth;
-    if (!isConstWidth(sym->getType(),&symWidth))	// - (sets argWidth)
-      fatal(1,"-everilog cannot handle non-constant width " +
-	      ( sym->getType()->getWidthExpr() ?
-	       (sym->getType()->getWidthExpr()->toString()+" ") : string()) +
-	      "of stream " + sym->getName() +
-	      " of op " + op->getName(),
-	    op->getToken());
+
+    int symWidth;
+    string symWidthStr;
     string sym_d, sym_e, sym_v, sym_b, qName;
-    if (sym->isStream()) {
-      if (((SymbolStream*)sym)->getDir()==STREAM_IN) {	// sym is STREAM_IN
-	if (!doInputQueues)
-	  continue;
-	sym_d   = info->input_data [sym];
-	sym_e   = info->input_eos  [sym];
-	sym_v   = info->input_valid[sym];
-	sym_b   = info->input_bp   [sym];
-	depth   = info->isPage ?    gPageInputQueueDepth
-	                       : gNetlistInputQueueDepth;
-	lidepth = info->isPage ?    gPageInputQueueLogicInDepth
-	                       : gNetlistInputQueueLogicInDepth;
-	lodepth = info->isPage ?    gPageInputQueueLogicOutDepth
-	                       : gNetlistInputQueueLogicOutDepth;
-	wdepth  = info->isPage ?    gPageInputQueueWireDepth
-	                       : gNetlistInputQueueWireDepth;
-	qName   = info->isPage ?    gPageInputQueueModule
-	                       : gNetlistInputQueueModule;
-      }
-      else {  // sym is STREAM_OUT
-	if (!doOutputQueues)
-	  continue;
-	sym_d   = info->output_data [sym];
-	sym_e   = info->output_eos  [sym];
-	sym_v   = info->output_valid[sym];
-	sym_b   = info->output_bp   [sym];
-	depth   = info->isPage ?    gPageOutputQueueDepth
-	                       : gNetlistOutputQueueDepth;
-	lidepth = info->isPage ?    gPageOutputQueueLogicInDepth
-	                       : gNetlistOutputQueueLogicInDepth;
-	lodepth = info->isPage ?    gPageOutputQueueLogicOutDepth
-	                       : gNetlistOutputQueueLogicOutDepth;
-	wdepth  = info->isPage ?    gPageOutputQueueWireDepth
-	                       : gNetlistOutputQueueWireDepth;
-	qName   = info->isPage ?    gPageOutputQueueModule
-	                       : gNetlistOutputQueueModule;
-      }
+
+    if(isConstWidthSafe(sym->getType(), &symWidth, true)) {
+
+	symWidthStr = string(symWidth+ "");
+//	    if (!isConstWidth(sym->getType(),&symWidth))	// - (sets argWidth)
+//		    fatal(1,"-everilog cannot handle non-constant width " +
+//				    ( sym->getType()->getWidthExpr() ?
+//				      (sym->getType()->getWidthExpr()->toString()+" ") : string()) +
+//				    "of stream " + sym->getName() +
+//				    " of op " + op->getName(),
+//				    op->getToken());
+
+	    if (sym->isStream()) {
+		    if (((SymbolStream*)sym)->getDir()==STREAM_IN) {	// sym is STREAM_IN
+			    if (!doInputQueues)
+				    continue;
+			    sym_d   = info->input_data [sym];
+			    sym_e   = info->input_eos  [sym];
+			    sym_v   = info->input_valid[sym];
+			    sym_b   = info->input_bp   [sym];
+			    depth   = info->isPage ?    gPageInputQueueDepth
+				    : gNetlistInputQueueDepth;
+			    lidepth = info->isPage ?    gPageInputQueueLogicInDepth
+				    : gNetlistInputQueueLogicInDepth;
+			    lodepth = info->isPage ?    gPageInputQueueLogicOutDepth
+				    : gNetlistInputQueueLogicOutDepth;
+			    wdepth  = info->isPage ?    gPageInputQueueWireDepth
+				    : gNetlistInputQueueWireDepth;
+			    qName   = info->isPage ?    gPageInputQueueModule
+				    : gNetlistInputQueueModule;
+		    }
+		    else {  // sym is STREAM_OUT
+			    if (!doOutputQueues)
+				    continue;
+			    sym_d   = info->output_data [sym];
+			    sym_e   = info->output_eos  [sym];
+			    sym_v   = info->output_valid[sym];
+			    sym_b   = info->output_bp   [sym];
+			    depth   = info->isPage ?    gPageOutputQueueDepth
+				    : gNetlistOutputQueueDepth;
+			    lidepth = info->isPage ?    gPageOutputQueueLogicInDepth
+				    : gNetlistOutputQueueLogicInDepth;
+			    lodepth = info->isPage ?    gPageOutputQueueLogicOutDepth
+				    : gNetlistOutputQueueLogicOutDepth;
+			    wdepth  = info->isPage ?    gPageOutputQueueWireDepth
+				    : gNetlistOutputQueueWireDepth;
+			    qName   = info->isPage ?    gPageOutputQueueModule
+				    : gNetlistOutputQueueModule;
+		    }
+	    }
+	    else {  // sym is local stream
+		    if (!doLocalQueues)
+			    continue;
+		    if (!info->usedStreams.member(sym))	// - skip stream if not used
+			    continue;
+		    sym_d   = info->stream_data [sym];
+		    sym_e   = info->stream_eos  [sym];
+		    sym_v   = info->stream_valid[sym];
+		    sym_b   = info->stream_bp   [sym];
+		    depth   = info->isPage ?    gPageLocalQueueDepth
+			    : gNetlistLocalQueueDepth;
+		    lidepth = info->isPage ?    gPageLocalQueueLogicInDepth
+			    : gNetlistLocalQueueLogicInDepth;
+		    lodepth = info->isPage ?    gPageLocalQueueLogicOutDepth
+			    : gNetlistLocalQueueLogicOutDepth;
+		    wdepth  = info->isPage ?    gPageLocalQueueWireDepth
+			    : gNetlistLocalQueueWireDepth;
+		    qName   = info->isPage ?    gPageLocalQueueModule
+			    : gNetlistLocalQueueModule;
+	    }
+    } else {
+	    Type* t;
+	    Type* evalType (Type* t);
+	    symWidthStr = evalType(sym->getType())->toString();
     }
-    else {  // sym is local stream
-      if (!doLocalQueues)
-	continue;
-      if (!info->usedStreams.member(sym))	// - skip stream if not used
-	continue;
-      sym_d   = info->stream_data [sym];
-      sym_e   = info->stream_eos  [sym];
-      sym_v   = info->stream_valid[sym];
-      sym_b   = info->stream_bp   [sym];
-      depth   = info->isPage ?    gPageLocalQueueDepth
-	                     : gNetlistLocalQueueDepth;
-      lidepth = info->isPage ?    gPageLocalQueueLogicInDepth
-	                     : gNetlistLocalQueueLogicInDepth;
-      lodepth = info->isPage ?    gPageLocalQueueLogicOutDepth
-	                     : gNetlistLocalQueueLogicOutDepth;
-      wdepth  = info->isPage ?    gPageLocalQueueWireDepth
-	                     : gNetlistLocalQueueWireDepth;
-      qName   = info->isPage ?    gPageLocalQueueModule
-	                     : gNetlistLocalQueueModule;
-    }
+
     string lwdepthstr = (lodepth>-1 ? string(", %d",lodepth) : "") +
-			( wdepth>-1 ? string(", %d", wdepth) : "") +
-                        (lidepth>-1 ? string(", %d",lidepth) : "") ;
+	    ( wdepth>-1 ? string(", %d", wdepth) : "") +
+	    (lidepth>-1 ? string(", %d",lidepth) : "") ;
     ret += indent + qName
-		  + string(" #(%d, %d", depth, symWidth+1) + lwdepthstr + ") "
-		  + "q_" + sym->getName() + " (";
+	    + string(" #(%d,", depth) + symWidthStr + "+1) " + lwdepthstr + ") "
+	    + "q_" + sym->getName() + " (";
     ret += string(CLOCK_NAME) + ", " + string(RESET_NAME) + ", ";
     ret += "{" + info->qin [sym_d] + ", "
-        +        info->qin [sym_e] + "}, "
-        +        info->qin [sym_v] + ", "
-        +        info->qin [sym_b] + ", ";
+	    +        info->qin [sym_e] + "}, "
+	    +        info->qin [sym_v] + ", "
+	    +        info->qin [sym_b] + ", ";
     ret += "{" + info->qout[sym_d] + ", "
-        +        info->qout[sym_e] + "}, "
-        +        info->qout[sym_v] + ", "
-        +        info->qout[sym_b] + ");\n";
+	    +        info->qout[sym_e] + "}, "
+	    +        info->qout[sym_v] + ", "
+	    +        info->qout[sym_b] + ");\n";
   }
 
   return ret;
@@ -1133,24 +1180,33 @@ string tdfToVerilog_composeTop_argTypes_toString (OperatorCompose *op,
     }
     assert(arg->isStream());
     int argWidth;
-    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
-      fatal(1,"-everilog cannot handle non-constant width " +
-	      ( arg->getType()->getWidthExpr() ?
-	       (arg->getType()->getWidthExpr()->toString()+" ") : string()) +
-	      "of formal argument " + arg->getName() +
-	      " of op " + op->getName(),
-	    op->getToken());
+//    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
+//      fatal(1,"-everilog cannot handle non-constant width " +
+//	      ( arg->getType()->getWidthExpr() ?
+//	       (arg->getType()->getWidthExpr()->toString()+" ") : string()) +
+//	      "of formal argument " + arg->getName() +
+//	      " of op " + op->getName(),
+//	    op->getToken());
+
+    string argWidthStr;
+    if(!isConstWidthSafe(arg->getType(),&argWidth, false)) {
+	Type * t;
+	Type* evalType (Type* t);
+	argWidthStr = evalType(arg->getType())->toString();
+    } else {
+	argWidthStr = (argWidth>1? string("[%d:0] ",argWidth-1)
+		    : string());
+    }
+
     if (((SymbolStream*)arg)->getDir()==STREAM_IN) {	// arg is STREAM_IN
-      ret += indent + "input  " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
-      					      : string())
+      ret += indent + "input  " + argWidthStr 
       				+ info->input_data  [arg] + ";\n";
       ret += indent + "input  " + info->input_eos   [arg] + ";\n";
       ret += indent + "input  " + info->input_valid [arg] + ";\n";
       ret += indent + "output " + info->input_bp    [arg] + ";\n";
     }
     else {  // arg is STREAM_OUT
-      ret += indent + "output " + (argWidth>1 ? string("[%d:0] ",argWidth-1)
-      					      : string())
+      ret += indent + "output " + argWidthStr
       				+ info->output_data [arg] + ";\n";
       ret += indent + "output " + info->output_eos  [arg] + ";\n";
       ret += indent + "output " + info->output_valid[arg] + ";\n";
@@ -1188,14 +1244,49 @@ string tdfToVerilog_composeTop_wires_toString (OperatorCompose *op,
       // - params should already be bound, ignore  (ignore arrays too)
       continue;
     }
+    // Nachiket - 17-4-2013 - special case for local streams..
+    string width;
+    if(!sym->isParam() && !sym->isStream()) {
+//    	cout << "Symbol:" << sym->getName() << ", type=" << evalType(sym->getType())->toString() << endl;
+    	    string sym_d, sym_e, sym_v, sym_b;
+	    sym_d = info->stream_data [sym];
+	    sym_e = info->stream_valid[sym];
+	    sym_v = info->stream_eos  [sym];	    
+	    sym_b = info->stream_bp   [sym];
+
+	    Type* t=sym->getType();
+	    Type* evalType (Type* t);
+	    ret += indent + "wire   " + evalType(sym->getType())->toString() + " "
+		    + info->qin[sym_d]+ ", "
+		    + info->qout[sym_d] + ";\n";
+	    ret += indent + "wire   " + info->qin [sym_e] + ", "
+		    + info->qout[sym_e] + ";\n";
+	    ret += indent + "wire   " + info->qin [sym_v] + ", "
+		    + info->qout[sym_v] + ";\n";
+	    ret += indent + "wire   " + info->qin [sym_b] + ", "
+		    + info->qout[sym_b] + ";\n";
+	    continue;
+    }
+//    if (!isConstWidth(sym->getType(),&symWidth))	// - (sets symWidth)
+//      fatal(1,"-everilog cannot handle non-constant width " +
+//	      ( sym->getType()->getWidthExpr() ?
+//	       (sym->getType()->getWidthExpr()->toString()+" ") : string()) +
+//	      "of stream " + sym->getName() +
+//	      " of op " + op->getName(),
+//	    op->getToken());
+
+  
+    string symWidthStr; 
     int symWidth;
-    if (!isConstWidth(sym->getType(),&symWidth))	// - (sets symWidth)
-      fatal(1,"-everilog cannot handle non-constant width " +
-	      ( sym->getType()->getWidthExpr() ?
-	       (sym->getType()->getWidthExpr()->toString()+" ") : string()) +
-	      "of stream " + sym->getName() +
-	      " of op " + op->getName(),
-	    op->getToken());
+
+    if(!isConstWidthSafe(sym->getType(), &symWidth, false)) {
+	    Type* t;
+	    Type* evalType (Type* t);
+	    symWidthStr = evalType(sym->getType())->toString();
+    } else {
+	    symWidthStr = (symWidth>1 ? string("[%d:0] ",symWidth-1) : string());
+    }
+
     string sym_d, sym_e, sym_v, sym_b;
     if (sym->isStream()) {
       if (((SymbolStream*)sym)->getDir()==STREAM_IN) {	// sym is STREAM_IN
@@ -1222,8 +1313,7 @@ string tdfToVerilog_composeTop_wires_toString (OperatorCompose *op,
       sym_b = info->stream_bp   [sym];
     }
   
-    ret += indent + "wire   " + (symWidth>1 ? string("[%d:0] ",symWidth-1)
-					    : string())
+    ret += indent + "wire   " + symWidthStr
 			      + info->qin [sym_d] + ", "
 			      + info->qout[sym_d] + ";\n";
     ret += indent + "wire   " + info->qin [sym_e] + ", "

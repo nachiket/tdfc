@@ -1121,9 +1121,9 @@ void emitVerilog ()
   Operator *op;
   forall(op,*gSuite->getOperators()) {
     cout << "Processing op " << op->getName() << endl;
-    bindvalues(op,NULL);
-    set_values(op, true);
-    resolve_bound_values(&op);
+    //bindvalues(op,NULL);
+    //set_values(op, true);
+    //resolve_bound_values(&op);
     tdfToVerilog_instance(op,NULL);
     //instances(op,TARGET_VERILOG,0); 
     //Sep 20 2011 - Nachiket continues to befuddled with 64-bit crash on instance() calls.. wtf?
