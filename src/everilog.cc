@@ -1102,6 +1102,9 @@ void tdfToVerilog_scanTdf_dealloc (OperatorBehavioral *op, EVerilogInfo *info)
 string tdfToVerilog_fsm_dp_args_toString  (OperatorBehavioral *op,
 					   EVerilogInfo *info);
 
+string tdfToVerilog_fsm_dp_params_toString  (OperatorBehavioral *op,
+					   EVerilogInfo *info);
+
 string tdfToVerilog_fsm_dp_argTypes_toString  (OperatorBehavioral *op,
 					       EVerilogInfo *info,
 					       string indent);
@@ -1194,32 +1197,47 @@ string tdfToVerilog_fsm_dp_args_toString  (OperatorBehavioral *op,
 {
   // - emit argument list for Verilog behavioral op module:
   //     clock, reset, stream data/eos/valid/bp    (no parentheses)
-
   string ret;
 
   // - module declaration:  stream I/O
   list<Symbol*> args = args_with_retsym_first(op);
   Symbol *arg;
   forall (arg, args) {
-    if (arg->isParam()) {
-      // - params should already be bound, ignore
-      continue;
+    if(arg->isStream()) {
+      if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
+        ret += info->input_data  [arg] + ", ";
+        ret += info->input_eos   [arg] + ", ";
+        ret += info->input_valid [arg] + ", ";
+        ret += info->input_bp    [arg] + ", ";
+      }
+      else {  // arg is STREAM_OUT
+        ret += info->output_data [arg] + ", ";
+        ret += info->output_eos  [arg] + ", ";
+        ret += info->output_valid[arg] + ", ";
+        ret += info->output_bp   [arg] + ", ";
+      }    
     }
-    assert(arg->isStream());
-    if (((SymbolStream*)arg)->getDir()==STREAM_IN) {
-      ret += info->input_data  [arg] + ", ";
-      ret += info->input_eos   [arg] + ", ";
-      ret += info->input_valid [arg] + ", ";
-      ret += info->input_bp    [arg] + ", ";
-    }
-    else {  // arg is STREAM_OUT
-      ret += info->output_data [arg] + ", ";
-      ret += info->output_eos  [arg] + ", ";
-      ret += info->output_valid[arg] + ", ";
-      ret += info->output_bp   [arg] + ", ";
-    }    
   }
   ret = ret(0,ret.length()-1-2);	// - drop last ", "
+  return ret;
+}
+
+string tdfToVerilog_fsm_dp_paramdecls_toString  (OperatorBehavioral *op,
+					   EVerilogInfo *info)
+{
+  string ret;
+  // - module declaration: params only.. 
+  list<Symbol*> args = args_with_retsym_first(op);
+  
+  Symbol *arg;
+  forall (arg, args) {
+    if (arg->isParam()) {
+      // - params should already be bound, ignore
+      // continue;
+      // Nachiket 17-4-2013.. parameter propagation
+      ret += "  parameter " + arg->getName() + ";\n";
+    } 
+  }
 
   return ret;
 }
@@ -1353,6 +1371,9 @@ string tdfToVerilog_fsm_args_toString (OperatorBehavioral *op,
 string tdfToVerilog_dp_args_toString  (OperatorBehavioral *op,
 				       EVerilogInfo *info);
 
+string tdfToVerilog_dp_paramdecls_toString  (OperatorBehavioral *op,
+				       EVerilogInfo *info);
+
 
 string tdfToVerilog_fsm_dp_toString (OperatorBehavioral *op,
 				     EVerilogInfo *info)
@@ -1371,6 +1392,7 @@ string tdfToVerilog_fsm_dp_toString (OperatorBehavioral *op,
 
   // - module declaration:  finish
   ret    += ");\n";
+  ret += tdfToVerilog_fsm_dp_paramdecls_toString(op,info);
   indent += "  ";
 
   addEmptyLine(&ret);		// ----------------
@@ -1390,7 +1412,8 @@ string tdfToVerilog_fsm_dp_toString (OperatorBehavioral *op,
       +  tdfToVerilog_fsm_args_toString(op,info) + ");\n";
 
   // - instantiate DP module
-  ret += indent + op->getName() + "_dp dp ("
+  string param_str = tdfToVerilog_fsm_dp_params_toString(op,info);
+  ret += indent + op->getName() + "_dp " + param_str + " dp ("
       +  tdfToVerilog_dp_args_toString(op,info) + ");\n";
 
   addEmptyLine(&ret);		// ----------------
@@ -2215,8 +2238,26 @@ string tdfToVerilog_expr_toString (OperatorBehavioral *op,
 				      ret += string( "%d'd%d", width, val);
 				}
 				break;
+	case TYPE_DOUBLE:	if (t->isSigned()) {
+				  if (val<0)
+				    ret += string("-64'sd%d", -val);
+				  else
+				    ret += string( "64'sd%d", val);
+				}
+				else
+				    ret += string( "64'd%d", val);
+				break;
+	case TYPE_FLOAT:	if (t->isSigned()) {
+				  if (val<0)
+				    ret += string("-32'sd%d", -val);
+				  else
+				    ret += string( "32'sd%d", val);
+				}
+				else
+				    ret += string( "32'd%d", val);
+				break;
 
-        default:		assert(!"-everilog bad type");
+        default:		cout << "type=" << typekindToCplusplus(t->getTypeKind()) << endl; assert(!"-everilog bad type");
       }
       break;
     }
@@ -2546,6 +2587,25 @@ string tdfToVerilog_dp_args_toString (OperatorBehavioral *op,
   return ret;
 }
 
+string tdfToVerilog_dp_paramdecls_toString (OperatorBehavioral *op,
+				      EVerilogInfo *info)
+{
+  // - print argument list for DP module:  stream data,eos,bp, state, flags
+
+  string ret;
+
+  // - DP module args:  stream I/O
+  list<Symbol*> args = args_with_retsym_first(op);
+  Symbol *arg;
+  forall (arg, args) {
+    if (arg->isParam()) {
+      // - params should already be bound, ignore
+      // continue;
+      ret += "  parameter " + arg->getName() + ";\n";
+    }
+  }
+  return ret;
+}
 
 string tdfToVerilog_dp_argTypes_toString (OperatorBehavioral *op,
 					  EVerilogInfo *info,
@@ -3243,6 +3303,8 @@ string tdfToVerilog_dp_toString (OperatorBehavioral *op, EVerilogInfo *info)
   indent += "  ";
 
   addEmptyLine(&ret);		// ----------------
+  ret += tdfToVerilog_dp_paramdecls_toString(op,info);
+  addEmptyLine(&ret);		// ----------------
 
   ret += tdfToVerilog_dp_argTypes_toString(op,info,indent);
 
@@ -3560,10 +3622,12 @@ void tdfToVerilog_instance (Operator *iop,
 			    list<OperatorBehavioral*> *instances)
 {
   if (iop->getOpKind()==OP_COMPOSE) {
+    bindvalues(iop,NULL);				// - bind vals
     set_values(iop,true);				// - bind vals
     resolve_bound_values(&iop);
     tdfToVerilog_compose((OperatorCompose*)iop);    // - emit page + contents
   } else {
+    bindvalues(iop,NULL);				// - bind vals
     set_values(iop,true);				// - bind vals
     resolve_bound_values(&iop);
     tdfToVerilog((OperatorBehavioral*)iop);	    // - emit indiv behav op

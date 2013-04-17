@@ -1368,7 +1368,10 @@ string tdfToVerilog_noin_calls_toString (OperatorCompose *op,
 				    int value = ((ExprValue*)e_val)->getIntVal();
 				    ret += "." + ((SymbolVar*)arg)->toString() + " (" + string("%d",value) + "), ";
 			    }
-		    }
+//		    } else {
+//			    Expr* e_val = ((SymbolVar*)arg)->getValue();
+//			    cout << "segment hadnling.." << arg->toString() << "eval=" << e_val->toString() << endl;
+		    } 
 	    }
 
 	    ret = ret(0,ret.length()-1-2);        // - drop last ", "
@@ -2028,6 +2031,7 @@ void tdfToVerilog_compose (OperatorCompose *iop)
   warn("Emitting Verilog for compose " + iop->getName());
 
   // - make instances of segment ops  (WARNING: modifies iop)
+  bindvalues(iop,NULL);
   instanceSegmentOps(iop);
 
   if (gPagePartitioning || gPagePartitioning1 || gPagePartitioningMetis) {
@@ -2039,7 +2043,10 @@ void tdfToVerilog_compose (OperatorCompose *iop)
     Operator *calledop;
     forall (calledop, calledops) {
       assert(calledop->getOpKind()==OP_COMPOSE);
+
+
       // warn("*** EMITTING VERILOG FOR PAGE "+calledop->getName());
+      bindvalues(calledop,NULL);
       set_values(calledop,true);				// - bind vals
       resolve_bound_values(&calledop);
       tdfToVerilog_compose_toFile((OperatorCompose*)calledop);

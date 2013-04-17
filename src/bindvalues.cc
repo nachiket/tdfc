@@ -1570,15 +1570,18 @@ bool set_values_preMap (Tree *t, void *aux)
 		    //     up the call stack to find the original passed value
 		    //     (e.g. -everilog turns inline arrays into ROMs)
 		    sym->setAnnote_(ANNOTE_VALUE_PASSED,actual);
-		  else
+		  else {
 		    // - Andre's binding
 		    // - Note, if we blindly use this on array parameters,
 		    //     then passing an array variable leaves an
 		    //     unlinked symbol in the callee, error in flatten()
 		    ((SymbolVar *)sym)->setValue(actual);
 
-		  // cerr << "  bound formal " << sym->getName() << " to "
-		  //      << ((SymbolVar *)sym)->getValue()->toString() << endl;
+		   cerr << "  bound formal " << sym->getName() << endl ;// " to "
+		   //     << ((SymbolVar *)sym)->getValue()->toString() << endl;
+		  }
+		} else {
+		   cerr << "  nothing done for " << sym->getName() << endl;
 		}
 	    }
 	  // now recusrively call bindvalues on the called operator
@@ -1586,6 +1589,7 @@ bool set_values_preMap (Tree *t, void *aux)
 	  resolve_bound_values(&op);
 	}
       else
+
 	return(1);
     }
   if (t->getKind()==TREE_SYMBOL)
@@ -1643,7 +1647,7 @@ void bindvalues(Operator *op, FeedbackRecord *rec)
 					 sym->getType(),
 					 (float)rec->getParam(i)));
 	    } else {
-//	    cout << "Bind values... WTF" << endl;
+//	    cout << "Bind values... symbol=" << sym->getName() << endl;
 		    // TODO/note: not handling fixed point case
 		    svar->setValue(new ExprValue(sym->getToken(),
 					 sym->getType(),
