@@ -6,6 +6,11 @@ output double e)
 {
 	state only(a,b,c):
 		e=a+b+c;
+		goto only2;
+
+	state only2(a,b,c):
+		e=a+b-c;
+		goto only;
 
 }
 

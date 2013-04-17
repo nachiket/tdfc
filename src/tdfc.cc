@@ -1120,7 +1120,7 @@ void emitVerilog ()
 
   Operator *op;
   forall(op,*gSuite->getOperators()) {
-    cout << "Processing op" << op->getName() << endl;
+    cout << "Processing op " << op->getName() << endl;
     bindvalues(op,NULL);
     resolve_bound_values(&op);
     set_values(op, true);

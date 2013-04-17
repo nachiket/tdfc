@@ -112,6 +112,7 @@ using std::endl;
 
 bool gIgnoreEos = false;	// - generate Verilog that ignores EOS
 				// - need to turn this into cmd-line option
+#define SKIP_NONCONST_ERR 0
 
 
 ////////////////////////////////////////////////////////////////
@@ -284,6 +285,10 @@ bool isConstWidth (Type *t, int *width,
     *width=64;
     return true;
   }
+  else if (t->getTypeKind()==TYPE_FLOAT) {
+    *width=32;
+    return true;
+  }
   else if (t->getTypeKind()==TYPE_INT) {
     if (t->getWidth()>=0) {
       *width = t->getWidth();
@@ -305,6 +310,7 @@ bool isConstWidth (Type *t, int *width,
 	if (!ret) {
 	  // - fatal diagnostic here is more meaningful than assert elsewhere
 	  Tree *p=t->getParent();
+	  if(!SKIP_NONCONST_ERR)
 	  fatal(1, "-everilog: we think: cannot handle non-constant width in type " +
 		   tt->toString() + (p ? (" of "+p->toString()) : string()),
 		p ? p->getToken() : t->getToken());
@@ -1272,7 +1278,9 @@ string tdfToVerilog_fsm_dp_argTypes_toString  (OperatorBehavioral *op,
     }
     assert(arg->isStream());
     int argWidth;
-    if (!isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
+    string debugStr = op->getName() + ", " + arg->getName();
+    cout << debugStr.c_str() << endl;
+    if (!SKIP_NONCONST_ERR && !isConstWidth(arg->getType(),&argWidth))	// - (sets argWidth)
       fatal(1,"-everilog cannot handle non-constant width " +
 	      ( arg->getType()->getWidthExpr() ?
 	       (arg->getType()->getWidthExpr()->toString()+" ") : string()) +

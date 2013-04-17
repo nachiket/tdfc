@@ -318,7 +318,7 @@ void tdfToVerilog_compose_scanTdf (OperatorCompose *op,
   int opIsNetlist = !info->composeCalls.empty() ;
   int opIsPage    = (!info->behavCalls.empty()   && info->composeCalls.empty());
 
-cout << info->composeCalls.size() << "," << info->behavCalls.size() << "," << info->segmentCalls.size() <<endl;
+//cout << info->composeCalls.size() << "," << info->behavCalls.size() << "," << info->segmentCalls.size() <<endl;
 
   if (!opIsNetlist && !opIsPage && info->segmentCalls.empty())
     fatal(1, "-everilog cannot handle compositional op "+op->getName()+", "
